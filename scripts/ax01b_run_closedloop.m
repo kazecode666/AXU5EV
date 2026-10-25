@@ -53,9 +53,9 @@ switch scene
     error('AX01B:SCENE','Unknown normal scene %s.',scene);
 end
 finish(s);out=s.SimulationOutput;
-actualStop=out.r5_commit.Time(end);
 commit=matrix(out.r5_commit);
 position=out.logsout.get('x_mm').Values;
+actualStop=position.Time(end);
 result=struct('mode',mode,'scene',scene,'stop_s',actualStop, ...
     'final_x_mm',double(position.Data(end)),'target_mm',commit(end,24), ...
     'accepted',commit(end,32),'rejected',commit(end,33), ...

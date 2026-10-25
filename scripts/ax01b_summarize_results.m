@@ -6,7 +6,7 @@ folder=fullfile(root,'verification','ax01b');
 if ~isfolder(folder),mkdir(folder);end
 scenes={'point','continuous','alignment','stop_reset'};
 modes={'model_fixed','c_fixed','c_rtl'};
-rows={};differences={};
+rows={};differences={};events={};
 for k=1:numel(scenes)
  scene=scenes{k};
  for j=1:numel(modes)
@@ -14,6 +14,11 @@ for k=1:numel(scenes)
   if ~isfile(file),continue;end
   a=load(file,'out');o=a.out;c=matrix(o.r5_commit);
   x=o.logsout.get('x_mm').Values;
+  changed=[1;find(any(diff(c(:,[24 27 32 33 34 5]))~=0,2))+1];
+  for ix=changed'
+   events(end+1,:)={mode,scene,o.r5_commit.Time(ix),c(ix,24),c(ix,25), ...
+    c(ix,31),c(ix,27),c(ix,32),c(ix,33),c(ix,34),c(ix,5)}; %#ok<AGROW>
+  end
   rows(end+1,:)={mode,scene,numel(o.r5_commit.Time),o.r5_commit.Time(end), ...
    double(x.Data(end)),c(end,24),c(end,32),c(end,33),c(end,31),c(end,4)}; %#ok<AGROW>
   if strcmp(mode,'c_fixed')||strcmp(mode,'c_rtl')
@@ -33,6 +38,15 @@ writetable(cell2table(rows,'VariableNames',{'mode','scene','frames','last_frame_
  fullfile(folder,'scene_results.csv'));
 writetable(cell2table(differences,'VariableNames',{'mode','reference','scene','signal','max_abs','rms'}), ...
  fullfile(folder,'closedloop_differences.csv'));
+writetable(cell2table(events,'VariableNames',{'mode','scene','time_s','target_mm','Busy', ...
+ 'Ready','command_status','accepted','rejected','segment_id','Init_State'}), ...
+ fullfile(folder,'command_events.csv'));
+files=dir(fullfile(work,'*_comparison.mat'));comparisons=struct([]);
+for k=1:numel(files)
+ a=load(fullfile(files(k).folder,files(k).name),'summary');
+ comparisons=[comparisons;a.summary]; %#ok<AGROW>
+end
+if ~isempty(comparisons),writetable(struct2table(comparisons),fullfile(folder,'same_input_comparisons.csv'));end
 % 连续命令和物理对齐的直接观测曲线。
 for scene={'continuous','alignment','stop_reset'}
  mode='c_fixed';if isfile(fullfile(work,['c_rtl_' scene{1} '.mat'])),mode='c_rtl';end

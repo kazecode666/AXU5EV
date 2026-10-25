@@ -1,6 +1,6 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
-**当前状态：AX-00迁移已完成；AX-00B资料在PR #4修订后进入R5F＋PL开发。目标AXU5EVB-E，用户已确认。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。实际结果和限制见[迁移报告](coordination/reports/ax00_migration_report.md)；5EV 部署尚未执行。
+**当前状态：PR #5软件提取后，按PR #6实施AX-01B Runtime生成C＋p3共享闭环；真实RTL长场景正在运行。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。实际结果和限制见[AX-01B报告](coordination/reports/ax01b_runtime_hybrid.md)；R5实机与5EV部署尚未执行。
 
 ## 目标与分工
 
@@ -21,7 +21,7 @@
 | `simulink模型/` | 迁移后的活动参考模型、独立FOC及外部初始化；首轮保留原文件名 |
 | `firmware/r5/` | 后续R5软件、模型生成C的集成及最小平台适配；AX-00不冒充已有固件 |
 | `hardware/axu5ev/` | 经板卡版本核对后的Vivado/Vitis平台脚本与硬件清单 |
-| `integration/ps_pl/` | 后续命令、反馈、采样与故障接口合同 |
+| `integration/ps_pl/` | 本轮仿真交换字段、事件顺序及后续硬件总线合同 |
 | `scripts/`、`verification/` | 可移植构建、必要复验与精简证据 |
 | `baselines/pr53_p3/` | 不改字节的八份已验收来源、p3配置与必要证据，默认不加入MATLAB路径 |
 | `generated/legacy_m3_p3/` | 原生p3 RTL/TB/data/manifest；是旧器件功能基线，不是5EV时序结果 |
@@ -39,9 +39,11 @@
 - **AX-02：** 5EV电流核重生成/实现、R5/PL混合闭环及实际处理器时限验证。
 - **AX-03：** ADC、光栅/磁栅、门极PWM、驱动板保护和受控硬件集成，另行授权上电。
 
-日期：2026-10-26。继续AX-01 R5软件提取与PS—PL边界，再按AXU5EVB-E集成PL；继承已有模型与MBDL4接口，无需重做PI/FOC或重复LED学习。参数、代码生成和硬件测试状态见实际提交报告，不从目录存在推定已实现。
+日期：2026-10-26。AX-01B主机功能集成之后，继续实际R5F平台、PS—PL访问和AXU5EVB-E板级适配；继承已有模型与MBDL4接口，无需重做PI/FOC或重复LED学习。参数、代码生成和硬件测试状态见实际提交报告，不从目录存在推定已实现。
 
-首批[R5软件提取结果](coordination/reports/ax01_r5_extraction.md)：外环/Reference_Manager/原对齐已提取到`firmware/r5/AXU5EV_R5_Control.slx`，主机C生成与五组回放通过；命令/轨迹部署、R5平台和PL集成待继续。软件/PL端口对应见[接口边界](integration/ps_pl/INTERFACE.md)。
+首批[R5软件提取结果](coordination/reports/ax01_r5_extraction.md)提供外环/Reference_Manager/原对齐来源。本轮新`AXU5EV_R5_Runtime.slx`纳入原Host_Core／轨迹，生成C在线接入`integration/AXU5EV_Hybrid_ClosedLoop.slx`；三种后端共用原对象、量化和50µs应用边界。软件/PL端口及帧顺序见[接口边界](integration/ps_pl/INTERFACE.md)。
+
+混合闭环从 `addpath('scripts'); ax01b_prepare_hybrid('c_fixed');` 开始；停止后可选`model_fixed`／`c_rtl`。首次构建、同次Run改目标／Send、对齐及正常场景见[操作指南](docs/AXU5EV_HYBRID_RUN_GUIDE_ZH.md)。`c_rtl`实际运行原p3 SV，不以GM模型或录制输入替代反馈。
 
 ## 本地打开与复验
 

@@ -21,7 +21,7 @@ ax01b_prepare_hybrid('c_fixed');
 ax01b_prepare_hybrid('c_rtl',true);
 ```
 
-生成 C 使用原外部初始化参数。修改 PI、采样或轨迹配置等生成时参数后，先停止，再以 `true` 重建；不能只改 MATLAB 工作区便认为编译进 C 的参数已变化。目标、Send、PWM/PI/Init 等运行输入不需要重编译。不要在其他闭环进程使用 DLL/MEX 时重建。
+生成 C 使用原外部初始化参数。本轮未调参数；将来另行修改初始化源文件中的 PI、轨迹等生成时配置后，先停止，再以 `true` 重建，不能只改工作区便认为编译进 C 的参数已变化。100µs调用、5000拍和50µs应用是当前固定合同，改变采样体系还须同步修改并重新验证适配，不能只改Ts变量。目标、Send、PWM/PI/Init 等运行输入不需要重编译。不要在其他闭环进程使用 DLL/MEX 时重建。
 
 ## 同次 Run 下发点位
 
@@ -39,7 +39,7 @@ ax01b_prepare_hybrid('c_rtl',true);
 
 停止时启用 `Set_Alignment_Enable`，Run 后手动将 `Set_Init_Start` 置 1，再释放为 0。保留原 RAMP_ID 10000 拍、HOLD_ALIGN 30000 拍、RAMP_DOWN_ID 2000 拍、0.5 A。等待 `View_Init_Done`，然后按 Ready／Send 继续发点位。总对齐约 4.2 s，不能用短 Run 判断完成。
 
-`Set_Host_PWM_EN` 是请求；实际许可还受原对齐／故障链约束。PWM 禁止作用于逆变器输出，机械位置和速度仍演化。`Set_Host_PI_Reset_EN` 复位控制积分／原参考状态；`Set_Init_Reset` 复位原对齐；二者不等同整体仿真重置或驱动清故障。中断／故障后沿用原命令恢复语义，清故障不自动续跑。`Simulation_Travel_Fault` 是已有仿真故障入口，不是 ERRI/ERRU 硬件驱动实现。
+`Set_Host_PWM_EN` 是请求；实际许可还受原对齐／故障链约束。PWM 禁止作用于逆变器输出，机械位置和速度仍演化。`Set_Host_PI_Reset_EN` 复位控制积分／原参考状态；`Set_Init_Reset` 复位原对齐；二者不等同整体仿真重置或驱动清故障。中断／故障后沿用原命令恢复语义，清故障不自动续段；PWM重新使能后原位置环仍可跟随中断时保持的参考。`Simulation_Travel_Fault` 是已有仿真故障入口，不是 ERRI/ERRU 硬件驱动实现。
 
 ## 正常场景与结果
 
