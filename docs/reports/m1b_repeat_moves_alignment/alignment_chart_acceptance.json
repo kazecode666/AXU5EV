@@ -1,0 +1,48 @@
+{
+  "chart_pass": true,
+  "source_sid": "128",
+  "cases": [
+    {
+      "case": "normal",
+      "samples": 70001,
+      "max_error": 0,
+      "state_time_exact": true,
+      "done_seen": true
+    },
+    {
+      "case": "no_start",
+      "samples": 70001,
+      "max_error": 0,
+      "state_time_exact": true,
+      "done_seen": false
+    },
+    {
+      "case": "reset",
+      "samples": 70001,
+      "max_error": 0,
+      "state_time_exact": true,
+      "done_seen": true
+    },
+    {
+      "case": "fault",
+      "samples": 70001,
+      "max_error": 0,
+      "state_time_exact": true,
+      "done_seen": true
+    },
+    {
+      "case": "reset_after_done",
+      "samples": 70001,
+      "max_error": 0,
+      "state_time_exact": true,
+      "done_seen": true
+    }
+  ],
+  "parameters": {
+    "Ramp_Ticks": 10000,
+    "Hold_Ticks": 30000,
+    "Release_Ticks": 2000,
+    "Id_Target_A": 0.5
+  },
+  "UI_mouse_clicked": false
+}

@@ -1,0 +1,21 @@
+{
+  "baseline_manifest_sha256": "cfd8b1d7639275f273ed683c83344b02678ada8e8130b805a1ac42b6eda09098",
+  "DCP_sha256": "fa57249344bfcb37f5eb09860b07edaea726cab347c564338a702798afdd7e80",
+  "raw_payload_files_verified": 31,
+  "configuration_sha_verified": true,
+  "frozen_source_files_verified": 8,
+  "synthesis_staged_files_verified": 30,
+  "source_snapshot": "first generation; current local model differs in layout only",
+  "baseline_ooc_manifest_matches": true,
+  "paths": 240,
+  "classes": [
+    "limiter",
+    "inverse_park",
+    "sector_xyz",
+    "pi_d",
+    "pi_q",
+    "pi_feedback",
+    "aw_feedback"
+  ],
+  "raw_reports": "D:\\Project\\FPGA_XC7A200T\\.runtime\\pr53_20261025\\r1_paths_02"
+}

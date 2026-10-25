@@ -1,10 +1,10 @@
 # AXU5EV — ChatGPT / Codex / GitHub 交接
 
-日期：2026-10-25。**状态：初始化资料已准备，仓库建立、资产复制、本机验证均待AX-00执行。** 不得据此声称远端AXU5EV已经存在。
+日期：2026-10-25。**状态：私有新仓库和独立 main 已建立，AX-00资产迁入任务分支，等待开放迁移 PR 的 ChatGPT Review。** 实际验证与未运行层次见[迁移报告](reports/ax00_migration_report.md)。
 
 ## 唯一当前任务
 
-执行 [AX-00建仓与精选迁移](tasks/ax00_project_bootstrap_migration.md)。用户已经创建本地AXU5EV目录，先识别实际路径。远端目标`kazecode666/AXU5EV`，默认private；当前ChatGPT GitHub接口没有建仓动作，由本地Codex在已授权CLI环境创建。登录或App选仓授权由用户处理，不索要token。
+Review [AX-00建仓与精选迁移](tasks/ax00_project_bootstrap_migration.md)。本地根目录已实测为 `D:/Project/AXU5EV`，origin 为 `https://github.com/kazecode666/AXU5EV.git`。本机无 gh；用户建立了空私有仓库，现有 Git 凭据完成推送，GitHub连接确认账号 `kazecode666` 和新库读写权限。未索要或输出 token。
 
 ## 方案已定，不重新讨论
 

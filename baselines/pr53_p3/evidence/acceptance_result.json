@@ -1,0 +1,165 @@
+{
+  "schema_version": 2,
+  "stage": "acceptance",
+  "status": "PASS",
+  "overall": "PASS",
+  "accepted": true,
+  "acceptance": "TECHNICAL_M3_CORE_GATES_PASS_PENDING_PR_REVIEW",
+  "review_status": "WAITING_REVIEW",
+  "candidate_id": "p3",
+  "run_id": "pr53_20261025/p3q",
+  "source_manifest_sha256": "6078480099e3eee765e4e84c2cb27b943018393e7401c9986f1c58e8cff84953",
+  "published_manifest_sha256": "c514f3b932b2b546921863105a2e3f790b69b0b3ed0f6016672d877a4d9dbbb9",
+  "published_manifest": "generated/m3_foc/manifest.json",
+  "revision_checkpoints": {
+    "R1": {
+      "status": "PASS",
+      "evidence": "docs/reports/m3_foc_hdl/pr53_pipeline_revision/critical_path_map.csv"
+    },
+    "R2": {
+      "status": "PASS",
+      "evidence": "docs/reports/m3_foc_hdl/pr53_pipeline_revision/candidate_results.csv"
+    },
+    "R3": {
+      "status": "PASS",
+      "evidence": "docs/reports/m3_foc_hdl/pr53_pipeline_revision/candidates/p3/model_result.json"
+    },
+    "R4": {
+      "status": "PASS",
+      "evidence": "docs/reports/m3_foc_hdl/pr53_pipeline_revision/candidates/p3/repro_result.json"
+    }
+  },
+  "checkpoints": {
+    "A": {
+      "status": "PASS",
+      "evidence": "docs/reports/m3_foc_hdl/preflight_result.json",
+      "scope": "unchanged source algorithm and original device/time contract; latest source snapshot and revised events in this revision"
+    },
+    "B": {
+      "status": "PASS",
+      "evidence": "docs/reports/m3_foc_hdl/pr53_pipeline_revision/candidates/p3/build_manifest.json"
+    },
+    "C": {
+      "status": "PASS",
+      "evidence": "docs/reports/m3_foc_hdl/pr53_pipeline_revision/candidates/p3/model_result.json"
+    },
+    "D": {
+      "status": "PASS",
+      "evidence": "docs/reports/m3_foc_hdl/pr53_pipeline_revision/candidates/p3/rtl_result.json"
+    },
+    "E": {
+      "status": "PASS",
+      "evidence": "docs/reports/m3_foc_hdl/pr53_pipeline_revision/candidates/p3/ooc/ooc_result.json"
+    },
+    "F": {
+      "status": "PASS",
+      "evidence": "docs/reports/m3_foc_hdl/pr53_pipeline_revision/candidates/p3/repro_result.json"
+    }
+  },
+  "functional_equivalence": {
+    "status": "PASS",
+    "source_gm_frames": [
+      17,
+      1024,
+      1536
+    ],
+    "stored_bit_words_compared": 18039,
+    "next_state_words_compared": 68,
+    "bit_mismatch_count": 0,
+    "native_validation_frames": 17,
+    "long_native_validation": "NOT_RUN; independent exact source/gm comparison performed",
+    "positive_rtl_frames": 2613,
+    "positive_rtl_checks": 52289123,
+    "expected_negative_cases_rejected": 2,
+    "negative_cycle": 313,
+    "normal_output_phase": 314,
+    "state_xz_protocol_deadline_errors": 0,
+    "all_four_denominator_zero_counts": 0,
+    "IntegerOverflowMsg": "error; no startup exception"
+  },
+  "physical_20ns_core_estimate": {
+    "stage": "core_ooc_synthesis",
+    "completed": true,
+    "resources_ok": true,
+    "timing_ok": true,
+    "part": "xc7a200tfbg484-2",
+    "clock_period_ns": 20,
+    "manifest_sha256": "6078480099e3eee765e4e84c2cb27b943018393e7401c9986f1c58e8cff84953",
+    "top": "FOC_DUT",
+    "clock_port": "clk",
+    "used": {
+      "LUT": 70983,
+      "FF": 83278,
+      "DSP": 439,
+      "BRAM36_equivalent": 0
+    },
+    "capacity": {
+      "LUT": 134600,
+      "FF": 269200,
+      "DSP": 740,
+      "BRAM36_equivalent": 365
+    },
+    "worst_setup_slack_ns": 5.317,
+    "worst_hold_slack_ns": 0.135,
+    "no_clock_checks": 0,
+    "unconstrained_internal_endpoints": 0,
+    "combinational_loops": 0,
+    "latch_loops": 0,
+    "latches": 0,
+    "blackboxes": 0,
+    "hierarchical_cells": 176961,
+    "external_input_output_timing_signed_off": false,
+    "place_route_or_bitstream_run": false,
+    "diagnostic": "1"
+  },
+  "ideal_clock_cycle_contract": {
+    "frame_clocks": 5000,
+    "output_phase": 314,
+    "reserved_output_commit_clocks": 1,
+    "minimum_margin_clocks": 1,
+    "submit_cycle": 315,
+    "apply_boundary_clocks": 2500,
+    "remaining_margin_clocks": 2185,
+    "external_output_commit_register_implemented": false,
+    "external_common_input_capture_implemented": false,
+    "native_frame_valid": false,
+    "pi_old_consumed_pre_edge": 5000,
+    "pi_and_aw_commit_next_frame_post_edge": 1
+  },
+  "repeat": {
+    "status": "PASS",
+    "raw_files_compared": 34,
+    "configuration_equal": true,
+    "eight_frozen_sources_equal": true,
+    "first_generation_pid": 38664,
+    "caller_pid": 16396,
+    "repeat_pid": 37928,
+    "child_exit_code": 0
+  },
+  "baseline": {
+    "status": "FAIL",
+    "manifest_sha256": "cfd8b1d7639275f273ed683c83344b02678ada8e8130b805a1ac42b6eda09098",
+    "output_phase": 274,
+    "wns_ns": -58.833,
+    "original_raw_reports": "docs/reports/m3_foc_hdl/ooc/",
+    "documents": "docs/reports/m3_foc_hdl/pr53_pipeline_revision/baseline_B3_current_documents/"
+  },
+  "scope": "M3 standalone core exact numerical/state/RTL and pre-route OOC estimate only; PR53 remains open for Review",
+  "not_verified": [
+    "external IO timing",
+    "place/route timing",
+    "implemented capture/valid/output adapter",
+    "RTL motor cosimulation",
+    "M4",
+    "bitstream",
+    "hardware"
+  ],
+  "no_acceptance_exception": true,
+  "user_source_and_layout_preserved": true,
+  "publication_checks": {
+    "current_packet": "PASS;17frames/340183checks;34rawbytes/config/8sources equal",
+    "staged_git_blob_packet": "PASS;17frames/340183checks;34rawbytes/config/8sources equal",
+    "source_protection": "PASS; all originally tracked file bytes checked, user models unchanged",
+    "scope": "supplementary packaging checks; full numeric/RTL/OOC results remain independent actual runs"
+  }
+}

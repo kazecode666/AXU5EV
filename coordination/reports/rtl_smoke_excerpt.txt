@@ -1,0 +1,5 @@
+Time resolution is 1 ps
+M3_RESULT case=ax00_p3_smoke mode=normal status=PASS expected=17 observed=17 bit=0 state=0 xz=0 protocol=0 deadline=0
+M3_RTL_PASS frames=17 checks=340183 bit_mismatch=0 protocol_errors=0 deadline_errors=0
+$finish called at time : 1700051 ns : File "D:/Project/AXU5EV/.runtime/ax00/rtl_run/work/testbench/m3_foc_scoreboard.sv" Line 340
+INFO: [Common 17-206] Exiting xsim at Sun Oct 25 21:10:58 2026...

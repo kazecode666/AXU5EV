@@ -1,0 +1,37 @@
+{
+  "scope": "eight exact frozen build inputs; copies only, original user paths remain untouched",
+  "files": [
+    {
+      "path": "design_PMLSM_three_loop.m",
+      "sha256": "884e199a13e0fa8cf1bf2551c9b29060eeb1d016af0a9fa17c7ab4d7da38aaa2"
+    },
+    {
+      "path": "init_PMLSM_PI_FOC_Float_Baseline.m",
+      "sha256": "5ab7a40613a672b6805ec15dd9ef394fa1aaa0958ec1b9a3ecbbdf1e0a00a016"
+    },
+    {
+      "path": "m1a_require_float_init.m",
+      "sha256": "15cbf8a0bad430eafcff1ce900947589112ecadf137a595a4446a385e1c35fcf"
+    },
+    {
+      "path": "PMLSM_FOC_FixedPoint.slx",
+      "sha256": "ec14e246b00b28b47df6b5250fa72e10819a97a826966d6872fc0cf77f8bba19"
+    },
+    {
+      "path": "pmlsm_foc_fixed_config.m",
+      "sha256": "27008b96a8ea04f68619c39426bc74218b1a96f5059a4959b9e4ca46288aebe1"
+    },
+    {
+      "path": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "sha256": "b27a9083897d932b021d91613799a226748a0be6fc0f50bf4a5cae62aec229dd"
+    },
+    {
+      "path": "pmlsm_point_move_step.m",
+      "sha256": "dbfc0fac3e2e79298f7c7b71a0f52ded12616d460bacece8f1611eb70d0a8b9b"
+    },
+    {
+      "path": "pmlsm_scurve_profile.m",
+      "sha256": "bf1dfeda99037e990980d125176b4bdd5723a1606f6066597d81b2330a0bc79b"
+    }
+  ]
+}

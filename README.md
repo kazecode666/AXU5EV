@@ -1,6 +1,6 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
-**当前状态：项目初始化资料；资产迁移及本机验证尚未执行。** 新仓库拟为 `kazecode666/AXU5EV`，由 AX-00 核实并创建。这里不是已经部署成功的 AXU5EV 工程。
+**当前状态：AX-00 精选资产已迁入，提交开放 PR 等待 ChatGPT Review。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。实际结果和限制见[迁移报告](coordination/reports/ax00_migration_report.md)；5EV 部署尚未执行。
 
 ## 目标与分工
 
@@ -40,3 +40,9 @@
 - **AX-03：** ADC、光栅/磁栅、门极PWM、驱动板保护和受控硬件集成，另行授权上电。
 
 日期：2026-10-25。只有AX-00为当前任务，其余为后续方向。参数、代码生成和硬件测试状态见实际提交报告，不从目录存在推定已实现。
+
+## 本地打开与复验
+
+在本仓库根目录执行 `setup_AXU5EV; init_PMLSM_PI_FOC_Float_Baseline;`，再打开 `PMLSM_PI_FOC_Float_Baseline`。初始化仍是外部 `.m` 入口；默认10 mm、5 s、V10/A100未改。停止后选择 `FOC_Impl_Select=0` 浮点或 `1` 固定FOC。不要给 references/baselines 使用递归 genpath。
+
+独立复验命令见[运行说明](verification/AX00_REPRODUCE.md)。本轮支持原点位测试的 `live` 和对齐测试的 `chart` 阶段；没有搬运全套历史学习回归依赖。`references/legacy/mil` 是旧库磁盘来源，`pmslm_disk` 是完整 PMSLM 工程磁盘参考，后者不加入活动路径。未保存窗口未被保存或导出。

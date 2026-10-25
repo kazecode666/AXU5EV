@@ -1,0 +1,206 @@
+{
+  "TargetLanguage": "SystemVerilog",
+  "GenerateHDLCode": "on",
+  "GenerateModel": "on",
+  "GenerateValidationModel": "on",
+  "CodeGenerationOutput": "GenerateHDLCode",
+  "ClockInputs": "Single",
+  "TreatRatesAsHardwareRates": "off",
+  "Oversampling": 5000,
+  "ClockRatePipelining": "on",
+  "ClockRatePipelineOutputPorts": "on",
+  "BalanceClockRateOutputPorts": "on",
+  "TimingControllerArch": "resettable",
+  "ResetType": "Synchronous",
+  "ResetAssertedLevel": "Active-high",
+  "ClockInputPort": "clk",
+  "ClockEnableInputPort": "clk_enable",
+  "ResetInputPort": "reset",
+  "ClockEnableOutputPort": "ce_out",
+  "MinimizeClockEnables": "off",
+  "MinimizeGlobalResets": "off",
+  "EnableComments": "off",
+  "DateComment": "off",
+  "HDLGenerateWebview": "off",
+  "Traceability": "on",
+  "ResourceReport": "on",
+  "OptimizationReport": "on",
+  "ShareMultipliers": "off",
+  "ShareMultiplyAdds": "off",
+  "ShareAtomicSubsystems": "off",
+  "ShareMATLABBlocks": "off",
+  "MulticyclePathConstraints": "off",
+  "SynthesisTool": "Xilinx Vivado",
+  "SynthesisToolChipFamily": "Artix7",
+  "SynthesisToolDeviceName": "xc7a200t",
+  "SynthesisToolPackageName": "fbg484",
+  "SynthesisToolSpeedValue": "-2",
+  "TargetFrequency": 50,
+  "UseVerilogTimescale": "on",
+  "Timescale": "`timescale 1ns/1ps",
+  "candidate_id": "p3",
+  "candidate_settings": [
+    {
+      "SID": 1,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "Distribute local supplied pipeline budgets across combinational transform chain"
+    },
+    {
+      "SID": 23,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Id",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "Protect p1 PI region; p2 splits the measured exposed PI path"
+    },
+    {
+      "SID": 52,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Iq",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "Symmetric PI treatment"
+    },
+    {
+      "SID": 184,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/dq_voltage_limiter",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 95,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 154,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/XYZ\nCalculate",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 119,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/Sector\nCaculate",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 134,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/T1T2\nCalculate",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 184,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/dq_voltage_limiter",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 4,
+      "after": 4,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 51,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/InversePark",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 6,
+      "after": 6,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 154,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/XYZ\nCalculate",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 4,
+      "after": 4,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 119,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/Sector\nCaculate",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 1,
+      "after": 1,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 134,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/T1T2\nCalculate",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 4,
+      "after": 4,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 83,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Park",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 12,
+      "after": 12,
+      "reason": "p1 worst path crosses unsegmented Park including lookup/projection before PI and sqrt"
+    },
+    {
+      "SID": 10,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Clark",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "Clark bypass must be balanced with newly segmented Park path"
+    },
+    {
+      "SID": 10,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Clark",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 3,
+      "after": 3,
+      "reason": "Local front transform registers"
+    },
+    {
+      "SID": 23,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Id",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 6,
+      "after": 6,
+      "reason": "Split PI constant multiply saturated sum and feedforward path before limiter sqrt"
+    },
+    {
+      "SID": 52,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Iq",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 6,
+      "after": 6,
+      "reason": "Split PI constant multiply saturated sum and feedforward path before limiter sqrt"
+    }
+  ]
+}

@@ -1,0 +1,414 @@
+{
+  "schema_version": 1,
+  "root_dir": ".",
+  "dut_top": "FOC_DUT",
+  "tb_top": "FOC_DUT_tb",
+  "clock_port": "clk",
+  "part": "xc7a200tfbg484-2",
+  "clock_period_ns": 20,
+  "runtime_subdir": ".",
+  "design_files": [
+    {
+      "path": "FOC_DUT_pkg.sv",
+      "sha256": "e3d623278df48ecf9478b27599095dff387123f726b43ef5deb666707d6c7630"
+    },
+    {
+      "path": "B0.sv",
+      "sha256": "67143d0018d8a11d08906b6e720eeb3608a6bcc8a128d4093c406273c445bba9"
+    },
+    {
+      "path": "B1.sv",
+      "sha256": "1b0a696fa7f09cf8bee843c005d0ebd757fa3666fd818481656185c553c6630f"
+    },
+    {
+      "path": "B2.sv",
+      "sha256": "3e20fd0da012c5459385c0fc377da16c1a3ea036af287c9eb66ffc6ae6ddbfb6"
+    },
+    {
+      "path": "Clark.sv",
+      "sha256": "1dc535ca884cef1f5b2af41293ee64ccf5102aecb07e6735fa1d8be2c2cb5f95"
+    },
+    {
+      "path": "Defined_Quotient.sv",
+      "sha256": "c3e39493acf5af94f2be30ffb0275e9beee6ddac0322703dda6ee4cdb038cadf"
+    },
+    {
+      "path": "Defined_Quotient_block.sv",
+      "sha256": "04217ab491c951b6f4289d41f462a7704edf3ec4b49b0df0bdd49d3e30c16c77"
+    },
+    {
+      "path": "Divide.sv",
+      "sha256": "d377e97ef39804b7d7217d0974377597058ea48c31572fbca498855f9d48e323"
+    },
+    {
+      "path": "Fcn.sv",
+      "sha256": "5844d5d5b9a97fd184e7efcc649b2c13d24cf6ab12849edcab464e76742bc000"
+    },
+    {
+      "path": "Fcn1.sv",
+      "sha256": "8fa9fbc08af7eb1234c9b6edfbc0087ff01a48d3d8c29ae44057784c68055569"
+    },
+    {
+      "path": "Fcn2.sv",
+      "sha256": "777260380a6ae10b51d37e6b6faa5723b5900545504b55ba4461d3e23dcbecb3"
+    },
+    {
+      "path": "Duty_Calculate.sv",
+      "sha256": "ca3242c784bd6837592a2fcf8361a30178d77adf5c8e76be284ba5317a996e1f"
+    },
+    {
+      "path": "Sqrt.sv",
+      "sha256": "5df5c4e81b410fde2718dfd30234362d1bfd0139ebfcf6637cdaacd1cfc17ace"
+    },
+    {
+      "path": "dq_voltage_limiter.sv",
+      "sha256": "177863b1975409e4a950f7147a1ef010b3a939307a6538ce2cb1ff3fc971ad27"
+    },
+    {
+      "path": "FOC_DUT_tc.sv",
+      "sha256": "c05d0fc8b41536344ffe4aa78575d13c118f6f74e1c5ed74e9d874d4564f28a5"
+    },
+    {
+      "path": "Id.sv",
+      "sha256": "2456e5f9fc83127761ac1d2daa34f5f07682f4144a84d2b8b1ca93bca8dd687d"
+    },
+    {
+      "path": "InversePark.sv",
+      "sha256": "5e52583a59147ffda003a507c5c28909d674f119129810d1519027327bc81f51"
+    },
+    {
+      "path": "Iq.sv",
+      "sha256": "60b62c074254fc9e576d72ef717c3bcc9b68f77ed30884611ba9264676ca8700"
+    },
+    {
+      "path": "Park.sv",
+      "sha256": "f4d4ec954ce5be1d8645dd70d9ad0eff2e4966a2d4bcbaf1a4bc71d034bb45b8"
+    },
+    {
+      "path": "N.sv",
+      "sha256": "28eb388661fcf03ceb203dedbb08777f01a41bf5d0f7937d25ad205bffb8d45b"
+    },
+    {
+      "path": "Sector_Caculate.sv",
+      "sha256": "47ccd857f593b321545ed39eb8a3e9eac825e86f5ed6248395498aa78622f2a0"
+    },
+    {
+      "path": "Fcn1_block.sv",
+      "sha256": "bfa3b620c391cd4206ff2bc313ddba1936f3298f83dd95cb008446c1990e6e35"
+    },
+    {
+      "path": "Fcn2_block.sv",
+      "sha256": "e57527fa310b7b95210053139ae170d08829b9e1ceff577beff6f13ac6d78fa6"
+    },
+    {
+      "path": "Fcn_block.sv",
+      "sha256": "898851a8c4f612045d42f8956677715c362d0341cee7a8b50d0453fa5a48d475"
+    },
+    {
+      "path": "T1T2_Calculate.sv",
+      "sha256": "22bba05043f2722c38dcbeb40809d1ecafed986c70291f7be0260219597bc006"
+    },
+    {
+      "path": "reciprocal.sv",
+      "sha256": "1446a316000912ef4c9efd6aea4c7ad0bb9cd5779bba7d000f73976182439d58"
+    },
+    {
+      "path": "XYZ_Calculate.sv",
+      "sha256": "3971df56c16c1dee01a69394c3de03d6987ff4921a580131004b5b6ac852574e"
+    },
+    {
+      "path": "SVPWMG.sv",
+      "sha256": "01e3f04cfa5b5404c483797bf09c3aa865e6098f257136b1c30bc869938918d9"
+    },
+    {
+      "path": "FOC_DUT.sv",
+      "sha256": "05806fb360baabb347b6f9a173aaf48ad1aac75fdb337e9ace35ed171fa40994"
+    }
+  ],
+  "testbench_files": [
+    {
+      "path": "FOC_DUT_tb.sv",
+      "sha256": "e347da6a80dd318dfb5736ea8e05ca76f7170191b9e91821935d578e69e90753"
+    }
+  ],
+  "compile_order": [
+    "FOC_DUT_pkg.sv",
+    "B0.sv",
+    "B1.sv",
+    "B2.sv",
+    "Clark.sv",
+    "Defined_Quotient.sv",
+    "Defined_Quotient_block.sv",
+    "Divide.sv",
+    "Fcn.sv",
+    "Fcn1.sv",
+    "Fcn2.sv",
+    "Duty_Calculate.sv",
+    "Sqrt.sv",
+    "dq_voltage_limiter.sv",
+    "FOC_DUT_tc.sv",
+    "Id.sv",
+    "InversePark.sv",
+    "Iq.sv",
+    "Park.sv",
+    "N.sv",
+    "Sector_Caculate.sv",
+    "Fcn1_block.sv",
+    "Fcn2_block.sv",
+    "Fcn_block.sv",
+    "T1T2_Calculate.sv",
+    "reciprocal.sv",
+    "XYZ_Calculate.sv",
+    "SVPWMG.sv",
+    "FOC_DUT.sv",
+    "FOC_DUT_tb.sv"
+  ],
+  "data_files": [
+    {
+      "path": "duty_u_cmd_expected.dat",
+      "sha256": "7d0e2ddf7041e8c228d63f8daaa7e0c1352063b1d29a51ddcea80f2ab94a526b"
+    },
+    {
+      "path": "duty_v_cmd_expected.dat",
+      "sha256": "7d0e2ddf7041e8c228d63f8daaa7e0c1352063b1d29a51ddcea80f2ab94a526b"
+    },
+    {
+      "path": "duty_w_cmd_expected.dat",
+      "sha256": "7d0e2ddf7041e8c228d63f8daaa7e0c1352063b1d29a51ddcea80f2ab94a526b"
+    },
+    {
+      "path": "PI_Reset_EN.dat",
+      "sha256": "bdd22d14d91fa5347947653c58db685cc8ffa0a610b231a8139ed73c21fec97d"
+    }
+  ],
+  "include_dirs": [],
+  "simulation": {
+    "kind": "generated_ordinary",
+    "success_regex": "\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*TEST\\ COMPLETED\\ \\(PASSED\\)\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*",
+    "failure_regex": "(?im)(?:TEST\\s+(?:COMPLETED\\s*)?\\(?FAILED|TEST\\s+FAILURE|^ERROR:|^Error:|^Fatal:|M3_RTL_FAIL)",
+    "expected_frames": null,
+    "expected_checks": null,
+    "timeout_seconds": 600
+  },
+  "build_identity": {
+    "descriptor": "D:\\Project\\FPGA_XC7A200T\\.runtime\\pr53_20261025\\p3\\final_build.json",
+    "descriptor_sha256": "1c673d72352d198c4dbceae8e10a67c4657340c209578f0a616a98d55140cee5",
+    "completion": "D:\\Project\\FPGA_XC7A200T\\.runtime\\pr53_20261025\\p3\\tp5e319ca7_bbdb_47f9_96e8_a6b869533571_generate\\generate_result.json",
+    "completion_sha256": "33dc96c344cdd0a1b26d443ff14b88f90218082660c90c52e64f644c75c93762",
+    "configuration_readback": "D:\\Project\\FPGA_XC7A200T\\.runtime\\pr53_20261025\\p3\\tp5e319ca7_bbdb_47f9_96e8_a6b869533571_generate\\hdl_config_readback.json",
+    "configuration_sha256": "26832d5b9d786917b972aab52e65d3d32600aa9d00f3eff6fe118218ecfb3d5a",
+    "source_dir": "D:\\Project\\FPGA_XC7A200T\\.runtime\\pr53_20261025\\p3\\source",
+    "source_files": [
+      {
+        "path": "PMLSM_PI_FOC_Float_Baseline.slx",
+        "sha256": "b27a9083897d932b021d91613799a226748a0be6fc0f50bf4a5cae62aec229dd"
+      },
+      {
+        "path": "PMLSM_FOC_FixedPoint.slx",
+        "sha256": "ec14e246b00b28b47df6b5250fa72e10819a97a826966d6872fc0cf77f8bba19"
+      },
+      {
+        "path": "init_PMLSM_PI_FOC_Float_Baseline.m",
+        "sha256": "5ab7a40613a672b6805ec15dd9ef394fa1aaa0958ec1b9a3ecbbdf1e0a00a016"
+      },
+      {
+        "path": "m1a_require_float_init.m",
+        "sha256": "15cbf8a0bad430eafcff1ce900947589112ecadf137a595a4446a385e1c35fcf"
+      },
+      {
+        "path": "pmlsm_foc_fixed_config.m",
+        "sha256": "27008b96a8ea04f68619c39426bc74218b1a96f5059a4959b9e4ca46288aebe1"
+      },
+      {
+        "path": "design_PMLSM_three_loop.m",
+        "sha256": "884e199a13e0fa8cf1bf2551c9b29060eeb1d016af0a9fa17c7ab4d7da38aaa2"
+      },
+      {
+        "path": "pmlsm_scurve_profile.m",
+        "sha256": "bf1dfeda99037e990980d125176b4bdd5723a1606f6066597d81b2330a0bc79b"
+      },
+      {
+        "path": "pmlsm_point_move_step.m",
+        "sha256": "dbfc0fac3e2e79298f7c7b71a0f52ded12616d460bacece8f1611eb70d0a8b9b"
+      }
+    ],
+    "model_folder": "D:\\Project\\FPGA_XC7A200T\\.runtime\\pr53_20261025\\p3\\tp5e319ca7_bbdb_47f9_96e8_a6b869533571_generate\\model",
+    "work_dir": "D:\\Project\\FPGA_XC7A200T\\.runtime\\pr53_20261025\\p3\\tp5e319ca7_bbdb_47f9_96e8_a6b869533571_generate"
+  },
+  "scope": "final generated files after makehdltb; identity lock is not functional verification",
+  "candidate_id": "p3",
+  "candidate_settings": [
+    {
+      "SID": 1,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "Distribute local supplied pipeline budgets across combinational transform chain"
+    },
+    {
+      "SID": 23,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Id",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "Protect p1 PI region; p2 splits the measured exposed PI path"
+    },
+    {
+      "SID": 52,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Iq",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "Symmetric PI treatment"
+    },
+    {
+      "SID": 184,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/dq_voltage_limiter",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 95,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 154,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/XYZ\nCalculate",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 119,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/Sector\nCaculate",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 134,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/T1T2\nCalculate",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 184,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/dq_voltage_limiter",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 4,
+      "after": 4,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 51,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/InversePark",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 6,
+      "after": 6,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 154,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/XYZ\nCalculate",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 4,
+      "after": 4,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 119,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/Sector\nCaculate",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 1,
+      "after": 1,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 134,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/SVPWMG/T1T2\nCalculate",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 4,
+      "after": 4,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 83,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Park",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 12,
+      "after": 12,
+      "reason": "p1 worst path crosses unsegmented Park including lookup/projection before PI and sqrt"
+    },
+    {
+      "SID": 10,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Clark",
+      "property": "DistributedPipelining",
+      "before": "inherit",
+      "requested": "on",
+      "after": "on",
+      "reason": "Clark bypass must be balanced with newly segmented Park path"
+    },
+    {
+      "SID": 10,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Clark",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 3,
+      "after": 3,
+      "reason": "Local front transform registers"
+    },
+    {
+      "SID": 23,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Id",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 6,
+      "after": 6,
+      "reason": "Split PI constant multiply saturated sum and feedforward path before limiter sqrt"
+    },
+    {
+      "SID": 52,
+      "path": "PMLSM_FOC_FixedPoint/FOC_DUT/Iq",
+      "property": "OutputPipeline",
+      "before": 0,
+      "requested": 6,
+      "after": 6,
+      "reason": "Split PI constant multiply saturated sum and feedforward path before limiter sqrt"
+    }
+  ],
+  "candidate_contract": {
+    "path": "candidate_contract.json",
+    "sha256": "f894b7b3536224a44d5c0bad3dc6cfa95bfc8731de94837eae56425d5d3f5bc1",
+    "output_phase_cycles": 314
+  },
+  "publication": {
+    "source_manifest_sha256": "6078480099e3eee765e4e84c2cb27b943018393e7401c9986f1c58e8cff84953",
+    "raw_files_unchanged": true,
+    "dependency_scope": "all design/testbench/data files; provenance absolute paths are informational"
+  }
+}

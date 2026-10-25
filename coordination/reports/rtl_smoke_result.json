@@ -1,0 +1,27 @@
+{
+  "stage": "rtl",
+  "status": "PASS",
+  "case": "ax00_p3_smoke",
+  "run_dir": "D:\\Project\\AXU5EV\\.runtime\\ax00\\rtl_run",
+  "evidence": [
+    "D:\\Project\\AXU5EV\\.runtime\\ax00\\rtl_run\\staged_files.json",
+    "D:\\Project\\AXU5EV\\.runtime\\ax00\\rtl_run\\xvlog.console.log",
+    "D:\\Project\\AXU5EV\\.runtime\\ax00\\rtl_run\\xelab.console.log",
+    "D:\\Project\\AXU5EV\\.runtime\\ax00\\rtl_run\\xsim.console.log"
+  ],
+  "failures": [],
+  "observed_frames": 17,
+  "observed_checks": 340183,
+  "counted_scoreboard": true,
+  "completed": true,
+  "resources_ok": null,
+  "timing_ok": null,
+  "tool_exit_codes": {
+    "xvlog": 0,
+    "xelab": 0,
+    "xsim": 0
+  },
+  "manifest": "D:\\Project\\AXU5EV\\.runtime\\ax00\\rtl_stage\\manifest.json",
+  "manifest_sha256": "ea1c41eafb06aa8772dd00c88e0b64df01422e8c399d15726fda11304d83bb1b",
+  "verification_kind": "independent_counted_scoreboard"
+}

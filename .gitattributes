@@ -11,3 +11,8 @@
 # Preserve manifest-managed frozen bytes, including CRLF data and scripts.
 baselines/** -text
 generated/** -text
+generated/** linguist-generated=true
+references/legacy/** -text
+scripts/** -text
+verification/** -text
+simulink*/** -text
