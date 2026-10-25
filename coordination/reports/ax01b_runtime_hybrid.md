@@ -2,7 +2,7 @@
 
 仓库：`kazecode666/AXU5EV`；本地：`D:/Project/AXU5EV`；目标：AXU5EVB-E。接续已合并PR #5及任务PR #6，基于main `88528d7eb0ce517fc31e624940d513286ec0289e`。执行日期2026-10-26。
 
-**当前记录仍在执行：真实RTL长场景正在运行，不能据下表宣布整轮完成。** 最终Review交付前补齐实际RTL点位／连续目标结果；长对齐如未完成，单列未完成，不以参考回放替代。
+**三后端四组正常场景均已完成。** 原Host_Core／轨迹、生成C、实际p3 SV与原逆变器／电机形成实时反馈闭环。真实RTL累计99432帧，全部duty逐位核对通过；本轮交付开放实现PR，等待Review。
 
 ## 实现
 
@@ -14,9 +14,11 @@
 
 输入／输出索引、执行顺序和复位关系见[接口](../../integration/ps_pl/INTERFACE.md)；构建、Run、目标草稿／Send、手动对齐及重生成规则见[操作指南](../../docs/AXU5EV_HYBRID_RUN_GUIDE_ZH.md)。
 
-## 已完成的模型与生成C结果
+生成C/H精选副本在`generated/r5_runtime/`，保留原字节和许可头；完整重生成入口已交付。最终按当前Runtime成功构建MEX并重跑C＋定点四组场景，再次核对软件、字值、应用时刻及三后端物理差。56项逐信号最大／RMS差均0。
 
-模型版和C版四组场景已实际运行，使用原参数，正常场景仅通过面板绑定的命令入口修改1mm目标和仿真时长。默认初始化10mm／5s／V10／A100未改。
+## 三后端正常场景结果
+
+模型＋定点、生成C＋定点、生成C＋真实RTL均已实际运行四组场景，使用原参数，正常场景仅通过面板绑定的命令入口修改1mm目标和仿真时长。下表结果三者一致；默认初始化10mm／5s／V10／A100未改。
 
 | 场景 | 实际结果 |
 |---|---|
@@ -37,11 +39,15 @@
 
 ![启停与原复位入口](../../verification/ax01b/stop_reset.png)
 
-## 实际RTL结果（其余场景运行中）
+## 实际RTL结果
 
 XSI DLL已由原p3 SV与两个外围模块构建，独立MATLAB进程中实际运行C＋RTL＋原电机反馈。标准点位已完成12000帧，1.1999s记录x=0.981298983353mm、Ready=1。全部实际RTL duty与同输入定点参考字差0；全部帧号连续，捕获315、有效=1、hold_violation=0；同帧50µs应用字差0。x/v/id/iq及施加duty与C＋定点版最大／RMS差均0。
 
-连续目标、长对齐和启停场景仍在实际运行，完成后补入完整结果，不能以点位通过代替这些场景。精简结果见[场景表](../../verification/ax01b/scene_results.csv)、[同输入与应用核对](../../verification/ax01b/same_input_comparisons.csv)及[命令／对齐事件](../../verification/ax01b/command_events.csv)。
+连续目标26431帧和启停12000帧也已实际完成，全部duty字差0、同帧应用字差0、捕获315、保持违规0；与C＋定点版的x/v/id/iq及施加duty最大／RMS差均0。连续目标接受1→0.2→-0.1mm，Busy拒绝1次，重复确认status5、segment_id仍3；Ready／接收时刻与定点场景一致。启停后的接受数1、中断=1、Busy=0，无新点位段。
+
+长对齐及随后运动完成49001帧。实际RAMP_ID／HOLD_ALIGN／RAMP_DOWN_ID分别10000／30000／2000拍，4.202s进入DONE；4.35s Ready后发送1mm，4.9s实际位置0.983287626550mm，Init_Done=1。全部RTL duty及同帧50µs应用字差0，捕获315、有效=1、保持违规0，物理曲线与C＋定点版最大／RMS差均0。
+
+四组共99432个真实RTL帧，每帧完整5000拍。精简结果见[场景表](../../verification/ax01b/scene_results.csv)、[同输入与应用核对](../../verification/ax01b/same_input_comparisons.csv)及[命令／对齐事件](../../verification/ax01b/command_events.csv)。图中数据为真实C＋RTL闭环。
 
 额外MATLAB进程无法同时取得Motor Control Blockset许可，已将定点参考观察器移出真实RTL分支。实际反馈链由C和XSI运行；完成后在持有许可的主会话对记录输入运行独立参考。参考回放仅为数值比较，不驱动RTL反馈链。
 
@@ -49,7 +55,7 @@ XSI DLL已由原p3 SV与两个外围模块构建，独立MATLAB进程中实际�
 
 ## 模型检查与保留
 
-新Runtime、共享闭环及同输入参考模型的连线／悬空端口／Stateflow检查均healthy。新模型Goto均局部作用域，Inport／Outport均30×14默认大小。已查看顶层、Runtime字段列、Variant、量化和50µs应用层的渲染，采用局部方括号标签和正交短线；原控制子系统内部布局保留。另一次独立只读源码／SLX审查未发现控制或帧时序问题；该审查未运行MATLAB，不能当作额外复跑证据，也不替代本PR的Review。
+新Runtime、共享闭环及同输入参考模型的连线／悬空端口／Stateflow检查均healthy。新模型Goto均局部作用域，Inport／Outport均30×14默认大小。已查看顶层、Runtime字段列、位置／速度环、Reference_Manager、对齐、Variant、量化、50µs应用和参考核对层的渲染，采用局部方括号标签和正交短线；原控制子系统内部布局保留。另一次独立只读源码／SLX审查未发现控制或帧时序问题；该审查未运行MATLAB，不能当作额外复跑证据，也不替代本PR的Review。
 
 用户原有`AXU5EV_R5_Control.slx`、`AXU5EV_R5_Reference.slx`修改及未跟踪wrapper未保存、覆盖或纳入本PR。Runtime以PR5已提交来源建立独立新模型。
 
@@ -59,7 +65,7 @@ XSI DLL已由原p3 SV与两个外围模块构建，独立MATLAB进程中实际�
 |---|---|
 | 导入／静态核对／新模型连线排版 | 已执行 |
 | 主机生成C在线闭环及同输入比较 | 已执行；不是托管SIL |
-| 真实p3 RTL反馈联合仿真 | RUNNING，待写入最终场景结果 |
+| 真实p3 RTL反馈联合仿真 | 四组完成；99432帧逐位及应用时刻核对通过 |
 | 新5EV综合／布线／ARM目标编译／R5周期与WCET | NOT_RUN |
 | 真实AXI／CDC／ADC／位置接收／门极与保护板级适配 | NOT_RUN |
 | 下载bitstream／功率级上电／实机 | NOT_RUN |

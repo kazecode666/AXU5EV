@@ -1,6 +1,6 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
-**当前状态：PR #5软件提取后，按PR #6实施AX-01B Runtime生成C＋p3共享闭环；真实RTL长场景正在运行。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。实际结果和限制见[AX-01B报告](coordination/reports/ax01b_runtime_hybrid.md)；R5实机与5EV部署尚未执行。
+**当前状态：按PR #6完成AX-01B Runtime生成C＋p3共享闭环；三后端四组正常场景通过，真实RTL共99432帧逐位一致，提交开放实现PR等待Review。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。实际结果和限制见[AX-01B报告](coordination/reports/ax01b_runtime_hybrid.md)；R5实机与5EV部署尚未执行。
 
 ## 目标与分工
 

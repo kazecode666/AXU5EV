@@ -6,9 +6,9 @@ AX-00迁移PR #1、资料任务PR #2、资料成果PR #4、R5首批提取PR #5�
 
 ## 当前任务
 
-执行 [AX-01B：R5命令/轨迹集成与生成C＋FOC RTL电机闭环](tasks/ax01b_r5_runtime_hybrid_closed_loop.md)。Runtime、在线C包装、p3帧适配及共享电机闭环已实现；模型版／生成C版四组正常场景已运行并比较，真实RTL长场景运行中，尚未宣布整轮完成。实际结果见[AX-01B报告](reports/ax01b_runtime_hybrid.md)，操作见[混合闭环指南](../docs/AXU5EV_HYBRID_RUN_GUIDE_ZH.md)。
+已实施 [AX-01B：R5命令/轨迹集成与生成C＋FOC RTL电机闭环](tasks/ax01b_r5_runtime_hybrid_closed_loop.md)。Runtime、在线C包装、p3帧适配及共享电机闭环已接通；三后端四组正常场景均完成，真实RTL共99432帧逐位一致。实际结果见[AX-01B报告](reports/ax01b_runtime_hybrid.md)，操作见[混合闭环指南](../docs/AXU5EV_HYBRID_RUN_GUIDE_ZH.md)。
 
-本轮交付完整链：原Host_Core/轨迹与必要运行管理纳入R5运行模型 → 生成C在线执行 → 数值/帧转换及p3结果提交 → 同一个电机环境内的实际C＋RTL反馈闭环 → 正常点位、连续命令和原对齐/启停场景 → 用户操作指南与一个开放实现PR。当前仍须完成真实RTL场景、补齐结果并提交开放PR等待Review。
+本轮交付完整链：原Host_Core/轨迹与必要运行管理纳入R5运行模型 → 生成C在线执行 → 数值/帧转换及p3结果提交 → 同一个电机环境内的实际C＋RTL反馈闭环 → 正常点位、连续命令和原对齐/启停场景 → 用户操作指南与一个开放实现PR。等待Review，不自动合并；下一轮接实际R5F平台与板级适配。
 
 不在本轮同时开展实际R5 BSP/Vitis平台、AXI硬件总线、5EV综合布线或ADC/编码器板级设计；这些接在混合功能闭环之后。C在PC执行不等于R5已经运行，仿真交换不等于AXI已经实现。
 
@@ -30,7 +30,7 @@ AX-00迁移PR #1、资料任务PR #2、资料成果PR #4、R5首批提取PR #5�
 
 ## 当前证据与边界
 
-PR5主机ERT C生成、五组组件对照和独立C回放见[结果](reports/ax01_r5_extraction.md)。本轮已用薄C MEX在线执行完整Runtime，模型／C四组正常闭环及同输入比较已完成；Simulink管理SIL仍未通过，不为其重装工具。真实RTL长场景状态以[AX-01B报告](reports/ax01b_runtime_hybrid.md)为准。
+PR5主机ERT C生成、五组组件对照和独立C回放见[结果](reports/ax01_r5_extraction.md)。本轮已用薄C MEX在线执行完整Runtime，三后端四组正常闭环及同输入比较完成，真实p3 RTL累计99432帧逐位一致；Simulink管理SIL仍未通过，不为其重装工具。完整数据与边界见[AX-01B报告](reports/ax01b_runtime_hybrid.md)。
 
 [PS—PL边界](../integration/ps_pl/INTERFACE.md)已包含本轮实际仿真字段和事件顺序，仍不是总线驱动。R5目标编译/任务时间、真实AXI、5EV综合布线、ADC/位置/PWM板级适配和实机均未完成。旧Artix结果不当作5EV验收。
 
