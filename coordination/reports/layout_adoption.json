@@ -1,0 +1,44 @@
+[
+  {
+    "name": "PMLSM_FOC_FixedPoint.slx",
+    "accepted_sha256": "ec14e246b00b28b47df6b5250fa72e10819a97a826966d6872fc0cf77f8bba19",
+    "local_sha256": "4c60cbe95c06b0081aea25f2c7d9eacb0abae7bf28aebec4919d4e5f5f4f351d",
+    "active_sha256": "620efbca534d89d6ddf2896e0a5b60bfba2a9ceebcb1e661e7cc0388fd691a5f",
+    "adopted_systems": [
+      "simulink/systems/system_10.xml",
+      "simulink/systems/system_1.xml"
+    ],
+    "allowed_graphics": [
+      "Position",
+      "Points",
+      "Labels"
+    ],
+    "version_only": [
+      "ModelReferenceVersion"
+    ],
+    "semantic_xml_exact": true,
+    "logging": "Accepted graphicalInterface.json retained; LOCAL_DIRTY decimation/removed logs not adopted",
+    "metadata": "Accepted root configuration and Stateflow retained"
+  },
+  {
+    "name": "PMLSM_PI_FOC_Float_Baseline.slx",
+    "accepted_sha256": "b27a9083897d932b021d91613799a226748a0be6fc0f50bf4a5cae62aec229dd",
+    "local_sha256": "35f0d4ccbadcd91d524e4293c37f356dea5b535d588bea81d09d0f29e7ac207f",
+    "active_sha256": "7c1573b3f26fb1237ba1a6e36c06aa986a17158b8d47e11b263287d5f1f9fadf",
+    "adopted_systems": [
+      "simulink/systems/system_2103.xml",
+      "simulink/systems/system_2328.xml"
+    ],
+    "allowed_graphics": [
+      "Position",
+      "Points",
+      "Labels"
+    ],
+    "version_only": [
+      "ModelReferenceVersion"
+    ],
+    "semantic_xml_exact": true,
+    "logging": "Accepted graphicalInterface.json retained; LOCAL_DIRTY decimation/removed logs not adopted",
+    "metadata": "Accepted root configuration and Stateflow retained"
+  }
+]

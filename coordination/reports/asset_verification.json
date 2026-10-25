@@ -1,0 +1,216 @@
+{
+  "status": "PASS",
+  "inventory_files": 120,
+  "staged_hashes_checked": 120,
+  "frozen_inputs": 8,
+  "manifest_payloads": 34,
+  "protected_dirty_disk_files": 19,
+  "source_status_exact": true,
+  "active_legacy_absolute_paths": 0,
+  "callbacks_and_references": [
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "simulink/configSet0.json",
+      "entry": "\"GenerateAllocFcn\":\"off\""
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/systems/system_2110.xml",
+      "entry": "<P Name=\"ErrorFcn\">Stateflow.Translate.translate</P>"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/systems/system_1993.xml",
+      "entry": "<P Name=\"ErrorFcn\">Stateflow.Translate.translate</P>"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/graphicalInterface.json",
+      "entry": "\"ModelName\":\"PMLSM_FOC_FixedPoint\""
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/blockDiagram.json",
+      "entry": "\"InitFcn\":\"m1a_require_float_init(bdroot);\""
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/configSet0.json",
+      "entry": "\"GenerateAllocFcn\":\"off\""
+    }
+  ],
+  "other_absolute_metadata": [
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "simulink/systems/system_23.xml",
+      "entry": "p://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "simulink/systems/system_52.xml",
+      "entry": "p://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "simulink/systems/system_52.xml",
+      "entry": "p://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "[Content_Types].xml",
+      "entry": "p://schemas.openxmlformats.org/package/2006/content-types"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "metadata/coreProperties.xml",
+      "entry": "p://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "metadata/coreProperties.xml",
+      "entry": "p://purl.org/dc/elements/1.1/"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "metadata/coreProperties.xml",
+      "entry": "p://purl.org/dc/dcmitype/"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "metadata/coreProperties.xml",
+      "entry": "p://purl.org/dc/terms/"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "metadata/coreProperties.xml",
+      "entry": "p://www.w3.org/2001/XMLSchema-instance"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "metadata/mwcoreProperties.xml",
+      "entry": "p://schemas.mathworks.com/package/2012/coreProperties"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "metadata/mwcorePropertiesExtension.xml",
+      "entry": "p://schemas.mathworks.com/package/2014/corePropertiesExtension"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "simulink/ScheduleCore.xml",
+      "entry": "p://schema.mathworks.com/mf0/sltp_mm/R2026b_202511130930"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "simulink/ScheduleEditor.xml",
+      "entry": "p://schema.mathworks.com/mf0/DiagramEditor/R2019a_20181107 http://schema.mathworks.com/mf0/SltpSyntax/R2025a_202406271400"
+    },
+    {
+      "file": "PMLSM_FOC_FixedPoint.slx",
+      "part": "simulink/modelDictionary.xml",
+      "entry": "p://schema.mathworks.com/mf0/slid/R2025a_20251111"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/systems/system_566.xml",
+      "entry": "p://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/systems/system_591.xml",
+      "entry": "p://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/systems/system_591.xml",
+      "entry": "p://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/systems/system_1122.xml",
+      "entry": "p://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/systems/system_1122.xml",
+      "entry": "p://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/systems/system_1122.xml",
+      "entry": "p://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/systems/system_505.xml",
+      "entry": "p://schema.mathworks.com/mf0/Connector/R2020b&quot;],&quot;version&quot;:&quot;1.0&quot;}"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "[Content_Types].xml",
+      "entry": "p://schemas.openxmlformats.org/package/2006/content-types"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "metadata/coreProperties.xml",
+      "entry": "p://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "metadata/coreProperties.xml",
+      "entry": "p://purl.org/dc/elements/1.1/"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "metadata/coreProperties.xml",
+      "entry": "p://purl.org/dc/dcmitype/"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "metadata/coreProperties.xml",
+      "entry": "p://purl.org/dc/terms/"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "metadata/coreProperties.xml",
+      "entry": "p://www.w3.org/2001/XMLSchema-instance"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "metadata/mwcoreProperties.xml",
+      "entry": "p://schemas.mathworks.com/package/2012/coreProperties"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "metadata/mwcorePropertiesExtension.xml",
+      "entry": "p://schemas.mathworks.com/package/2014/corePropertiesExtension"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/ScheduleCore.xml",
+      "entry": "p://schema.mathworks.com/mf0/sltp_mm/R2026b_202511130930"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/ScheduleEditor.xml",
+      "entry": "p://schema.mathworks.com/mf0/DiagramEditor/R2019a_20181107 http://schema.mathworks.com/mf0/SltpSyntax/R2025a_202406271400"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/modelDictionary.xml",
+      "entry": "p://schema.mathworks.com/mf0/slid/R2025a_20251111"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/stateflow/chart_105.xml",
+      "entry": "p://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;"
+    },
+    {
+      "file": "PMLSM_PI_FOC_Float_Baseline.slx",
+      "part": "simulink/stateflow/chart_105.xml",
+      "entry": "p://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;"
+    }
+  ],
+  "source_preservation": "Old user files and snapshots unchanged when --check-source is selected; unsaved desktop state not captured",
+  "staged_paths": 146
+}

@@ -1,0 +1,29 @@
+{
+  "candidate_id": "p3",
+  "configuration_sha256": "26832d5b9d786917b972aab52e65d3d32600aa9d00f3eff6fe118218ecfb3d5a",
+  "output_phase_cycles": 314,
+  "frame_cycles": 5000,
+  "state_events": {
+    "pi_consume": 5000,
+    "pi_commit": 1,
+    "aw_commit": 1
+  },
+  "state_mapping": {
+    "x_d_old": "u_Id.x_d_z_out1",
+    "x_q_old": "u_Iq.x_q_z_out1",
+    "aw_d_old": "dq_voltage_limiter_du_d_z",
+    "aw_q_old": "dq_voltage_limiter_du_q_z"
+  },
+  "schedule_evidence": "D:\\Project\\FPGA_XC7A200T\\.runtime\\pr53_20261025\\p3\\tp5e319ca7_bbdb_47f9_96e8_a6b869533571_generate\\rtl\\PMLSM_FOC_FixedPoint\\html\\pages\\PMLSM_FOC_FixedPoint_delay_balancing.html",
+  "schedule_sha256": "66510186f01e3005f12e93153af8e22935191bce3decf2a4fc93cd1ee6e89081",
+  "state_mapping_status": "provisional from preserved algorithm state; must pass directed event checks",
+  "pi_next_signals": {
+    "d": "u_Id.x_d_z_out1_1",
+    "q": "u_Iq.x_q_z_out1_1"
+  },
+  "pi_commit_evidence": "one fast register after the original bypass; D-input and next-frame phase1 must be verified against source old state; pre5000 consuming event unchanged",
+  "pi_sv_sha256": {
+    "Id": "2456e5f9fc83127761ac1d2daa34f5f07682f4144a84d2b8b1ca93bca8dd687d",
+    "Iq": "60b62c074254fc9e576d72ef717c3bcc9b68f77ed30884611ba9264676ca8700"
+  }
+}

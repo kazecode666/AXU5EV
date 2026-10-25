@@ -1,0 +1,27 @@
+{
+  "source_root": "D:\\Project\\FPGA_XC7A200T",
+  "target_root": "D:\\Project\\AXU5EV",
+  "source_head": "6617cf58a12b2f49ec9c30d4d41fd800b0b5d911",
+  "source_origin": "https://github.com/kazecode666/FPGA_XC7A200T_Study.git",
+  "bridge_commit": "81a4464784b06d49644d7e8d31cc7bdecb08cf58",
+  "accepted_anchor": "4470e357cb91778072036475baa667c839dc12c6",
+  "target_initially_empty": true,
+  "target_git_initially_absent": true,
+  "source_dirty": true,
+  "protected_disk_files": 19,
+  "unsaved_status": "UNSAVED_NOT_CAPTURED; connected R2026b session has no loaded models; other user desktop sessions not introspected; Windows PowerShell existing-COM read blocked by script execution policy, not bypassed",
+  "github_connected_login": "kazecode666",
+  "remote_status": "READY: user created private empty repo; Git credential push and connector access confirmed",
+  "old_m4": "NOT_ACCEPTED; no new candidate launched; tools not terminated",
+  "frozen_manifest_payloads": 34,
+  "new_platform_validation": "NOT_RUN",
+  "target_origin": "https://github.com/kazecode666/AXU5EV.git",
+  "target_visibility": "private",
+  "github_permissions": {
+    "admin": true,
+    "push": true
+  },
+  "main_initial_commit": "74306cf",
+  "gh_status": "NOT_INSTALLED; no token requested; no installation performed",
+  "layout_status": "Two local layout-only system XML sets adopted with canonical semantic equality; frozen log config retained"
+}

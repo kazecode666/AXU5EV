@@ -1,0 +1,114 @@
+{
+  "candidate_id": "p3",
+  "hypothesis": "segment limiter inversePark XYZ sector and time numerator preserving numerical model",
+  "settings": [
+    {
+      "SID": 1,
+      "property": "DistributedPipelining",
+      "value": "on",
+      "reason": "Distribute local supplied pipeline budgets across combinational transform chain"
+    },
+    {
+      "SID": 23,
+      "property": "DistributedPipelining",
+      "value": "on",
+      "reason": "Protect p1 PI region; p2 splits the measured exposed PI path"
+    },
+    {
+      "SID": 52,
+      "property": "DistributedPipelining",
+      "value": "on",
+      "reason": "Symmetric PI treatment"
+    },
+    {
+      "SID": 184,
+      "property": "DistributedPipelining",
+      "value": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 95,
+      "property": "DistributedPipelining",
+      "value": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 154,
+      "property": "DistributedPipelining",
+      "value": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 119,
+      "property": "DistributedPipelining",
+      "value": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 134,
+      "property": "DistributedPipelining",
+      "value": "on",
+      "reason": "R1 traced limiter to modulation chain"
+    },
+    {
+      "SID": 184,
+      "property": "OutputPipeline",
+      "value": 4,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 51,
+      "property": "OutputPipeline",
+      "value": 6,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 154,
+      "property": "OutputPipeline",
+      "value": 4,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 119,
+      "property": "OutputPipeline",
+      "value": 1,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 134,
+      "property": "OutputPipeline",
+      "value": 4,
+      "reason": "Supply fast-clock registers at identified arithmetic boundaries; HDL Coder balances bypass"
+    },
+    {
+      "SID": 83,
+      "property": "OutputPipeline",
+      "value": 12,
+      "reason": "p1 worst path crosses unsegmented Park including lookup/projection before PI and sqrt"
+    },
+    {
+      "SID": 10,
+      "property": "DistributedPipelining",
+      "value": "on",
+      "reason": "Clark bypass must be balanced with newly segmented Park path"
+    },
+    {
+      "SID": 10,
+      "property": "OutputPipeline",
+      "value": 3,
+      "reason": "Local front transform registers"
+    },
+    {
+      "SID": 23,
+      "property": "OutputPipeline",
+      "value": 6,
+      "reason": "Split PI constant multiply saturated sum and feedforward path before limiter sqrt"
+    },
+    {
+      "SID": 52,
+      "property": "OutputPipeline",
+      "value": 6,
+      "reason": "Split PI constant multiply saturated sum and feedforward path before limiter sqrt"
+    }
+  ]
+}

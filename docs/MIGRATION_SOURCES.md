@@ -1,4 +1,6 @@
-# 来源与迁移清单（计划，尚未复制）
+# 来源与迁移清单
+
+AX-00实际文件和逐项源/目标哈希见 [`migration_inventory.csv`](../coordination/reports/migration_inventory.csv)，局部布局采纳见 [`layout_adoption.json`](../coordination/reports/layout_adoption.json)，本地版本差异见 [`local_source_comparison.json`](../coordination/reports/local_source_comparison.json)。下表保留迁移准则，不将历史证据当作5EV验收。
 
 源仓库：`kazecode666/FPGA_XC7A200T_Study`。
 - PR53已接受p3合并：`4470e357cb91778072036475baa667c839dc12c6`。
