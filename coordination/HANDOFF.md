@@ -1,26 +1,37 @@
 # AXU5EV — 当前交接
 
-日期：2026-10-26。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`。
+日期：2026-10-26。仓库 `kazecode666/AXU5EV`，本地 `D:/Project/AXU5EV`。
 
-AX-00迁移已完成（PR #1），资料任务PR #2、资料成果PR #4均已合并。PR #4合并提交`7492fc4a354d356f19123da0649e7861e6354943`。AX-00/AX-00B任务书及Issue #3保留为历史记录，其中哈希清单、全资料遍历、快照保护报表、字节一致性专项和额外资料冒烟要求不再适用于当前开发。不为文字修订重跑旧仿真/RTL。
+AX-00迁移PR #1、资料任务PR #2、资料成果PR #4及R5首批提取PR #5均已合并。迁移和资料阶段结束，继续已有控制开发，不重新走资料盘点、StudyL1或LED学习。
 
-## 当前方向与已有起点
+## 当前任务
 
-- **目标板AXU5EVB-E，用户已确认。** 非B版资料仅作对照。PCB修订、芯片完整料号与厂商XA/-1、手册XC/-2的差异留待板级适配前核实，不阻塞R5软件提取。
-- R5F提取现有位置P、速度PI、Reference_Manager/轨迹/命令、原五态对齐及一次性偏置；PL复用已接受的电流FOC，负责实时采样/位置/角度、PWM与快速禁止。
-- 起点为 `simulink模型/PMLSM_PI_FOC_Float_Baseline.slx`、`PMLSM_FOC_FixedPoint.slx`及现有初始化/类型/轨迹脚本，PL来源为 `generated/legacy_m3_p3/FOC_DUT.sv` 和p3生成配置。StudyL1速度PI、原MIL/DSP与对齐来源均已迁入，无需从零重做PI/FOC/定点化或重复LED学习。
-- 接口继承 [旧定义](../references/legacy/PMLSM_Hardware_Interface_Map.md)与`references/legacy/mil/PMSLM_Init_Params_MBDL4.m`：YXPHM-MBDL4、独立ia/ib/ic、0.1µm/count光栅、RELCON/ENCON/F_Reset及低有效ERRI/ERRU。只补AXU5EVB-E的外置ADC、电平/接收与接线适配，不照搬DSP GPIO/ePWM/ADC配置。
+执行 [AX-01B：R5命令/轨迹集成与生成C＋FOC RTL电机闭环](tasks/ax01b_r5_runtime_hybrid_closed_loop.md)。这是下一轮实施计划，尚未创建其中的新模型、C包装或RTL帧适配，也未运行混合闭环。
 
-## 接下来执行
+连续完成：原Host_Core/轨迹与必要运行管理纳入R5运行模型 → 生成C在线执行 → 数值/帧转换及p3结果提交 → 同一个电机环境内的实际C＋RTL反馈闭环 → 正常点位、连续命令和原对齐/启停场景 → 用户操作指南与一个开放实现PR。
 
-分支`codex/ax01-r5-pl-boundary`、[PR #5](https://github.com/kazecode666/AXU5EV/pull/5)已提取R5外环/Reference_Manager/原对齐模型并生成主机C，实施提交`7c9246a95d63bcd4012ac4d4f3d719d4faa15458`。五组组件对照及C回放通过，见[本批结果](reports/ax01_r5_extraction.md)和[PS—PL边界](../integration/ps_pl/INTERFACE.md)。新模型连线/排版已检查，Goto均局部，Inport/Outport保持默认大小与外观。
+不在本轮同时开展实际R5 BSP/Vitis平台、AXI硬件总线、5EV综合布线或ADC/编码器板级设计；这些接在混合功能闭环之后。C在PC执行不等于R5已经运行，仿真交换不等于AXI已经实现。
 
-下一步继续Simple_Host/Host_Core的命令/轨迹部署提取、恢复管理与PS—PL原子交换/数值转换，之后做R5目标平台与PL按B-E的重定向和集成。厂商UART/TTC/AXI/BRAM只提供平台接口参考；不替换控制算法。AX-01/02尚未全部完成。
+## 固定方向与已有起点
 
-保持已有PI/位置P、时基、手动Start、五态对齐、一次死区和应用延迟；各类Reset/清故障语义分开。旧PR54/M4全HDL候选为历史，不再补成生产基线。普通Git提交/PR正常进行，报告只说明改动、依据、可复用内容和实际未完成项。
+- **目标板AXU5EVB-E，用户已确认。** 非B版仅对照。PCB/芯片完整料号和厂商示例器件差异留待板级适配前核对，不阻塞当前软件/功能仿真。
+- Cortex-R5F负责位置P、速度PI、原五态对齐与偏置、参考/轨迹/命令和恢复管理；PL复用电流FOC，负责实时采样/位置/角度、PWM与快速禁止。
+- 原参考为 `simulink模型/PMLSM_PI_FOC_Float_Baseline.slx`、`PMLSM_FOC_FixedPoint.slx`、既有初始化及类型/点位/S曲线函数；原主模型不因新集成而被改成另一算法。
+- PR5已交付 `firmware/r5/AXU5EV_R5_Control.slx`、组件对照和主机C回放。下一轮在外部增加运行顶层并复用它，不手写另一套PI或对齐。
+- PL来源为 `generated/legacy_m3_p3/FOC_DUT.sv` 及p3配置，按原5000拍和输入保持/状态合同做功能集成；314拍不是新增外围后的整链总延迟。
+- `pmlsm_point_move_step.m`、`pmlsm_scurve_profile.m`继续提供到位后再次发送目标的行为，不新增运动中重规划。
+- 继承 `references/legacy/PMLSM_Hardware_Interface_Map.md`、MBDL4参数和MIL/DSP：YXPHM-MBDL4、三相ia/ib/ic、0.1µm/count光栅、RELCON/ENCON/F_Reset、低有效ERRI/ERRU；不照搬DSP引脚，不要求用户重述已有需求。
 
-## 证据与未完成
+## 工作方式
 
-已迁资产与既有仿真/RTL证据见[AX-00报告](reports/ax00_migration_report.md)；板卡资料实读、章节/工程入口见[AX-00B报告](reports/ax00b_vendor_review.md)、[板卡事实](../hardware/axu5ev/ALINX_BOARD_FACTS.md)及[R5指南](../firmware/r5/ALINX_R5_REUSE_GUIDE.md)。历史结果不是本轮复跑结果。
+按用户要求正常开发、Git提交和PR。只做本轮功能所需的编译/模型与闭环运行，不增加哈希清单、全资料遍历、快照保护报表、字节一致性专项、防御性基础设施或额外冒烟测试。旧任务书/Issue #3相关要求是历史，不再作为当前流程。现有控制保护功能与此不同，不擅自删除。
 
-主机ERT C生成及独立C回放PASS；Simulink管理SIL尝试因MATLAB安装路径辅助构建失败，详见本批报告。R5目标编译与WCET、5EV综合/布线、ARM实测及实机仍NOT_RUN。新板外置ADC选型/三相通道、光栅接收/电平、门极/故障接线与端到端时延仍需适配。禁止自行烧录或上电。
+保持原参数、首相、手动Start、五态计数、一次死区、50µs应用边界及PWM禁止后机械继续。From/Goto局部，端口默认大小，检查新模型实际连线和排版；不修改用户未保存窗口或无关本地内容，不批量删除。报告写实际改动、结果和未完成项即可，不要求用户额外提交哈希值。
+
+## 当前证据与边界
+
+PR5主机ERT C生成、五组组件对照和独立C回放通过，见[结果](reports/ax01_r5_extraction.md)。Simulink管理SIL的安装路径辅助构建失败仍保留；下一轮允许薄C MEX包装在线调用生成C，不必为其专门重装或修复工具环境。
+
+[PS—PL边界](../integration/ps_pl/INTERFACE.md)目前是算法端口与计划，不是总线驱动。R5目标编译/任务时间、真实AXI、5EV综合布线、ADC/位置/PWM板级适配和实机均未完成。旧Artix结果不当作5EV验收。
+
+原迁移资料见[AX-00报告](reports/ax00_migration_report.md)，厂商参考见[AX-00B报告](reports/ax00b_vendor_review.md)及[R5指南](../firmware/r5/ALINX_R5_REUSE_GUIDE.md)。只在当前需要时查用，不重复整轮阅读。硬件烧录和功率级上电仍需用户另行授权，不自动合并PR。
