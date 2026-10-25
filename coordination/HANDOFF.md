@@ -1,29 +1,24 @@
-# AXU5EV — ChatGPT / Codex / GitHub 交接
+# AXU5EV — 当前交接
 
-日期：2026-10-25。**状态：私有新仓库和独立 main 已建立，AX-00资产迁入任务分支，等待开放迁移 PR 的 ChatGPT Review。** 实际验证与未运行层次见[迁移报告](reports/ax00_migration_report.md)。
+日期：2026-10-26。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`。
 
-## 唯一当前任务
+AX-00迁移已完成（PR #1），资料任务PR #2已合并；PR #4已完成资料核查，按[最新Review](https://github.com/kazecode666/AXU5EV/pull/4#pullrequestreview-5644052528)小幅修订后由用户授权合并。AX-00/AX-00B任务书及Issue #3保留为历史记录，其中哈希清单、全资料遍历、快照保护报表、字节一致性专项和额外资料冒烟要求不再适用于当前开发。不为文字修订重跑旧仿真/RTL。
 
-Review [AX-00建仓与精选迁移](tasks/ax00_project_bootstrap_migration.md)。本地根目录已实测为 `D:/Project/AXU5EV`，origin 为 `https://github.com/kazecode666/AXU5EV.git`。本机无 gh；用户建立了空私有仓库，现有 Git 凭据完成推送，GitHub连接确认账号 `kazecode666` 和新库读写权限。未索要或输出 token。
+## 当前方向与已有起点
 
-## 方案已定，不重新讨论
+- **目标板AXU5EVB-E，用户已确认。** 非B版资料仅作对照。PCB修订、芯片完整料号与厂商XA/-1、手册XC/-2的差异留待板级适配前核实，不阻塞R5软件提取。
+- R5F提取现有位置P、速度PI、Reference_Manager/轨迹/命令、原五态对齐及一次性偏置；PL复用已接受的电流FOC，负责实时采样/位置/角度、PWM与快速禁止。
+- 起点为 `simulink模型/PMLSM_PI_FOC_Float_Baseline.slx`、`PMLSM_FOC_FixedPoint.slx`及现有初始化/类型/轨迹脚本，PL来源为 `generated/legacy_m3_p3/FOC_DUT.sv` 和p3生成配置。StudyL1速度PI、原MIL/DSP与对齐来源均已迁入，无需从零重做PI/FOC/定点化或重复LED学习。
+- 接口继承 [旧定义](../references/legacy/PMLSM_Hardware_Interface_Map.md)与`references/legacy/mil/PMSLM_Init_Params_MBDL4.m`：YXPHM-MBDL4、独立ia/ib/ic、0.1µm/count光栅、RELCON/ENCON/F_Reset及低有效ERRI/ERRU。只补AXU5EVB-E的外置ADC、电平/接收与接线适配，不照搬DSP GPIO/ePWM/ADC配置。
 
-Cortex-R5F为实时运动控制核心：外环、原对齐及上层参考/轨迹/命令管理走C软件；PL保留电流算法、实时采集/角度与PWM/快速禁止。旧PR54全三环/全对齐HDL目标被此决定替代。
+## 接下来执行
 
-旧工程只读保留。当前M4实验安全收口、保存局部成果和失败，不继续投入全HDL对齐取模优化。没有自动停止用户Codex/MATLAB进程；由执行者在安全边界落实。PR53 p3是已接受算法/RTL锚点，不声称已在5EV通过。
+在PR #4合并后的main上建立开发分支，先核实现有模型中R5/PL边界、采样与复位语义，再提取R5软件部分并定义PS—PL交换；后续用模型生成C、按影响范围做主机/SIL验证，PL按B-E重定向和集成。厂商UART/TTC/AXI/BRAM只提供平台接口参考；不替换控制算法。
 
-## 交付约定
+保持已有PI/位置P、时基、手动Start、五态对齐、一次死区和应用延迟；各类Reset/清故障语义分开。旧PR54/M4全HDL候选为历史，不再补成生产基线。普通Git提交/PR正常进行，报告只说明改动、依据、可复用内容和实际未完成项。
 
-全新仓库main仅一次文档初始化，实际迁移分支`codex/ax00-migration`。最后在**新仓库**提交一个开放PR：实际模型/必要脚本/精选RTL/资料索引/哈希来源/迁移复验，不自动合并。
+## 证据与未完成
 
-报告须写实际新root、origin、repo可见性、source HEAD/dirty情况、保留内容、复制/排除清单、路径独立性及每项验证状态。ChatGPT后续以`kazecode666/AXU5EV`＋PR号＋提交SHA Review；不把旧库PR号当新库PR号。
+已迁资产与既有仿真/RTL证据见[AX-00报告](reports/ax00_migration_report.md)；板卡资料实读、章节/工程入口见[AX-00B报告](reports/ax00b_vendor_review.md)、[板卡事实](../hardware/axu5ev/ALINX_BOARD_FACTS.md)及[R5指南](../firmware/r5/ALINX_R5_REUSE_GUIDE.md)。历史结果不是本轮复跑结果。
 
-新远端暂不可创建时，完成本地初始化/迁移/检查并保留报告，状态REMOTE_BLOCKED，说明实际障碍；不能为此改回旧origin或把新实机资料发布到旧公开库。
-
-## 当前不做
-
-不新建完整R5平台、生成新电流算法、优化旧全HDL控制器、改PI/死区/对齐、不作板级XDC猜测、不烧录/上电。后续AX-01/02分别处理软件边界/接口及5EV重定向和混合闭环。
-
-## 接受边界
-
-旧板卡的综合/RTL结论是来源证据，不是新板验收；400帧等未审本地M4结果不能替代PR53来源。迁移通过只证明文件/依赖/现有仿真恢复，不等于R5实时性、5EV布线时序或实机安全通过。
+R5 C/SIL、目标编译与WCET、5EV综合/布线、ARM实测及实机仍NOT_RUN。新板外置ADC选型/三相通道、光栅接收/电平、门极/故障接线与端到端时延仍需适配。禁止自行烧录或上电。

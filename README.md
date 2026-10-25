@@ -1,6 +1,6 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
-**当前状态：AX-00 精选资产已迁入，提交开放 PR 等待 ChatGPT Review。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。实际结果和限制见[迁移报告](coordination/reports/ax00_migration_report.md)；5EV 部署尚未执行。
+**当前状态：AX-00迁移已完成；AX-00B资料在PR #4修订后进入R5F＋PL开发。目标AXU5EVB-E，用户已确认。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。实际结果和限制见[迁移报告](coordination/reports/ax00_migration_report.md)；5EV 部署尚未执行。
 
 ## 目标与分工
 
@@ -11,7 +11,7 @@
 ## 从哪里开始
 
 1. [当前交接](coordination/HANDOFF.md)和[协作规则](AGENTS.md)。
-2. [AX-00建仓与迁移任务](coordination/tasks/ax00_project_bootstrap_migration.md)。
+2. [现有软硬件接口需求](references/legacy/PMLSM_Hardware_Interface_Map.md)及[板卡事实](hardware/axu5ev/ALINX_BOARD_FACTS.md)。AX-00任务已完成，仅作历史。
 3. [软硬件分工](docs/ARCHITECTURE.md)、[来源与迁移清单](docs/MIGRATION_SOURCES.md)。
 
 ## 目录职责
@@ -39,7 +39,7 @@
 - **AX-02：** 5EV电流核重生成/实现、R5/PL混合闭环及实际处理器时限验证。
 - **AX-03：** ADC、光栅/磁栅、门极PWM、驱动板保护和受控硬件集成，另行授权上电。
 
-日期：2026-10-25。只有AX-00为当前任务，其余为后续方向。参数、代码生成和硬件测试状态见实际提交报告，不从目录存在推定已实现。
+日期：2026-10-26。继续AX-01 R5软件提取与PS—PL边界，再按AXU5EVB-E集成PL；继承已有模型与MBDL4接口，无需重做PI/FOC或重复LED学习。参数、代码生成和硬件测试状态见实际提交报告，不从目录存在推定已实现。
 
 ## 本地打开与复验
 
