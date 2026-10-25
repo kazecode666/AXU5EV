@@ -6,7 +6,7 @@
 
 | 优先/目的 | 实读章节 | 实际工程入口 | 可以带走的知识/仍需适配 |
 |---|---|---|---|
-| P0 硬件识别 | 用户手册p2、6、9–11、20–24、39–50；核心/底板原理图 | [板卡事实](../hardware/axu5ev/ALINX_BOARD_FACTS.md)、[逐针表](../hardware/axu5ev/PL_IO_RESOURCE_MAP.csv) | **可直接查询事实**；先处理E/B-E/图框AXU3EG及XA/-1和XC/-2冲突，实物未确认前不生成XDC |
+| P0 硬件识别 | 用户手册p2、6、9–11、20–24、39–50；核心/底板原理图 | [板卡事实](../hardware/axu5ev/ALINX_BOARD_FACTS.md)、[逐针表](../hardware/axu5ev/PL_IO_RESOURCE_MAP.csv) | **目标AXU5EVB-E，用户已确认**；非B版只作对照，具体PCB修订/芯片料号及XA/-1与XC/-2差异留待板级适配，不阻塞R5软件 |
 | P0 PL时钟/IO | S1 p27–28、74–75、85、88–90、109、111–112 | `S1/01_led/led.xpr`、`led.srcs/constrs_1/new/led.xdc`；`S1/02_pll_test/pll_test.xpr`、`pll_test.srcs/sources_1/new/pll_test.v`及`constrs_1/new/pll.xdc` | 学差分200MHz、Clock Wizard、时钟/IO约束；**需适配**IP、实际Bank/电平/复位、内部ILA网名，不能照搬旧50MHz文字 |
 | P0 PL缓存/CDC | S1 p117、120、132、135–136、142 | `S1/03_ram_test/ram_test.xpr`、`S1/04_rom_test/rom_test.xpr`、`S1/05_fifo_test/fifo_test.xpr`及`fifo_test.srcs/sources_1/new/fifo_test.v`、`sim_1/new/vtf_fifo_tb.v` | **可学习端口/读延迟/满空保护**；FIFO例子不替代新采样链CDC、复位和时序验证；RAM实验不是AXI BRAM实验 |
 | P0 PS/R5入口 | S2 p14–15、40、62–67、94–97、398–400 | `S2/01_ps_hello/.../build_vitis.tcl`、`04_ps_uart/.../src/ps_uart/main.c`、`33_lcd7_touch/.../src/lcd_touch/PS_timer.c`；中间`...`统一是`vitis/auto_create_vitis` | **软件需适配**：实际A53 standalone平台；UART/GIC/TTC可查，R5 BSP、TCM/MPU、启动/中断及WCET未运行，见[R5指南](../firmware/r5/ALINX_R5_REUSE_GUIDE.md) |
@@ -31,8 +31,8 @@
 
 ## 最短学习顺序
 
-1. 对照实物丝印解除型号/Bank/料号冲突，查H1/H2/H3与逐针表；先明确哪些电机底板电路实际存在。
-2. S1 LED/XDC→PLL→FIFO，只学习时钟、复位、接口和仿真读法；不重新设计控制器。
+1. 从现有Simulink主模型提取位置P、速度PI、Reference_Manager和原对齐；PL复用已接受的电流FOC。目标AXU5EVB-E已确认；按旧MBDL4接口需求补新板连接/电平/ADC适配。
+2. S1 XDC/PLL/FIFO按具体接口需要查用，不重复LED等学习任务；PCB修订/料号在板级实现前核对。
 3. S2最小平台→UART/GIC→TTC；随后在AX-01明确R5 domain、链接内存和周期任务语义，再做实际运行测量。
 4. S2 AXI GPIO→BRAM→中断与一致性交换学习；原速度/位置/对齐/命令合同仍来自已接受模型。
 5. 对实际ADC/位置模块逐项匹配资料，进入AX-02时再预算CONVST/BUSY、CDC、位置锁存、PWM应用边界和故障禁止。

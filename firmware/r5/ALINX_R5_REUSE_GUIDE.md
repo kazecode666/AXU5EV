@@ -57,4 +57,4 @@ RTC例程`02_ps_rtc/.../xrtcpsu_periodic_alarm_interrupt_example.c`及PDF p62–
 - 教程V1.06版本表日期2022-07-13（p3），教学工具仍为Vivado/Vitis2020.1（p14–15）。XSCT脚本、BSP宏、ARMv8链接脚本和旧IP版本均需在独立新平台核对，未原位升级任何厂家工程。
 - Linux/FreeRTOS、视频DP、lwIP、存储、双A53AMP和SG DMA不作为初版单R5裸机启动前提。
 
-后续学习顺序：确认实物/料号与启动资料→R5最小平台/UART→TTC和中断测量→AXI GPIO/BRAM学习→按AX-01审查软件与交换合同；DMA和高带宽采集按实需追加。这里是学习路线，不是已实施的R5固件。
+开发从现有位置P、速度PI、Reference_Manager和原对齐模型提取开始，PL复用已接受电流FOC。AXU5EVB-E用户已确认；PCB修订/芯片完整料号留待板级适配。UART/TTC/AXI/BRAM仅按集成需要查用，不作为重新学习全部例程的前置流程。DMA和高带宽采集按实需追加；R5目标固件仍NOT_RUN。

@@ -1,6 +1,6 @@
 # AXU5EV 厂商资料筛选与使用指南
 
-状态：2026-10-25，下面保留最初的目录级筛选规则。AX-00B已实读本地重点PDF、原理图和工程，实际结果见[核查报告](../coordination/reports/ax00b_vendor_review.md)、[板卡事实](../hardware/axu5ev/ALINX_BOARD_FACTS.md)、[教程地图](ALINX_TUTORIAL_MAP.md)和[R5复用指南](../firmware/r5/ALINX_R5_REUSE_GUIDE.md)。厂商原件未上传，实物型号/修订和R5/新工具运行结果仍未确认。本文件是原创索引，不是原厂文档复制件。
+状态：2026-10-25，下面保留最初的目录级筛选规则。AX-00B已实读本地重点PDF、原理图和工程，实际结果见[核查报告](../coordination/reports/ax00b_vendor_review.md)、[板卡事实](../hardware/axu5ev/ALINX_BOARD_FACTS.md)、[教程地图](ALINX_TUTORIAL_MAP.md)和[R5复用指南](../firmware/r5/ALINX_R5_REUSE_GUIDE.md)。厂商原件未上传；目标AXU5EVB-E用户已确认，具体PCB修订/芯片料号及R5/新工具运行结果另待核对。旧筛选流程保留为历史，当前协作以AGENTS/HANDOFF为准。本文件是原创索引，不是原厂文档复制件。
 
 ## 目标平台
 
