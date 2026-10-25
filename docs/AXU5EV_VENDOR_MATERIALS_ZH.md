@@ -1,6 +1,6 @@
 # AXU5EV 厂商资料筛选与使用指南
 
-状态：2026-10-25 **仅依据用户提供的 `readme_资料目录.txt` 目录说明完成筛选**。实际 PDF/RAR/ZIP 尚未在此审阅、核对许可或上传；版本、器件和板卡接口尚未确认。本文件是本项目原创索引，不是原厂文档的复制件。
+状态：2026-10-25，下面保留最初的目录级筛选规则。AX-00B已实读本地重点PDF、原理图和工程，实际结果见[核查报告](../coordination/reports/ax00b_vendor_review.md)、[板卡事实](../hardware/axu5ev/ALINX_BOARD_FACTS.md)、[教程地图](ALINX_TUTORIAL_MAP.md)和[R5复用指南](../firmware/r5/ALINX_R5_REUSE_GUIDE.md)。厂商原件未上传，实物型号/修订和R5/新工具运行结果仍未确认。本文件是原创索引，不是原厂文档复制件。
 
 ## 目标平台
 

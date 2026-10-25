@@ -34,3 +34,6 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 Thumbs.db
+
+# User-supplied ALINX originals: index and summarize; never add the vendor tree.
+/资料/

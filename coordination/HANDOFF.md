@@ -1,10 +1,10 @@
 # AXU5EV — ChatGPT / Codex / GitHub 交接
 
-日期：2026-10-25。**状态：私有新仓库和独立 main 已建立，AX-00资产迁入任务分支，等待开放迁移 PR 的 ChatGPT Review。** 实际验证与未运行层次见[迁移报告](reports/ax00_migration_report.md)。
+日期：2026-10-25。**状态：AX-00 PR #1与资料任务PR #2已合并；AX-00B按Issue #3完成本地资料静态核查，提交独立开放PR等待ChatGPT Review。** 资料结果见[AX-00B报告](reports/ax00b_vendor_review.md)，原仿真/RTL证据仍见[迁移报告](reports/ax00_migration_report.md)。
 
 ## 唯一当前任务
 
-Review [AX-00建仓与精选迁移](tasks/ax00_project_bootstrap_migration.md)。本地根目录已实测为 `D:/Project/AXU5EV`，origin 为 `https://github.com/kazecode666/AXU5EV.git`。本机无 gh；用户建立了空私有仓库，现有 Git 凭据完成推送，GitHub连接确认账号 `kazecode666` 和新库读写权限。未索要或输出 token。
+Review [AX-00B资料核查](tasks/ax00b_alinx_vendor_materials_intake.md)与[Issue #3](https://github.com/kazecode666/AXU5EV/issues/3)的实施PR。本地根目录为 `D:/Project/AXU5EV`，origin 为 `https://github.com/kazecode666/AXU5EV.git`。资料原件在忽略的`资料/`，只上传原创总结和索引。不自动进入AX-01/02，原算法/布局/生成RTL保持原样。
 
 ## 方案已定，不重新讨论
 
