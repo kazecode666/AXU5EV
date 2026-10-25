@@ -13,7 +13,7 @@ AX-00迁移已完成（PR #1），资料任务PR #2、资料成果PR #4均已合
 
 ## 接下来执行
 
-分支`codex/ax01-r5-pl-boundary`已提取R5外环/Reference_Manager/原对齐模型并生成主机C，五组组件对照及C回放通过，见[本批结果](reports/ax01_r5_extraction.md)和[PS—PL边界](../integration/ps_pl/INTERFACE.md)。新模型连线/排版已检查，Goto均局部，Inport/Outport保持默认大小与外观。
+分支`codex/ax01-r5-pl-boundary`、[PR #5](https://github.com/kazecode666/AXU5EV/pull/5)已提取R5外环/Reference_Manager/原对齐模型并生成主机C，实施提交`7c9246a95d63bcd4012ac4d4f3d719d4faa15458`。五组组件对照及C回放通过，见[本批结果](reports/ax01_r5_extraction.md)和[PS—PL边界](../integration/ps_pl/INTERFACE.md)。新模型连线/排版已检查，Goto均局部，Inport/Outport保持默认大小与外观。
 
 下一步继续Simple_Host/Host_Core的命令/轨迹部署提取、恢复管理与PS—PL原子交换/数值转换，之后做R5目标平台与PL按B-E的重定向和集成。厂商UART/TTC/AXI/BRAM只提供平台接口参考；不替换控制算法。AX-01/02尚未全部完成。
 

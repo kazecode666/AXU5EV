@@ -2,6 +2,8 @@
 
 2026-10-26，`kazecode666/AXU5EV`。PR #4已按最新评论修订并合并，合并提交`7492fc4a354d356f19123da0649e7861e6354943`；本批开发分支`codex/ax01-r5-pl-boundary`从该main建立。
 
+实施提交`7c9246a95d63bcd4012ac4d4f3d719d4faa15458`，交付[PR #5](https://github.com/kazecode666/AXU5EV/pull/5)，保持开放供Review；后续文档提交仅补交付链接。
+
 ## 做了什么
 
 - 新建`firmware/r5/AXU5EV_R5_Control.slx`，直接从现有`PMLSM_PI_FOC_Float_Baseline`复制Control_Task（原SID505）和Alignment_Task（原SID2103）。保留位置P、速度PI、Reference_Manager、调度器及原五态对齐，移出电流FOC和仅FOC使用的电流/角度输入；导出d/q参考、偏置和状态。
