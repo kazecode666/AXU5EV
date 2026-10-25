@@ -1,0 +1,36 @@
+# Runtime and generated tool caches
+.runtime/
+.local/
+build/
+slprj/
+.Xil/
+**/slprj/
+**/.Xil/
+**/ip_user_files/
+**/*.cache/
+**/*.runs/
+**/*.sim/
+**/*.hw/
+*.slxc
+*.asv
+*.autosave
+*.jou
+*.log
+*.wdb
+*.wlf
+*.vcd
+*.dcp
+*.str
+
+# Only approved small evidence files may be added explicitly.
+# Do not blanket-ignore MAT/SLX/PDF: parameters/models/references need inventory.
+references/local_only/
+experiments/local_only/
+.env
+.env.*
+*.pem
+*.key
+__pycache__/
+.pytest_cache/
+.DS_Store
+Thumbs.db

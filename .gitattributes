@@ -1,0 +1,13 @@
+* text=auto eol=lf
+*.slx -text
+*.mdl -text
+*.mat -text
+*.pdf -text
+*.zip -text
+*.png -text
+*.jpg -text
+*.xlsx -text
+*.docx -text
+# Preserve manifest-managed frozen bytes, including CRLF data and scripts.
+baselines/** -text
+generated/** -text
