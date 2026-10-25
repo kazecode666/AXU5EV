@@ -41,6 +41,8 @@
 
 日期：2026-10-26。继续AX-01 R5软件提取与PS—PL边界，再按AXU5EVB-E集成PL；继承已有模型与MBDL4接口，无需重做PI/FOC或重复LED学习。参数、代码生成和硬件测试状态见实际提交报告，不从目录存在推定已实现。
 
+首批[R5软件提取结果](coordination/reports/ax01_r5_extraction.md)：外环/Reference_Manager/原对齐已提取到`firmware/r5/AXU5EV_R5_Control.slx`，主机C生成与五组回放通过；命令/轨迹部署、R5平台和PL集成待继续。软件/PL端口对应见[接口边界](integration/ps_pl/INTERFACE.md)。
+
 ## 本地打开与复验
 
 在本仓库根目录执行 `setup_AXU5EV; init_PMLSM_PI_FOC_Float_Baseline;`，再打开 `PMLSM_PI_FOC_Float_Baseline`。初始化仍是外部 `.m` 入口；默认10 mm、5 s、V10/A100未改。停止后选择 `FOC_Impl_Select=0` 浮点或 `1` 固定FOC。不要给 references/baselines 使用递归 genpath。
