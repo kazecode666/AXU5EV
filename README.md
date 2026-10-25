@@ -45,6 +45,8 @@
 
 混合闭环从 `addpath('scripts'); ax01b_prepare_hybrid('c_fixed');` 开始；停止后可选`model_fixed`／`c_rtl`。首次构建、同次Run改目标／Send、对齐及正常场景见[操作指南](docs/AXU5EV_HYBRID_RUN_GUIDE_ZH.md)。`c_rtl`实际运行原p3 SV，不以GM模型或录制输入替代反馈。
 
+开放实现[PR #7](https://github.com/kazecode666/AXU5EV/pull/7)等待Review；未自动合并或上板。
+
 ## 本地打开与复验
 
 在本仓库根目录执行 `setup_AXU5EV; init_PMLSM_PI_FOC_Float_Baseline;`，再打开 `PMLSM_PI_FOC_Float_Baseline`。初始化仍是外部 `.m` 入口；默认10 mm、5 s、V10/A100未改。停止后选择 `FOC_Impl_Select=0` 浮点或 `1` 固定FOC。不要给 references/baselines 使用递归 genpath。
