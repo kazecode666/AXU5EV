@@ -2,6 +2,8 @@
 
 **当前优先：Issue #8，修复默认10 mm运行和PI_Reset释放异常，统一仿真入口。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。PR #7已合并，其1 mm脚本结果作为历史保留，不代替当前10 mm验收。修复证据和边界见[Issue #8报告](coordination/reports/issue8_manual_run.md)。
 
+本轮修复[PR #9](https://github.com/kazecode666/AXU5EV/pull/9)开放供Review；主机10 mm、连续命令及复位验证已完成，实际Dashboard操作与完整RTL点位尚待核验。
+
 ## 目标与分工
 
 以 Simulink/Stateflow 维护算法，重点研究电流控制方法。Cortex-R5F 承担速度/位置控制、原启动对齐、参考/轨迹及运行管理；PL 承担电流控制、同步采样与接口、PWM时序及快速禁止。R5软件由模型生成C，PL算法由HDL Coder生成SystemVerilog；初版采用一个R5F实时核、裸机方向，不预设A53/Linux或多核通信。

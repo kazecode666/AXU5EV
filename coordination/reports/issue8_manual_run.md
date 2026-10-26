@@ -2,6 +2,8 @@
 
 仓库 `kazecode666/AXU5EV`；来源为已合并 PR #7，按 Issue #8 及其最新评论继续。保留用户 Hybrid、Runtime、Control 的紫色区域布局；不调整 PI、轨迹或五态对齐算法。
 
+开放实现[PR #9](https://github.com/kazecode666/AXU5EV/pull/9)。接口修复提交`08e727e64e2a04c4f9666b513d5704e71e8b84f2`，入口与验证结果提交`3d5d009e1c85b1bfddf3b041711c91496189c374`；不自动合并。
+
 ## 已确认的第一处错误边界
 
 用户调整 Hybrid 接线后，`R5_Input_Snapshot` 的输入分组顺序已成为“命令11、replay3、速度1、对齐使能1、Start1、Reset1、故障1、位置1”；Runtime Demux 仍按“命令11、位置1、速度1、对齐4、replay3”解释。总宽度均20，因此旧配置能够编译，但位置读成replay速度0、速度读成replay PWM 1，其余字段也错位。

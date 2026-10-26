@@ -12,7 +12,7 @@
 
 用户Hybrid、Runtime、Control紫色分区保留；只微调受影响接线与新观察器。MATLAB/Simulink后续只通过MCP操作，不用Computer Use。Dashboard绑定及程序输入已验证，实际鼠标/键盘操作NOT_RUN；说明已给最短人工步骤。c_rtl本轮仅实际213帧短链路验证通过，完整10 mm RTL到位NOT_RUN，不拿PR7旧1 mm结果替代。
 
-本轮等待修复PR Review与上述人工核验，不自动合并，不继续上板。接口修复提交`08e727e64e2a04c4f9666b513d5704e71e8b84f2`；最终PR与实现/结果提交信息补在本文件末尾。
+本轮开放修复[PR #9](https://github.com/kazecode666/AXU5EV/pull/9)，等待Review与上述人工核验，不自动合并，不继续上板。接口修复提交`08e727e64e2a04c4f9666b513d5704e71e8b84f2`；入口/验证结果提交`3d5d009e1c85b1bfddf3b041711c91496189c374`。仓库均为`kazecode666/AXU5EV`，不是旧仓库编号。
 
 ## 固定方向与可复用来源
 
