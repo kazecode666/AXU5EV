@@ -13,7 +13,7 @@
 
 | 显示 | 行顺序 |
 |---|---|
-| `R5_Sampled_Send_Ready_Busy` | R5实际采样Send、当前Ready、当前Busy |
+| `R5_Sampled_Send_Ready_Busy` | R5实际采样Send、当前提交的Ready、当前提交的Busy（均为该拍请求处理后） |
 | `R5_Command_Receipt` | 最近请求接收软件秒、Host状态、累计接受数、累计拒绝数、段号、接受目标mm |
 
 接收时间更新且拒绝数增加，表示请求已采集并拒绝；不应误判为Send失效。初始status=1、接受数/段号=1是自动首段，接收秒初值0。快速连续翻转两次若都发生在相邻100 µs采样之间，可能抵消；每次翻转后先确认回执再操作。显示用于观察，不锁存Ready或改变接收条件。
@@ -37,6 +37,8 @@ Dashboard绑定已通过MCP检查；本轮不使用Computer Use，输入框按�
 axu5ev_prepare('c_fixed',true); % 或c_rtl；使用当前已初始化参数，不恢复默认目标
 ```
 
+**从PR7旧映射升级时，必须显式重建一次Runtime的C MEX。** 20字段总宽度没变，旧MEX仍可能加载，但位置/速度会读错；不能只重接SLX继续使用旧产物。PR9已执行该重建，本轮使用的本机MEX为`.runtime/ax01b/ax01b_r5_sfun.mexw64`，并核对其实际闭环输入/提交。普通查看、排版、Run或切换到已有c_rtl不重复重建。
+
 不要在另一个MATLAB正在使用相同MEX/DLL时重建。Vivado路径只在init中的 `AX01B_Vivado_Root` 设置。完整缓存、MEX、XSI及生成工程在仓库 `.runtime/ax01b/`。仅切换后端或查看模型不应重复运行初始化；**START_HERE明确重新加载文件中的参数，不能在运行/暂停中使用它刷新面板**。
 
 ## 手动对齐与各类复位
@@ -59,6 +61,28 @@ Hybrid输入Mux与Runtime的Demux均为分组宽度 `[11 3 1 1 1 1 1 1]`：**1:1
 
 SDI直接使用 `draft_target_mm`、`accepted_target_mm`、`x_ref_mm`、`x_mm`、`position_error_mm`、`v_ref_mmps/v_mmps`、`id_ref_A/id`、`iq_ref_A/iq`、`Ready/Busy/command_status`、`send_toggle`、`pi_reset_request/effective_reset`；面板同时显示backend与仿真时间。不要把草稿目标、接受目标与轨迹参考混作一条信号。
 
+### 模块怎样组成闭环
+
+当前用PC执行“未来归R5的软件功能”，没有真实R5、指令集或周期精确处理器模型。Runtime、f()和MEX均不是R5处理器仿真器；20/41字段也不是已实现的AXI。将来替换的是PC软件执行环境，电机对象和Dashboard不搬进R5。
+
+| 实际模块/区域 | 搭建与连接 |
+|---|---|
+| Hybrid的`Simple_Host`→`R5_Input_Snapshot` | 面板只给目标、使能、Send等命令；11字段命令、3字段replay、速度、4项对齐/故障输入及位置经Mux组成20字段。Mux仅拼数据，不采样。模型分支由Runtime的100 µs基步执行；C分支的`Generated_Runtime_Step`每100 µs采集一次快照并提交。速度在15、位置在20。 |
+| `R5_Execution` | 实际为Variant Subsystem。`Model_Runtime`是引用`AXU5EV_R5_Runtime`的Model块；`Generated_C/Generated_Runtime_Step`是`ax01b_r5_sfun` S-function。`axu5ev_prepare`设置`AX01B_Use_C`选择分支，普通Run不编译。Runtime由`axu5ev_build_runtime`生成C并编译成PC MEX，由S-function每100 µs调用后输出41字段。 |
+| Runtime的Host、`Alignment_Task`、`Motion_Control` | `Host_Core`是MATLAB Function，接命令、反馈和对齐许可，内部产生轨迹并管理接受/拒绝；`Alignment_Task`复用原五态、手动Start和一次性偏置；`Motion_Control`复用Control中的位置P、速度PI、`Reference_Manager`及对齐/故障参考选择，输出id/iq/v参考。Runtime是当前完整软件生成源；独立Control的修改不会自动同步到Runtime。 |
+| f()与`Scheduler_10k_1k_100` | `Alignment_Tick_10kHz`、`Control_Tick_10kHz`均为Function-Call Generator，SampleTime=`Ts=100 µs`，分别调用函数调用子系统；优先级−100/+100配合数据依赖形成对齐→Host→外环顺序。Motion_Control内部两个计数链按/10、再/10产生1 ms速度、10 ms位置事件，原首拍0.9/9.9 ms及输出保持不变。这是模型调度，不是已实现的R5硬件中断。 |
+| `R5_Commit_Fields`→`Alignment_Interface` | Demux拆分41字段：id/iq/v参考、对齐状态/偏置/模式、主机请求以及轨迹/命令观测。接口按旁路/对齐/运行选择控制角与速度，应用偏置并给出PWM许可；id/iq、控制角/速度、有效PI复位及母线进入FOC。Ready/计数/段号仅供命令管理和观察，不是门极信号。 |
+| `FOC_Execution`与50 µs应用 | 第二个Variant Subsystem以`AX01B_Use_RTL`选择`Fixed_Reference`中的定点FOC模型，或`P3_RTL/Actual_P3_XSI`的`ax01b_foc_xsi_sfun`。`FOC_Input_Hold_100us`先保持九字段，再统一量化；真实SV执行完整5000拍。`Apply_At_Half_Frame`的SampleTime=`[Ts_ACR M1A_PWM_Update_Delay_s]=[100 µs 50 µs]`，调用`PWM_Update_HalfTs`，同帧duty只在+50 µs应用一次。 |
+| `Inverter_DeadTime`、`PMLSM_Plant_Model` | 共用原一次平均死区及1 µs逆变器/电机对象；施加电压驱动对象，其三相电流、位置、速度、角度再反馈至软件/FOC。PWM禁止后机械仍演化。它们是闭环对象，不属于R5软件模块。 |
+
+以下是当前SLX的局部导出，未为讲解重排模型或改变执行边界：
+
+选择区图中的灰色表示导出当时未选中的分支。
+
+![R5模型/C选择](../verification/ax01c/r5_execution.png)
+
+![速度与位置事件计数链](../verification/ax01c/scheduler.png)
+
 ## 针对性复验
 
 先按正常路径运行START_HERE，再执行所需工况；脚本不替代Dashboard实测：
@@ -71,8 +95,13 @@ axu5ev_run_case('c_fixed','reset_moving'); % 运动中PI_Reset=1→0
 axu5ev_run_case('c_fixed','restart_short');% Stop后新Run的初态
 axu5ev_verify_send('model_fixed');        % Ready回落边界、双向翻转及明确回执
 axu5ev_verify_send('c_fixed');            % 同一输入链，使用现有C MEX，不重生成算法
+axu5ev_closeout_run('c_fixed');           % Issue13：固定命令时刻的10→0→−2 mm
+axu5ev_closeout_run('c_rtl');             % 完整真实SV反馈，使用同一命令时刻
+axu5ev_closeout_export;                   % 导出上述两组的主要差异与曲线
 ```
 
 旧工况脚本修改绑定常数；新增发送复验从Dashboard实际Binding读取变量名，用 `simulation.setVariable` 调节同一变量，记录快照变化及R5提交，不能等同于真实鼠标点击。完整结果在 `.runtime/issue8/`，精简事件CSV在 `verification/issue8/`。`axu5ev_send_trace(out)` 用记录的真实反馈逐拍复算原Host，在请求拍用状态副本核对处理前Ready/Busy及allowed，并检查复算结果与全部实际提交一致；不修改运行状态。
 
 旧 `scripts/ax01b_run_closedloop` 的1 mm工况只作PR7历史记录，不作为当前10 mm验收。先前修复见[Issue #8报告](../coordination/reports/issue8_manual_run.md)，本次发送边界见[发送与Ready报告](../coordination/reports/issue8_send_ready.md)。所有结果均为主机功能仿真；R5目标执行、AXI、5EV综合/布线、ARM实测、烧录、功率级上电NOT_RUN。
+
+Issue #13完整收尾已完成：同一命令时刻的C/定点与C/真实SV均完成10→0→−2 mm，实际RTL 64536帧；三段原Ready均出现，主要物理量/参考/应用duty差均0。实际范围、曲线和CSV见[AX-01C报告](../coordination/reports/ax01c_simulation_closeout.md)。

@@ -1,0 +1,12 @@
+signal,unit,max_abs,rms,max_duty_word_error
+x_mm,mm,0,0,NaN
+v_mmps,mm/s,0,0,NaN
+id,A,0,0,NaN
+iq,A,0,0,NaN
+duty_u_applied,ratio,0,0,0
+duty_v_applied,ratio,0,0,0
+duty_w_applied,ratio,0,0,0
+x_ref_mm,mm,0,0,NaN
+v_ref_mmps,mm/s,0,0,NaN
+id_ref_A,A,0,0,NaN
+iq_ref_A,A,0,0,NaN
