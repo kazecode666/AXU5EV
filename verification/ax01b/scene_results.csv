@@ -1,0 +1,13 @@
+mode,scene,frames,last_frame_s,final_x_mm,accepted_target_mm,accepted,rejected,final_ready,Init_Done
+model_fixed,point,12000,1.1999,0.981298983352685,1,1,0,1,0
+c_fixed,point,12000,1.1999,0.981298983352685,1,1,0,1,0
+c_rtl,point,12000,1.1999,0.981298983352685,1,1,0,1,0
+model_fixed,continuous,26431,2.643,-0.0829937462824664,-0.1,3,1,0,0
+c_fixed,continuous,26431,2.643,-0.0829937462824664,-0.1,3,1,0,0
+c_rtl,continuous,26431,2.643,-0.0829937462824664,-0.1,3,1,0,0
+model_fixed,alignment,49001,4.9,0.983287626550268,1,1,0,0,1
+c_fixed,alignment,49001,4.9,0.983287626550268,1,1,0,0,1
+c_rtl,alignment,49001,4.9,0.983287626550268,1,1,0,0,1
+model_fixed,stop_reset,12000,1.1999,0.089330950265594,1,1,0,0,0
+c_fixed,stop_reset,12000,1.1999,0.089330950265594,1,1,0,0,0
+c_rtl,stop_reset,12000,1.1999,0.089330950265594,1,1,0,0,0
