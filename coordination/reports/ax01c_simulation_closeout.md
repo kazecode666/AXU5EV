@@ -2,6 +2,8 @@
 
 仓库`kazecode666/AXU5EV`，本地`D:/Project/AXU5EV`，日期2026-10-27。执行[Issue #13最新正文](https://github.com/kazecode666/AXU5EV/issues/13)，基于PR #12合并提交`22c783d57a8ed43773efa2c986f2d5dab9731852`。取消原C源码学习与教学配置任务，不实施Issue #11或板级工作。
 
+开放实现[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)，实现/证据提交`9a6877546581301638a2bde7203db47896b4f8aa`，等待Review，不自动合并。
+
 ## 必要小修与实际运行条件
 
 - `axu5ev_run_case.m`在保存前创建自己的`.runtime/issue8/`输出目录，修复干净环境下仅因目录缺失而保存失败的问题。
