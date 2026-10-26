@@ -1,5 +1,6 @@
 function result=ax01b_run_closedloop(mode,scene)
 % 通过现有面板绑定的常数入口下发命令；不写下游轨迹或电流参考。
+% PR7历史1mm场景；当前10mm验收使用simulation/axu5ev_run_case。
 if nargin<1,mode='c_fixed';end
 if nargin<2,scene='continuous';end
 m=ax01b_prepare_hybrid(mode);

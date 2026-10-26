@@ -1,5 +1,7 @@
 # 来源与迁移清单
 
+Issue #8之后，活动模型及必要.m集中在`simulation/`，日常从`START_HERE.m`进入。下表的旧源路径和AX-00历史证据保留，当前使用路径以主README及同目录运行说明为准。
+
 AX-00实际文件和逐项源/目标哈希见 [`migration_inventory.csv`](../coordination/reports/migration_inventory.csv)，局部布局采纳见 [`layout_adoption.json`](../coordination/reports/layout_adoption.json)，本地版本差异见 [`local_source_comparison.json`](../coordination/reports/local_source_comparison.json)。下表保留迁移准则，不将历史证据当作5EV验收。
 
 源仓库：`kazecode666/FPGA_XC7A200T_Study`。

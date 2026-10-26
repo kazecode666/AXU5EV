@@ -1,0 +1,6 @@
+frames,position_snapshot_error_mm,speed_snapshot_error_mmps,ready_window_error_mm,application_error_s,duty_word_error,case_name
+50001,0,0,0.0198840936184173,1.16531404751458e-16,0,model_fixed_default
+64536,0,0,0.0195092988555845,1.16531404751458e-16,0,c_fixed_continuous
+6000,0,0,NaN,5.50910228894197e-18,0,c_fixed_reset_release
+10000,0,0,NaN,5.50910228894197e-18,0,c_fixed_reset_moving
+3000,0,0,NaN,5.50910228894197e-18,0,c_fixed_restart_short

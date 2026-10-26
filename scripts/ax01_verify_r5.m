@@ -2,9 +2,9 @@ function results = ax01_verify_r5(runSIL)
 % 验证R5提取边界；在独立MATLAB进程运行，不修改原控制模型。
 if nargin == 0, runSIL = false; end
 root = fileparts(fileparts(mfilename('fullpath')));
-addpath(fullfile(root,'simulink模型'),fullfile(root,'firmware','r5'), ...
+addpath(fullfile(root,'simulation'), ...
     fullfile(root,'verification','r5'));
-evalin('base','init_PMLSM_PI_FOC_Float_Baseline;');
+evalin('base','init_AXU5EV;');
 runtime = fullfile(root,'.runtime','ax01');
 if ~isfolder(runtime), mkdir(runtime); end
 Simulink.fileGenControl('set','CacheFolder',fullfile(runtime,'cache'), ...

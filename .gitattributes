@@ -16,3 +16,4 @@ references/legacy/** -text
 scripts/** -text
 verification/** -text
 simulink*/** -text
+simulation/*.m -text

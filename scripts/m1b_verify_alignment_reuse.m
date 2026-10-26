@@ -1,7 +1,7 @@
 function result=m1b_verify_alignment_reuse(stage)
 % 原MIL chart逐拍对照；闭环物理结果单独列出。
 if nargin==0,stage='all';end
-root=fileparts(fileparts(mfilename('fullpath')));addpath(fullfile(root,'simulink模型'));evalin('base','init_PMLSM_PI_FOC_Float_Baseline;');
+root=fileparts(fileparts(mfilename('fullpath')));addpath(fullfile(root,'simulation'));evalin('base','init_AXU5EV;');
 source='PMLSM_ControlCore_Block/PMLSM_ControlCore/Angle_Init';m='PMLSM_PI_FOC_Float_Baseline';target=[m '/Alignment_Task_10kHz/Enabled_Original_MIL/Angle_Init'];
 load_system(fullfile(root,'references/legacy/mil/PMLSM_ControlCore_Block.slx'));if ~bdIsLoaded(m),open_system(fullfile(root,'simulink模型',[m '.slx']));end
 r=sfroot;a=r.find('-isa','Stateflow.Chart','Path',source);b=r.find('-isa','Stateflow.Chart','Path',target);assert(isequal(labels(a),labels(b)),'M1B:CHART_CHANGED','源状态动作或转移优先级变化。');
@@ -18,7 +18,7 @@ if strcmp(stage,'chart'),f=fopen(fullfile(folder,'alignment_chart_acceptance.jso
 % Actual DSP saved chart is a cross-check, never the copied implementation.
 load_system(fullfile(root,'references/legacy/mil/PMSLM_Close_Loop_MBDL4.slx'));d=r.find('-isa','Stateflow.Chart','Path','PMSLM_Close_Loop_MBDL4/FOC_3Close_Loop_Control/Angle_Init');result.DSP_states={d.find('-isa','Stateflow.State').Name};
 % Closed-loop nominal source scene has zero physical position/angle. No invented offset.
-evalin('base','init_PMLSM_PI_FOC_Float_Baseline;Alignment_Enable=1;Init_Start=1;Host_AutoStart_EN=0;M1A_StopTime_s=4.5;');out=sim(m);v=out.logsout.get('Init_State_Num').Values;transitionTimes=zeros(1,4);for s=1:4,j=find(v.Data==s,1);assert(~isempty(j));transitionTimes(s)=v.Time(j);end
+evalin('base','init_AXU5EV;Alignment_Enable=1;Init_Start=1;Host_AutoStart_EN=0;M1A_StopTime_s=4.5;');out=sim(m);v=out.logsout.get('Init_State_Num').Values;transitionTimes=zeros(1,4);for s=1:4,j=find(v.Data==s,1);assert(~isempty(j));transitionTimes(s)=v.Time(j);end
 assert(max(abs(diff(transitionTimes)-[1 3 .2]))<1e-12);
 id=out.logsout.get('id_controller').Values;iq=out.logsout.get('iq_controller').Values;ta=out.logsout.get('theta_control_rad').Values;tb=out.logsout.get('theta_true_rad').Values;
 % Uniform100us snapshot for physical comparisons, no event shifts.

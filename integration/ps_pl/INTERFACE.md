@@ -4,7 +4,7 @@
 
 ## 算法与时序
 
-PR5的`firmware/r5/AXU5EV_R5_Control.slx`为组件来源。本轮新增`AXU5EV_R5_Runtime.slx`，复用其中Motion_Control／Alignment_Task并直接纳入原Simple_Host/Host_Core；每100µs调用一次生成C的`AXU5EV_R5_Runtime_step()`。内部保留1ms速度、10ms位置首相和保持行为。初始化仅在新Run发生，暂停／继续不初始化。板上定时/中断、任务抖动和WCET待实现及测量。
+PR5的`simulation/AXU5EV_R5_Control.slx`为组件来源。本轮新增`AXU5EV_R5_Runtime.slx`，复用其中Motion_Control／Alignment_Task并直接纳入原Simple_Host/Host_Core；每100µs调用一次生成C的`AXU5EV_R5_Runtime_step()`。内部保留1ms速度、10ms位置首相和保持行为。初始化仅在新Run发生，暂停／继续不初始化。板上定时/中断、任务抖动和WCET待实现及测量。
 
 R5保留位置P、速度PI、Reference_Manager、五态对齐、一次性偏置和参考选择/故障置零。原Host_Core调用原`pmlsm_point_move_step`／`pmlsm_scurve_profile`，状态位于生成C。PL职责仍为电流FOC、采样/位置同步、每帧角度与偏置应用、PWM及快速禁止；本轮角度和实际许可仍由共享集成模型显式计算，尚未硬件化。
 
