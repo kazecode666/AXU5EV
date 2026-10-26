@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'AXU5EV_R5_Runtime'.
  *
- * Model version                  : 1.10
+ * Model version                  : 1.48
  * Simulink Coder version         : 26.2 (R2026b) 22-May-2026
- * C/C++ source code generated on : Mon Oct 26 03:42:13 2026
+ * C/C++ source code generated on : Mon Oct 26 17:02:00 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -266,7 +266,7 @@ void AXU5EV_R5_Runtime_step(void)
    *  EnablePort: '<S4>/Enable'
    */
   /* Inport: '<Root>/runtime_u' */
-  if (AXU5EV_R5_Runtime_U.runtime_u[13] > 0.0) {
+  if (AXU5EV_R5_Runtime_U.runtime_u[15] > 0.0) {
     /* Chart: '<S4>/Angle_Init' */
     if (AXU5EV_R5_Runtime_DW.temporalCounter_i1 < UINT32_MAX) {
       AXU5EV_R5_Runtime_DW.temporalCounter_i1++;
@@ -282,8 +282,8 @@ void AXU5EV_R5_Runtime_step(void)
     } else {
       switch (AXU5EV_R5_Runtime_DW.is_c3_AXU5EV_R5_Runtime) {
        case AXU5EV_R5_Runtime_IN_DONE:
-        if ((AXU5EV_R5_Runtime_U.runtime_u[15] > 0.5) ||
-            (AXU5EV_R5_Runtime_U.runtime_u[16] > 0.5)) {
+        if ((AXU5EV_R5_Runtime_U.runtime_u[17] > 0.5) ||
+            (AXU5EV_R5_Runtime_U.runtime_u[18] > 0.5)) {
           AXU5EV_R5_Runtime_DW.is_c3_AXU5EV_R5_Runtime =
             AXU5EV_R5_Runtime_IN_IDLE;
           AXU5EV_R5_Runtime_DW.Angle_Init_EN = 0.0;
@@ -301,8 +301,8 @@ void AXU5EV_R5_Runtime_step(void)
         break;
 
        case AXU5EV_R5_Runtime_IN_HOLD_ALIGN:
-        if ((AXU5EV_R5_Runtime_U.runtime_u[15] > 0.5) ||
-            (AXU5EV_R5_Runtime_U.runtime_u[16] > 0.5)) {
+        if ((AXU5EV_R5_Runtime_U.runtime_u[17] > 0.5) ||
+            (AXU5EV_R5_Runtime_U.runtime_u[18] > 0.5)) {
           AXU5EV_R5_Runtime_DW.is_c3_AXU5EV_R5_Runtime =
             AXU5EV_R5_Runtime_IN_IDLE;
           AXU5EV_R5_Runtime_DW.Angle_Init_EN = 0.0;
@@ -311,7 +311,7 @@ void AXU5EV_R5_Runtime_step(void)
           AXU5EV_R5_Runtime_DW.Init_State_Num = 0.0;
         } else if (AXU5EV_R5_Runtime_DW.temporalCounter_i1 >= 30000U) {
           AXU5EV_R5_Runtime_DW.x_align_mm_latch = AXU5EV_R5_Runtime_U.runtime_u
-            [11];
+            [19];
           rtb_v_ref_cmd = 0.0 - 6.283185307179586 *
             AXU5EV_R5_Runtime_DW.x_align_mm_latch / 60.0;
           if (rtIsNaN(rtb_v_ref_cmd)) {
@@ -351,9 +351,9 @@ void AXU5EV_R5_Runtime_step(void)
         break;
 
        case AXU5EV_R5_Runtime_IN_IDLE:
-        if ((AXU5EV_R5_Runtime_U.runtime_u[14] > 0.5) &&
-            (AXU5EV_R5_Runtime_U.runtime_u[15] < 0.5) &&
-            (AXU5EV_R5_Runtime_U.runtime_u[16] < 0.5)) {
+        if ((AXU5EV_R5_Runtime_U.runtime_u[16] > 0.5) &&
+            (AXU5EV_R5_Runtime_U.runtime_u[17] < 0.5) &&
+            (AXU5EV_R5_Runtime_U.runtime_u[18] < 0.5)) {
           AXU5EV_R5_Runtime_DW.temporalCounter_i1 = 0U;
           AXU5EV_R5_Runtime_DW.is_c3_AXU5EV_R5_Runtime =
             AXU5EV_R5_Runtime_IN_RAMP_ID;
@@ -372,8 +372,8 @@ void AXU5EV_R5_Runtime_step(void)
           AXU5EV_R5_Runtime_DW.Init_Done = 1.0;
           AXU5EV_R5_Runtime_DW.id_init_ref = 0.0;
           AXU5EV_R5_Runtime_DW.Init_State_Num = 4.0;
-        } else if ((AXU5EV_R5_Runtime_U.runtime_u[15] > 0.5) ||
-                   (AXU5EV_R5_Runtime_U.runtime_u[16] > 0.5)) {
+        } else if ((AXU5EV_R5_Runtime_U.runtime_u[17] > 0.5) ||
+                   (AXU5EV_R5_Runtime_U.runtime_u[18] > 0.5)) {
           AXU5EV_R5_Runtime_DW.is_c3_AXU5EV_R5_Runtime =
             AXU5EV_R5_Runtime_IN_IDLE;
           AXU5EV_R5_Runtime_DW.Angle_Init_EN = 0.0;
@@ -395,8 +395,8 @@ void AXU5EV_R5_Runtime_step(void)
 
        default:
         /* case IN_RAMP_ID: */
-        if ((AXU5EV_R5_Runtime_U.runtime_u[15] > 0.5) ||
-            (AXU5EV_R5_Runtime_U.runtime_u[16] > 0.5)) {
+        if ((AXU5EV_R5_Runtime_U.runtime_u[17] > 0.5) ||
+            (AXU5EV_R5_Runtime_U.runtime_u[18] > 0.5)) {
           AXU5EV_R5_Runtime_DW.is_c3_AXU5EV_R5_Runtime =
             AXU5EV_R5_Runtime_IN_IDLE;
           AXU5EV_R5_Runtime_DW.Angle_Init_EN = 0.0;
@@ -464,11 +464,17 @@ void AXU5EV_R5_Runtime_step(void)
    */
   rtb_Software_Time_s = 0.0001 * AXU5EV_R5_Runtime_DW.Software_Tick_DSTATE;
 
+  /* Logic: '<Root>/Alignment_Fault_Active' incorporates:
+   *  Inport: '<Root>/runtime_u'
+   */
+  rtb_Alignment_Fault_Active = ((AXU5EV_R5_Runtime_U.runtime_u[15] != 0.0) &&
+    (AXU5EV_R5_Runtime_U.runtime_u[18] != 0.0));
+
   /* Logic: '<Root>/Not_Alignment_Enable' incorporates:
    *  Inport: '<Root>/runtime_u'
    *  Logic: '<Root>/Alignment_Reset_Active'
    */
-  rtb_Alignment_Ready = !(AXU5EV_R5_Runtime_U.runtime_u[13] != 0.0);
+  rtb_Alignment_Ready = !(AXU5EV_R5_Runtime_U.runtime_u[15] != 0.0);
 
   /* Logic: '<Root>/Init_Done_Or_Bypass' incorporates:
    *  Logic: '<Root>/Not_Alignment_Enable'
@@ -476,20 +482,14 @@ void AXU5EV_R5_Runtime_step(void)
   rtb_Init_Done_Or_Bypass = (rtb_Alignment_Ready ||
     (AXU5EV_R5_Runtime_DW.Init_Done_p != 0.0));
 
-  /* Logic: '<Root>/Alignment_Fault_Active' incorporates:
-   *  Inport: '<Root>/runtime_u'
-   */
-  rtb_Alignment_Fault_Active = ((AXU5EV_R5_Runtime_U.runtime_u[13] != 0.0) &&
-    (AXU5EV_R5_Runtime_U.runtime_u[16] != 0.0));
-
   /* Logic: '<Root>/Alignment_Ready' incorporates:
    *  Inport: '<Root>/runtime_u'
    *  Logic: '<Root>/Alignment_Reset_Active'
    *  Logic: '<Root>/Not_Alignment_Fault'
    *  Logic: '<Root>/Not_Alignment_Reset'
    */
-  rtb_Alignment_Ready = (rtb_Init_Done_Or_Bypass && !rtb_Alignment_Fault_Active &&
-    (rtb_Alignment_Ready || !(AXU5EV_R5_Runtime_U.runtime_u[15] != 0.0)));
+  rtb_Alignment_Ready = (!rtb_Alignment_Fault_Active && rtb_Init_Done_Or_Bypass &&
+    (rtb_Alignment_Ready || !(AXU5EV_R5_Runtime_U.runtime_u[17] != 0.0)));
 
   /* MATLAB Function: '<Root>/Host_Core' incorporates:
    *  Inport: '<Root>/runtime_u'
@@ -502,22 +502,22 @@ void AXU5EV_R5_Runtime_step(void)
   PWM_EN = AXU5EV_R5_Runtime_U.runtime_u[7];
   PI_Reset_EN = AXU5EV_R5_Runtime_U.runtime_u[8];
   if (AXU5EV_R5_Runtime_U.runtime_u[9] != 0.0) {
-    rtb_v_ref_cmd = AXU5EV_R5_Runtime_U.runtime_u[17];
-    PWM_EN = AXU5EV_R5_Runtime_U.runtime_u[18];
-    PI_Reset_EN = AXU5EV_R5_Runtime_U.runtime_u[19];
+    rtb_v_ref_cmd = AXU5EV_R5_Runtime_U.runtime_u[11];
+    PWM_EN = AXU5EV_R5_Runtime_U.runtime_u[12];
+    PI_Reset_EN = AXU5EV_R5_Runtime_U.runtime_u[13];
   }
 
   if (AXU5EV_R5_Runtime_DW.move_state[0] == 0.0) {
     AXU5EV_R5_Runtime_DW.move_state[0] = 1.0;
     AXU5EV_R5_Runtime_DW.move_state[1] = AXU5EV_R5_Runtime_U.runtime_u[10];
-    AXU5EV_R5_Runtime_DW.move_state[2] = AXU5EV_R5_Runtime_U.runtime_u[11];
-    AXU5EV_R5_Runtime_DW.move_state[3] = AXU5EV_R5_Runtime_U.runtime_u[11];
+    AXU5EV_R5_Runtime_DW.move_state[2] = AXU5EV_R5_Runtime_U.runtime_u[19];
+    AXU5EV_R5_Runtime_DW.move_state[3] = AXU5EV_R5_Runtime_U.runtime_u[19];
     AXU5EV_R5_Runtime_DW.move_state[4] = rtb_Software_Time_s;
     AXU5EV_R5_Runtime_DW.move_state[6] = 1.0;
     AXU5EV_R5_Runtime_DW.move_state[13] = -1.0;
-    AXU5EV_R5_Runtime_DW.move_state[14] = AXU5EV_R5_Runtime_U.runtime_u[11];
+    AXU5EV_R5_Runtime_DW.move_state[14] = AXU5EV_R5_Runtime_U.runtime_u[19];
     AXU5EV_R5_Runtime_DW.move_state[15] = rtb_Alignment_Ready;
-    if (AXU5EV_R5_Runtime_U.runtime_u[13] == 0.0) {
+    if (AXU5EV_R5_Runtime_U.runtime_u[15] == 0.0) {
       AXU5EV_R5_Runtime_DW.move_state[2] = 0.0;
       AXU5EV_R5_Runtime_DW.move_state[3] = AXU5EV_R5_Runtime_U.runtime_u[0];
       AXU5EV_R5_Runtime_DW.move_state[4] = 0.05;
@@ -537,17 +537,17 @@ void AXU5EV_R5_Runtime_step(void)
   new_tick = (tick != AXU5EV_R5_Runtime_DW.move_state[13]);
   if (new_tick) {
     AXU5EV_R5_Runtime_DW.move_state[13] = tick;
-    if ((AXU5EV_R5_Runtime_U.runtime_u[13] != 0.0) && rtb_Alignment_Ready &&
+    if ((AXU5EV_R5_Runtime_U.runtime_u[15] != 0.0) && rtb_Alignment_Ready &&
         (AXU5EV_R5_Runtime_DW.move_state[15] == 0.0)) {
-      AXU5EV_R5_Runtime_DW.move_state[2] = AXU5EV_R5_Runtime_U.runtime_u[11];
-      AXU5EV_R5_Runtime_DW.move_state[3] = AXU5EV_R5_Runtime_U.runtime_u[11];
+      AXU5EV_R5_Runtime_DW.move_state[2] = AXU5EV_R5_Runtime_U.runtime_u[19];
+      AXU5EV_R5_Runtime_DW.move_state[3] = AXU5EV_R5_Runtime_U.runtime_u[19];
       AXU5EV_R5_Runtime_DW.move_state[4] = rtb_Software_Time_s;
       AXU5EV_R5_Runtime_DW.move_state[5] = 0.0;
       AXU5EV_R5_Runtime_DW.move_state[6] = 1.0;
       AXU5EV_R5_Runtime_DW.move_state[7] = 0.0;
       AXU5EV_R5_Runtime_DW.move_state[8] = 0.0;
       AXU5EV_R5_Runtime_DW.move_state[12] = 0.0;
-      AXU5EV_R5_Runtime_DW.move_state[14] = AXU5EV_R5_Runtime_U.runtime_u[11];
+      AXU5EV_R5_Runtime_DW.move_state[14] = AXU5EV_R5_Runtime_U.runtime_u[19];
     }
 
     AXU5EV_R5_Runtime_DW.move_state[15] = rtb_Alignment_Ready;
@@ -624,7 +624,7 @@ void AXU5EV_R5_Runtime_step(void)
     if (rtb_Compare) {
       if (AXU5EV_R5_Runtime_DW.move_state[6] != 0.0) {
         if (AXU5EV_R5_Runtime_DW.move_state[12] == 0.0) {
-          if (fabs(AXU5EV_R5_Runtime_U.runtime_u[11] -
+          if (fabs(AXU5EV_R5_Runtime_U.runtime_u[19] -
                    AXU5EV_R5_Runtime_DW.move_state[3]) <= 0.020000001) {
             AXU5EV_R5_Runtime_DW.move_state[8] = fmin
               (AXU5EV_R5_Runtime_DW.move_state[8] + 1.0, 5.0);
@@ -693,7 +693,7 @@ void AXU5EV_R5_Runtime_step(void)
   }
 
   AXU5EV_R5_Runtime_DW.move_state[14] = V;
-  if ((AXU5EV_R5_Runtime_U.runtime_u[13] != 0.0) && !rtb_Alignment_Ready) {
+  if ((AXU5EV_R5_Runtime_U.runtime_u[15] != 0.0) && !rtb_Alignment_Ready) {
     Position_Loop_EN = 0.0;
     Close_Loop_EN = 0.0;
     q = 1.0;
@@ -731,7 +731,7 @@ void AXU5EV_R5_Runtime_step(void)
      *  Inport: '<Root>/runtime_u'
      *  MATLAB Function: '<Root>/Host_Core'
      */
-    rtb_Software_Time_s = V - AXU5EV_R5_Runtime_U.runtime_u[11];
+    rtb_Software_Time_s = V - AXU5EV_R5_Runtime_U.runtime_u[19];
 
     /* DeadZone: '<S6>/Dead Zone' */
     if (rtb_Software_Time_s > 0.02) {
@@ -840,7 +840,7 @@ void AXU5EV_R5_Runtime_step(void)
     /* Sum: '<S9>/Sum' incorporates:
      *  Inport: '<Root>/runtime_u'
      */
-    tick = rtb_Software_Time_s - AXU5EV_R5_Runtime_U.runtime_u[12];
+    tick = rtb_Software_Time_s - AXU5EV_R5_Runtime_U.runtime_u[14];
 
     /* Sum: '<S9>/Add1' incorporates:
      *  Gain: '<S9>/  '

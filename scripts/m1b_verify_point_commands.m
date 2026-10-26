@@ -4,10 +4,10 @@ arguments
  stage (1,:) char {mustBeMember(stage,{'baseline','regression','live','aligned-live','all'})}
 end
 root=fileparts(fileparts(mfilename('fullpath')));runtime=fullfile(root,'.runtime','m1b_20261024');folder=fullfile(root,'docs','reports','m1b_repeat_moves_alignment');
-addpath(fullfile(root,'simulink模型'));m='PMLSM_PI_FOC_Float_Baseline';
+addpath(fullfile(root,'simulation'));m='PMLSM_PI_FOC_Float_Baseline';
 if strcmp(stage,'baseline')
  output=fullfile(runtime,'baseline');assert(~isfile(fullfile(folder,'baseline_behavior.json')),'M1B:BASELINE_EXISTS','修订前参考不得覆盖。');if ~isfolder(output),mkdir(output);end
- evalin('base','init_PMLSM_PI_FOC_Float_Baseline;');
+ evalin('base','init_AXU5EV;');
  evalin('base','Host_Target_mm=1;M1A_StopTime_s=1.2;Host_Traj_Vmax=5;Host_Traj_Amax=50;');
  if ~bdIsLoaded(m),open_system(fullfile(root,'simulink模型',[m '.slx']));end
  if isfile(fullfile(output,'default_1mm_1p2s.mat')),saved=load(fullfile(output,'default_1mm_1p2s.mat'));out=saved.out;parameters=saved.parameters;else
@@ -17,7 +17,7 @@ if strcmp(stage,'baseline')
  % Two live edits through the real bound Constant, one Run in each condition.
  cases=[0.4,10];events=struct([]);
  for k=1:2
-  evalin('base','init_PMLSM_PI_FOC_Float_Baseline;Host_Target_mm=0.2;M1A_StopTime_s=1.4;Host_Traj_Vmax=5;Host_Traj_Amax=50;');
+  evalin('base','init_AXU5EV;Host_Target_mm=0.2;M1A_StopTime_s=1.4;Host_Traj_Vmax=5;Host_Traj_Amax=50;');
   if isfile(fullfile(output,sprintf('old_live_%d.mat',k))),saved=load(fullfile(output,sprintf('old_live_%d.mat',k)));out=saved.out;submitted=saved.submitted;else
   % Reduce only observation memory for sustained running, never plant step.
   decimate(m,100);set_param(m,'EnablePacing','on','PacingRate','0.25','SimulationCommand','start');
@@ -59,7 +59,7 @@ for k=1:numel(b),p=get_param(b{k},'PortHandles');for q=p.Outport,if strcmp(get_p
 end
 
 function result=run_point_live(root,alignment)
-m='PMLSM_PI_FOC_Float_Baseline';evalin('base','init_PMLSM_PI_FOC_Float_Baseline;Host_Target_mm=0.1;M1A_StopTime_s=20;Host_Traj_Vmax=5;Host_Traj_Amax=50;');
+m='PMLSM_PI_FOC_Float_Baseline';evalin('base','init_AXU5EV;Host_Target_mm=0.1;M1A_StopTime_s=20;Host_Traj_Vmax=5;Host_Traj_Amax=50;');
 if alignment,evalin('base','Alignment_Enable=1;Init_Start=1;Host_AutoStart_EN=0;');end
 if ~bdIsLoaded(m),open_system(fullfile(root,'simulink模型',[m '.slx']));end
 set_param(m,'EnablePacing','on','PacingRate','0.5');set_param(m,'SimulationCommand','start');startWall=tic;events=struct([]);bit=0;

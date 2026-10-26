@@ -8,6 +8,8 @@
 - 算法源为现有Simulink/Stateflow；不手改生成SV/C补算法，不重做PI/FOC和定点化，不强制三环全部HDL化。
 - Simulink搭建完成后逐层检查连线与排版；From/Goto使用局部作用域，Inport/Outport保持默认大小与外观。
 - 先读 `coordination/HANDOFF.md`。AX-00迁移已完成；旧迁移任务、Issue #3及旧M4仅作历史记录，不作为继续开发的流程清单。
+- 当前优先Issue #8正常用户运行修复与验证；活动模型和必要.m集中在`simulation/`，唯一日常参数入口`init_AXU5EV.m`，启动入口`START_HERE.m`。不得用旧1 mm脚本结果代替默认10 mm验收。
+- 保留用户现有紫色分区与Host/Alignment_Task/Motion_Control布局；修改仅微调受影响区域。MATLAB/Simulink操作使用MCP，不使用Computer Use。
 
 ## 工作区与接口
 
@@ -19,6 +21,7 @@
 ## 开发与验证
 
 - 保持已有PI/位置P、采样周期、五态对齐与手动Start；PI_Reset、Init_Reset、global reset、故障清除分别处理。保留一次死区、应用延迟和PWM禁止后机械继续的语义。
+- 向量接口同时维护Mux、Demux、旁注与C生成来源；当前Runtime输入分组宽度`[11 3 1 1 1 1 1 1]`，位置在字段20。Demux前两路仍是向量，不把输出端口号当字段索引。
 - 只做变更所需验证；不要求提交文件哈希/清单，不做全资料哈希遍历、快照保护报表、字节一致性专项或额外资料冒烟测试。历史证据原样保留；文字修订不重跑旧仿真/RTL。
 - 报告说明做了什么、相关文件/章节、可复用点和真正未完成项；区分静态检查、主机仿真/SIL、RTL、综合、布线、ARM实测和实机，未运行写NOT_RUN。
 - 不增加位置积分、运动中重规划、CORDIC、标幺化、缩位或旧全HDL对齐优化，除非用户另行要求。

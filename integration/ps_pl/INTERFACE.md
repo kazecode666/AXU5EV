@@ -4,7 +4,7 @@
 
 ## 算法与时序
 
-PR5的`firmware/r5/AXU5EV_R5_Control.slx`为组件来源。本轮新增`AXU5EV_R5_Runtime.slx`，复用其中Motion_Control／Alignment_Task并直接纳入原Simple_Host/Host_Core；每100µs调用一次生成C的`AXU5EV_R5_Runtime_step()`。内部保留1ms速度、10ms位置首相和保持行为。初始化仅在新Run发生，暂停／继续不初始化。板上定时/中断、任务抖动和WCET待实现及测量。
+PR5的`simulation/AXU5EV_R5_Control.slx`为组件来源。本轮新增`AXU5EV_R5_Runtime.slx`，复用其中Motion_Control／Alignment_Task并直接纳入原Simple_Host/Host_Core；每100µs调用一次生成C的`AXU5EV_R5_Runtime_step()`。内部保留1ms速度、10ms位置首相和保持行为。初始化仅在新Run发生，暂停／继续不初始化。板上定时/中断、任务抖动和WCET待实现及测量。
 
 R5保留位置P、速度PI、Reference_Manager、五态对齐、一次性偏置和参考选择/故障置零。原Host_Core调用原`pmlsm_point_move_step`／`pmlsm_scurve_profile`，状态位于生成C。PL职责仍为电流FOC、采样/位置同步、每帧角度与偏置应用、PWM及快速禁止；本轮角度和实际许可仍由共享集成模型显式计算，尚未硬件化。
 
@@ -26,9 +26,14 @@ R5保留位置P、速度PI、Reference_Manager、五态对齐、一次性偏置�
 | 输入索引 | 字段 |
 |---|---|
 | 1–11 | 目标草稿mm、速度mm/s、id A、iq测试模式、iq测试A、位置环使能、速度环使能、PWM请求、PI复位请求、replay使能、Send翻转位 |
-| 12–13 | 同拍x_mm、v_mmps |
-| 14–17 | Alignment_Enable、Init_Start、Init_Reset、travel_fault_latch |
-| 18–20 | 原replay速度、PWM、PI复位输入 |
+| 12–14 | 原replay速度mm/s、PWM、PI复位输入 |
+| 15 | 同拍v_mmps |
+| 16–19 | Alignment_Enable、Init_Start、Init_Reset、travel_fault_latch |
+| 20 | 同拍x_mm |
+
+Issue #8 按用户现有接线统一输入顺序。Hybrid Mux 与 Runtime Demux 均显式设置分组宽度 `[11 3 1 1 1 1 1 1]`：前两路分别为11字段命令与3字段replay，其余6路均为标量。Demux的输出端口号不等于向量字段索引；第8路才是位置反馈（字段20）。两端旁注列出同一映射。输出41字段顺序保持不变。
+
+旧PR7记录中的输入顺序为命令、位置、速度、对齐4字段、replay3字段。旧波形保留其原合同，不能直接按本表解释；改接口后必须由Runtime模型重新生成C并重建MEX，再使用新运行记录对照，不能只重接模型而继续加载旧MEX。
 
 | 输出索引 | 字段 |
 |---|---|
