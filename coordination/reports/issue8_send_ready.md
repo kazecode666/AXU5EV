@@ -2,6 +2,8 @@
 
 仓库 `kazecode666/AXU5EV`。基于已合并PR #9（合并提交 `e5c348eb23fd117dcca805ac9f01781c5b939b30`），执行[最新评论](https://github.com/kazecode666/AXU5EV/issues/8#issuecomment-6415202238)。本轮范围为现有Send/Ready链路；Issue #11保留为后续讨论。
 
+开放实现[PR #12](https://github.com/kazecode666/AXU5EV/pull/12)，实现提交`bff686425bfdc440bad421d03ae9737483fca69b`，不自动合并。
+
 ## 根因与最小修改
 
 实际Dashboard `Send_Move_Toggle` 绑定 `Simple_Host/Host_Move_Request` 的 `Host_Move_Request` 变量；Ready/Busy分别绑定 `R5_Commit_Fields` 第31/25路，未发现绑定错位。使用用户当前磁盘模型，START_HERE加载原10 mm/V10/A100/J1000参数后运行；本地模型StopTime已由用户保存为6 s，未覆盖回5 s，参数文件默认仍为5 s。

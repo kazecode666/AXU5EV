@@ -6,6 +6,8 @@
 
 当前执行Issue #8最新评论的Send/Ready采样边界核对，PR #9已合并，合并提交`e5c348eb23fd117dcca805ac9f01781c5b939b30`。Issue #11仅为后续架构讨论，不实施。新证据及复验入口见[发送与Ready报告](reports/issue8_send_ready.md)。
 
+本轮开放实现[PR #12](https://github.com/kazecode666/AXU5EV/pull/12)，仓库`kazecode666/AXU5EV`，实现提交`bff686425bfdc440bad421d03ae9737483fca69b`，等待Review，不自动合并。model_fixed/c_fixed六次发送均采集，模型/C全41字段最大差1.77635683940025e−15；10→0→−2 mm，接受3/拒绝3/段号3。
+
 默认10 mm实际复现Ready在1.9199 s升1、1.9799 s回0，Busy保持0；后一个位置事件误差0.020406857 mm超出原窗口。1.97985 s暂停看到Ready=1后翻转Send，下一R5拍1.9799 s请求被采集但status3拒绝；2.09 s反向翻转后正常接受。旧说明把3笼统称为Busy拒绝，并缺少明显回执，容易误判为未采集。本轮只修正说明、增加只读100 µs同拍状态/请求时间、结果、计数、段号显示；原Ready、PI、轨迹及拒绝不排队策略不变。
 
 活动模型和必要.m已逐项迁到`simulation/`。用户只编辑`init_AXU5EV.m`，运行`START_HERE.m`后点击Hybrid的Run；默认model_fixed，不自动Run。旧入口仅薄转发，不重复恢复默认目标。操作见[同目录中文说明](../simulation/README_运行说明.md)。

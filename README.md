@@ -4,6 +4,8 @@
 
 日常仍从`simulation/START_HERE.m`开始。新增只读显示给出R5采样Send、同拍Ready/Busy及最近请求时间/结果/计数；Busy=0不保证Ready=1，未Ready拒绝且不排队。Issue #11为后续架构讨论，不在本轮实施。实际鼠标Dashboard操作与完整RTL点位尚待核验。
 
+本轮实现[PR #12](https://github.com/kazecode666/AXU5EV/pull/12)开放供Review；模型/C发送边界复验通过，不自动合并。
+
 ## 目标与分工
 
 以 Simulink/Stateflow 维护算法，重点研究电流控制方法。Cortex-R5F 承担速度/位置控制、原启动对齐、参考/轨迹及运行管理；PL 承担电流控制、同步采样与接口、PWM时序及快速禁止。R5软件由模型生成C，PL算法由HDL Coder生成SystemVerilog；初版采用一个R5F实时核、裸机方向，不预设A53/Linux或多核通信。
