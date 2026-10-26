@@ -6,12 +6,21 @@
 
 1. 以命令行 `AXU5EV_READY backend=...` 确认准备后端。Run后面板Backend显示0=model_fixed、1=c_fixed、2=c_rtl；停止时数字显示可能保留上一Run。AutoStart=1自动发起首段，status=1不是故障。
 2. 观察 `x_ref_mm`、`x_mm` 和Ready。Ready需轨迹完成、误差不超过0.02 mm、连续5个位置事件，并同时满足模式、PWM、复位和对齐条件。它按10 ms位置事件更新，事件间机械仍会运动；不能按现实等待了几秒判断。
-3. Ready=1后，在 `Set_Host_Target_mm` 输入下一草稿目标，按Enter确认，再将 **Send_Move_Toggle** 翻转一次。0→1、1→0各算一次请求；只改草稿不会启动运动。
-4. 观察 `accepted_target_mm`、段号/接受数变化和新的运动。Busy时发送status=3，拒绝且不排队；同一目标重复确认status=5，不新起段。status保留最近请求的处理结果，status=3不取消当前已接受的运动段。
+3. Ready=1后，在 `Set_Host_Target_mm` 输入下一草稿目标，按Enter确认，再将 **Send_Move_Toggle** 翻转一次。0→1、1→0各算一次请求；只改草稿不会启动运动。Ready是R5当拍许可，显示过1不保证下一采样拍仍为1；Busy=0也不等于Ready=1。
+4. 看右侧 `R5_Command_Receipt` 的接收时间、status和计数确认结果。status=2、接受数/段号增加才表示新段接受。当拍未Ready为3（包括Busy=0但未满足到位条件），当前模式/PWM/复位/对齐不允许为6；两者均拒绝、不排队。同目标为5，不新起段。拒绝后须等待Ready并再次翻转Send；仅等Ready恢复不会补发。status通常保留最近请求结果，但运动中PWM禁止或PI_Reset会异步改为7（中断），此时接收秒不更新，不表示收到新请求。
 
-也可点击Pause后修改目标并确认，再翻转Send，点击Continue。暂停继续不会重置控制/轨迹状态。仿真结束前需留足运动时间；停止后修改 `init_AXU5EV.m` 的 `M1A_StopTime_s` 并重新运行START_HERE，或只在模型工具栏延长本次StopTime。Pacing只影响交互节奏，不修正控制问题。
+右侧新增两个只读显示，均取自同次100 µs输入/提交，按从上到下读取：
 
-Dashboard绑定已通过MCP检查；本轮不使用Computer Use，输入框按键、实际鼠标翻转及显示刷新尚未亲手操作，记为 **UI手动验证NOT_RUN**。最短人工核验：按上述路径完成10 mm，Ready后输入0并按Enter，翻转Send，确认接受目标变0且电机返回；再输入−2确认并反向翻转Send。若草稿没变，先核对输入是否确认；草稿变了但接受目标没变时，查看status=3（Busy拒绝）或6（当前不允许）。
+| 显示 | 行顺序 |
+|---|---|
+| `R5_Sampled_Send_Ready_Busy` | R5实际采样Send、当前Ready、当前Busy |
+| `R5_Command_Receipt` | 最近请求接收软件秒、Host状态、累计接受数、累计拒绝数、段号、接受目标mm |
+
+接收时间更新且拒绝数增加，表示请求已采集并拒绝；不应误判为Send失效。初始status=1、接受数/段号=1是自动首段，接收秒初值0。快速连续翻转两次若都发生在相邻100 µs采样之间，可能抵消；每次翻转后先确认回执再操作。显示用于观察，不锁存Ready或改变接收条件。
+
+也可点击Pause后修改目标并确认，再翻转Send，点击Continue。暂停继续不会重置控制/轨迹状态；暂停看到的是已提交状态，继续后的采样拍仍会按原位置事件重新判断Ready，因此也必须查看回执。仿真结束前需留足运动时间；停止后修改 `init_AXU5EV.m` 的 `M1A_StopTime_s` 并重新运行START_HERE，或只在模型工具栏延长本次StopTime。Pacing只影响交互节奏，不修正控制问题。
+
+Dashboard绑定已通过MCP检查；本轮不使用Computer Use，输入框按键、实际鼠标翻转及显示刷新尚未亲手操作，记为 **UI手动验证NOT_RUN**。最短人工核验：按上述路径完成10 mm，Ready后输入0并按Enter，翻转Send，先确认采样Send、接收秒及回执；若3/6拒绝，等条件满足后再次翻转。接受目标变0且电机返回后，再输入−2确认并反向翻转Send。若草稿没变，先核对输入是否确认。
 
 ## 参数、运行输入与重建
 
@@ -60,6 +69,10 @@ axu5ev_run_case('c_fixed','continuous');   % 同Run 10→0→−2mm，含Busy拒
 axu5ev_run_case('c_fixed','reset_release');% 初始PI_Reset=1，在0.2s释放
 axu5ev_run_case('c_fixed','reset_moving'); % 运动中PI_Reset=1→0
 axu5ev_run_case('c_fixed','restart_short');% Stop后新Run的初态
+axu5ev_verify_send('model_fixed');        % Ready回落边界、双向翻转及明确回执
+axu5ev_verify_send('c_fixed');            % 同一输入链，使用现有C MEX，不重生成算法
 ```
 
-脚本通过Dashboard实际绑定的常数输入在暂停点修改；结果在 `.runtime/issue8/`。旧 `scripts/ax01b_run_closedloop` 的1 mm工况只作PR7历史记录，不作为当前10 mm验收。实际结果见[Issue #8报告](../coordination/reports/issue8_manual_run.md)。所有结果均为主机功能仿真；R5目标执行、AXI、5EV综合/布线、ARM实测、烧录、功率级上电NOT_RUN。
+旧工况脚本修改绑定常数；新增发送复验从Dashboard实际Binding读取变量名，用 `simulation.setVariable` 调节同一变量，记录快照变化及R5提交，不能等同于真实鼠标点击。完整结果在 `.runtime/issue8/`，精简事件CSV在 `verification/issue8/`。`axu5ev_send_trace(out)` 用记录的真实反馈逐拍复算原Host，在请求拍用状态副本核对处理前Ready/Busy及allowed，并检查复算结果与全部实际提交一致；不修改运行状态。
+
+旧 `scripts/ax01b_run_closedloop` 的1 mm工况只作PR7历史记录，不作为当前10 mm验收。先前修复见[Issue #8报告](../coordination/reports/issue8_manual_run.md)，本次发送边界见[发送与Ready报告](../coordination/reports/issue8_send_ready.md)。所有结果均为主机功能仿真；R5目标执行、AXI、5EV综合/布线、ARM实测、烧录、功率级上电NOT_RUN。

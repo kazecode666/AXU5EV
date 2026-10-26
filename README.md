@@ -1,8 +1,10 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
-**当前优先：Issue #8，修复默认10 mm运行和PI_Reset释放异常，统一仿真入口。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。PR #7已合并，其1 mm脚本结果作为历史保留，不代替当前10 mm验收。修复证据和边界见[Issue #8报告](coordination/reports/issue8_manual_run.md)。
+**当前优先：Issue #8，核对Send/Ready采样边界与请求回执。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。PR #7/#9已合并；默认10 mm及PI复位修复见[原Issue #8报告](coordination/reports/issue8_manual_run.md)，本次“Ready显示过1但发送被拒绝”的逐拍证据见[发送与Ready报告](coordination/reports/issue8_send_ready.md)。
 
-本轮修复[PR #9](https://github.com/kazecode666/AXU5EV/pull/9)开放供Review；主机10 mm、连续命令及复位验证已完成，实际Dashboard操作与完整RTL点位尚待核验。
+日常仍从`simulation/START_HERE.m`开始。新增只读显示给出R5采样Send、同拍Ready/Busy及最近请求时间/结果/计数；Busy=0不保证Ready=1，未Ready拒绝且不排队。Issue #11为后续架构讨论，不在本轮实施。实际鼠标Dashboard操作与完整RTL点位尚待核验。
+
+本轮实现[PR #12](https://github.com/kazecode666/AXU5EV/pull/12)开放供Review；模型/C发送边界复验通过，不自动合并。
 
 ## 目标与分工
 
