@@ -4,15 +4,15 @@
 
 ## 当前任务与结果
 
-按Issue #8及最新评论修复正常用户运行。已确认Hybrid接线顺序改变后，Runtime仍按旧20字段合同拆分：位置被读为replay速度0、速度被读为replay PWM 1。默认10 mm纯模型10秒复现位置16108 mm；现保留用户接线，统一Mux/Demux宽度`[11 3 1 1 1 1 1 1]`，字段20为位置、15为速度，旁注明确映射。
+当前执行Issue #8最新评论的Send/Ready采样边界核对，PR #9已合并，合并提交`e5c348eb23fd117dcca805ac9f01781c5b939b30`。Issue #11仅为后续架构讨论，不实施。新证据及复验入口见[发送与Ready报告](reports/issue8_send_ready.md)。
 
-接口修复后由Runtime重新生成C并构建MEX。默认model_fixed的10 mm/5秒末位置10.01647 mm、首Ready=1.9199秒；C同Run完成10→0→−2 mm，Busy请求拒绝不排队，接受3/拒绝1。初始及运动中PI_Reset释放、Stop后新Run、暂停继续均完成程序验证。实际证据、Ready事件语义和范围见[Issue #8报告](reports/issue8_manual_run.md)。
+默认10 mm实际复现Ready在1.9199 s升1、1.9799 s回0，Busy保持0；后一个位置事件误差0.020406857 mm超出原窗口。1.97985 s暂停看到Ready=1后翻转Send，下一R5拍1.9799 s请求被采集但status3拒绝；2.09 s反向翻转后正常接受。旧说明把3笼统称为Busy拒绝，并缺少明显回执，容易误判为未采集。本轮只修正说明、增加只读100 µs同拍状态/请求时间、结果、计数、段号显示；原Ready、PI、轨迹及拒绝不排队策略不变。
 
 活动模型和必要.m已逐项迁到`simulation/`。用户只编辑`init_AXU5EV.m`，运行`START_HERE.m`后点击Hybrid的Run；默认model_fixed，不自动Run。旧入口仅薄转发，不重复恢复默认目标。操作见[同目录中文说明](../simulation/README_运行说明.md)。
 
-用户Hybrid、Runtime、Control紫色分区保留；只微调受影响接线与新观察器。MATLAB/Simulink后续只通过MCP操作，不用Computer Use。Dashboard绑定及程序输入已验证，实际鼠标/键盘操作NOT_RUN；说明已给最短人工步骤。c_rtl本轮仅实际213帧短链路验证通过，完整10 mm RTL到位NOT_RUN，不拿PR7旧1 mm结果替代。
+用户Hybrid、Runtime、Control紫色分区保留；只向右扩展受影响面板，原块位置未移动。MATLAB/Simulink只通过MCP操作，不用Computer Use。新增`axu5ev_verify_send`读取Dashboard Binding变量并调节同一变量；程序调参不等同鼠标/键盘操作，实际UI刷新仍NOT_RUN。本轮不重生成C或RTL，不重跑无关阶段；完整RTL点位和板级验证仍NOT_RUN。
 
-本轮开放修复[PR #9](https://github.com/kazecode666/AXU5EV/pull/9)，等待Review与上述人工核验，不自动合并，不继续上板。接口修复提交`08e727e64e2a04c4f9666b513d5704e71e8b84f2`；入口/验证结果提交`3d5d009e1c85b1bfddf3b041711c91496189c374`。仓库均为`kazecode666/AXU5EV`，不是旧仓库编号。
+先前已合并[PR #9](https://github.com/kazecode666/AXU5EV/pull/9)完成接口字段修复、simulation集中入口、默认10 mm、复位释放及连续命令验证，实际范围见[原报告](reports/issue8_manual_run.md)。接口修复提交`08e727e64e2a04c4f9666b513d5704e71e8b84f2`；入口/验证提交`3d5d009e1c85b1bfddf3b041711c91496189c374`。旧213帧RTL与PR7旧1 mm均不作为本轮发送验证。后续实现PR供Review，不自动合并，不继续上板。
 
 ## 固定方向与可复用来源
 
