@@ -26,9 +26,14 @@ R5保留位置P、速度PI、Reference_Manager、五态对齐、一次性偏置�
 | 输入索引 | 字段 |
 |---|---|
 | 1–11 | 目标草稿mm、速度mm/s、id A、iq测试模式、iq测试A、位置环使能、速度环使能、PWM请求、PI复位请求、replay使能、Send翻转位 |
-| 12–13 | 同拍x_mm、v_mmps |
-| 14–17 | Alignment_Enable、Init_Start、Init_Reset、travel_fault_latch |
-| 18–20 | 原replay速度、PWM、PI复位输入 |
+| 12–14 | 原replay速度mm/s、PWM、PI复位输入 |
+| 15 | 同拍v_mmps |
+| 16–19 | Alignment_Enable、Init_Start、Init_Reset、travel_fault_latch |
+| 20 | 同拍x_mm |
+
+Issue #8 按用户现有接线统一输入顺序。Hybrid Mux 与 Runtime Demux 均显式设置分组宽度 `[11 3 1 1 1 1 1 1]`：前两路分别为11字段命令与3字段replay，其余6路均为标量。Demux的输出端口号不等于向量字段索引；第8路才是位置反馈（字段20）。两端旁注列出同一映射。输出41字段顺序保持不变。
+
+旧PR7记录中的输入顺序为命令、位置、速度、对齐4字段、replay3字段。旧波形保留其原合同，不能直接按本表解释；改接口后必须由Runtime模型重新生成C并重建MEX，再使用新运行记录对照，不能只重接模型而继续加载旧MEX。
 
 | 输出索引 | 字段 |
 |---|---|

@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'AXU5EV_R5_Runtime'.
  *
- * Model version                  : 1.10
+ * Model version                  : 1.48
  * Simulink Coder version         : 26.2 (R2026b) 22-May-2026
- * C/C++ source code generated on : Mon Oct 26 03:42:13 2026
+ * C/C++ source code generated on : Mon Oct 26 17:02:00 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Intel->x86-64 (Windows64)
