@@ -4,7 +4,7 @@
     {
       "type": "tcf-debug",
       "request": "launch",
-      "name": "ax02a_first_wait_manual",
+      "name": "ax02a_first_wait_a53fsbl",
       "debugType": "baremetal-zu",
       "attachToRunningTargetOptions": {
         "targetSetupMode": "standalone",

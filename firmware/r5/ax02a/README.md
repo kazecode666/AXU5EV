@@ -1,8 +1,31 @@
 # AX-02A：R5 standalone 回放
 
-当前已实际生成**手册5EV器件的PS-only XSA、R5 standalone BSP/FSBL及含Runtime的ELF/map**，TARGET_BUILD通过。Cortex-R独立生成配置、全采样数据和主机数值证据继续保留。目标启动、板上数值和100µs实测均 **NOT_RUN**，构建通过不代表目标运行验收通过。详见[结果报告](../../../coordination/reports/ax02a_r5_target_validation.md)。
+当前已实际生成**手册5EV器件的PS-only XSA、A53_0 FSBL、R5 standalone BSP及含Runtime的ELF/map**。新工作区`.runtime/ax02a/vitis_target_a53fsbl`已通过TARGET_BUILD及离线启动架构检查；旧工作区保留。用户旧GUI日志已暴露R5 FSBL被载到A53_0的启动失败，本版已修正离线产物，尚未重新上板确认。BOARD_BOOT验收、板上数值和100µs实测均 **NOT_RUN**。详见[结果报告](../../../coordination/reports/ax02a_r5_target_validation.md)。
 
-**第一次使用PS端，先读[首次手动启动指南](FIRST_BOARD_RUN_ZH.md)**：打开已有workspace，选`ax02a_first_wait_manual`，依次停在目标识别、应用入口/main、邮箱等待。首次仅确认已有启动消息与`state=1/experiment=0`，由用户亲自上板；Codex只做离线准备。启动配置模板为[launch_first_wait.json](launch_first_wait.json)，采用同平台R5 FSBL、RPU split，禁PL下载，不同时执行`psu_init.tcl`。分段XSDB命令、后续回放与故障定位统一放在该指南，不在这里重复。
+**第一次使用PS端，先读[首次手动启动指南](FIRST_BOARD_RUN_ZH.md)**：打开新workspace，选 **`ax02a_first_wait_a53fsbl`**，依次停在目标识别、应用入口/main、邮箱等待。首次仅确认已有启动消息与`state=1/experiment=0`，由用户亲自上板；Codex只做离线准备。启动配置模板为[launch_first_wait.json](launch_first_wait.json)，采用A53_0 FSBL初始化、RPU split、R5_0应用，禁PL下载，不同时执行`psu_init.tcl`。旧workspace的`ax02a_first_wait_manual`不能继续用于GUI重试。分段XSDB命令、后续回放与故障定位统一放在指南。
+
+## 本轮离线启动修正
+
+依据[PR16故障评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6443462085)，构建入口显式指定`fsbl_target='psu_cortexa53_0'`，而控制域仍为`psu_cortexr5_0 / r5_standalone`。这是两个独立域，不是把控制应用迁到A53。平台构建后检查实际导出FSBL的ELF64/AArch64架构；应用构建后安装被动首次配置，并检查域、文件架构、配置路径和应用核。没有通过改文件名冒充修正。
+
+本轮复用已有XSA及独立生成C，在PowerShell实际执行以下构建（只在电脑编译，不连接板卡）：
+
+```powershell
+# 本轮使用的新配置/工作区已存在；未来重建须换未使用的workspace。
+# 初次创建配置时仅复制到不存在的明确文件，保留旧build_config.json。
+if (Test-Path -LiteralPath .runtime/ax02a/build_config_a53fsbl.json) { throw '配置已存在，请保留并检查；不要覆盖' }
+Copy-Item -LiteralPath firmware/r5/ax02a/build_config.example.json -Destination .runtime/ax02a/build_config_a53fsbl.json
+$env:AX02A_BUILD_CONFIG='D:/Project/AXU5EV/.runtime/ax02a/build_config_a53fsbl.json'
+& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -s scripts/ax02a_build_r5.py
+```
+
+目前已构建完成，用户只需运行下面的纯离线检查再按指南打开GUI，无需重跑上面的构建段：
+
+```powershell
+python scripts/ax02a_build_r5.py --config .runtime/ax02a/build_config_a53fsbl.json --check-startup
+```
+
+新产物为`.runtime/ax02a/vitis_target_a53fsbl/ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf`（ELF64/AArch64，入口`0xfffc0000`）、同workspace的`ax02a_replay/build/ax02a_replay.elf`及map（ELF32/ARM/v7-Realtime/hard-float）。两者分别由A53与R5工具链真实构建。精简证据另存`verification/ax02a/startup_validation.json`与`startup_elf_attributes.txt`；旧`target_*`证据保留。新应用仍用原Cortex-R生成源、原cache/栈/堆设置；未改变控制算法或重新导出参考。
 
 ## 已实际执行的入口
 
@@ -43,17 +66,15 @@ python scripts/ax02a_build_r5.py --config firmware/r5/ax02a/build_config.example
 
 比较器精确比较布尔/枚举/计数/段号；连续量门限`1e-9+1e-9*abs(reference)`，非有限值、缺帧失败。输出`signals.csv`、`events.csv`和`summary.json`；指定`--origin`保留执行来源，比较通过不会自动推断来源。
 
-## 已通过的完整目标构建入口
+## 首次完整目标构建（历史R5 FSBL，不用于本版GUI）
 
-用户手动补齐2026.1的Zynq UltraScale+ MPSoCs和Vitis Embedded Development后，实际执行成功：
+用户手动补齐2026.1的Zynq UltraScale+ MPSoCs和Vitis Embedded Development后，在历史提交`1b4834526275b1824098ad66a2c2a6ce0d04dc0b`首次完整构建成功。其中XSA继续复用；旧R5 FSBL与自动GUI核选择不匹配，不能作为当前启动入口。原Vivado命令为：
 
 ```powershell
 & E:/AMDDesignTools/2026.1/Vivado/bin/vivado.bat -mode batch -nojournal -log .runtime/ax02a/ps_target.log -source hardware/axu5ev/ax02a_ps_minimal.tcl -tclargs xczu5ev-sfvc784-2-i .runtime/ax02a/ps_target 资料/course_s2/01_ps_hello/vivado/ps_hello.srcs/sources_1/bd/design_1/design_1.bd
-Copy-Item -LiteralPath firmware/r5/ax02a/build_config.example.json -Destination .runtime/ax02a/build_config.json
-& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -s scripts/ax02a_build_r5.py
 ```
 
-这组输出目录已存在；复验须选择新的Vivado输出目录和Vitis workspace，并在独立JSON中同步XSA路径（可用`AX02A_BUILD_CONFIG`指定）。脚本拒绝覆盖已有工程，不删除或重置它们。
+这组输出目录已存在；本轮无需重跑Vivado。当前构建入口见上节，未来复验须选择新的输出目录和workspace，在独立JSON同步路径。脚本拒绝覆盖已有工程，不删除或重置它们。
 
 `ax02a_ps_minimal.tcl`复制厂商hello的一个PS XCI，原生升级3.3→3.5后将参数用于新BD；厂商原件不变。构建proc使用局部变量，避免已复现的Vivado回调覆盖全局配置字典。关闭非UART0/TTC0外设及PL接口，验证DDR64bit/x16与UART MIO42/43，导出无bitstream的XSA。4×8Gbit、DDR4_2400P来自本板原配置，不采用通用ZCU preset；手册器件XC/-2与旧厂商XA/-1的区别继续保留。
 
@@ -63,7 +84,7 @@ Copy-Item -LiteralPath firmware/r5/ax02a/build_config.example.json -Destination 
 
 ## 目标执行与计时合同（未上板）
 
-单R5_0前台执行；RPU split必须在授权启动时核实，R5_1不运行任务。启动需要当前XSA对应的PS/DDR初始化，不加载未知bitstream、不写启动介质。**本次没有执行板卡复位/JTAG下载/目标运行；须另获本次硬件授权并确认功率级隔离。**
+单R5_0前台执行；RPU split须由用户按指南启动时核实，R5_1不运行任务。启动使用当前XSA对应的A53_0 FSBL初始化PS/DDR，不加载PL镜像、不写启动介质。**本轮Codex没有执行连接、复位、JTAG下载或目标运行；上板由用户亲自完成，首次到WAIT即停止。**
 
 应用启动后打印版本并等待`ax02a_control`命令；预装输入完成后才启动实验。控制结构中`frames<=65536`，`mode=0`连续、`mode=1`周期；设置`command=0x41583241`释放。每次新实验调用同一初始化；分块/逐帧均不初始化。失败停止，不自动重试。实际JTAG启动/读回流程和板上内存可达性尚未验证。
 

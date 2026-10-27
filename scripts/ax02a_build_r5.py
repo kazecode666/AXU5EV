@@ -1,7 +1,7 @@
 """Vitis 2026.1 Python API entry; offline build only, never connects hardware.
 
 Run with vitis -s scripts/ax02a_build_r5.py. Configuration defaults to
-.runtime/ax02a/build_config.json; AX02A_BUILD_CONFIG may select another JSON.
+.runtime/ax02a/build_config_a53fsbl.json; AX02A_BUILD_CONFIG may select another JSON.
 Standard Python supports --config and --preflight for explicit dependency checks.
 """
 import argparse
@@ -19,6 +19,59 @@ ROOT=Path(__file__).resolve().parents[1]
 EXPECTED_PART='xczu5ev-sfvc784-2-i'
 WINDOW_START=0x10000000
 WINDOW_END=0x14000000
+FIRST_LAUNCH='ax02a_first_wait_a53fsbl'
+
+
+def inspect_fsbl(elf):
+    """The 2026.1 GUI initialization route runs this image on A53_0."""
+    data=elf.read_bytes()
+    if len(data)<64 or data[:7]!=b'\x7fELF\x02\x01\x01':
+        raise ValueError('GUI A53_0 initialization requires ELF64 little-endian AArch64 FSBL')
+    h=struct.unpack_from('<16sHHIQQQIHHHHHH',data)
+    if h[1]!=2:
+        raise ValueError('FSBL must be an executable ELF')
+    if h[2]!=183:
+        raise ValueError('GUI A53_0 initialization requires AArch64 (EM_AARCH64=183) FSBL')
+    return dict(processor='psu_cortexa53_0',machine='AArch64',elf_class=64,
+                byte_order='little',entry=h[4])
+
+
+def check_startup(workspace):
+    """Read files only: no debugger imports, target discovery or hardware access."""
+    platform=workspace/'ax02a_platform'
+    domains=json.loads((platform/'vitis-comp.json').read_text(encoding='utf-8'))['configuration']['domains']
+    for name,cpu in [('zynqmp_fsbl','psu_cortexa53_0'),('r5_standalone','psu_cortexr5_0')]:
+        matches=[d for d in domains if d['name']==name]
+        if len(matches)!=1 or matches[0]['processor']!=cpu:
+            raise ValueError(f'{name} must target {cpu}')
+    fsbl=platform/'export/ax02a_platform/sw/boot/fsbl.elf'
+    result=dict(fsbl=inspect_fsbl(fsbl))
+    launch=json.loads((workspace/'ax02a_replay/_ide/launch.json').read_text(encoding='utf-8'))
+    profiles=[c for c in launch['configurations'] if c['name']==FIRST_LAUNCH]
+    if len(profiles)!=1:
+        raise ValueError(f'expected one {FIRST_LAUNCH} launch configuration')
+    c=profiles[0];s=c['targetSetup'];init=s['zuInitialization']
+    if not (c['type']=='tcf-debug' and c['debugType']=='baremetal-zu' and c['request']=='launch'
+            and s['resetSystem'] and s['enableRPUSplitMode'] and not s['programDevice']
+            and not s['bitstreamFile'] and init['isFsbl'] and init['usingFSBL']['initWithFSBL']
+            and init['usingFSBL']['fsblExitSymbol']=='XFsbl_Exit'
+            and not init['usingPsuInit']['runPsuInit']):
+        raise ValueError('first-wait launch initialization flags differ from the checked route')
+    def local_path(value):
+        return Path(value.replace('${workspaceFolder}',workspace.as_posix())).resolve()
+    if local_path(init['usingFSBL']['fsblFile'])!=fsbl.resolve():
+        raise ValueError('launch does not use this platform exported A53 FSBL')
+    apps=s['downloadElf']
+    if len(apps)!=1 or apps[0]['core']!='psu_cortexr5_0' or not apps[0]['stopAtEntry'] or not apps[0]['resetProcessor']:
+        raise ValueError('launch must load only the R5_0 application and stop at entry')
+    elf=workspace/'ax02a_replay/build/ax02a_replay.elf'
+    if local_path(apps[0]['elfFile'])!=elf.resolve():
+        raise ValueError('launch does not use this workspace R5 application')
+    result['application']=inspect_elf(elf)
+    result['application']['processor']='psu_cortexr5_0'
+    result['launch']=FIRST_LAUNCH
+    result['status']='OFFLINE_STARTUP_CHECK_PASS'
+    return result
 
 
 def source_files(generated):
@@ -89,8 +142,9 @@ def compile_runtime(generated,compiler,output):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--config',type=Path,default=Path(os.environ.get('AX02A_BUILD_CONFIG',ROOT/'.runtime/ax02a/build_config.json')))
+    parser.add_argument('--config',type=Path,default=Path(os.environ.get('AX02A_BUILD_CONFIG',ROOT/'.runtime/ax02a/build_config_a53fsbl.json')))
     parser.add_argument('--preflight',action='store_true')
+    parser.add_argument('--check-startup',action='store_true',help='read existing workspace architecture/domain/launch only; no Vitis client or hardware')
     parser.add_argument('--runtime-only',action='store_true',help='cross-compile objects/archive; no platform or ELF claim')
     parser.add_argument('--compiler',type=Path,help='existing arm-none-eabi-gcc for --runtime-only')
     parser.add_argument('--output',type=Path,help='new output directory for --runtime-only')
@@ -98,6 +152,8 @@ def main():
     config=json.loads(args.config.read_text(encoding='utf-8-sig'))
     xsa=Path(config['xsa']).resolve();generated=Path(config['generated']).resolve()
     workspace=Path(config['workspace']).resolve()
+    if args.check_startup:
+        print(json.dumps(check_startup(workspace),indent=2));return
     files=source_files(generated)
     if args.runtime_only:
         if not args.compiler or not args.output:
@@ -136,8 +192,9 @@ def main():
         client.set_workspace(str(workspace))
         platform=client.create_platform_component(name='ax02a_platform',hw_design=str(xsa),
             cpu='psu_cortexr5_0',os='standalone',domain_name='r5_standalone',
-            no_boot_bsp=False,fsbl_target='psu_cortexr5_0',generate_dtb=False,compiler='gcc')
+            no_boot_bsp=False,fsbl_target='psu_cortexa53_0',generate_dtb=False,compiler='gcc')
         platform.build()
+        inspect_fsbl(workspace/'ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf')
         xpfm=client.find_platform_in_repos('ax02a_platform')
         app=client.create_app_component(name='ax02a_replay',platform=xpfm,
             domain='r5_standalone',template='empty_application')
@@ -163,6 +220,16 @@ def main():
         if 'AXU5EV_R5_Runtime_step' not in dump:
             raise ValueError('Runtime step symbol absent from target ELF')
         (workspace/'target_build.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+        launch_path=workspace/'ax02a_replay/_ide/launch.json'
+        launch=json.loads(launch_path.read_text(encoding='utf-8'))
+        manual=json.loads((ROOT/'firmware/r5/ax02a/launch_first_wait.json').read_text(encoding='utf-8'))['configurations'][0]
+        if any(c['name']==FIRST_LAUNCH for c in launch['configurations']):
+            raise ValueError('manual launch already exists; preserve it rather than overwrite')
+        launch['configurations'].append(manual)
+        launch_path.write_text(json.dumps(launch,indent=2)+'\n',encoding='utf-8')
+        startup=check_startup(workspace)
+        (workspace/'startup_validation.json').write_text(json.dumps(startup,indent=2)+'\n',encoding='utf-8')
+        print('OFFLINE_STARTUP_CHECK_PASS: A53_0 FSBL -> R5_0 application; passive launch installed')
         print('TARGET_ELF_BUILD_PASS',elf)
         print('NOT_RUN: board boot, DDR window verification, RPU split launch, numeric replay, actual timing')
     finally:
@@ -171,5 +238,5 @@ def main():
 
 if __name__=='__main__':
     try:main()
-    except (OSError,ValueError,KeyError,subprocess.CalledProcessError) as error:
+    except (OSError,ValueError,KeyError,struct.error,subprocess.CalledProcessError) as error:
         print(f'R5_BUILD_FAIL: {error}',file=sys.stderr);sys.exit(1)

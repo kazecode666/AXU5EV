@@ -6,7 +6,7 @@
 
 当前主线为[Issue #15](https://github.com/kazecode666/AXU5EV/issues/15) AX-02A，沿A1—A6推进真实R5目标工程/数值/100µs时间验证，不重规划全项目、不默认重跑完整RTL。见[AX-02A实际报告](reports/ax02a_r5_target_validation.md)与[R5应用入口](../firmware/r5/ax02a/README.md)。
 
-用户最新指定按[PR16手动上板评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6439330483)交接：**上板由用户本人操作，Codex不连接/复位/写内存/加载/运行板卡**。当前新增[首次PS操作指南](../firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md)和`ax02a_first_wait_manual`配置；仅离线准备。第一次只到R5应用打印等待消息、邮箱`state=1/experiment=0`，不发实验命令。后续A4/A5段留作备查，收到用户实际停点证据后再推进；接好线不等于授权自动探测或运行。
+用户最新按[PR16故障评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6443462085)要求离线修正启动：旧GUI将R5 FSBL下载到A53_0并超时；本机ELF32/ARM/R-profile检查确认架构不匹配。现已真实构建新`.runtime/ax02a/vitis_target_a53fsbl`：A53_0 FSBL＋原R5_0 standalone应用，采用`ax02a_first_wait_a53fsbl`配置，并提供纯文件检查`--check-startup`；旧workspace/配置保留，旧`ax02a_first_wait_manual`不再用于GUI重试。见[首次PS操作指南](../firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md)。**上板由用户本人操作，Codex不连接/复位/写内存/加载/运行板卡**。第一次仍只到启动消息与`state=1/experiment=0`，不发实验命令；修正后的板上启动未运行，BOARD_BOOT/REPLAY/PERIODIC继续NOT_RUN。用户旧R5 Suspended不代表初始化成功。
 
 成果草稿[PR #16](https://github.com/kazecode666/AXU5EV/pull/16)，仓库`kazecode666/AXU5EV`，未合并。初始实现`8d892695705a61a1295389a3bc7343e87ca59aa7`；ARM对象与周期门禁`6d9e5397478361762e947b5812b701dc554b24da`；可执行门禁`77a7d358baf1b0bd8577e8c929be9156026fcf84`；完整PS平台/BSP/ELF与证据`1b4834526275b1824098ad66a2c2a6ce0d04dc0b`。Issue15板上验收继续开放。
 

@@ -1,6 +1,8 @@
 # AX-02A：第一次手动启动 R5（Vitis 2026.1）
 
-本指南对应 `kazecode666/AXU5EV` [PR16的手动上板交接评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6439330483)，使用已经构建的 AXU5EVB-E PS-only 工程。构建/产物证据来自提交 `1b4834526275b1824098ad66a2c2a6ce0d04dc0b`；当前配置和配套参考不变。本轮仅完成离线文件、启动配置和命令核对，**没有连接或操作板卡，也没有实测点击GUI；下列硬件步骤均待用户亲自执行确认**。
+本指南对应 `kazecode666/AXU5EV` [PR16首次启动故障评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6443462085)。用户旧日志显示GUI先选A53_0，却加载了R5 FSBL，等待`XFsbl_Exit`超时。本版修正为 **A53_0 FSBL初始化＋R5_0控制应用**，使用新的离线工作区`vitis_target_a53fsbl`，保留旧`vitis_target`及用户设置。当前XSA、生成算法和配套参考复用。本轮Codex只做离线构建/检查，**没有连接或操作板卡，也没有实测点击GUI；修正后的硬件步骤均待用户亲自执行确认**。
+
+**停止使用旧workspace中的`ax02a_first_wait_manual`和`app_hw_1`反复重试。** 仅改launch名称或等待时间不会改变FSBL的处理器架构。旧日志中的R5 `Suspended`只说明调试器暂停了核，不能证明FSBL、DDR或应用启动成功。旧尝试未到WAIT；BOARD_BOOT验收仍NOT_RUN。
 
 第一次只做停点①—③：识别目标 → 初始化并停在R5应用入口/main → 看到已有的等待消息并确认邮箱状态。到③即结束，不发送实验命令，不装载64536帧，不启动定时器。后面的回放命令仅留作下一次操作。
 
@@ -11,11 +13,11 @@
 | Vivado PS配置 | 本板PS XCI参数 → `ax02a_ps.xsa` | 电脑上生成硬件描述：器件、DDR、MIO、UART、TTC、时钟；XSA自身不运行，也不是bitstream |
 | Vitis platform/domain | XSA → `ax02a_platform`、`r5_standalone`及BSP | 电脑上生成R5的地址/中断/驱动/启动配置；domain指定`psu_cortexr5_0`和standalone |
 | 应用构建 | 独立Cortex-R生成C＋既有bridge＋main/runner/timing → ELF/map | 电脑上交叉编译；ELF含可加载代码，map说明放在哪段内存，不是运行结果 |
-| PS/DDR初始化 | 同平台的R5 FSBL → PS时钟、MIO、UART、DDR初始化 | 用户通过JTAG把FSBL载入OCM并让R5执行；FSBL是启动辅助程序，不是控制应用 |
+| PS/DDR初始化 | 同平台的A53 FSBL → PS时钟、MIO、UART、DDR初始化 | 用户通过JTAG把ELF64/AArch64 FSBL载入OCM并让A53_0执行；FSBL是启动辅助程序，不是控制应用 |
 | 应用加载/运行 | `ax02a_replay.elf` → R5_0执行 | 用户通过JTAG加载；向量/启动数据在ATCM，应用代码/状态/堆/栈主要在DDR，所以必须先完成DDR初始化 |
 | 观察/后续回放 | UART消息、邮箱、记录输入/输出 | UART用于观察；以后JTAG预装输入、发邮箱命令、完成后读回。回放不是实际电机闭环 |
 
-当前阶段使用PS，不需要FOC bitstream，不写QSPI/eMMC/SD，不启动A53应用或R5_1任务。用户实际操作时只用开发板，功率级/门极使能保持隔离或禁止。
+当前阶段使用PS，不需要FOC bitstream，不写QSPI/eMMC/SD。A53_0只运行初始化FSBL并停在退出点，不运行控制应用；控制应用只在R5_0执行，R5_1不运行任务。用户实际操作时只用开发板，功率级/门极使能保持隔离或禁止。
 
 ## 2. 打开哪个工作区、看哪些文件
 
@@ -24,25 +26,36 @@
 | 项目 | 当前实际位置/名称 |
 |---|---|
 | Vitis可执行入口 | `E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat` |
-| workspace | `D:/Project/AXU5EV/.runtime/ax02a/vitis_target` |
+| workspace | `D:/Project/AXU5EV/.runtime/ax02a/vitis_target_a53fsbl`（新建，旧workspace不修改） |
 | platform | `ax02a_platform` |
 | domain / CPU | `r5_standalone` / `psu_cortexr5_0`，standalone |
 | application | `ax02a_replay` |
-| 首次专用launch名称 | `ax02a_first_wait_manual`，模板[launch_first_wait.json](launch_first_wait.json) |
+| 启动域 / CPU | `zynqmp_fsbl` / **`psu_cortexa53_0`**，ELF64/AArch64 |
+| 首次专用launch名称 | **`ax02a_first_wait_a53fsbl`**，模板[launch_first_wait.json](launch_first_wait.json) |
 | XSA | `.runtime/ax02a/ps_target/ax02a_ps.xsa` |
-| R5 FSBL（launch采用此导出副本） | `.runtime/ax02a/vitis_target/ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf` |
-| FSBL原构建产物 | `.runtime/ax02a/vitis_target/ax02a_platform/zynqmp_fsbl/build/fsbl.elf` |
-| PS初始化Tcl（本路线不执行） | `.runtime/ax02a/vitis_target/ax02a_platform/hw/sdt/psu_init.tcl`；应用另有`ax02a_replay/_ide/psinit/psu_init.tcl` |
-| 应用ELF / map | `.runtime/ax02a/vitis_target/ax02a_replay/build/ax02a_replay.elf` / 同目录`ax02a_replay.map` |
+| A53 FSBL（launch采用此导出副本） | `.runtime/ax02a/vitis_target_a53fsbl/ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf` |
+| FSBL原构建产物 | `.runtime/ax02a/vitis_target_a53fsbl/ax02a_platform/zynqmp_fsbl/build/fsbl.elf` |
+| PS初始化Tcl（本路线不执行） | `.runtime/ax02a/vitis_target_a53fsbl/ax02a_platform/hw/sdt/psu_init.tcl`；应用另有`ax02a_replay/_ide/psinit/psu_init.tcl` |
+| R5应用ELF / map | `.runtime/ax02a/vitis_target_a53fsbl/ax02a_replay/build/ax02a_replay.elf` / 同目录`ax02a_replay.map` |
 | 程序源码 / GUI调试副本 | `firmware/r5/ax02a/main.c` / workspace下`ax02a_replay/main.c` |
 | 以后运动回放输入/参考 | `.runtime/ax02a/replay/current_motion/input.bin` / `reference.bin` / `metadata.json` |
 | 以后对齐/复位参考 | `.runtime/ax02a/replay/current_alignment_reset/`下同名三个文件 |
 
-本地`current_motion`是Runtime 1.50、V20/A200/J1000/minRamp0.2/rate100在PR14记录反馈上的新参考，64536帧、Ts=100µs、输入20/输出41列、逐帧LE double。输入10,325,760B，参考21,167,808B。`pr14_original`输出属于旧参数，不能拿来比较当前ELF。第一次无需重新生成算法或重建；如果以后换了模型/参数，目标C、ELF和reference必须一起更新。
+本地`current_motion`是Runtime 1.50、V20/A200/J1000/minRamp0.2/rate100在PR14记录反馈上的新参考，64536帧、Ts=100µs、输入20/输出41列、逐帧LE double。输入10,325,760B，参考21,167,808B。`pr14_original`输出属于旧参数，不能拿来比较当前ELF。本轮已在新workspace重建A53 FSBL和相同源的R5应用，用户首次操作无需再次生成算法或Build；如果以后换了模型/参数，目标C、ELF和reference必须一起更新。
+
+点击Debug之前，在仓库根目录的PowerShell执行纯离线检查（不会创建Vitis客户端或连接硬件）：
+
+```powershell
+python scripts/ax02a_build_r5.py --config .runtime/ax02a/build_config_a53fsbl.json --check-startup
+```
+
+预期`OFFLINE_STARTUP_CHECK_PASS`，FSBL为`psu_cortexa53_0 / AArch64 / 64`，application为`psu_cortexr5_0 / ARM / 32`，launch为`ax02a_first_wait_a53fsbl`。命令同时检查两个域、实际导出FSBL、实际应用ELF和launch路径；失败就停在电脑端，不能仅凭platform界面名称继续。它不证明真实GUI执行顺序或板上成功。
 
 ## 3. 启动配置：只选择一条初始化路线
 
-本指南统一采用 **系统复位 → RPU split → 同平台R5 FSBL → 到达`XFsbl_Exit` → R5处理器复位 → 应用ELF → 入口/main**。处理器复位与系统复位不同：FSBL完成后只复位R5处理器，保留已经完成的PS/DDR配置。不要在FSBL与应用之间再做系统复位。
+本指南统一采用 **系统复位 → RPU split → A53_0执行同平台A53 FSBL → 到达`XFsbl_Exit` → 选择并复位R5_0处理器 → R5应用ELF → 入口/main**。处理器复位与系统复位不同：FSBL完成后只复位R5处理器，保留已经完成的PS/DDR配置。不要在FSBL与应用之间再做系统复位，也不要让A53继续执行R5应用。
+
+Vitis 2026.1的`usingFSBL`字段没有可设置的FSBL目标核；`downloadElf[].core`只选择后面的应用核，**不会把前面的FSBL改为R5执行**。旧用户日志实际显示初始化选择A53_0，新平台因此显式用`fsbl_target='psu_cortexa53_0'`；`zynqmp_fsbl`与`r5_standalone`是两个独立域。launch模板只适用于已通过上节检查的新工作区，不能拿它指向旧R5 FSBL。此选择符合[AMD UG1400的FSBL目标处理器说明](https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Switching-FSBL-Targeting-Processor)。
 
 FSBL先在OCM执行，不依赖尚未初始化的DDR。调试器以当前FSBL中确实存在的`XFsbl_Exit`符号结束初始化等待，但**错误路径也可能到这里，符号本身不是成功判据**。本次还须读取FSBL状态寄存器`PMU_GLOBAL.PERS_GLOB_GEN_STORAGE4`（`0xffd80060`）：当前FSBL正常JTAG交接写`XFSBL_COMPLETED=0`，错误路径写非零ErrorStatus。必须同时有本次FSBL执行/退出记录、状态0且无错误。
 
@@ -56,14 +69,14 @@ GUI自动launch在退出符号后就会尝试下载应用，不能在下载前�
 | Reset entire System / `resetSystem` | true | 从JTAG启动的干净状态开始；会复位板卡 |
 | Program Device / `programDevice` | **false** | 不下载PL镜像，bitstream路径为空 |
 | Enable RPU Split Mode | **true** | 单独运行R5_0；不选择lockstep |
-| Initialize using FSBL / `isFsbl`、`initWithFSBL` | true | 使用上表R5 FSBL，完成符号`XFsbl_Exit` |
+| Initialize using FSBL / `isFsbl`、`initWithFSBL` | true | 初始化核A53_0，使用上表A53 FSBL，完成符号`XFsbl_Exit` |
 | Run psu init / `runPsuInit` | **false** | 不再重复执行另一套初始化；PL powerup也关闭 |
-| Processor / Application | `psu_cortexr5_0` / 当前`ax02a_replay.elf` | 不是A53、不是FSBL本身 |
+| Processor / Application | `psu_cortexr5_0` / 当前`ax02a_replay.elf` | 此行只选择R5应用，FSBL仍在A53_0执行 |
 | Reset Processor / `resetProcessor` | true | FSBL完成后为应用复位R5处理器 |
 | Stop at entry / `stopAtEntry` | **true** | 先停在入口，便于检查目标和main |
 | Cross trigger / trace | false | 首次不引入额外触发/跟踪 |
 
-已在本地workspace的`ax02a_replay/_ide/launch.json`追加首次配置，不触发任何调试动作。需要在另一份重建workspace中恢复时，可在Vitis的launch JSON编辑页将模板的那一个configuration对象追加到现有`configurations`数组，保留其他配置；`${workspaceFolder}`必须是上表workspace。
+构建入口已在**新**workspace的`ax02a_replay/_ide/launch.json`追加首次配置，不触发任何调试动作；旧workspace配置保留。需要在另一份重建workspace中恢复时，可在Vitis的launch JSON编辑页将模板的那一个configuration对象追加到现有`configurations`数组，保留其他配置；`${workspaceFolder}`必须是含A53 FSBL的新workspace，恢复后仍须执行离线检查。
 
 ## 4. 第一次操作主线：停在等待输入
 
@@ -91,7 +104,7 @@ targets
 jtag targets
 ```
 
-预期能识别一块对应5EV的目标，含PSU/RPU与`Cortex-R5 #0`；JTAG启动时核心可能显示Reset，这是正常初态。若没有目标、器件不符或同时出现多块板，**停在这里**，保留完整输出，不猜目标数字ID。
+预期能识别一块对应5EV的目标，含`PSU`、`Cortex-A53 #0`与`Cortex-R5 #0`；JTAG启动时核心可能显示Reset。旧日志已经确认HS1、xczu5/arm_dap及Bootmode0000；这些不代表初始化成功。`RPU`分组在复位时可能不出现，不要求手动选择该分组，也不固定target9之类数字ID。若没有正确核心、器件不符或同时出现多块板，**停在这里**，保留完整输出。
 
 ```tcl
 # 识别完成后关闭这个XSDB连接，下一步由GUI独占控制。
@@ -104,13 +117,13 @@ exit
 1. 启动已有workspace，以下仍只在电脑打开IDE，不会主动执行launch：
 
 ```powershell
-& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -w D:/Project/AXU5EV/.runtime/ax02a/vitis_target
+& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -w D:/Project/AXU5EV/.runtime/ax02a/vitis_target_a53fsbl
 ```
 
-2. 在Explorer确认`ax02a_platform`和`ax02a_replay`。platform的CPU/domain应为`psu_cortexr5_0 / r5_standalone`；application设置`vitis-comp.json`指向该platform/domain。不要新建Hello World或导入旧版厂商A53工程。
-3. 在应用的Flow Navigator调试设置入口，或Explorer右键 **Edit Launch Configurations**，打开`ax02a_replay/_ide/launch.json`。选择 **ax02a_first_wait_manual**，对照第3节检查FSBL、ELF、split、禁PL下载和Stop at entry。编辑/保存配置本身不启动板卡；不要误点原`app_hw_1`配置。
+2. 先确认窗口workspace为`vitis_target_a53fsbl`，再在Explorer确认`ax02a_platform`和`ax02a_replay`。展开platform Settings并双击`vitis-comp.json`：`zynqmp_fsbl`须在`psu_cortexa53_0`下，`r5_standalone`须在`psu_cortexr5_0`下。application的`vitis-comp.json`仍为`r5_standalone / psu_cortexr5_0`。不要在旧workspace直接点Re-target或重建，不新建Hello World。
+3. 在应用的Flow Navigator调试设置入口，或Explorer右键 **Edit Launch Configurations**，打开`ax02a_replay/_ide/launch.json`。选择 **ax02a_first_wait_a53fsbl**，对照第3节检查新workspace的A53 FSBL路径、R5应用路径、split、禁PL下载和Stop at entry。编辑/保存配置本身不启动板卡；不要选旧`ax02a_first_wait_manual`或任何`app_hw_1`配置。
 4. 打开当前workspace的`ax02a_replay/main.c`，在`main`的第一个可执行语句处设置断点。O2可能合并行，断点显示不可用时在Breakpoints视图添加函数断点`main`；不改优化参数或重生成代码来解决显示问题。
-5. **只有用户现在点击所选配置的Debug按钮，才开始板上复位/FSBL运行/应用下载。** Debug Console应显示本次初始化和下载过程；FSBL若没到退出点、下载失败或目标不符，停止，不手工补跑`psu_init.tcl`或下载bitstream。GUI会在退出点后自动尝试下载，不能把下载动作本身当成FSBL成功记录。
+5. **只有用户现在点击所选配置的Debug按钮，才开始板上复位/FSBL运行/应用下载。** 保留完整Debug/XSDB日志，核对先选择`Cortex-A53 #0`并下载**新A53 FSBL**、命中本次`XFsbl_Exit`，再选择`Cortex-R5 #0`下载`ax02a_replay.elf`。前面选A53是预期，后面应用仍须R5。FSBL未退出、再次60秒超时、下载失败或核/路径不符时停止，不扩大timeout、不补跑`psu_init.tcl`或bitstream、不手改PC。GUI退出点后自动尝试下载，不能把下载本身当成FSBL成功。
 6. 在入口暂停后，先在Expressions添加`*(unsigned int *)0xffd80060`，读取第3节命名的FSBL状态寄存器；必须为0，并核对本次控制台没有FSBL错误。非0或读失败就停下，保存状态/日志，不Resume，也不靠旧值或一条退出消息放行。这个地址来自当前FSBL的`xfsbl_hw.h`，不是手猜邮箱偏移。
 7. Debug视图检查当前线程为`Cortex-R5 #0`、当前映像为`ax02a_replay.elf`且已暂停。若先停在`_boot`/入口，只在上述检查通过且`main`断点已就绪时Resume一次，等待main断点。不要用设置PC到main来跳过启动代码。若已经停在main，就不再重复初始化。
 
@@ -149,7 +162,7 @@ AX02A R5_0 standalone replay; D-cache OFF; waiting for input
 
 ```tcl
 set ax02a_root D:/Project/AXU5EV
-set ax02a_ws $ax02a_root/.runtime/ax02a/vitis_target
+set ax02a_ws $ax02a_root/.runtime/ax02a/vitis_target_a53fsbl
 set ax02a_xsa $ax02a_root/.runtime/ax02a/ps_target/ax02a_ps.xsa
 set ax02a_fsbl $ax02a_ws/ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf
 set ax02a_app $ax02a_ws/ax02a_replay/build/ax02a_replay.elf
@@ -171,9 +184,10 @@ rst -system
 after 1000
 source $ax02a_utils
 disable_pmu_gate
-targets -set -filter {name =~ "RPU"}
-enable_split_mode
 targets -set -filter {name =~ "Cortex-R5 #0"}
+enable_split_mode
+rst -processor
+targets -set -filter {name =~ "Cortex-A53 #0"}
 rst -processor
 loadhw -hw $ax02a_xsa
 dow $ax02a_fsbl
@@ -186,12 +200,13 @@ if {$ax02a_fsbl_status != 0} {
 }
 ```
 
-`source`载入的是本机AMD的命名调试辅助过程，随后显式调用`disable_pmu_gate`、`enable_split_mode`；它们会改调试门控/RPU模式，用户无需拼凑寄存器写入。`loadhw`读取XSA并配置调试器的内存描述，不编程PL。完成停点必须是本次R5_0命中`XFsbl_Exit`、状态寄存器为0且无FSBL错误；单独命中符号不放行。状态寄存器依据当前FSBL `xfsbl_hw.h`的`XFSBL_ERROR_STATUS_REGISTER_OFFSET`，正常/错误写入分支已从同工程源码核对。若未满足，**不要执行2b**；不要同时运行`psu_init`作为补救。此段仅离线核对，硬件顺序待用户确认。
+`source`载入本机AMD命名辅助过程；`disable_pmu_gate`在PSU上执行，`enable_split_mode`在可见的R5_0上执行，不依赖复位时可能缺失的`RPU`分组。随后明确切到**A53_0**才加载A53 FSBL，不能在R5_0上运行这份ELF。`loadhw`读取XSA并配置调试器的内存描述，不编程PL。完成停点必须是本次**A53_0**命中`XFsbl_Exit`、状态寄存器为0且无FSBL错误；单独命中符号不放行。状态寄存器依据新FSBL的`xfsbl_hw.h`及正常/错误分支。若未满足，**不要执行2b**；不要同时运行`psu_init`作为补救。此段仅离线核对，硬件顺序待用户确认。
 
 ### 2b：用户加载应用并停在main
 
 ```tcl
 bpremove $ax02a_fsbl_bp
+targets -set -filter {name =~ "Cortex-R5 #0"}
 rst -processor
 dow $ax02a_app
 set ax02a_main_bp [bpadd -addr &main]
@@ -199,7 +214,7 @@ con -block -timeout 10
 rrd pc
 ```
 
-预期为`ax02a_replay.elf`的main断点；保留PS/DDR初始化，不再系统复位。FSBL与应用均选R5_0，R5_1不运行任务。没有到main就停止，不写PC跳转绕过启动。
+预期为R5_0的`ax02a_replay.elf` main断点；A53_0停留在FSBL退出处，不继续运行。保留PS/DDR初始化，不再系统复位。FSBL在A53_0、应用在R5_0，R5_1不运行任务。没有到main就停止，不写PC跳转绕过启动。
 
 ### 3：用户继续并只读等待状态
 
@@ -287,7 +302,7 @@ mrd -size b -bin -file $ax02a_root/.runtime/ax02a/board_manual/periodic_01/timin
 | 无COM口 | 是否接了PS USB-UART数据线、CP2102驱动和设备管理器；JTAG可见不代表UART线正确 |
 | 串口空白 | main停点时还未执行printf；确认已Resume且使用PS COM口。消息在打开串口前输出会丢失；先看WAIT状态，不为补一行日志反复初始化 |
 | 串口乱码 | 115200/8N1/无流控、PS端口；当前FSBL的UART0 BDIV=6、CD=124，BSP输出直接用UART0，未由应用改波特率 |
-| FSBL超时或DDR访问失败 | 确认匹配XSA/FSBL、JTAG冷启动、实物料号/修订、FSBL状态寄存器与首条错误；退出符号也可能来自错误路径，不据此放行，不强行开放地址或补跑另一套初始化 |
+| FSBL超时或DDR访问失败 | 先核对**新workspace＋A53_0选择＋实际AArch64 FSBL路径**，防止重用旧R5 FSBL；再查JTAG冷启动、实物料号/修订及首条错误。退出符号也可能来自错误路径，须检查状态；不增大timeout、不强行开放地址或补跑另一套初始化 |
 | main没到 | 当前映像是否误选FSBL/A53，R5_0是否split、应用ELF是否本工程、FSBL是否完成；不要设置PC绕过启动 |
 | main变量显示optimized out | 本工程保留O2；观察全局volatile邮箱，使用符号表达式/`print -defs`；不改生成代码或关闭优化来教学 |
 | 停在等待输入 | 第一次这是目标。串口输入不是邮箱命令，`experiment=0`说明还没启动实验 |
@@ -295,7 +310,7 @@ mrd -size b -bin -file $ax02a_root/.runtime/ax02a/board_manual/periodic_01/timin
 
 ## 8. 本次离线依据与交接范围
 
-本机核对了已有launch JSON、2026.1安装的`tcf-debug`配置schema及launch编辑器字段、XSDB命令定义、AMD `zynqmp_utils.tcl`中的命名过程、当前ELF/FSBL符号、BSP输出口、FSBL的UART初始化与数据长度。未运行IDE、hw_server、XSDB会话或任何板卡命令；未执行本指南的硬件步骤，也未重建模型、仿真/RTL或ELF。
+本轮实际复核旧导出FSBL为ELF32/ARM/v7-Realtime，结合用户日志定位核不匹配；离线创建新platform/BSP/FSBL及相同生成源的R5 ELF/map，并检查两个域、实际导出FSBL、应用属性与被动launch。精简证据见`verification/ax02a/startup_validation.json`和报告的“首次启动故障与离线修正”；原目标构建证据原样保留。新增FSBL架构回归门禁覆盖原错误。未运行IDE、hw_server、XSDB目标会话或任何板卡命令；没有重建模型、仿真或RTL。CLI构建服务仅用于电脑上的编译，不是硬件调试会话。
 
 UART依据：当前BSP `bspconfig.h`选`STDOUT_BASEADDRESS=0xff000000`，`outbyte`直接发UART0；匹配FSBL `psu_init.c`的UART0模式为8N1、CD=124、BDIV=6，对应约115200baud。该依据比泛用教程的UART1/默认COM号更适合本工程。
 

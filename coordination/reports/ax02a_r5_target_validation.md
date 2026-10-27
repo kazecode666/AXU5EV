@@ -8,14 +8,36 @@
 
 | 项目 | 本次结果 | 依据/未完成项 |
 |---|---|---|
-| A1 / TARGET_BUILD | **PASS（构建）** | 用户补齐2026.1组件后，按手册part生成新PS-only XSA；真实R5 standalone BSP、R5 FSBL、应用ELF/map全部构建成功。实物料号/修订仍待板前签核 |
+| A1 / TARGET_BUILD | **PASS（构建）** | 手册part的PS-only XSA继续复用；新workspace已构建A53_0 FSBL与R5 standalone BSP/应用ELF/map，离线启动架构检查通过。旧R5 FSBL不能用于当前GUI初始化；实物完整料号/修订仍待签核 |
 | A2 | **生成/完整目标链接PASS，ARM运行NOT_RUN** | 独立Cortex-R配置的同份生成C经官方R5 GCC13.4.0链接进新BSP；ARM32/v7-Realtime/VFPv3-D16/hard-float及装载段检查通过 |
 | A3 | **离线PASS** | 原MAT64536帧完整导出，当前模型同输入参考与43100帧对齐/复位/故障参考；20/41字段、LE double全文件回读一致 |
 | A4 / BOARD_REPLAY | **NOT_RUN** | 当前生成C主机回放通过，两次独立初始化；尚无真实R5输出 |
 | A5 / BOARD_PERIODIC_100US | **NOT_RUN** | 定时执行层、TTC适配源码及比较器已准备；漏序号/超期策略定向测试通过，无硬件计时值 |
 | A6 | **离线成果PR** | 可提交源码、入口及精简证据；不能据此关闭板上验收 |
-| BOARD_BOOT、托管SIL/PIL、5EV综合/布线、AXI/ADC/编码器/PWM、ARM/实机、烧录/上电 | **NOT_RUN** | 本次未获硬件操作授权，连接状态未确认 |
+| BOARD_BOOT、托管SIL/PIL、5EV综合/布线、AXI/ADC/编码器/PWM、ARM/实机、烧录/上电 | **NOT_RUN** | 用户旧GUI启动在FSBL阶段失败，未到应用WAIT；新启动产物尚未上板。Codex仅离线修正；其余板级验收没有运行证据 |
 | 完整RTL重跑 | **NOT_RUN** | 复用PR14原始记录，没有再跑c_rtl |
+
+## 首次启动故障与离线修正（当前入口）
+
+依据[PR16故障分析评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6443462085)，用户两次自动launch均先选择`Cortex-A53 #0`，下载旧workspace导出的`fsbl.elf`后等待`XFsbl_Exit`超时。此次本机只读复查同路径FSBL实际为ELF32/ARM/v7-Realtime，平台`zynqmp_fsbl`域为`psu_cortexr5_0`，与日志的A53初始化核不匹配。这是离线可确认的缺陷；修正后的启动是否成功仍需用户重新验证。JTAG-HS1、xczu5/arm_dap和Bootmode0000已由用户日志确认；后来的R5 Suspended不能证明FSBL或DDR成功。没有增大timeout或修改控制算法来掩盖故障。
+
+`scripts/ax02a_build_r5.py`改为显式`fsbl_target='psu_cortexa53_0'`，应用域仍为`psu_cortexr5_0 / r5_standalone`。复用既有`.runtime/ax02a/ps_target/ax02a_ps.xsa`及原Cortex-R生成C，在全新`.runtime/ax02a/vitis_target_a53fsbl`实际创建并构建platform、两个域的BSP、A53 FSBL和R5应用。命令为设置`AX02A_BUILD_CONFIG`至`.runtime/ax02a/build_config_a53fsbl.json`后执行`vitis.bat -s scripts/ax02a_build_r5.py`；实际退出码0。旧workspace、旧配置与旧`target_*`历史证据保留，没有打开IDE或启动硬件会话。
+
+| 新工作区实际产物 | 本轮离线结果 |
+|---|---|
+| `ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf` | **ELF64 / EXEC / AArch64 / little-endian**，入口`0xfffc0000`，PT_LOAD均在OCM，存在已定义的`XFsbl_Exit` |
+| `zynqmp_fsbl`编译 | AArch64 GCC13.4.0、`-DSDT -Os -DARMA53_64`；GNU size text64604/data3336/bss83024B |
+| `ax02a_replay/build/ax02a_replay.elf`及map | **ELF32 / ARM / v7-Realtime / VFPv3-D16 / hard-float**，入口0x3c；R5 GCC13.4.0及原O2/FP配置 |
+| 新应用布局/大小 | ATCM[0,0x7d8)、DDR[0x100000,0x111ca0)，与回放区无重叠；text41620/data5100/bss28136B，原主栈16KB/堆4KB、D-cache关闭/I-cache开启 |
+| 新被动launch | `ax02a_first_wait_a53fsbl`，初始化A53 FSBL→R5_0应用；split、禁PL/另一条psu_init、Stop at entry；没有预装输入/发实验命令 |
+
+精简新证据为`verification/ax02a/startup_validation.json`和`startup_elf_attributes.txt`；完整日志`.runtime/ax02a/vitis_target_a53fsbl.console.txt`。新增`--check-startup`只读检查域、**实际导出**FSBL架构、实际应用ELF、launch指向路径及应用核，在普通Python中运行，不导入Vitis客户端、不连接或发现目标。它对新工作区实际通过，对旧R5 FSBL实际拒绝；检查通过不等于GUI/板上已通过。新增9项启动门禁测试与原13项形成22项定向Python集。首次4项FSBL测试先复现缺失门禁失败；修复后通过，另覆盖域信息掩盖错误架构、错误FSBL路径、误将R5应用配置到A53等情况。
+
+指南已将GUI主线切到新workspace和新配置，分别核对A53启动域与R5控制域；日志应先在A53执行新FSBL、再在R5加载应用。`downloadElf[].core`只选应用核，并不会让GUI改用R5运行FSBL；本机schema没有FSBL目标核字段，故以与用户日志一致的A53 FSBL修复，不是改文件名。FSBL状态仍需“本次退出点＋`0xffd80060`为0＋无错误”联合确认；GUI退出点后自动下载的既有限制保留。分段XSDB改成显式A53 FSBL→切R5应用，移除复位时不可见`RPU`分组的依赖；这些命令只作文本检查，未执行。
+
+本轮不改生成C、应用控制/计时源码、模型、参数或参考，不重跑Vivado/RTL/主机数值回放。最终22项Python测试、实际`--check-startup`、10段Tcl文本`info complete`及`git diff --check`均通过。独立只读审查复核真实域/产物/配置/退出源码，并独立复跑22项测试、实际启动检查与diff检查，无P1/P2发现；没有重复构建或执行GUI/硬件。上板由用户本人完成，首次仍到已有等待消息与`state=1/experiment=0`即停止。**BOARD_BOOT/REPLAY/PERIODIC_100US保持NOT_RUN，明确保留旧启动失败，PR16继续Draft、不合并。**
+
+下列“补齐组件后的真实平台与ELF”及“用户首次手动PS操作交接”是此前提交的历史阶段记录；其中旧R5 FSBL和旧首次配置已由本节新入口替代。
 
 ## 来源、工具与目标配置
 
