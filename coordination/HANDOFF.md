@@ -4,9 +4,17 @@
 
 ## 当前任务与结果
 
-本轮完成Issue #13最新正文：必要小修、同命令时刻的完整10→0→−2 mm生成C/真实RTL比较，以及短的Simulink模块搭建说明。C源码阅读/逐行学习任务已取消；Issue #11和板级工作不实施。见[本轮报告](reports/ax01c_simulation_closeout.md)及[唯一运行说明](../simulation/README_运行说明.md)。
+当前主线为[Issue #15](https://github.com/kazecode666/AXU5EV/issues/15) AX-02A，沿A1—A6推进真实R5目标工程/数值/100µs时间验证，不重规划全项目、不默认重跑完整RTL。见[AX-02A实际报告](reports/ax02a_r5_target_validation.md)与[R5应用入口](../firmware/r5/ax02a/README.md)。
 
-开放实现[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)，仓库`kazecode666/AXU5EV`，实现提交`9a6877546581301638a2bde7203db47896b4f8aa`，待Review，不自动合并。
+PR #14已合并，合并提交`ae9a11d2d59abc952cce0b979d004a315878639a`，实现提交`9a6877546581301638a2bde7203db47896b4f8aa`。原Issue #13仿真收尾见[AX-01C报告](reports/ax01c_simulation_closeout.md)；不重复执行。C源码教学、Issue #11及AX-02B/C仍不在当前范围。
+
+AX-02A已完成离线Cortex-R独立代码生成并恢复PC配置、原始64536帧数据导出、当前Runtime同输入参考与43100帧完整手动对齐/复位/故障参考。当前用户参数V20/A200/minRamp0.2/rate100；原PR14 V10/A100输出单列保留，不混用。相同生成源的主机两次运动实验全41字段最大差1.7763568394002505e−15，定向场景差0；比较器8项故障测试和runner序号/截止期测试通过。没有重跑RTL/对象闭环。
+
+真实目标构建受阻：当前Vivado2026.1 `get_parts *zu5*`为空，手册XCZU5EV-2SFVC784I不可用；可见安装无R5 GNU编译器，Vitis R5平台探测SDT失败。没有XSA/BSP/目标ELF/map，TARGET_BUILD为BLOCKED；BOARD_BOOT/BOARD_REPLAY/BOARD_PERIODIC_100US均NOT_RUN。先补齐MPSoC器件/嵌入式R5组件，再复验同一构建入口；不能以主机结果关闭Issue15。板卡复位/JTAG加载运行仍须本次明确授权与连接确认，功率级隔离。
+
+用户最新确认：核心板可参考`ACU5EV核心板原理图.pdf`，底板可参考`AXU5EVB-E开发板原理图.pdf`（与AXU3EG底板共用），实物以太网收发芯片JL2121。本轮按用户手册选择XC/-2，不将厂商XA/-1旧XSA冒称当前目标平台。
+
+以下为已合并PR14的既有证据：
 
 完整RTL已结束，实际64536帧/每帧5000拍，捕获315、有效1、保持违规0；墙钟15527.072198 s。与c_fixed相同参数/初态，实际采样命令均为2.0915、2.1016、5.2999 s；接受3/拒绝1/段号3。三段首次Ready为1.9199、3.9599、6.3499 s，五事件最大误差分别0.01987350、0.01951992、0.01962843 mm。末帧6.4535 s位置−2.018663179 mm、Busy=0、Ready=0；Ready原规则回落，未强制保持。
 

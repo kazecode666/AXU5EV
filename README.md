@@ -1,12 +1,12 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
-**当前优先：Issue #13，仿真收尾与R5侧模块搭建说明。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。PR #9/#12已合并；本轮比较相同命令时刻的10→0→−2 mm生成C/真实RTL闭环，并补充[模块搭建与连接说明](simulation/README_运行说明.md#模块怎样组成闭环)。原C源码学习任务取消，Issue #11仍为后续讨论。
+**当前优先：[Issue #15](https://github.com/kazecode666/AXU5EV/issues/15)，AX-02A真实R5目标工程、数值回放与100µs时间验证。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。PR #14已合并；完整RTL结果直接复用，不默认重跑。见[AX-02A实际结果与阻塞](coordination/reports/ax02a_r5_target_validation.md)及[R5构建/回放入口](firmware/r5/ax02a/README.md)。C源码教学已取消，Issue #11和AX-02B/C不在本轮实施。
 
 日常仍从`simulation/START_HERE.m`开始。只读显示给出R5采样Send、同拍Ready/Busy及最近请求时间/结果/计数；Busy=0不保证Ready=1，未Ready拒绝且不排队。Issue #11为后续架构讨论，不在本轮实施。实际鼠标Dashboard操作/刷新仍NOT_RUN；本轮完整RTL三段运动已完成。
 
 本轮完整C/真实RTL同Run `10→0→−2 mm` 已完成：实际RTL 64536帧，三段均满足原Ready，接受3/拒绝1；位置、速度、dq电流、参考及应用duty差均0。见[AX-01C结果与曲线](coordination/reports/ax01c_simulation_closeout.md)。先前默认点位修复与发送回执分别见[Issue #8原报告](coordination/reports/issue8_manual_run.md)、[发送报告](coordination/reports/issue8_send_ready.md)。
 
-开放实现[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)供Review，不自动合并。
+[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)已合并（`ae9a11d2d59abc952cce0b979d004a315878639a`）。当前Cortex-R代码生成、全采样导出与主机数值比较通过；本机2026.1的ZU5器件/R5构建组件缺失，XSA/BSP/目标ELF受阻，板上启动/数值/周期均NOT_RUN。先补齐构建链，不以主机证据代替真实R5。
 
 ## 目标与分工
 
@@ -37,7 +37,7 @@
 |---|---|
 | `simulation/` | 唯一活动模型与日常.m入口：Hybrid、Runtime、Control、FOC、浮点基线及参数/轨迹/构建辅助 |
 | `simulink模型/` | 旧初始化的薄转发及用户本地wrapper；不放第二套活动模型/参数定义 |
-| `firmware/r5/` | R5复用/平台说明；软件模型已集中到simulation，尚无R5 BSP |
+| `firmware/r5/` | R5复用说明与AX-02A standalone回放源码；目标BSP/ELF当前受工具组件阻塞 |
 | `hardware/axu5ev/` | 经板卡版本核对后的Vivado/Vitis平台脚本与硬件清单 |
 | `integration/ps_pl/` | 本轮仿真交换字段、事件顺序及后续硬件总线合同 |
 | `scripts/`、`verification/` | 可移植构建、必要复验与精简证据 |
@@ -57,7 +57,7 @@
 - **AX-02：** 5EV电流核重生成/实现、R5/PL混合闭环及实际处理器时限验证。
 - **AX-03：** ADC、光栅/磁栅、门极PWM、驱动板保护和受控硬件集成，另行授权上电。
 
-日期：2026-10-27。Issue #13本轮仿真收尾已完成；实际R5F平台、PS—PL访问和AXU5EVB-E板级适配留待后续授权。继承已有模型与MBDL4接口，无需重做PI/FOC或重复LED学习。
+日期：2026-10-27。Issue #13已完成；当前实施Issue #15，板卡复位/JTAG运行须本次明确授权。PS—PL与电机接口适配不在AX-02A提前展开。继承已有模型与MBDL4接口，无需重做PI/FOC或重复LED学习。
 
 首批[R5软件提取结果](coordination/reports/ax01_r5_extraction.md)提供外环/Reference_Manager/原对齐来源。`simulation/AXU5EV_R5_Runtime.slx`纳入原Host_Core／轨迹，生成C在线接入同目录Hybrid；三种后端共用原对象、量化和50µs应用边界。软件/PL端口及帧顺序见[接口边界](integration/ps_pl/INTERFACE.md)。
 
