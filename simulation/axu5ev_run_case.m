@@ -55,7 +55,8 @@ if strcmp(scene,'restart_short')
     assert(x.Data(1)==0&&result.accepted==1&&result.segment_id==1);
 end
 axu5ev_verify_run(out,strcmp(mode,'c_rtl')); % 0.02mm窗口核对原位置事件，非任意停止时刻
-save(fullfile(root,'.runtime','issue8',[mode '_' scene '.mat']),'out','result','events','-v7.3');
+work=fullfile(root,'.runtime','issue8');if ~isfolder(work),mkdir(work);end
+save(fullfile(work,[mode '_' scene '.mat']),'out','result','events','-v7.3');
 disp(result);
 
 function p=block(sid)

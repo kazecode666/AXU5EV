@@ -1,10 +1,12 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
-**当前优先：Issue #8，核对Send/Ready采样边界与请求回执。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。PR #7/#9已合并；默认10 mm及PI复位修复见[原Issue #8报告](coordination/reports/issue8_manual_run.md)，本次“Ready显示过1但发送被拒绝”的逐拍证据见[发送与Ready报告](coordination/reports/issue8_send_ready.md)。
+**当前优先：Issue #13，仿真收尾与R5侧模块搭建说明。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。PR #9/#12已合并；本轮比较相同命令时刻的10→0→−2 mm生成C/真实RTL闭环，并补充[模块搭建与连接说明](simulation/README_运行说明.md#模块怎样组成闭环)。原C源码学习任务取消，Issue #11仍为后续讨论。
 
-日常仍从`simulation/START_HERE.m`开始。新增只读显示给出R5采样Send、同拍Ready/Busy及最近请求时间/结果/计数；Busy=0不保证Ready=1，未Ready拒绝且不排队。Issue #11为后续架构讨论，不在本轮实施。实际鼠标Dashboard操作与完整RTL点位尚待核验。
+日常仍从`simulation/START_HERE.m`开始。只读显示给出R5采样Send、同拍Ready/Busy及最近请求时间/结果/计数；Busy=0不保证Ready=1，未Ready拒绝且不排队。Issue #11为后续架构讨论，不在本轮实施。实际鼠标Dashboard操作/刷新仍NOT_RUN；本轮完整RTL三段运动已完成。
 
-本轮实现[PR #12](https://github.com/kazecode666/AXU5EV/pull/12)开放供Review；模型/C发送边界复验通过，不自动合并。
+本轮完整C/真实RTL同Run `10→0→−2 mm` 已完成：实际RTL 64536帧，三段均满足原Ready，接受3/拒绝1；位置、速度、dq电流、参考及应用duty差均0。见[AX-01C结果与曲线](coordination/reports/ax01c_simulation_closeout.md)。先前默认点位修复与发送回执分别见[Issue #8原报告](coordination/reports/issue8_manual_run.md)、[发送报告](coordination/reports/issue8_send_ready.md)。
+
+开放实现[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)供Review，不自动合并。
 
 ## 目标与分工
 
@@ -55,7 +57,7 @@
 - **AX-02：** 5EV电流核重生成/实现、R5/PL混合闭环及实际处理器时限验证。
 - **AX-03：** ADC、光栅/磁栅、门极PWM、驱动板保护和受控硬件集成，另行授权上电。
 
-日期：2026-10-26。先完成Issue #8正常用户路径修复，再继续实际R5F平台、PS—PL访问和AXU5EVB-E板级适配；继承已有模型与MBDL4接口，无需重做PI/FOC或重复LED学习。
+日期：2026-10-27。Issue #13本轮仿真收尾已完成；实际R5F平台、PS—PL访问和AXU5EVB-E板级适配留待后续授权。继承已有模型与MBDL4接口，无需重做PI/FOC或重复LED学习。
 
 首批[R5软件提取结果](coordination/reports/ax01_r5_extraction.md)提供外环/Reference_Manager/原对齐来源。`simulation/AXU5EV_R5_Runtime.slx`纳入原Host_Core／轨迹，生成C在线接入同目录Hybrid；三种后端共用原对象、量化和50µs应用边界。软件/PL端口及帧顺序见[接口边界](integration/ps_pl/INTERFACE.md)。
 

@@ -8,7 +8,7 @@
 - 算法源为现有Simulink/Stateflow；不手改生成SV/C补算法，不重做PI/FOC和定点化，不强制三环全部HDL化。
 - Simulink搭建完成后逐层检查连线与排版；From/Goto使用局部作用域，Inport/Outport保持默认大小与外观。
 - 先读 `coordination/HANDOFF.md`。AX-00迁移已完成；旧迁移任务、Issue #3及旧M4仅作历史记录，不作为继续开发的流程清单。
-- 当前优先Issue #8最新评论的Send/Ready采样与回执核对；PR #9已合并。Ready是当拍许可，Busy=0不保证Ready=1；status3是未Ready拒绝，不排队。Issue #11仅为后续架构讨论，不转去实施。活动模型和必要.m集中在`simulation/`，唯一日常参数入口`init_AXU5EV.m`，启动入口`START_HERE.m`。不得用旧1 mm脚本结果代替默认10 mm验收。
+- 当前优先Issue #13最新正文的仿真收尾：必要小修、同命令时刻的10→0→−2 mm生成C/真实RTL闭环比较及短模块搭建说明；PR #9/#12已合并。取消C源码学习、逐行讲解及为教学更改代码生成配置。Ready是当拍许可，Busy=0不保证Ready=1；status3未Ready拒绝、不排队。Issue #11仅为后续讨论，不实施。活动模型和必要.m集中在`simulation/`，唯一日常参数入口`init_AXU5EV.m`，启动入口`START_HERE.m`，不用旧1 mm或213帧结果替代完整10 mm验收。
 - 保留用户现有紫色分区与Host/Alignment_Task/Motion_Control布局；修改仅微调受影响区域。MATLAB/Simulink操作使用MCP，不使用Computer Use。
 
 ## 工作区与接口
