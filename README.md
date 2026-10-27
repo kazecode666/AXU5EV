@@ -12,6 +12,16 @@
 
 旧项目 `kazecode666/FPGA_XC7A200T_Study` 保留为来源和历史验证记录。本项目独立Git历史；迁移采用精选复制，不移动/删除旧工程，也不继承旧M4“所有控制功能必须生成HDL”的交付要求。
 
+## 项目介绍与实验目标
+
+本项目不是将所有电机控制功能搬进FPGA，而是建立一个便于研究电流控制、并可持续升级运动算法的 **AXU5EVB-E / Cortex-R5F＋PL** 实验平台。以现有位置P—速度PI—电流PI-FOC为基线，保持Simulink为算法来源，逐步贯通功能仿真、代码联合仿真和真实电机实验。
+
+实验重点为：在明确的电机、负载、采样、调制与死区条件下，比较电流跟踪、动态响应、纹波及扰动恢复；同时记录PL资源/计算延迟与R5任务时间。高级外环和运动算法优先在R5侧迭代，不因增加管理功能重新硬件化全部控制器。实验指标是研究方向，不是尚未证明的性能承诺。
+
+开发按 **纯MIL → 面向MPSoC的分区与C/RTL联合仿真 → 硬件部署和实机** 三类模型组织，复用相同算法与参数。最终交付不是一份SLX直接烧板，而是 **R5目标程序ELF＋PL配置bitstream**，通过Vivado导出的XSA与Vitis平台衔接。当前Windows C、MEX与XSI是主机仿真产物，不等于R5已经部署。
+
+完整说明见 **[MPSoC开发流程、工具分工与实验目标](docs/MPSOC_WORKFLOW_AND_EXPERIMENTS_ZH.md)**。当前日常运行与交互修复以[Issue #8](https://github.com/kazecode666/AXU5EV/issues/8)及[PR #9](https://github.com/kazecode666/AXU5EV/pull/9)为准；该文档不会把未合并修复或板级工作标成已完成。PR9中的单一`simulation/`入口用于后续日常操作，其合并前后的具体状态请看相应PR。
+
 ## 从哪里开始
 
 1. [当前交接](coordination/HANDOFF.md)和[协作规则](AGENTS.md)。
