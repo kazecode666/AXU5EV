@@ -13,7 +13,7 @@ SCRIPT = ROOT / 'scripts/ax02a_compare_replay.py'
 
 
 class ComparisonTests(unittest.TestCase):
-    def run_case(self, alter=None, timing=None):
+    def run_case(self, alter=None, timing=None, period_ticks=None):
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory)
             rows = [[float(k + j) / 10 for j in range(41)] for k in range(3)]
@@ -34,6 +34,8 @@ class ComparisonTests(unittest.TestCase):
             if timing is not None:
                 (folder/'timing.bin').write_bytes(b''.join(struct.pack('<8Q',*r) for r in timing))
                 args += ['--timing',str(folder/'timing.bin'),'--timer-hz','100000000']
+                if period_ticks is not None:
+                    args += ['--period-ticks',str(period_ticks)]
             result = subprocess.run(args, capture_output=True, text=True)
             self.assertTrue(SCRIPT.exists(), 'comparison executable is missing')
             return result
@@ -61,6 +63,10 @@ class ComparisonTests(unittest.TestCase):
     def test_valid_timing(self):
         records=[[k,k,10000*k,10000*k,10000*k,10000*k+20,10000*k+200,10000*k+250] for k in range(3)]
         self.assertEqual(self.run_case(timing=records).returncode,0)
+
+    def test_one_millisecond_period_is_not_100us_pass(self):
+        records=[[k,k,100000*k,100000*k,100000*k,100000*k+20,100000*k+200,100000*k+250] for k in range(3)]
+        self.assertNotEqual(self.run_case(timing=records,period_ticks=100000).returncode,0)
 
     def test_lost_release_failure(self):
         records=[[k,k,10000*k,10000*k,10000*k,10000*k+20,10000*k+200,10000*k+250] for k in range(3)]

@@ -7,7 +7,7 @@
 | 项目 | 本次结果 | 依据/未完成项 |
 |---|---|---|
 | A1 / TARGET_BUILD | **BLOCKED** | Vivado2026.1实际`get_parts *zu5*`为空；手册器件不可用，XSA未生成。可见安装没有`armr5-none-eabi-gcc`；Vitis R5平台探测在SDT生成失败，无BSP/ELF/map |
-| A2 | **代码生成PASS，目标编译NOT_RUN** | 从当前Runtime临时Cortex-R配置生成C/H，恢复原PC配置；通用runner及bridge在主机编译/链接通过 |
+| A2 | **生成/ARM对象编译PASS，standalone链接NOT_RUN** | 临时Cortex-R配置生成C/H并恢复PC配置；现有Arm GNU交叉编译Runtime/bridge/runner为真实R5对象/静态库，尚无完整应用ELF |
 | A3 | **离线PASS** | 原MAT64536帧完整导出，当前模型同输入参考与43100帧对齐/复位/故障参考；20/41字段、LE double全文件回读一致 |
 | A4 / BOARD_REPLAY | **NOT_RUN** | 当前生成C主机回放通过，两次独立初始化；尚无真实R5输出 |
 | A5 / BOARD_PERIODIC_100US | **NOT_RUN** | 定时执行层、TTC适配源码及比较器已准备；漏序号/超期策略定向测试通过，无硬件计时值 |
@@ -21,11 +21,13 @@
 
 本次会话最初无已加载初始化参数，运行唯一`simulation/init_AXU5EV.m`一次。当前参数Vmax20mm/s、Amax200mm/s²、Jmax1000mm/s³、minRamp0.2s、速度设置变化率100；旧PR14为V10/A100/minRamp0.1/rate50。PI与采样周期未改：Ts100µs/1ms/10ms，Kp_ASR=0.018033474852681124、Ki_ASR=1.4426779882144898、Kp_pos=22。对齐仍10000/30000/2000拍与0.5A。
 
-实际工具：MATLAB26.2.0.3386108/R2026b；Vivado2026.1 SW6511674；Vitis2026.1 SW6497934；主机MinGW64 GCC由已安装MATLAB支持包提供。主机构建`-O2 -fno-fast-math -ffp-contract=off`。
+实际工具：MATLAB26.2.0.3386108/R2026b；Vivado2026.1 SW6511674；Vitis2026.1 SW6497934；主机MinGW64 GCC由已安装MATLAB支持包提供。主机构建`-O2 -fno-fast-math -ffp-contract=off`。补充检查发现既有STM32CubeCLT的`arm-none-eabi-gcc`12.3.1，可支持Cortex-R5；未安装新工具。
 
 `simulation/axu5ev_build_r5_target.m`查询本机`target.get('Processor','ARM Compatible-ARM Cortex-R')`后，复制活动配置集；ERT、C、nonreusable、GenCodeOnly。实际产物头注明`ARM Compatible->ARM Cortex-R`，little-endian、char8/short16/int32/long32/longlong64、word32、double64。仅生成C/H，没有交叉编译。退出已核对活动配置`Configuration`、`Intel->x86-64 (Windows64)`、Dirty=off，原fileGen目录恢复；PC生成目录/MEX不重建。两份新增.m的Code Analyzer检查无问题。
 
-R5应用编译选项拟为`-O2 -fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard`；实际目标编译器版本、BSP、ABI、链接段/TCM/栈占用均**NOT_RUN**。生成日志的MinGW不是R5工具链。`scripts/ax02a_build_r5.py`仅调用Vitis2026.1 Python API，尚未通过实际平台创建，不能宣称已具备可运行BSP。
+用既有Arm GNU12.3.1实际交叉编译了6个Runtime/bridge/runner对象并打包`libax02a_runtime.a`，选项`-O2 -fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -marm -mlittle-endian -mfpu=vfpv3-d16 -mfloat-abi=hard`。readelf实际显示ELF32/ARM、CPU7-R、v7/Realtime、VFPv3-D16、VFP寄存器传参；精简证据见`verification/ax02a/arm_runtime_build.json`和`arm_runtime_attributes.txt`。Runtime单对象text6196B/bss852B；这是对象占用，**不代表含BSP/数学库/栈的最终链接占用**。
+
+该静态库没有启动代码/BSP或可执行入口，不能冒称standalone ELF。实际BSP、最终ELF ABI/段/TCM/栈及ARM运行仍**NOT_RUN**。生成日志的MinGW不是R5工具链。`scripts/ax02a_build_r5.py`的完整平台路径使用Vitis2026.1 Python API，独立`--runtime-only`使用上述已有GNU工具；尚未通过实际平台创建。
 
 ## 原始输入与当前模型参考
 
@@ -57,7 +59,7 @@ R5应用编译选项拟为`-O2 -fno-fast-math -ffp-contract=off -mcpu=cortex-r5 
 
 对齐状态转换k=10→1、10010→2、40010→3、42010→4；完整原始10000/30000/2000拍。x=3.25mm，偏置5.942846103040692rad，一次性锁存；随后Init_Reset在k42300返回0、手动重启k42310、故障k42400返回0。软件序列不证明实物转子对齐。PI_Reset输入k42150–42160、PWM禁用k42200–42210与Init_Reset、fault分别施加。
 
-比较器8项定向测试通过：相等、缺帧、离散微小差异、NaN、连续门限、有效计时、超期、漏释放。通用runner链接真实生成源的测试通过：k0在epoch、漏释放停止、超期停止。合成计时测试只验证判错逻辑，不能转换成R5实测µs。
+比较器9项定向测试通过：相等、缺帧、离散微小差异、NaN、连续门限、有效计时、超期、漏释放，以及拒绝将1ms周期误判为100µs通过。独立审查发现最后一项缺口，先复现失败再修复：实际周期只能偏离100µs至多一个源时钟tick。通用runner链接真实生成源的测试通过：k0在epoch、漏释放停止、超期停止。合成计时测试只验证判错逻辑，不能转换成R5实测µs。
 
 ## 平台依据与失败证据
 

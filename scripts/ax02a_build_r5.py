@@ -40,6 +40,8 @@ def inspect_elf(elf):
     if data[:7]!=b'\x7fELF\x01\x01\x01':
         raise ValueError('expected ELF32 little endian')
     h=struct.unpack_from('<16sHHIIIIIHHHHHH',data)
+    if h[1]!=2:
+        raise ValueError('expected an executable ELF, not a relocatable Runtime object')
     if h[2]!=40:
         raise ValueError('expected EM_ARM (40), not A53 or x86')
     if not h[7]&0x400:
@@ -52,18 +54,55 @@ def inspect_elf(elf):
             if paddr<WINDOW_END and paddr+memory_size>WINDOW_START:
                 raise ValueError('ELF PT_LOAD overlaps replay DDR windows')
             segments.append(dict(address=paddr,file_bytes=file_size,memory_bytes=memory_size,flags=flags))
+    if not segments:raise ValueError('executable ELF has no PT_LOAD segments')
     return dict(machine='ARM',elf_class=32,byte_order='little',entry=h[4],flags=h[7],segments=segments)
+
+
+def compile_runtime(generated,compiler,output):
+    """Real ARM object build with an existing GNU toolchain; no invented BSP."""
+    if output.exists():raise ValueError('use a new Runtime object output directory')
+    output.mkdir(parents=True)
+    flags=['-std=c11','-O2','-g','-fno-fast-math','-ffp-contract=off',
+           '-mcpu=cortex-r5','-marm','-mlittle-endian','-mfpu=vfpv3-d16','-mfloat-abi=hard',
+           '-I'+str(generated),'-I'+str(ROOT/'integration/r5_host'),'-I'+str(ROOT/'firmware/r5/ax02a')]
+    sources=[ROOT/'firmware/r5/ax02a/replay_runner.c',ROOT/'integration/r5_host/ax01b_r5_bridge.c']
+    sources += sorted(f for f in generated.glob('*.c') if f.name!='ert_main.c')
+    objects=[]
+    for source in sources:
+        obj=output/(source.stem+'.o')
+        subprocess.run([str(compiler),*flags,'-c',str(source),'-o',str(obj)],check=True)
+        objects.append(obj)
+    suffix='.exe' if os.name=='nt' else ''
+    tools=compiler.parent
+    library=output/'libax02a_runtime.a'
+    subprocess.run([str(tools/('arm-none-eabi-ar'+suffix)),'rcs',str(library),*[str(o) for o in objects]],check=True)
+    dump=subprocess.check_output([str(tools/('arm-none-eabi-readelf'+suffix)),'-W','-h','-A','-s',str(library)],text=True)
+    if 'Realtime' not in dump or 'VFPv3-D16' not in dump or 'VFP registers' not in dump:
+        raise ValueError('Runtime objects do not declare the expected R-profile/FP attributes')
+    (output/'arm_attributes.txt').write_text(dump,encoding='utf-8',newline='\n')
+    info=dict(status='ARM_RUNTIME_OBJECT_BUILD_PASS',standalone_elf='NOT_BUILT',
+        compiler=subprocess.check_output([str(compiler),'--version'],text=True).splitlines()[0],
+        flags=flags[:10],objects=[o.name for o in objects],library=str(library))
+    (output/'runtime_build.json').write_text(json.dumps(info,indent=2),encoding='utf-8',newline='\n')
+    print(json.dumps(info));return
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config',type=Path,default=Path(os.environ.get('AX02A_BUILD_CONFIG',ROOT/'.runtime/ax02a/build_config.json')))
     parser.add_argument('--preflight',action='store_true')
+    parser.add_argument('--runtime-only',action='store_true',help='cross-compile objects/archive; no platform or ELF claim')
+    parser.add_argument('--compiler',type=Path,help='existing arm-none-eabi-gcc for --runtime-only')
+    parser.add_argument('--output',type=Path,help='new output directory for --runtime-only')
     args=parser.parse_args()
     config=json.loads(args.config.read_text(encoding='utf-8-sig'))
     xsa=Path(config['xsa']).resolve();generated=Path(config['generated']).resolve()
     workspace=Path(config['workspace']).resolve()
     files=source_files(generated)
+    if args.runtime_only:
+        if not args.compiler or not args.output:
+            raise ValueError('--runtime-only requires --compiler and --output')
+        compile_runtime(generated,args.compiler.resolve(),args.output.resolve());return
     if not xsa.is_file():
         raise ValueError(f'missing PS-only XSA: {xsa}; install device support and run the Vivado entry first')
     with zipfile.ZipFile(xsa) as archive:
@@ -119,8 +158,8 @@ def main():
         readelf=Path(compiler).with_name('armr5-none-eabi-readelf.exe' if os.name=='nt' else 'armr5-none-eabi-readelf')
         dump=subprocess.check_output([str(readelf),'-W','-h','-l','-A','-s',str(elf)],text=True)
         (workspace/'target_elf.txt').write_text(dump,encoding='utf-8')
-        if 'Cortex-R5' not in dump and 'Cortex-R5'.lower() not in dump.lower():
-            raise ValueError('ELF ARM attributes do not identify Cortex-R5')
+        if 'Realtime' not in dump or 'VFPv3-D16' not in dump or 'VFP registers' not in dump:
+            raise ValueError('ELF ARM attributes do not identify the expected R-profile and FP ABI')
         if 'AXU5EV_R5_Runtime_step' not in dump:
             raise ValueError('Runtime step symbol absent from target ELF')
         (workspace/'target_build.json').write_text(json.dumps(result,indent=2),encoding='utf-8')

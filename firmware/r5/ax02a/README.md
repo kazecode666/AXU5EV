@@ -1,6 +1,6 @@
 # AX-02A：R5 standalone 回放
 
-当前交付是**Cortex-R独立生成配置、R5应用源码/构建入口、全采样数据及主机数值证据**。本机2026.1没有可用ZU5器件/R5交叉编译链，尚未产出目标ELF/map。目标启动、板上数值和100µs实测均 **NOT_RUN**；不能把本目录称作已通过的R5目标工程。详见[结果报告](../../../coordination/reports/ax02a_r5_target_validation.md)。
+当前交付是**Cortex-R独立生成配置、真实ARM Runtime对象/静态库、R5应用源码/构建入口、全采样数据及主机数值证据**。2026.1的ZU5器件/嵌入式平台链不可用，尚未产出standalone ELF/map。目标启动、板上数值和100µs实测均 **NOT_RUN**；不能把本目录称作已通过的R5目标工程。详见[结果报告](../../../coordination/reports/ax02a_r5_target_validation.md)。
 
 ## 已实际执行的入口
 
@@ -24,6 +24,14 @@ python -m unittest discover -s verification/ax02a -p test_compare_replay.py
 ```
 
 同一主机程序独立运行两次运动场景，并运行43100帧`current_alignment_reset`；对应结果在`verification/ax02a/host_*`。这是生成C/Simulink数值对照与通用执行层验证，**不是ARM运行或托管SIL/PIL**。
+
+另用系统既有Arm GNU12.3.1实际交叉编译Runtime/bridge/runner，未安装新工具：
+
+```powershell
+python scripts/ax02a_build_r5.py --config firmware/r5/ax02a/build_config.example.json --runtime-only --compiler D:/ST/STMicroelectronics/STM32Cube/STM32CubeCLT_1.17.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc.exe --output .runtime/ax02a/arm_runtime
+```
+
+六个真实ARM对象与`libax02a_runtime.a`留在该目录，readelf确认ELF32/ARM、v7/Realtime、VFPv3-D16、VFP寄存器传参；精简配置/属性已提交`verification/ax02a/arm_runtime_*`。这是目标对象编译，**尚未链接启动/BSP/数学库成可执行程序**。输出目录须为新目录。
 
 ## 数据合同
 
@@ -51,7 +59,7 @@ Copy-Item -LiteralPath firmware/r5/ax02a/build_config.example.json -Destination 
 & E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -s scripts/ax02a_build_r5.py
 ```
 
-入口使用本机Vitis Python API，不调用XSCT。计划创建`psu_cortexr5_0`/standalone和R5启动FSBL；应用只链接生成C、现有bridge及本目录`main/replay_runner/timing`，排除`ert_main`、host main、MEX/SimStruct/XSI。`-O2 -fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard`，BSP默认链接模板、16KB主栈/4KB堆；真实ABI/段分布以ELF/map为准。脚本检查ARM32、hard-float、R5属性、Runtime符号及DDR窗口重叠；尚未有目标ELF供检查。
+完整平台入口使用本机Vitis Python API，不调用XSCT；其默认`armr5-none-eabi-gcc`当前不可用，上述通用GNU工具只用于已验证的`--runtime-only`路径。计划创建`psu_cortexr5_0`/standalone和R5启动FSBL；应用只链接生成C、现有bridge及本目录`main/replay_runner/timing`，排除`ert_main`、host main、MEX/SimStruct/XSI。`-O2 -fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard`，BSP默认链接模板、16KB主栈/4KB堆；真实ABI/段分布以ELF/map为准。脚本检查ARM32、hard-float、R-profile/VFP属性、Runtime符号及DDR窗口重叠；尚未有目标ELF供检查。
 
 ## 目标执行与计时合同（未上板）
 
@@ -63,4 +71,4 @@ Copy-Item -LiteralPath firmware/r5/ax02a/build_config.example.json -Destination 
 
 TTC第一通道作周期释放，第二通道作独立32bit自由计数；频率、IRQ、基址来自SDT BSP表。ISR只应答并记录时间/递增32bit序号，前台检测序号与独立经过时间，异常即停。实验总时间必须小于计数溢出边界；每个实验重新启动计数器。保留k=0在epoch，之后k=1由首个中断释放；内部速度/位置首相k=9/k=99不加外部分频。
 
-每帧记录`[frame,seq,expected,release,start,step_begin,step_end,completion]`，单位为硬件ticks；纯Runtime区间排除输入拷贝，响应/截止期包含本帧输入、算法、输出和记录开销（最终completion时间戳存储除外）。保留1024次计数器连续读取开销、TTC起动窗口、实际周期量化；不扣掉开销美化时间。与同输入41字段比较后，用比较器`--timing ... --timer-hz <实际ClockHz> --period-ticks <interval*divisor> --origin BOARD`产生各类别统计。所有这些硬件时间值目前 **NOT_RUN**，不能给出R5的µs结果或WCET。
+每帧记录`[frame,seq,expected,release,start,step_begin,step_end,completion]`，单位为硬件ticks；纯Runtime区间排除输入拷贝，响应/截止期包含本帧输入、算法、输出和记录开销（最终completion时间戳存储除外）。保留1024次计数器连续读取开销、TTC起动窗口、实际周期量化；不扣掉开销美化时间。与同输入41字段比较后，用比较器`--timing ... --timer-hz <实际ClockHz> --period-ticks <interval*divisor> --origin BOARD`产生各类别统计；实际周期仅允许偏离100µs至多一个源时钟tick，错误的1ms周期会失败。所有这些硬件时间值目前 **NOT_RUN**，不能给出R5的µs结果或WCET。

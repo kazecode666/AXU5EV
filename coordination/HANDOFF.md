@@ -8,9 +8,9 @@
 
 PR #14已合并，合并提交`ae9a11d2d59abc952cce0b979d004a315878639a`，实现提交`9a6877546581301638a2bde7203db47896b4f8aa`。原Issue #13仿真收尾见[AX-01C报告](reports/ax01c_simulation_closeout.md)；不重复执行。C源码教学、Issue #11及AX-02B/C仍不在当前范围。
 
-AX-02A已完成离线Cortex-R独立代码生成并恢复PC配置、原始64536帧数据导出、当前Runtime同输入参考与43100帧完整手动对齐/复位/故障参考。当前用户参数V20/A200/minRamp0.2/rate100；原PR14 V10/A100输出单列保留，不混用。相同生成源的主机两次运动实验全41字段最大差1.7763568394002505e−15，定向场景差0；比较器8项故障测试和runner序号/截止期测试通过。没有重跑RTL/对象闭环。
+AX-02A已完成离线Cortex-R独立代码生成并恢复PC配置、既有Arm GNU12.3.1真实交叉编译Runtime/bridge/runner为6个ARMv7-R/VFPv3-D16对象与静态库、原始64536帧数据导出、当前Runtime同输入参考与43100帧完整手动对齐/复位/故障参考。当前用户参数V20/A200/minRamp0.2/rate100；原PR14 V10/A100输出单列保留，不混用。相同生成源的主机两次运动实验全41字段最大差1.7763568394002505e−15，定向场景差0；比较器9项故障测试（含拒绝错误1ms周期）和runner序号/截止期测试通过。没有重跑RTL/对象闭环。
 
-真实目标构建受阻：当前Vivado2026.1 `get_parts *zu5*`为空，手册XCZU5EV-2SFVC784I不可用；可见安装无R5 GNU编译器，Vitis R5平台探测SDT失败。没有XSA/BSP/目标ELF/map，TARGET_BUILD为BLOCKED；BOARD_BOOT/BOARD_REPLAY/BOARD_PERIODIC_100US均NOT_RUN。先补齐MPSoC器件/嵌入式R5组件，再复验同一构建入口；不能以主机结果关闭Issue15。板卡复位/JTAG加载运行仍须本次明确授权与连接确认，功率级隔离。
+完整目标构建受阻：当前Vivado2026.1 `get_parts *zu5*`为空，手册XCZU5EV-2SFVC784I不可用；Vitis默认armr5编译器不可用、R5平台探测SDT失败。通用Arm GNU能编译Runtime对象，但没有XSA/BSP/standalone ELF/map，TARGET_BUILD为BLOCKED；BOARD_BOOT/BOARD_REPLAY/BOARD_PERIODIC_100US均NOT_RUN。先补齐MPSoC器件/嵌入式平台组件，再复验同一构建入口；不能以对象库或主机结果关闭Issue15。板卡复位/JTAG加载运行仍须本次明确授权与连接确认，功率级隔离。
 
 用户最新确认：核心板可参考`ACU5EV核心板原理图.pdf`，底板可参考`AXU5EVB-E开发板原理图.pdf`（与AXU3EG底板共用），实物以太网收发芯片JL2121。本轮按用户手册选择XC/-2，不将厂商XA/-1旧XSA冒称当前目标平台。
 

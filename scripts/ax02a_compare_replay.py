@@ -96,6 +96,10 @@ def timing_stats(path, frames, hz, period, outputs):
     # carries the actual measured/configured tick period, not rounded microseconds.
     if period <= 0:
         raise ValueError('period-ticks must be positive')
+    # 32-bit TTC does not need prescaling for a 10kHz source on this platform.
+    # Permit at most one source-clock tick of integer interval quantization.
+    if abs(period-hz*.0001)>1.000000001:
+        raise ValueError('configured timer period differs from 100us by more than one source tick')
     groups = {name: [] for name in ['all','ordinary','speed_due','position_due','command_event','alignment_transition']}
     anomalies = []
     for k, record in enumerate(records):

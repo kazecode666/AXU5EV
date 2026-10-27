@@ -2,6 +2,7 @@
   "issue": "kazecode666/AXU5EV#15",
   "base_commit": "ae9a11d2d59abc952cce0b979d004a315878639a",
   "CORTEX_R_CODEGEN": "PASS",
+  "ARM_RUNTIME_OBJECT_BUILD": "PASS",
   "REPLAY_EXPORT": "PASS",
   "HOST_NUMERIC_REPLAY": "PASS",
   "TARGET_BUILD": "BLOCKED",

@@ -6,7 +6,7 @@
 
 本轮完整C/真实RTL同Run `10→0→−2 mm` 已完成：实际RTL 64536帧，三段均满足原Ready，接受3/拒绝1；位置、速度、dq电流、参考及应用duty差均0。见[AX-01C结果与曲线](coordination/reports/ax01c_simulation_closeout.md)。先前默认点位修复与发送回执分别见[Issue #8原报告](coordination/reports/issue8_manual_run.md)、[发送报告](coordination/reports/issue8_send_ready.md)。
 
-[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)已合并（`ae9a11d2d59abc952cce0b979d004a315878639a`）。当前Cortex-R代码生成、全采样导出与主机数值比较通过；本机2026.1的ZU5器件/R5构建组件缺失，XSA/BSP/目标ELF受阻，板上启动/数值/周期均NOT_RUN。先补齐构建链，不以主机证据代替真实R5。
+[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)已合并（`ae9a11d2d59abc952cce0b979d004a315878639a`）。当前Cortex-R代码生成、真实ARM Runtime对象交叉编译、全采样导出与主机数值比较通过；2026.1的ZU5器件/嵌入式平台链仍阻塞XSA/BSP/standalone ELF，板上启动/数值/周期均NOT_RUN。先补齐构建链，不以对象库或主机证据代替真实R5运行。
 
 ## 目标与分工
 
