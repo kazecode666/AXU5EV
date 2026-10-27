@@ -20,7 +20,7 @@ axu5ev_export_r5_replay;  % .runtime/ax02a/replay，必须不存在
 python scripts/ax02a_build_host.py --gcc C:/ProgramData/MATLAB/SupportPackages/R2026b/3P.instrset/mingw_w64.instrset/bin/gcc.exe --generated .runtime/ax02a/target/codegen/AXU5EV_R5_Runtime_ert_rtw --output .runtime/ax02a/host
 & .runtime/ax02a/host/host_replay.exe .runtime/ax02a/replay/current_motion/input.bin 64536 .runtime/ax02a/host/current_motion_1.bin
 python scripts/ax02a_compare_replay.py --metadata .runtime/ax02a/replay/current_motion/metadata.json --reference .runtime/ax02a/replay/current_motion/reference.bin --actual .runtime/ax02a/host/current_motion_1.bin --output verification/ax02a/host_motion_1 --origin HOST
-python -m unittest discover -s verification/ax02a -p test_compare_replay.py
+python -m unittest discover -s verification/ax02a -p 'test_*.py'
 ```
 
 同一主机程序独立运行两次运动场景，并运行43100帧`current_alignment_reset`；对应结果在`verification/ax02a/host_*`。这是生成C/Simulink数值对照与通用执行层验证，**不是ARM运行或托管SIL/PIL**。
