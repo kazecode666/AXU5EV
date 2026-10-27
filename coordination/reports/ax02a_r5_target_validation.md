@@ -63,6 +63,20 @@ Vitis实际建立`psu_cortexr5_0`/`r5_standalone`，构建BSP和R5 FSBL。应用
 
 完整构建产物又经独立只读审查：配置、三路TTC、Runtime/BSP链接与装载区无发现；13项定向测试本轮再次通过。**TARGET_BUILD=PASS；BOARD_BOOT/REPLAY/PERIODIC_100US仍NOT_RUN。**
 
+## 用户首次手动PS操作交接（离线准备）
+
+按[PR16最新评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6439330483)，新增`firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md`与`launch_first_wait.json`，README仅保留入口。指南用当前workspace解释XSA→platform/domain/BSP→ELF/map→FSBL初始化→R5_0→UART/邮箱，按目标识别、入口/main、WAIT分停点；第一次以已有启动消息和`state=1/experiment=0`为终点，不装载数据或发实验命令。
+
+启动配置从当前2026.1生成的launch结构调整：保留匹配的R5 FSBL和split，关闭PL下载、另一条psu_init与trace/cross-trigger，启用Stop at entry。模板只作为被动配置；本地workspace追加同名首次配置，保留原配置，不启动调试。GUI字段由本机编辑器/schema及官方2026.1文档离线核对，未实际打开IDE点击验证。XSDB连接/初始化/加载/读写命令仅作为分段文档，由用户亲自执行；不是一键上板脚本。
+
+UART从当前BSP与FSBL初始化核对为UART0 `0xff000000`、MIO42/43、约115200/8N1；不是照抄泛用教程的UART1。后续mode=0/1段要求先装输入、最后发command，完成停点核对本次experiment/status/frames后才读出，使用ELF符号访问邮箱，不猜地址偏移。性能窗口不设路径断点或进行读写/传输。
+
+独立复核指出FSBL错误路径也会到达`XFsbl_Exit`，指南已修正为“本次退出点＋FSBL状态寄存器0＋无错误”才放行。当前FSBL的完成/错误标记为PMU `0xffd80060`；XSDB在应用下载前分段检查，GUI自动launch不能在退出点后按该值拦截下载，故明确其限制，并在应用入口暂停时检查后才Resume。没有把命中退出符号冒称初始化成功。
+
+本轮仅做本地文件/配置/语法核对，不执行Vivado/Vitis构建、MATLAB、仿真/RTL、IDE、hw_server、XSDB会话或板卡操作。BOARD_BOOT/REPLAY/PERIODIC仍NOT_RUN，PR16保持草稿。
+
+实际离线检查通过：所列XSA/FSBL/ELF/map/初始化文件存在，64536/43100帧输入与参考长度匹配，首次配置关键开关符合上述范围，10段Tcl仅以`info complete`检查结构完整性（作为文本，不求值执行）。独立复核所提FSBL成功判断P2已修正并复核无新增发现；语法和配置检查不等于命令已在硬件通过。
+
 ## 原始输入与当前模型参考
 
 输入来自`.runtime/ax01c/c_fixed_continuous.mat`的真实`r5_snapshot`，输出历史参考为`r5_commit`；20/41列、同一时间轴、100µs步长、64536帧，末时6.4535s。Send翻转帧k=20915/21016/52999，对应2.0915/2.1016/5.2999s。未使用10ms抽样CSV插值。

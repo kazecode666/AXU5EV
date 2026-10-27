@@ -6,6 +6,8 @@
 
 当前主线为[Issue #15](https://github.com/kazecode666/AXU5EV/issues/15) AX-02A，沿A1—A6推进真实R5目标工程/数值/100µs时间验证，不重规划全项目、不默认重跑完整RTL。见[AX-02A实际报告](reports/ax02a_r5_target_validation.md)与[R5应用入口](../firmware/r5/ax02a/README.md)。
 
+用户最新指定按[PR16手动上板评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6439330483)交接：**上板由用户本人操作，Codex不连接/复位/写内存/加载/运行板卡**。当前新增[首次PS操作指南](../firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md)和`ax02a_first_wait_manual`配置；仅离线准备。第一次只到R5应用打印等待消息、邮箱`state=1/experiment=0`，不发实验命令。后续A4/A5段留作备查，收到用户实际停点证据后再推进；接好线不等于授权自动探测或运行。
+
 成果草稿[PR #16](https://github.com/kazecode666/AXU5EV/pull/16)，仓库`kazecode666/AXU5EV`，未合并。初始实现`8d892695705a61a1295389a3bc7343e87ca59aa7`；ARM对象与周期门禁`6d9e5397478361762e947b5812b701dc554b24da`；可执行门禁`77a7d358baf1b0bd8577e8c929be9156026fcf84`；完整PS平台/BSP/ELF与证据`1b4834526275b1824098ad66a2c2a6ce0d04dc0b`。Issue15板上验收继续开放。
 
 PR #14已合并，合并提交`ae9a11d2d59abc952cce0b979d004a315878639a`，实现提交`9a6877546581301638a2bde7203db47896b4f8aa`。原Issue #13仿真收尾见[AX-01C报告](reports/ax01c_simulation_closeout.md)；不重复执行。C源码教学、Issue #11及AX-02B/C仍不在当前范围。

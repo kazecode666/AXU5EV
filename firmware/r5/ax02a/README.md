@@ -2,6 +2,8 @@
 
 当前已实际生成**手册5EV器件的PS-only XSA、R5 standalone BSP/FSBL及含Runtime的ELF/map**，TARGET_BUILD通过。Cortex-R独立生成配置、全采样数据和主机数值证据继续保留。目标启动、板上数值和100µs实测均 **NOT_RUN**，构建通过不代表目标运行验收通过。详见[结果报告](../../../coordination/reports/ax02a_r5_target_validation.md)。
 
+**第一次使用PS端，先读[首次手动启动指南](FIRST_BOARD_RUN_ZH.md)**：打开已有workspace，选`ax02a_first_wait_manual`，依次停在目标识别、应用入口/main、邮箱等待。首次仅确认已有启动消息与`state=1/experiment=0`，由用户亲自上板；Codex只做离线准备。启动配置模板为[launch_first_wait.json](launch_first_wait.json)，采用同平台R5 FSBL、RPU split，禁PL下载，不同时执行`psu_init.tcl`。分段XSDB命令、后续回放与故障定位统一放在该指南，不在这里重复。
+
 ## 已实际执行的入口
 
 MATLAB操作通过MCP。本次会话初始无已加载参数，先运行唯一`simulation/init_AXU5EV.m`；如已有初始化则不重载。随后：
