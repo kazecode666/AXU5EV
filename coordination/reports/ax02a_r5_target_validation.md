@@ -1,4 +1,4 @@
-# AX-02A：离线目标准备与数值验证
+# AX-02A：真实目标构建与离线数值验证
 
 日期2026-10-27；仓库`kazecode666/AXU5EV`，[Issue #15](https://github.com/kazecode666/AXU5EV/issues/15)。基点为PR14合并`ae9a11d2d59abc952cce0b979d004a315878639a`，分支`codex/ax02a-r5-target`。本报告记录实际成果；不展开AX-02B/C或AX-03。
 
@@ -8,8 +8,8 @@
 
 | 项目 | 本次结果 | 依据/未完成项 |
 |---|---|---|
-| A1 / TARGET_BUILD | **BLOCKED** | Vivado2026.1实际`get_parts *zu5*`为空；手册器件不可用，XSA未生成。可见安装没有`armr5-none-eabi-gcc`；Vitis R5平台探测在SDT生成失败，无BSP/ELF/map |
-| A2 | **生成/ARM对象编译PASS，standalone链接NOT_RUN** | 临时Cortex-R配置生成C/H并恢复PC配置；现有Arm GNU交叉编译Runtime/bridge/runner为真实R5对象/静态库，尚无完整应用ELF |
+| A1 / TARGET_BUILD | **PASS（构建）** | 用户补齐2026.1组件后，按手册part生成新PS-only XSA；真实R5 standalone BSP、R5 FSBL、应用ELF/map全部构建成功。实物料号/修订仍待板前签核 |
+| A2 | **生成/完整目标链接PASS，ARM运行NOT_RUN** | 独立Cortex-R配置的同份生成C经官方R5 GCC13.4.0链接进新BSP；ARM32/v7-Realtime/VFPv3-D16/hard-float及装载段检查通过 |
 | A3 | **离线PASS** | 原MAT64536帧完整导出，当前模型同输入参考与43100帧对齐/复位/故障参考；20/41字段、LE double全文件回读一致 |
 | A4 / BOARD_REPLAY | **NOT_RUN** | 当前生成C主机回放通过，两次独立初始化；尚无真实R5输出 |
 | A5 / BOARD_PERIODIC_100US | **NOT_RUN** | 定时执行层、TTC适配源码及比较器已准备；漏序号/超期策略定向测试通过，无硬件计时值 |
@@ -23,13 +23,45 @@
 
 本次会话最初无已加载初始化参数，运行唯一`simulation/init_AXU5EV.m`一次。当前参数Vmax20mm/s、Amax200mm/s²、Jmax1000mm/s³、minRamp0.2s、速度设置变化率100；旧PR14为V10/A100/minRamp0.1/rate50。PI与采样周期未改：Ts100µs/1ms/10ms，Kp_ASR=0.018033474852681124、Ki_ASR=1.4426779882144898、Kp_pos=22。对齐仍10000/30000/2000拍与0.5A。
 
-实际工具：MATLAB26.2.0.3386108/R2026b；Vivado2026.1 SW6511674；Vitis2026.1 SW6497934；主机MinGW64 GCC由已安装MATLAB支持包提供。主机构建`-O2 -fno-fast-math -ffp-contract=off`。补充检查发现既有STM32CubeCLT的`arm-none-eabi-gcc`12.3.1，可支持Cortex-R5；未安装新工具。
+实际工具：MATLAB26.2.0.3386108/R2026b；Vivado2026.1 SW6511674；Vitis原HLS安装为SW6497934，用户手动增补Embedded后当前为SW6511674、官方R5 GCC13.4.0。主机MinGW64 GCC由已安装MATLAB支持包提供，主机构建`-O2 -fno-fast-math -ffp-contract=off`。此前使用既有STM32CubeCLT `arm-none-eabi-gcc`12.3.1完成对象编译，历史证据保留；本轮完整ELF使用新官方工具链。
 
 `simulation/axu5ev_build_r5_target.m`查询本机`target.get('Processor','ARM Compatible-ARM Cortex-R')`后，复制活动配置集；ERT、C、nonreusable、GenCodeOnly。实际产物头注明`ARM Compatible->ARM Cortex-R`，little-endian、char8/short16/int32/long32/longlong64、word32、double64。仅生成C/H，没有交叉编译。退出已核对活动配置`Configuration`、`Intel->x86-64 (Windows64)`、Dirty=off，原fileGen目录恢复；PC生成目录/MEX不重建。两份新增.m的Code Analyzer检查无问题。
 
 用既有Arm GNU12.3.1实际交叉编译了6个Runtime/bridge/runner对象并打包`libax02a_runtime.a`，选项`-O2 -fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -marm -mlittle-endian -mfpu=vfpv3-d16 -mfloat-abi=hard`。readelf实际显示ELF32/ARM、CPU7-R、v7/Realtime、VFPv3-D16、VFP寄存器传参；精简证据见`verification/ax02a/arm_runtime_build.json`和`arm_runtime_attributes.txt`。Runtime单对象text6196B/bss852B；这是对象占用，**不代表含BSP/数学库/栈的最终链接占用**。
 
-该静态库没有启动代码/BSP或可执行入口，不能冒称standalone ELF。实际BSP、最终ELF ABI/段/TCM/栈及ARM运行仍**NOT_RUN**。生成日志的MinGW不是R5工具链。`scripts/ax02a_build_r5.py`的完整平台路径使用Vitis2026.1 Python API，独立`--runtime-only`使用上述已有GNU工具；尚未通过实际平台创建。
+该静态库自身没有启动代码/BSP或可执行入口，不能冒称standalone ELF。后续本轮已通过`scripts/ax02a_build_r5.py`的Vitis2026.1 Python API路径创建真实平台并链接完整应用，见下节。独立`--runtime-only`路径仍使用上述已有GNU工具。生成日志的MinGW不是R5工具链；ARM运行仍**NOT_RUN**。
+
+## 补齐组件后的真实平台与ELF
+
+用户手动安装Zynq UltraScale+ MPSoCs与Vitis Embedded Development后，两条实际命令均退出0，未操作板卡：
+
+```powershell
+& E:/AMDDesignTools/2026.1/Vivado/bin/vivado.bat -mode batch -nojournal -log .runtime/ax02a/ps_target.log -source hardware/axu5ev/ax02a_ps_minimal.tcl -tclargs xczu5ev-sfvc784-2-i .runtime/ax02a/ps_target 资料/course_s2/01_ps_hello/vivado/ps_hello.srcs/sources_1/bd/design_1/design_1.bd
+& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -s scripts/ax02a_build_r5.py
+```
+
+本地JSON由`firmware/r5/ax02a/build_config.example.json`复制，指向该XSA、既有独立Cortex-R生成目录与新workspace`.runtime/ax02a/vitis_target`。输出目录已存在；复验须换新目录并同步JSON，不重置或删除原工程。
+
+厂商2020.1 BD不能直接载入新版目录。平台入口只复制其PS XCI，在本地副本运行官方`upgrade_ip`将3.3迁移到3.5，再以迁移后的参数创建新PS-only BD。已复现Vivado回调将全局`config`由3376项改成54项，导致参数字典被替换、DRAM退回8bit/UART未选；不能把该失败归为本板DDR不符。局部proc隔离构建状态后，DDR64bit/x16/8Gbit每颗/DDR4_2400P、UART0 MIO42/43及校验通过。只传硬件参数，排除GUI/接口与BD只读派生元数据；关闭非UART0/TTC0外设、全部fabric AXI、PL时钟/复位。厂商原件未修改，未综合、布线或生成bitstream。
+
+真实平台配置：R5请求500MHz、配置499.994995MHz，PS参考33.333MHz。新SDT BSP给出TTC0三项，基址`0xff110000/4/8`、100MHz、编码IRQ`0x4024/25/26`；原生驱动直接采用各通道地址，执行层的前两项是独立通道。stdout/stderr选UART0 `0xff000000`。**均为平台/BSP配置，未测量硬件时钟或中断。** RPU split模式仍需授权启动时设置并验证。
+
+Vitis实际建立`psu_cortexr5_0`/`r5_standalone`，构建BSP和R5 FSBL。应用包含同一生成C、既有bridge与`main/replay_runner/timing`；编译命令实际含`-DSDT -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard -O2 -g3 -fno-fast-math -ffp-contract=off`。未引入MEX、XSI、host main或`ert_main`，未修改生成算法。
+
+| 实际产物/布局 | 结果 |
+|---|---|
+| XSA | `.runtime/ax02a/ps_target/ax02a_ps.xsa`，part `xczu5ev-sfvc784-2-i`，DDR窗口覆盖回放区 |
+| 应用ELF/map | `.runtime/ax02a/vitis_target/ax02a_replay/build/ax02a_replay.elf`及同目录`.map` |
+| 启动FSBL | `ax02a_platform/zynqmp_fsbl/build/fsbl.elf`，已检查为ARM可执行文件 |
+| ELF | EXEC、ARM32、little-endian、入口0x3c、EABI5/hard-float、v7/Realtime、VFPv3-D16/VFP寄存器传参 |
+| ATCM装载 | [0,0x7d8)，向量及启动数据；2008B |
+| DDR装载 | [0x100000,0x111c80)，代码/状态/堆/栈；文件44692B、内存72832B |
+| GNU size | text41588B、data5100B、bss28136B；包含启动、BSP、库及链接保留区 |
+| 主栈/堆 | 16KB/4KB，另含BSP异常模式栈；不是动态栈峰值测量 |
+
+两段均不与回放预留[0x10000000,0x14000000)重叠；采用默认BSP链接布局，热点代码/状态还未迁入TCM，不能先宣称100µs足够。精简证据为`verification/ax02a/target_build.json`、`target_elf_attributes.txt`、`target_map_excerpt.txt`；完整XSA/BSP/ELF/map/日志留`.runtime/ax02a/`。
+
+完整构建产物又经独立只读审查：配置、三路TTC、Runtime/BSP链接与装载区无发现；13项定向测试本轮再次通过。**TARGET_BUILD=PASS；BOARD_BOOT/REPLAY/PERIODIC_100US仍NOT_RUN。**
 
 ## 原始输入与当前模型参考
 
@@ -65,23 +97,23 @@
 
 完整Python定向集现为13项（上述9项及4项可执行文件门禁：ARM可执行格式、拒绝重定位对象、拒绝A53、拒绝DDR缓冲重叠），均通过。新增通用GNU ARM对象编译模式实际执行通过并自行检查产物；独立审查覆盖首个实现提交，未对该后加模式作第二轮审查。已修复审查唯一P2；没有遗留小项。硬件/BSP/链接真实性未获判定，继续保持NOT_RUN，错误成本不会被主机测试抵销。
 
-## 平台依据与失败证据
+## 平台依据与此前失败记录
 
 用户确认核心板参考`ACU5EV核心板原理图.pdf`、底板参考`AXU5EVB-E开发板原理图.pdf`；底板与AXU3EG共用，标题不能据此否定。用户实物确认以太网收发芯片JL2121；本阶段不使用以太网。芯片以用户指定的《AXU5EVB-E开发板用户手册》PDF p10–11为依据：`XCZU5EV-2SFVC784I`，Vivado器件名`xczu5ev-sfvc784-2-i`；实物PCB修订尚未提供。
 
 手册p11：PS DDR4为4×MT40A512M16LY-062E，64bit/4GB；p20：PS参考33.333MHz；p39：UART0 MIO42/43。厂商hello BD对应64bit、16bit DRAM、8192Mbit/颗、DDR4_2400P及MIO42/43。原BD实际R5请求500MHz/配置499.994995MHz、TTC0100MHz，**不是当前平台配置或实测频率**。厂商XA/-1仍与手册XC/-2不同。
 
-真实执行：
+补齐组件前的真实执行记录保留：
 
 - Vivado最小平台入口在`get_parts xczu5ev-sfvc784-2-i`报`part unavailable`并退出；额外只读`get_parts *zu5*`为空。没有改用XA或其他芯片生成“通过”平台。
 - Vitis2026.1 Python API用厂商旧XSA做一次独立R5域探测，原中文路径与ASCII复制路径均在`Error in generating SDT`退出；探测XSA不是新目标交付。没有调用XSCT或原位升级厂商工程。
-- 目标构建入口preflight实际报`missing PS-only XSA`并返回非零。当前可见2026.1没有R5 GNU编译器；未安装/升级工具。
+- 当时目标构建入口preflight实际报`missing PS-only XSA`并返回非零，原2026.1安装没有R5 GNU编译器。
 
-日志：`.runtime/ax02a/ps_minimal.console.txt`、`parts.console.txt`、`probe_vitis_ascii.log`、`r5_preflight.txt`。真正下一步是补齐这套安装的MPSoC器件与嵌入式R5构建组件，再执行同一入口；不是再跑RTL。
+历史日志：`.runtime/ax02a/ps_minimal.console.txt`、`parts.console.txt`、`probe_vitis_ascii.log`、`r5_preflight.txt`。用户补齐组件后上述环境阻塞已解除；成功日志为`ps_target.console.txt`和`vitis_target.console.txt`，未重跑RTL。
 
 ## 板上待验收与可复用点
 
-`firmware/r5/ax02a/main.c`为standalone回放应用，等待内存命令后执行；D-cache关闭、I-cache开启，输入/输出/计时DDR窗口与ELF装载段由构建入口核对不重叠。实际DDR初始化/容量/可达性、split启动、BSP时钟和中断仍须在平台可构建后核实。
+`firmware/r5/ax02a/main.c`为已链接的standalone回放应用，等待内存命令后执行；D-cache关闭、I-cache开启，输入/输出/计时DDR窗口与ELF装载段已核对不重叠。实际DDR初始化/容量/可达性、split启动、时钟和中断运行仍须上板核实。
 
 `timing.c`依BSP表选择两路TTC，第一路释放、第二路独立计数。ISR仅记录时间/递增序号；唯一前台执行Runtime。检测丢拍/重复/序号与独立时间，失败停止。记录预期/实际释放、开始、纯Runtime与完成；比较器可生成普通/速度/位置/命令/对齐分类的样本数、均值/P99/max/最小slack。计数频率、读计数开销、周期量化、启动窗口和真实帧记录均待板上采集，**当前无任何R5执行时间或截止期通过结论**。
 

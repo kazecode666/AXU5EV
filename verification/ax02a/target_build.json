@@ -1,0 +1,82 @@
+{
+  "status": "TARGET_BUILD_PASS",
+  "issue": "kazecode666/AXU5EV#15",
+  "part": "xczu5ev-sfvc784-2-i",
+  "vivado": "2026.1 SW6511674",
+  "vitis": "2026.1 SW6511674",
+  "compiler": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0",
+  "processor": "psu_cortexr5_0",
+  "domain": "r5_standalone",
+  "os": "standalone",
+  "runtime_compile_flags": [
+    "-DSDT",
+    "-mcpu=cortex-r5",
+    "-mfloat-abi=hard",
+    "-mfpu=vfpv3-d16",
+    "-DARMR5",
+    "-O2",
+    "-g3",
+    "-fno-fast-math",
+    "-ffp-contract=off"
+  ],
+  "xsa": ".runtime/ax02a/ps_target/ax02a_ps.xsa",
+  "elf": ".runtime\\ax02a\\vitis_target\\ax02a_replay\\build\\ax02a_replay.elf",
+  "map": ".runtime/ax02a/vitis_target/ax02a_replay/build/ax02a_replay.map",
+  "fsbl": ".runtime\\ax02a\\vitis_target\\ax02a_platform\\zynqmp_fsbl\\build\\fsbl.elf",
+  "fsbl_machine": "ARM",
+  "runtime_source": ".runtime/ax02a/target/codegen/AXU5EV_R5_Runtime_ert_rtw",
+  "elf_layout": {
+    "machine": "ARM",
+    "elf_class": 32,
+    "byte_order": "little",
+    "entry": 60,
+    "flags": 83887104,
+    "segments": [
+      {
+        "address": 0,
+        "file_bytes": 2008,
+        "memory_bytes": 2008,
+        "flags": 7
+      },
+      {
+        "address": 1048576,
+        "file_bytes": 44692,
+        "memory_bytes": 72832,
+        "flags": 7
+      }
+    ]
+  },
+  "size_bytes": {
+    "text": 41588,
+    "data": 5100,
+    "bss": 28136
+  },
+  "primary_stack_bytes": 16384,
+  "heap_bytes": 4096,
+  "placement": "vectors/bootdata in ATCM; text/data/bss/heap/stacks in DDR at 0x00100000",
+  "configured_r5_mhz": 499.994995,
+  "configured_ddr": {
+    "bus_bits": 64,
+    "device_bits": 16,
+    "device_mbits": 8192,
+    "speed_bin": "DDR4_2400P"
+  },
+  "bsp_ttc": {
+    "channels": 3,
+    "base_addresses": [
+      "0xff110000",
+      "0xff110004",
+      "0xff110008"
+    ],
+    "clock_hz": 100000000,
+    "encoded_interrupts": [
+      "0x4024",
+      "0x4025",
+      "0x4026"
+    ]
+  },
+  "board_boot": "NOT_RUN",
+  "board_replay": "NOT_RUN",
+  "periodic_100us": "NOT_RUN",
+  "limitation": "Build/configuration evidence only. Physical part/revision, RPU split launch, DDR access, numeric replay and timing require authorized hardware verification."
+}

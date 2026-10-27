@@ -1,5 +1,5 @@
 {
-  "xsa": ".runtime/ax02a/ps_minimal/ax02a_ps.xsa",
+  "xsa": ".runtime/ax02a/ps_target/ax02a_ps.xsa",
   "generated": ".runtime/ax02a/target/codegen/AXU5EV_R5_Runtime_ert_rtw",
   "workspace": ".runtime/ax02a/vitis_target"
 }

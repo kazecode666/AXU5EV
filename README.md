@@ -6,7 +6,7 @@
 
 本轮完整C/真实RTL同Run `10→0→−2 mm` 已完成：实际RTL 64536帧，三段均满足原Ready，接受3/拒绝1；位置、速度、dq电流、参考及应用duty差均0。见[AX-01C结果与曲线](coordination/reports/ax01c_simulation_closeout.md)。先前默认点位修复与发送回执分别见[Issue #8原报告](coordination/reports/issue8_manual_run.md)、[发送报告](coordination/reports/issue8_send_ready.md)。
 
-[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)已合并（`ae9a11d2d59abc952cce0b979d004a315878639a`）。当前Cortex-R代码生成、真实ARM Runtime对象交叉编译、全采样导出与主机数值比较通过；2026.1的ZU5器件/嵌入式平台链仍阻塞XSA/BSP/standalone ELF，板上启动/数值/周期均NOT_RUN。先补齐构建链，不以对象库或主机证据代替真实R5运行。
+[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)已合并（`ae9a11d2d59abc952cce0b979d004a315878639a`）。用户补齐2026.1组件后，手册5EV器件的PS-only XSA、R5 standalone BSP/FSBL及含Runtime的真实ELF/map已构建通过；全采样导出与主机数值证据保持有效。板上启动/数值/100µs周期均NOT_RUN；目标构建通过不代替真实R5运行，见[构建与验证报告](coordination/reports/ax02a_r5_target_validation.md)。
 
 ## 目标与分工
 
@@ -37,7 +37,7 @@
 |---|---|
 | `simulation/` | 唯一活动模型与日常.m入口：Hybrid、Runtime、Control、FOC、浮点基线及参数/轨迹/构建辅助 |
 | `simulink模型/` | 旧初始化的薄转发及用户本地wrapper；不放第二套活动模型/参数定义 |
-| `firmware/r5/` | R5复用说明与AX-02A standalone回放源码；目标BSP/ELF当前受工具组件阻塞 |
+| `firmware/r5/` | R5复用说明与AX-02A standalone回放源码；真实BSP/ELF构建通过，板上验证待授权 |
 | `hardware/axu5ev/` | 经板卡版本核对后的Vivado/Vitis平台脚本与硬件清单 |
 | `integration/ps_pl/` | 本轮仿真交换字段、事件顺序及后续硬件总线合同 |
 | `scripts/`、`verification/` | 可移植构建、必要复验与精简证据 |

@@ -1,6 +1,6 @@
 # AX-02A：R5 standalone 回放
 
-当前交付是**Cortex-R独立生成配置、真实ARM Runtime对象/静态库、R5应用源码/构建入口、全采样数据及主机数值证据**。2026.1的ZU5器件/嵌入式平台链不可用，尚未产出standalone ELF/map。目标启动、板上数值和100µs实测均 **NOT_RUN**；不能把本目录称作已通过的R5目标工程。详见[结果报告](../../../coordination/reports/ax02a_r5_target_validation.md)。
+当前已实际生成**手册5EV器件的PS-only XSA、R5 standalone BSP/FSBL及含Runtime的ELF/map**，TARGET_BUILD通过。Cortex-R独立生成配置、全采样数据和主机数值证据继续保留。目标启动、板上数值和100µs实测均 **NOT_RUN**，构建通过不代表目标运行验收通过。详见[结果报告](../../../coordination/reports/ax02a_r5_target_validation.md)。
 
 ## 已实际执行的入口
 
@@ -12,7 +12,7 @@ axu5ev_build_r5_target;   % .runtime/ax02a/target，必须不存在
 axu5ev_export_r5_replay;  % .runtime/ax02a/replay，必须不存在
 ```
 
-再次生成时传入新的输出目录。原PC配置、fileGen目录及Dirty状态在退出时恢复，不保存SLX。生成头实际为`ARM Compatible->ARM Cortex-R`；ERT/C、little-endian、8/16/32/32/64位整数、32位word、double。没有运行交叉编译，生成日志中的MinGW只用于主机侧工具链选择，不能作为R5编译器证明。
+再次生成时传入新的输出目录。原PC配置、fileGen目录及Dirty状态在退出时恢复，不保存SLX。生成头实际为`ARM Compatible->ARM Cortex-R`；ERT/C、little-endian、8/16/32/32/64位整数、32位word、double。这两个MATLAB入口本身不交叉编译；生成日志中的MinGW只用于主机侧工具链选择，不能作为R5编译器证明。
 
 本次在PowerShell执行：
 
@@ -25,7 +25,7 @@ python -m unittest discover -s verification/ax02a -p 'test_*.py'
 
 同一主机程序独立运行两次运动场景，并运行43100帧`current_alignment_reset`；对应结果在`verification/ax02a/host_*`。这是生成C/Simulink数值对照与通用执行层验证，**不是ARM运行或托管SIL/PIL**。
 
-另用系统既有Arm GNU12.3.1实际交叉编译Runtime/bridge/runner，未安装新工具：
+在补齐AMD组件前，另用系统既有Arm GNU12.3.1实际交叉编译Runtime/bridge/runner：
 
 ```powershell
 python scripts/ax02a_build_r5.py --config firmware/r5/ax02a/build_config.example.json --runtime-only --compiler D:/ST/STMicroelectronics/STM32Cube/STM32CubeCLT_1.17.0/GNU-tools-for-STM32/bin/arm-none-eabi-gcc.exe --output .runtime/ax02a/arm_runtime
@@ -41,25 +41,23 @@ python scripts/ax02a_build_r5.py --config firmware/r5/ax02a/build_config.example
 
 比较器精确比较布尔/枚举/计数/段号；连续量门限`1e-9+1e-9*abs(reference)`，非有限值、缺帧失败。输出`signals.csv`、`events.csv`和`summary.json`；指定`--origin`保留执行来源，比较通过不会自动推断来源。
 
-## 目标构建入口与当前阻塞
+## 已通过的完整目标构建入口
 
-已执行以下Vivado命令，实际在器件检查处失败，未修改厂商工程：
-
-```powershell
-& E:/AMDDesignTools/2026.1/Vivado/bin/vivado.bat -mode batch -nojournal -log .runtime/ax02a/ps_minimal.log -source hardware/axu5ev/ax02a_ps_minimal.tcl -tclargs xczu5ev-sfvc784-2-i .runtime/ax02a/ps_minimal 资料/course_s2/01_ps_hello/vivado/ps_hello.srcs/sources_1/bd/design_1/design_1.bd
-python scripts/ax02a_build_r5.py --preflight
-```
-
-`ax02a_ps_minimal.tcl`后续设计为复制单个厂商hello BD、升级副本PS、保留DDR/MIO、关闭非UART0/TTC0外设、生成无PL镜像的XSA。**器件检查之后的步骤尚未运行。** 厂商配置的DDR4/64bit、4×8Gbit/x16、UART MIO42/43与手册一致；不采用通用ZCU preset。手册器件XC/-2与原工程XA/-1不同，不能直接将旧XSA交付为当前目标平台。
-
-`build_config.example.json`指向本地输出。补齐既有2026.1的MPSoC器件与嵌入式R5工具后，才可运行下列**尚未验证成功**的目标命令：
+用户手动补齐2026.1的Zynq UltraScale+ MPSoCs和Vitis Embedded Development后，实际执行成功：
 
 ```powershell
+& E:/AMDDesignTools/2026.1/Vivado/bin/vivado.bat -mode batch -nojournal -log .runtime/ax02a/ps_target.log -source hardware/axu5ev/ax02a_ps_minimal.tcl -tclargs xczu5ev-sfvc784-2-i .runtime/ax02a/ps_target 资料/course_s2/01_ps_hello/vivado/ps_hello.srcs/sources_1/bd/design_1/design_1.bd
 Copy-Item -LiteralPath firmware/r5/ax02a/build_config.example.json -Destination .runtime/ax02a/build_config.json
 & E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -s scripts/ax02a_build_r5.py
 ```
 
-完整平台入口使用本机Vitis Python API，不调用XSCT；其默认`armr5-none-eabi-gcc`当前不可用，上述通用GNU工具只用于已验证的`--runtime-only`路径。计划创建`psu_cortexr5_0`/standalone和R5启动FSBL；应用只链接生成C、现有bridge及本目录`main/replay_runner/timing`，排除`ert_main`、host main、MEX/SimStruct/XSI。`-O2 -fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard`，BSP默认链接模板、16KB主栈/4KB堆；真实ABI/段分布以ELF/map为准。脚本检查ARM32、hard-float、R-profile/VFP属性、Runtime符号及DDR窗口重叠；尚未有目标ELF供检查。
+这组输出目录已存在；复验须选择新的Vivado输出目录和Vitis workspace，并在独立JSON中同步XSA路径（可用`AX02A_BUILD_CONFIG`指定）。脚本拒绝覆盖已有工程，不删除或重置它们。
+
+`ax02a_ps_minimal.tcl`复制厂商hello的一个PS XCI，原生升级3.3→3.5后将参数用于新BD；厂商原件不变。构建proc使用局部变量，避免已复现的Vivado回调覆盖全局配置字典。关闭非UART0/TTC0外设及PL接口，验证DDR64bit/x16与UART MIO42/43，导出无bitstream的XSA。4×8Gbit、DDR4_2400P来自本板原配置，不采用通用ZCU preset；手册器件XC/-2与旧厂商XA/-1的区别继续保留。
+
+实际工具为Vivado/Vitis2026.1 SW6511674、官方R5 GCC13.4.0；完整平台入口使用Vitis Python API，不调用XSCT。生成`psu_cortexr5_0`/`r5_standalone`及R5 FSBL，应用只链接生成C、既有bridge和`main/replay_runner/timing`，排除`ert_main`、host main、MEX/SimStruct/XSI。真实编译命令含`-O2 -fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard`。
+
+实际产物为`.runtime/ax02a/ps_target/ax02a_ps.xsa`、`.runtime/ax02a/vitis_target/ax02a_replay/build/ax02a_replay.elf`和同目录map；FSBL为`ax02a_platform/zynqmp_fsbl/build/fsbl.elf`。ELF32/ARM/v7-Realtime/VFPv3-D16/hard-float，入口0x3c；装载段[0,0x7d8)、[0x100000,0x111c80)，与回放DDR窗口无重叠。size为text41588/data5100/bss28136B。默认链接布局将向量/启动数据置ATCM，其余代码、状态、栈/堆置DDR；主栈16KB、堆4KB，尚未做TCM性能布局。精简证据见`verification/ax02a/target_*`。
 
 ## 目标执行与计时合同（未上板）
 
@@ -67,8 +65,8 @@ Copy-Item -LiteralPath firmware/r5/ax02a/build_config.example.json -Destination 
 
 应用启动后打印版本并等待`ax02a_control`命令；预装输入完成后才启动实验。控制结构中`frames<=65536`，`mode=0`连续、`mode=1`周期；设置`command=0x41583241`释放。每次新实验调用同一初始化；分块/逐帧均不初始化。失败停止，不自动重试。实际JTAG启动/读回流程和板上内存可达性尚未验证。
 
-预留DDR输入`0x10000000`（最大10,485,760B）、输出`0x11000000`（最大21,495,808B）、8×uint64计时记录`0x13000000`（最大4,194,304B）。脚本检查XSA的DDR暴露范围和ELF装载段不重叠；上板仍须检查DDR已初始化及可用。程序D-cache关闭、I-cache开启，JTAG仅在等待/完成断点装载/读出；结束DSB之后读回。大缓冲区不放TCM；真实代码/状态/栈位置仍待map。
+预留DDR输入`0x10000000`（最大10,485,760B）、输出`0x11000000`（最大21,495,808B）、8×uint64计时记录`0x13000000`（最大4,194,304B）。实际XSA/ELF已通过范围和不重叠检查；上板仍须检查DDR已初始化及可用。程序D-cache关闭、I-cache开启，JTAG仅在等待/完成断点装载/读出；结束DSB之后读回。大缓冲区不放TCM。
 
-TTC第一通道作周期释放，第二通道作独立32bit自由计数；频率、IRQ、基址来自SDT BSP表。ISR只应答并记录时间/递增32bit序号，前台检测序号与独立经过时间，异常即停。实验总时间必须小于计数溢出边界；每个实验重新启动计数器。保留k=0在epoch，之后k=1由首个中断释放；内部速度/位置首相k=9/k=99不加外部分频。
+TTC第一通道作周期释放，第二通道作独立32bit自由计数。新SDT BSP实际给出TTC0三个通道`0xff110000/4/8`、时钟100MHz、编码IRQ`0x4024/25/26`；前两项已核对为独立通道，频率仍是配置值。ISR只应答并记录时间/递增32bit序号，前台检测序号与独立经过时间，异常即停。实验总时间必须小于计数溢出边界；每个实验重新启动计数器。保留k=0在epoch，之后k=1由首个中断释放；内部速度/位置首相k=9/k=99不加外部分频。
 
 每帧记录`[frame,seq,expected,release,start,step_begin,step_end,completion]`，单位为硬件ticks；纯Runtime区间排除输入拷贝，响应/截止期包含本帧输入、算法、输出和记录开销（最终completion时间戳存储除外）。保留1024次计数器连续读取开销、TTC起动窗口、实际周期量化；不扣掉开销美化时间。与同输入41字段比较后，用比较器`--timing ... --timer-hz <实际ClockHz> --period-ticks <interval*divisor> --origin BOARD`产生各类别统计；实际周期仅允许偏离100µs至多一个源时钟tick，错误的1ms周期会失败。所有这些硬件时间值目前 **NOT_RUN**，不能给出R5的µs结果或WCET。

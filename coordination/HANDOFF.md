@@ -12,7 +12,11 @@ PR #14已合并，合并提交`ae9a11d2d59abc952cce0b979d004a315878639a`，实�
 
 AX-02A已完成离线Cortex-R独立代码生成并恢复PC配置、既有Arm GNU12.3.1真实交叉编译Runtime/bridge/runner为6个ARMv7-R/VFPv3-D16对象与静态库、原始64536帧数据导出、当前Runtime同输入参考与43100帧完整手动对齐/复位/故障参考。当前用户参数V20/A200/minRamp0.2/rate100；原PR14 V10/A100输出单列保留，不混用。相同生成源的主机两次运动实验全41字段最大差1.7763568394002505e−15，定向场景差0；比较器9项故障测试（含拒绝错误1ms周期）和runner序号/截止期测试通过。没有重跑RTL/对象闭环。
 
-完整目标构建受阻：当前Vivado2026.1 `get_parts *zu5*`为空，手册XCZU5EV-2SFVC784I不可用；Vitis默认armr5编译器不可用、R5平台探测SDT失败。通用Arm GNU能编译Runtime对象，但没有XSA/BSP/standalone ELF/map，TARGET_BUILD为BLOCKED；BOARD_BOOT/BOARD_REPLAY/BOARD_PERIODIC_100US均NOT_RUN。先补齐MPSoC器件/嵌入式平台组件，再复验同一构建入口；不能以对象库或主机结果关闭Issue15。板卡复位/JTAG加载运行仍须本次明确授权与连接确认，功率级隔离。
+用户已手动补齐2026.1的MPSoC/Vitis Embedded组件；本轮真实构建得到`.runtime/ax02a/ps_target/ax02a_ps.xsa`与`.runtime/ax02a/vitis_target/ax02a_replay/build/ax02a_replay.elf`、同目录map、R5 BSP及FSBL，**TARGET_BUILD=PASS**。Vivado/Vitis均SW6511674，官方R5 GCC13.4.0；ELF32/ARM/v7-Realtime/VFPv3-D16/hard-float，入口0x3c，装载[0,0x7d8)、[0x100000,0x111c80)，与回放DDR窗口无重叠。text41588/data5100/bss28136B，代码/状态/栈位于DDR，向量/启动数据位于ATCM；不是已完成TCM性能优化。精简产物证据在`verification/ax02a/target_*`。
+
+平台脚本仅复制/原生升级厂商PS XCI到3.5，再创建新BD。已复现并修复Vivado回调覆盖全局`config`的构建错误；构建状态放入局部proc，DDR64bit/x16/8Gbit/2400P与UART0 MIO42/43检查通过。新BSP的TTC0确有三个独立通道，前两项供周期/计数使用，配置100MHz；新平台R5配置499.994995MHz。这些是配置值，非硬件实测。新增构建已独立只读审查无发现，13项定向测试再次通过；没有重跑RTL/对象闭环。
+
+**BOARD_BOOT/BOARD_REPLAY/BOARD_PERIODIC_100US仍NOT_RUN**。器件安装与完整目标链接的旧阻塞已经解除；实际芯片/PCB修订、RPU split启动、DDR可达性、数值与周期证据仍待板上确认。板卡复位/JTAG加载运行须本次明确授权与连接确认，功率级隔离；不得以构建结果关闭Issue15。
 
 用户最新确认：核心板可参考`ACU5EV核心板原理图.pdf`，底板可参考`AXU5EVB-E开发板原理图.pdf`（与AXU3EG底板共用），实物以太网收发芯片JL2121。本轮按用户手册选择XC/-2，不将厂商XA/-1旧XSA冒称当前目标平台。
 
@@ -45,6 +49,6 @@ PR9反馈字段错位与PR12发送回执已有根因/修复证据，不重复排
 
 保留当前本地编辑，不stash/reset/clean、不额外clone/worktree、不保存未保存窗口、不批量删除；From/Goto局部、端口默认外观，不全图重排。不增加位置积分、运动中重规划、CORDIC、标幺化或缩位。只做变更所需验证，不增加哈希清单、快照保护报表、额外冒烟或无关历史回归。
 
-本轮为Windows主机生成C/MEX与完整一组实际RTL反馈联合仿真；没有真实R5或其指令集/周期精确模型，20/41字段向量不是实际AXI。托管SIL/PIL、R5目标编译/任务时间、真实AXI、5EV综合/布线、ADC/编码器/PWM板级适配、ARM实测、烧录与实机均NOT_RUN。硬件下载和功率级上电须另行授权。旧Artix结果不能当5EV验收。
+PR14阶段为Windows主机生成C/MEX与完整一组实际RTL反馈联合仿真；20/41字段向量不是实际AXI。本轮AX-02A已另行完成R5目标构建；托管SIL/PIL、R5实际任务时间、真实AXI、5EV综合/布线、ADC/编码器/PWM板级适配、ARM实测、烧录与实机仍NOT_RUN。硬件下载和功率级上电须另行授权。旧Artix结果不能当5EV验收。
 
 原AX-01B结果见[历史报告](reports/ax01b_runtime_hybrid.md)，原R5提取见[PR5报告](reports/ax01_r5_extraction.md)，厂商/R5参考见[AX-00B](reports/ax00b_vendor_review.md)和[R5指南](../firmware/r5/ALINX_R5_REUSE_GUIDE.md)，仅当前需要时查用。旧运行指南已转向新的simulation入口。

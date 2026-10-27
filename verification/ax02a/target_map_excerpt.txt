@@ -1,0 +1,71 @@
+Memory Configuration
+
+Name             Origin             Length             Attributes
+psu_r5_0_atcm_MEM_0 0x00000000         0x00010000
+psu_r5_0_btcm_MEM_0 0x00020000         0x00010000
+psu_r5_tcm_ram_0_MEM_0 0x00000000         0x00040000
+psu_r5_ddr_0_memory_0 0x00100000         0x7fefffff
+psu_ocm_ram_0_memory_0 0xfffc0000         0x00040000
+*default*        0x00000000         0xffffffff
+
+
+D:\Project\AXU5EV\.runtime\ax02a\vitis_target\ax02a_replay\build\ax02a_replay.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .vectors      00000654  00000000  00000000  00001000  2**3
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bootdata     00000180  00000658  00000658  00001658  2**3
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .text         00007c28  00100000  00100000  00002000  2**3
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  3 .note.gnu.build-id 00000024  00107c28  00107c28  00009c28  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  4 .init         0000000c  00107c4c  00107c4c  00009c4c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  5 .fini         0000000c  00107c58  00107c58  00009c58  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  6 .rodata       00001f84  00107c68  00107c68  00009c68  2**3
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  7 .data         000005bc  00109bf0  00109bf0  0000bbf0  2**3
+                  CONTENTS, ALLOC, LOAD, DATA
+  8 .eh_frame     00000030  0010a1ac  0010a1ac  0000c1ac  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  9 .ARM.exidx    00000008  0010a1dc  0010a1dc  0000c1dc  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+ 10 .init_array   00000004  0010a1e4  0010a1e4  0000c1e4  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+ 11 .fini_array   00000004  0010a1e8  0010a1e8  0000c1e8  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+ 12 .drvcfg_sec   00000ca8  0010a1ec  0010a1ec  0000c1ec  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+ 13 .ARM.attributes 0000002f  0010ae94  0010ae94  0000ce94  2**0
+                  CONTENTS, READONLY
+ 14 .bss          000005e4  0010ae98  0010ae98  0000ce94  2**3
+                  ALLOC
+ 15 .heap         00001004  0010b47c  0010b47c  0000ce94  2**0
+                  ALLOC
+ 16 .stack        00005800  0010c480  0010c480  0000ce94  2**0
+                  ALLOC
+ 17 .comment      00000012  00000000  00000000  0000cec3  2**0
+                  CONTENTS, READONLY
+ 18 .debug_info   0000b6e3  00000000  00000000  0000ced5  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 19 .debug_abbrev 000035ee  00000000  00000000  000185b8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 20 .debug_aranges 00000498  00000000  00000000  0001bba8  2**3
+                  CONTENTS, READONLY, DEBUGGING
+ 21 .debug_macro  000059ab  00000000  00000000  0001c040  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 22 .debug_line   0000ba41  00000000  00000000  000219eb  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 23 .debug_str    0001b306  00000000  00000000  0002d42c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 24 .debug_frame  00001000  00000000  00000000  00048734  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 25 .debug_loclists 00007665  00000000  00000000  00049734  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 26 .debug_rnglists 0000065c  00000000  00000000  00050d99  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 27 .debug_line_str 0000012b  00000000  00000000  000513f5  2**0
+                  CONTENTS, READONLY, DEBUGGING
