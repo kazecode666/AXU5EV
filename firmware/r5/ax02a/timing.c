@@ -12,6 +12,7 @@ static XTtcPs periodic,counter;
 static volatile uint32_t release_sequence,release_tick;
 static uint32_t epoch_tick;
 static Ax02aTimerInfo *timer_info;
+volatile Ax02aTtcSnapshot ax02a_ttc_snapshot;
 
 static uint64_t read_tick(void *unused)
 {
@@ -77,7 +78,8 @@ static void end(void *unused)
 int ax02a_timing_prepare(Ax02aClock *clock,Ax02aTimerInfo *info,uint32_t frames)
 {
     XTtcPs_Config *a=&XTtcPs_ConfigTable[0],*b=&XTtcPs_ConfigTable[1];
-    uint32_t interval,prescaler,divisor,j,minimum=UINT_MAX,maximum=0;
+    uint32_t hardware_interval,logical_period_ticks,prescaler,divisor,j,minimum=UINT_MAX,maximum=0;
+    ax02a_ttc_snapshot.valid=0;
     if(!a->Name||!b->Name||a->InputClockHz!=b->InputClockHz)return 1;
     if(XTtcPs_CfgInitialize(&periodic,a,a->BaseAddress)!=XST_SUCCESS||
        XTtcPs_CfgInitialize(&counter,b,b->BaseAddress)!=XST_SUCCESS)return 1;
@@ -87,14 +89,17 @@ int ax02a_timing_prepare(Ax02aClock *clock,Ax02aTimerInfo *info,uint32_t frames)
     XTtcPs_SetPrescaler(&counter,16); /* no prescaler: independent 32-bit counter */
     {
         uint8_t p;
-        XTtcPs_CalcIntervalFromFreq(&periodic,10000,&interval,&p);prescaler=p;
+        XTtcPs_CalcIntervalFromFreq(&periodic,10000,&hardware_interval,&p);prescaler=p;
     }
-    if(!interval||interval==UINT_MAX)return 1;
+    if(!hardware_interval||hardware_interval==UINT_MAX||prescaler>16)return 1;
     divisor=prescaler<16?(1U<<(prescaler+1)):1;
-    if((uint64_t)(frames+2)*interval*divisor>=UINT_MAX)return 1;
-    XTtcPs_SetInterval(&periodic,interval);XTtcPs_SetPrescaler(&periodic,(uint8_t)prescaler);
-    info->clock_hz=b->InputClockHz;info->interval=interval;info->prescaler=prescaler;
-    info->period_ticks=interval*divisor;timer_info=info;
+    logical_period_ticks=hardware_interval*divisor;
+    if((uint64_t)(frames+2)*hardware_interval*divisor>=UINT_MAX)return 1;
+    /* Keep driver register value and nominal schedule distinct. No unproven
+       N-1 or N+1 compensation: physical rollover semantics await user evidence. */
+    XTtcPs_SetInterval(&periodic,hardware_interval);XTtcPs_SetPrescaler(&periodic,(uint8_t)prescaler);
+    info->clock_hz=b->InputClockHz;info->interval=hardware_interval;info->prescaler=prescaler;
+    info->period_ticks=logical_period_ticks;timer_info=info;
     /* Clock is restarted at each experiment. Bound above prevents any wrap. */
     XTtcPs_ResetCounterValue(&counter);XTtcPs_Start(&counter);
     for(j=0;j<1024;j++) {
@@ -107,6 +112,26 @@ int ax02a_timing_prepare(Ax02aClock *clock,Ax02aTimerInfo *info,uint32_t frames)
     if(XSetupInterruptSystem(&periodic,(void *)XTtcPs_InterruptHandler,
             a->IntrId[0],a->IntrParent,XINTERRUPT_DEFAULT_PRIORITY)!=XST_SUCCESS)return 1;
     XTtcPs_EnableInterrupts(&periodic,XTTCPS_IXR_INTERVAL_MASK);
+    /* Save actual register readback before begin() starts either counter.
+       ISR remains unchanged. Status/ISR offsets are deliberately excluded. */
+    ax02a_ttc_snapshot.periodic_base=(uint32_t)a->BaseAddress;
+    ax02a_ttc_snapshot.timestamp_base=(uint32_t)b->BaseAddress;
+    ax02a_ttc_snapshot.periodic_hz=a->InputClockHz;
+    ax02a_ttc_snapshot.timestamp_hz=b->InputClockHz;
+    ax02a_ttc_snapshot.hardware_interval=XTtcPs_GetInterval(&periodic);
+    ax02a_ttc_snapshot.logical_period_ticks=logical_period_ticks;
+    ax02a_ttc_snapshot.periodic_clock=XTtcPs_ReadReg(a->BaseAddress,XTTCPS_CLK_CNTRL_OFFSET);
+    ax02a_ttc_snapshot.timestamp_clock=XTtcPs_ReadReg(b->BaseAddress,XTTCPS_CLK_CNTRL_OFFSET);
+    ax02a_ttc_snapshot.periodic_control=XTtcPs_ReadReg(a->BaseAddress,XTTCPS_CNT_CNTRL_OFFSET);
+    ax02a_ttc_snapshot.timestamp_control=XTtcPs_ReadReg(b->BaseAddress,XTTCPS_CNT_CNTRL_OFFSET);
+    ax02a_ttc_snapshot.periodic_ier=XTtcPs_ReadReg(a->BaseAddress,XTTCPS_IER_OFFSET);
+    ax02a_ttc_snapshot.timestamp_ier=XTtcPs_ReadReg(b->BaseAddress,XTTCPS_IER_OFFSET);
+    __asm__ volatile("dmb sy" ::: "memory");ax02a_ttc_snapshot.valid=1;
+    if(ax02a_ttc_snapshot.hardware_interval!=hardware_interval||
+        (ax02a_ttc_snapshot.periodic_clock&0x3fU)!=0||
+        (ax02a_ttc_snapshot.timestamp_clock&0x3fU)!=0||
+        !(ax02a_ttc_snapshot.periodic_control&0x2U)||
+        (ax02a_ttc_snapshot.timestamp_control&0x2U))return 1;
     clock->context=NULL;clock->period_ticks=info->period_ticks;clock->now=read_tick;
     clock->start=begin;clock->wait_release=await_release;clock->stop=end;
     return 0;

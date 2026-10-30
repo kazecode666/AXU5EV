@@ -55,20 +55,20 @@ class RunTests(unittest.TestCase):
  def test_run_gate_and_timing_faults(self):
   m=module('analyze_run');self.assertIsNotNone(m,'run analyzer missing')
   with tempfile.TemporaryDirectory() as d:
-   p=Path(d);meta=dict(scenario='current_motion_prefix',source_scenario='current_motion',source_range=[0,3],frames=3,Ts=.0001,input_fields=20,output_fields=41)
-   (p/'metadata.json').write_text(json.dumps(meta));raw=struct.pack('<123d',*([0.]*123))
+   p=Path(d);meta=dict(scenario='current_motion_prefix',source_scenario='current_motion',source_range=[0,40],frames=40,Ts=.0001,input_fields=20,output_fields=41)
+   (p/'metadata.json').write_text(json.dumps(meta));raw=struct.pack('<1640d',*([0.]*1640))
    (p/'reference.bin').write_bytes(raw);(p/'output.bin').write_bytes(raw)
-   ticks=[[k,k,k*10000,k*10000,k*10000,k*10000+10,k*10000+20,k*10000+30] for k in range(3)]
+   ticks=[[k,k,k*10000,k*10000,k*10000,k*10000+10,k*10000+20,k*10000+30] for k in range(40)]
    def save_ticks():(p/'timing.bin').write_bytes(b''.join(struct.pack('<8Q',*r) for r in ticks))
    save_ticks()
-   state=dict(scenario='current_motion_prefix',state=3,mode=1,frames=3,experiment=8,interrupted=False,result=dict(status=0,completed_frames=3,failed_frame=0),timer=dict(clock_hz=100000000,period_ticks=10000,interval=10000,prescaler=16,timestamp_read_min_ticks=1,timestamp_read_max_ticks=3,start_window_ticks=2),conditions='warm instruction cache, D-cache off; synthetic HOST test')
+   state=dict(scenario='current_motion_prefix',state=3,mode=1,frames=40,experiment=8,interrupted=False,result=dict(status=0,completed_frames=40,failed_frame=0),timer=dict(clock_hz=100000000,period_ticks=10000,interval=10000,prescaler=16,timestamp_read_min_ticks=1,timestamp_read_max_ticks=3,start_window_ticks=2),conditions='warm instruction cache, D-cache off; synthetic HOST test')
    def run(label):
     (p/'run.json').write_text(json.dumps(state));return m.analyze(p/'metadata.json',p/'reference.bin',p/'output.bin',p/'timing.bin',p/'run.json',7,1,p/label,'SIMULATED')
    self.assertTrue(run('ok')['passed'])
    for field,value in [('experiment',7),('mode',0),('frames',2),('state',1),('scenario','pr14_original'),('interrupted',True)]:
     old=state[field];state[field]=value;self.assertFalse(run('bad_'+field)['passed']);state[field]=old
    state['result']['status']=2;self.assertFalse(run('failed_status')['passed']);state['result']['status']=0
-   state['result']['completed_frames']=2;self.assertFalse(run('partial')['passed']);state['result']['completed_frames']=3
+   state['result']['completed_frames']=2;self.assertFalse(run('partial')['passed']);state['result']['completed_frames']=40
    for change in ['seq','deadline','backward','period']:
     old=[r[:] for r in ticks]
     if change=='seq':ticks[1][1]=0

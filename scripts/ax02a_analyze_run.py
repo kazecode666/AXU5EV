@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+import struct
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import ax02a_compare_replay as compare
@@ -49,8 +50,12 @@ def analyze(metadata,reference,actual,ticks,run,before_experiment,mode,output,or
         if mode:
             t=r['timer'];hz,period=validate_timer(t)
             rows,anomalies=compare.timing_stats(Path(ticks),n,hz,period,out)
+            phase=compare.release_phase(list(struct.iter_unpack('<8Q',Path(ticks).read_bytes())))
             compare.write_csv(output/'timing.csv',rows)
-            summary.update(timing='FAIL' if anomalies else 'PASS',timer=t,
+            incomplete=phase['status']=='INSUFFICIENT_SPAN' and not any(a.get('category')!='period' for a in anomalies)
+            summary.update(timing='NOT_RUN' if incomplete else 'FAIL' if anomalies else 'PASS',timer=t,
+                deadline_sequence='FAIL' if any(a.get('category')!='period' for a in anomalies) else 'PASS',
+                release_phase=phase,period_consistency=phase['status'],
                 counter_read_us=[t['timestamp_read_min_ticks']*1e6/hz,t['timestamp_read_max_ticks']*1e6/hz],
                 start_window_us=t['start_window_ticks']*1e6/hz,
                 clock_basis='This-run TTC BSP ClockHz; conversion basis, not independently measured frequency',

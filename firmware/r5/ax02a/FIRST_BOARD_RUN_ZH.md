@@ -271,7 +271,7 @@ python scripts/ax02a_analyze_run.py --metadata .runtime/ax02a/replay/p1000/metad
 
 先通过运行身份/完成门禁才分析数值与时间。timer频率只是配置换算依据，保留计数读取开销/start_window、I-cache冷暖及运行条件；未覆盖的command/alignment类别显示0（首帧initial alignment样本不等于完整对齐覆盖）。P1000通过只证明这1000帧；下列完整A4/A5仍须补齐。
 
-## 7. C2/C3新固件后处理（供Review；由用户决定加载）
+## 7. C2/C3 v1历史交接（2336B；当前候选见第8节）
 
 当前P1000仍用原`vitis_target_a53fsbl` ELF，无需更新固件。本节新固件只在独立`D:/Project/AXU5EV/.runtime/ax02a/vitis_postprocess`离线构建；**HOST交叉检查与编译通过不代表目标后处理已验证**。待ChatGPT Review通过且用户决定更换时，再由用户打开新workspace，按原A53 FSBL→R5_0启动链路加载，不能在旧workspace点击Build或把新ELF原位覆盖过去。新ELF时序不能继承旧ELF的性能结论。
 
@@ -320,7 +320,60 @@ python scripts/ax02a_post_report.py crosscheck --metadata .runtime/ax02a/replay/
 
 数值FAIL规则不变：EXACT按有限double数值相等（含±0相等），其他为abs+rel各1e-9，NaN/Inf拒绝。C/Python每字段判定/位置/max_abs精确核对；RMS统计误差abs1e-15+rel1e-12，时间汇总abs1e-12+rel1e-9，仅用于对照统计计算，不放宽数值/截止期PASS。小报告PASS不能代替首次全量交叉读回；后续完整A4/A5也不因P1000通过而取消。
 
-## 8. 完整A4/A5备查（不自动执行）
+## 8. 当前相位诊断候选：下一轮GUI步骤（仅用户执行）
+
+exp2 capture现已完整分析：数值PASS、旧规则序号/截止期PASS，release−expected有约0.999271tick/帧趋势，周期一致性不放行。无需保留旧DDR或持续供电来完成离线分析。下面候选**修复的是验收盲区，不是已证明消除了硬件漂移**；interval仍10000，logical period仍10000ticks，deadline未放宽。
+
+### 8.1 新工程与报告
+
+保留`vitis_target_a53fsbl`和`vitis_postprocess`，本轮新ELF仅在`D:/Project/AXU5EV/.runtime/ax02a/vitis_phase_diagnostic`实际构建。Review后由用户决定打开该workspace，选择同名`ax02a_first_wait_a53fsbl`（路径必须在新workspace），仍A53 FSBL→R5_0，按前面步骤到WAIT。Codex没有打开/连接IDE调试目标。
+
+```powershell
+# 纯文件检查，不连接板卡。
+python scripts/ax02a_build_r5.py --config .runtime/ax02a/build_config_phase.json --check-startup
+# 仅用户在决定加载候选后打开新IDE；此命令不是自动Debug。
+& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -w D:/Project/AXU5EV/.runtime/ax02a/vitis_phase_diagnostic
+```
+
+后处理仍默认关闭、一次性启用；旧control字段和timer7字段不改。参考描述符仍版本1/32B；本轮已另存`.runtime/ax02a/phase_p1000_descriptor/reference_descriptor.bin`，source.json标示报告v2。报告**版本2/2400B**，原2336B前缀保留，追加deadline_status/period_status/phase_samples及6个相位统计double；地址仍0x16000000，结束0x16000960。读取v1旧报告时解析器明确phase unavailable，不能沿用其mode1 timing PASS。
+
+### 8.2 必要的最小只读寄存器证据
+
+硬件N/N+1根因仍缺实际启动配置确认；这一步由用户执行，不由Codex自动探测。若用户选择用旧基线先取证，也保留原ELF，只按下面的**开始前**停点采集。所有实验输出使用新目录，不能复用exp2输出或上次小报告。
+
+1. 在当前R5 ELF的`timing.c`中给静态函数`begin`入口设置一次性断点，确保位于两个counter尚未Start之前。当前候选ELF确有begin符号。保留实际GUI线程/PC/源码位置截图；脚本的`pre_begin`是用户阶段声明，字符串本身不能证明PC位置。
+2. 回到WAIT，按第6节加载/verify P1000 input；若使用新候选的后处理，按第7节另加载/verify配套reference和本轮32B描述符，配置scenario1、expected_mode1、expected_experiment为本次启动前值+1、enabled1，command仍最后写。每次新ELF加载后重新校验输入/参考，不假定旧DDR有效。
+3. 用户Resume到begin入口。此刻计时窗口尚未开始、两个counter均停止；候选`ax02a_ttc_snapshot`已记录periodic/timestamp基址、BSP Hz、raw interval/logical period、两个clock/control/IER。`snapshot.valid=1`仅表示读回完成，不等于设置正确或周期PASS；检查原result/后续准备错误。
+4. 用户在现有XSDB显式执行下面只读过程。source只定义过程，调用才读取配置；当前R5必须已由用户选中并暂停。工具检查DIS位、拒绝覆盖文件；不连接、复位、写寄存器或恢复运行，也不读0xff110054/58/5c这些clear-on-read状态寄存器。
+
+```tcl
+source D:/Project/AXU5EV/firmware/r5/ax02a/read_ttc_config.tcl
+ax02a_ttc::read_config D:/Project/AXU5EV/.runtime/ax02a/ttc_pre_begin_01.json pre_begin
+# 使用候选时还可保存这个纯符号快照；旧ELF没有该变量。
+print ax02a_ttc_snapshot
+```
+
+最小配置组：TTC0通道0/1 clock@0xff110000/04、control@0xff11000c/10、interval@0xff110024/28、IER@0xff110060/64；上层mux@0xff180380、LPD_LSBUS_CTRL@0xff5e00ac、IOPLL_CTRL@0xff5e0020。通道1基址0xff110004属于TTC0第二通道，不是TTC1模块。预期本轮内部未分频：两个clock低6位为0；开始前control分别0x23/0x21，periodic interval10000，timestamp interval0，IER分别1/0；上层TTC0_SEL应为0（LPD总线），IOPLL FB60/DIV2、LPD除10。出现不符时保留原值/截图停止，不能为了对齐预期写寄存器。
+
+### 8.3 只在用户去掉开始前断点后运行P1000
+
+移除begin断点和Runtime/ISR路径断点、关闭运行中自动内存刷新，再由用户Resume。首次命中begin尚未启动计时，不算周期窗口中的暂停；若实际在counter已启动后暂停/单步，则如实interrupted=true，不作实时性验收。运行中不再读取寄存器/变量或传输文件。
+
+完成后保留ax02a_result_ready断点。第6节`readback_short.tcl`仍可读当前1000帧控制口；用全新目录如`phase_p1000_01`、真实before_experiment和真实中断声明，取得input对应的output328000B/ticks64000B/run.json。随后用户另读新报告（只用于启用后处理的候选）：
+
+```tcl
+set ax02a_phase_report D:/Project/AXU5EV/.runtime/ax02a/board_manual/phase_p1000_01/report_v2.bin
+if {[file exists $ax02a_phase_report]} {error "preserve previous report"}
+mrd -size b -bin -file $ax02a_phase_report 0x16000000 2400
+```
+
+PC端运行第6节analyze_run，并将第7节crosscheck的report路径换为report_v2.bin、全部run路径换成本次新目录。核对数值、deadline_sequence、period_consistency和C/Python一致性；**C/Python一致可以通过，但只要检出趋势，整个周期验收仍不能PASS**。v2中deadline_status0表示旧记录/截止期规则通过，period_status1表示检出ISR相位趋势；不足32个ISR样本为2，不能整体放行。mode0不做周期判断。
+
+相位筛查排除软件赋值k0，用OLS拟合ISR的released−expected；阈值为6×残差标准误＋2ticks/拟合跨度，允许固定延迟/随机抖动和非零但不可分辨的小斜率。此为有限轨迹的诊断筛查，相关ISR延迟会影响标准误，既不是“6σ硬件频率证明”，也不能把无检出当严格零漂移。保存截距/残差/斜率/阈值和原始ticks。
+
+若配置与预期一致而趋势仍在，先保留失败结果供Review，核对硬件边界/ISR延迟等原因后再决定最小硬件周期修正；本轮不预置9999，也不改expected或加宽deadline。需要10000帧时先准备对应frame0前缀并扩展/审查当前仅限1000帧的读回工具，不能直接把10000塞给硬编码P1000过程。完整A4第二次motion、alignment/reset及完整A5仍须完成；新ELF不继承旧时间结果。
+
+## 9. 完整A4/A5备查（不自动执行）
 
 ### 停点④：非定时连续回放与本次结果读回
 
@@ -379,7 +432,7 @@ mrd -size b -bin -file $ax02a_root/.runtime/ax02a/board_manual/periodic_01/timin
 
 `periodic_01`须事先新建，output也写入该新目录。`timer.clock_hz`、`period_ticks`必须取本次邮箱，不能把配置值或PC运行时间当实测。motion的计时为64536×8×uint64，即4,130,304B。比较器在前述数值比较参数之外增加`--timing <本次timing.bin> --timer-hz <本次clock_hz> --period-ticks <本次period_ticks>`；保留冷启动、读计数开销、普通/速度/位置/命令/对齐分类和最小slack。超期、漏序号或帧数不符即失败，不补算、不改算法或自动放宽门限。此处尚无硬件时间结果。
 
-## 9. 常见停点与最小排查
+## 10. 常见停点与最小排查
 
 | 现象 | 只先核对什么 / 在哪里停止 |
 |---|---|
@@ -393,7 +446,7 @@ mrd -size b -bin -file $ax02a_root/.runtime/ax02a/board_manual/periodic_01/timin
 | 停在等待输入 | 第一次这是目标。串口输入不是邮箱命令，`experiment=0`说明还没启动实验 |
 | 结果帧数/experiment不符 | 不比较旧DDR；确认本场景frames、先装输入后发command、本次是否失败/被断点中断；保留status与failed_frame |
 
-## 10. 历史首次指南离线依据与交接范围
+## 11. 历史首次指南离线依据与交接范围
 
 本轮实际复核旧导出FSBL为ELF32/ARM/v7-Realtime，结合用户日志定位核不匹配；离线创建新platform/BSP/FSBL及相同生成源的R5 ELF/map，并检查两个域、实际导出FSBL、应用属性与被动launch。精简证据见`verification/ax02a/startup_validation.json`和报告的“首次启动故障与离线修正”；原目标构建证据原样保留。新增FSBL架构回归门禁覆盖原错误。未运行IDE、hw_server、XSDB目标会话或任何板卡命令；没有重建模型、仿真或RTL。CLI构建服务仅用于电脑上的编译，不是硬件调试会话。
 

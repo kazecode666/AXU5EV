@@ -3,8 +3,31 @@
 #include <stdatomic.h>
 #include <string.h>
 #include <stddef.h>
-_Static_assert(sizeof(Ax02aPostReport)==2336,"report wire layout changed");
+_Static_assert(sizeof(Ax02aPostReport)==AX02A_REPORT_BYTES,"report wire layout changed");
 _Static_assert(offsetof(Ax02aPostReport,fields)==64,"report header layout changed");
+_Static_assert(offsetof(Ax02aPostReport,deadline_status)==2336,"v1 prefix changed");
+static void phase_screen(const Ax02aTick *t,uint32_t frames,Ax02aPostReport *r)
+{
+    uint32_t n=frames-1;
+    r->phase_samples=n;r->period_status=AX02A_POST_NOT_RUN;
+    if(n<32)return;
+    double xm=(n+1)*.5,ym=0,xy=0,ss=0;
+    double xx=(double)n*((double)n*n-1)/12;
+    for(uint32_t k=1;k<frames;k++)ym+=((double)t[k].released-t[k].expected);
+    ym/=n;
+    for(uint32_t k=1;k<frames;k++)xy+=(k-xm)*(((double)t[k].released-t[k].expected)-ym);
+    r->phase_slope=xy/xx;r->phase_intercept=ym-r->phase_slope*xm;
+    for(uint32_t k=1;k<frames;k++) {
+        double residual=((double)t[k].released-t[k].expected)-r->phase_intercept-r->phase_slope*k;
+        ss+=residual*residual;
+    }
+    r->phase_rms=sqrt(ss/n);r->phase_se=sqrt(ss/(n-2)/xx);
+    /* Same descriptive screen as PC: residual-noise allowance + two ticks
+       across fitted span. Not a probability guarantee for correlated latency. */
+    r->phase_threshold=6*r->phase_se+2./(n-1);
+    r->mean_isr_interval=((double)t[frames-1].released-t[1].released)/(n-1);
+    r->period_status=fabs(r->phase_slope)>r->phase_threshold?AX02A_POST_FAIL:AX02A_POST_PASS;
+}
 static int exact(unsigned j)
 {
     switch(j) {
@@ -30,11 +53,12 @@ int ax02a_postprocess(const double *a,uint32_t na,const double *ref,uint32_t nr,
     const Ax02aTick *ticks,uint32_t nt,const Ax02aPostRequest *q,Ax02aPostReport *r)
 {
     if(!r||!q)return 1;
-    memset(r,0,sizeof(*r));r->magic=AX02A_REPORT_MAGIC;r->version=1;r->bytes=sizeof(*r);
+    memset(r,0,sizeof(*r));r->magic=AX02A_REPORT_MAGIC;r->version=2;r->bytes=sizeof(*r);
     r->scenario=q->scenario;r->experiment=q->experiment;r->mode=q->mode;
     r->requested=q->frames;r->completed=q->completed;r->program_status=q->program_status;
     r->compare_status=AX02A_POST_FAIL;
     r->timing_status=q->mode?AX02A_POST_FAIL:AX02A_POST_NOT_RUN;r->p99_status=AX02A_POST_NOT_RUN;
+    r->deadline_status=q->mode?AX02A_POST_FAIL:AX02A_POST_NOT_RUN;r->period_status=AX02A_POST_NOT_RUN;
     for(unsigned j=0;j<41;j++)r->fields[j].first_mismatch=UINT32_MAX;
     if(!a||!ref||!q->frames||q->frames>65536||q->scenario<1||q->scenario>3||
         q->scenario!=q->expected_scenario||q->experiment!=q->expected_experiment||
@@ -80,10 +104,14 @@ int ax02a_postprocess(const double *a,uint32_t na,const double *ref,uint32_t nr,
         }
         for(unsigned g=0;g<6;g++)for(unsigned j=0;j<5;j++)
             if(r->metrics[g][j].samples)r->metrics[g][j].mean/=r->metrics[g][j].samples;
-        r->timing_status=r->timing_errors?AX02A_POST_FAIL:AX02A_POST_PASS;
+        r->deadline_status=r->timing_errors?AX02A_POST_FAIL:AX02A_POST_PASS;
+        phase_screen(ticks,q->frames,r);
+        if(r->period_status==AX02A_POST_FAIL)r->timing_errors++;
+        r->timing_status=r->timing_errors?AX02A_POST_FAIL:r->period_status;
     }
 finish:
     /* Final completion marker must be published after the entire report. */
     atomic_thread_fence(memory_order_release);r->valid=AX02A_REPORT_VALID;
-    return r->contract_errors||r->numeric_errors||r->timing_errors?1:0;
+    return r->contract_errors||r->numeric_errors||r->timing_errors||
+        (q->mode&&r->timing_status!=AX02A_POST_PASS)?1:0;
 }

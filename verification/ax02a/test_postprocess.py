@@ -10,7 +10,7 @@ class Field(C.Structure):
 class Metric(C.Structure):
  _fields_=[('samples',C.c_uint32),('worst_frame',C.c_uint32),('mean',C.c_double),('minimum',C.c_double),('maximum',C.c_double)]
 class Report(C.Structure):
- _fields_=[(n,C.c_uint32) for n in ['magic','version','bytes','valid','scenario','experiment','mode','requested','completed','program_status','compare_status','timing_status','contract_errors','numeric_errors','timing_errors','p99_status']]+[('fields',Field*41),('metrics',(Metric*5)*6)]
+ _fields_=[(n,C.c_uint32) for n in ['magic','version','bytes','valid','scenario','experiment','mode','requested','completed','program_status','compare_status','timing_status','contract_errors','numeric_errors','timing_errors','p99_status']]+[('fields',Field*41),('metrics',(Metric*5)*6)]+[(n,C.c_uint32) for n in ['deadline_status','period_status','phase_samples','phase_reserved']]+[(n,C.c_double) for n in ['phase_slope','phase_intercept','phase_rms','phase_se','phase_threshold','mean_isr_interval']]
 class PostTests(unittest.TestCase):
  @classmethod
  def setUpClass(cls):
@@ -42,6 +42,25 @@ class PostTests(unittest.TestCase):
    self.assertEqual(r.fields[j].failures,s['failures']);self.assertEqual(r.fields[j].max_frame,s['max_frame']);self.assertEqual(r.fields[j].max_abs,s['max_abs'])
    self.assertEqual(r.fields[j].first_mismatch,0xffffffff if s['first_mismatch_frame']=='' else s['first_mismatch_frame'])
    self.assertAlmostEqual(r.fields[j].rms,s['rms'],delta=1e-15+1e-12*abs(s['rms']))
+ def test_real_and_synthetic_phase_rejected_without_deadline_failure(self):
+  import random
+  for kind in ['real','one_tick','fixed','jitter']:
+   n=1000;out=[0.]*(n*41)
+   if kind=='real':
+    raw=(ROOT/'.runtime/ax02a/board_manual/p1000_exp2_capture/timing.bin').read_bytes()
+    import struct
+    ticks=[v for row in struct.iter_unpack('<8Q',raw) for v in row]
+   else:
+    rng=random.Random(191);ticks=[]
+    for k in range(n):
+     e=k*10000;r=e+(300+(k if kind=='one_tick' else 0)+(rng.randrange(-30,31) if kind=='jitter' else 0) if k else 0)
+     ticks.extend([k,k,e,r,r+10,r+20,r+30,r+40])
+   r=self.call(out,out,n,1,ticks);self.assertEqual(r.deadline_status,0)
+   phase=self.py.release_phase([ticks[k*8:(k+1)*8] for k in range(n)])
+   self.assertEqual(r.period_status,1 if kind in ['real','one_tick'] else 0)
+   self.assertEqual(r.timing_status==0,kind in ['fixed','jitter'])
+   self.assertAlmostEqual(r.phase_slope,phase['slope_ticks_per_frame'],delta=1e-12)
+   self.assertAlmostEqual(r.phase_threshold,phase['threshold_ticks_per_frame'],delta=1e-12)
  def test_numeric_faults(self):
   self.assertTrue(self.available)
   for j,v,passed in [(30,1e-12,False),(0,1e-10,True),(0,1e-9,True),(0,1.000001e-9,False),(0,float('nan'),False),(0,float('inf'),False),(0,-0.,True)]:
@@ -62,10 +81,10 @@ class PostTests(unittest.TestCase):
    if fault=='backward':ticks[1][6]=ticks[1][5]-1
    if fault=='deadline':ticks[1][-1]=20000
    r=self.call([0.]*123,[0.]*123,3,1,[v for row in ticks for v in row],lambda r:setattr(r,'period_ticks',100000) if fault=='1ms' else None)
-   self.assertEqual(r.timing_status==0,fault=='none')
+   self.assertEqual(r.deadline_status==0,fault=='none')
    if fault=='none':
     p=Path(self.temp.name)/'ticks.bin';p.write_bytes(bytes((C.c_uint64*24)(*[v for row in ticks for v in row])))
-    rows,err=self.py.timing_stats(p,3,100000000,10000,[0.]*123);self.assertFalse(err)
+    rows,err=self.py.timing_stats(p,3,100000000,10000,[0.]*123);self.assertTrue(any(x.get('category')=='period' for x in err))
     cats=['all','ordinary','speed_due','position_due','command_event','alignment_transition'];metrics=['runtime_us','task_us','response_us','jitter_us','slack_us']
     for row in rows:
      m=r.metrics[cats.index(row['category'])][metrics.index(row['metric'])]
@@ -86,6 +105,10 @@ class PostTests(unittest.TestCase):
   meta=dict(scenario='current_motion_prefix',source_scenario='current_motion',source_range=[0,n],frames=n,Ts=.0001,input_fields=20,output_fields=41)
   run=dict(scenario='current_motion_prefix',experiment=8,mode=1,frames=n,state=3,interrupted=False,result=dict(status=0,completed_frames=n),timer=dict(clock_hz=100000000,period_ticks=10000,interval=10000,prescaler=16,timestamp_read_min_ticks=1,timestamp_read_max_ticks=3,start_window_ticks=2))
   self.assertTrue(d.crosscheck(wire,out,out,meta,run,7,p)['passed'])
+  import struct
+  legacy=bytearray(bytes(r)[:2336]);struct.pack_into('<II',legacy,4,1,2336)
+  old=d.decode(legacy);self.assertEqual(old['release_phase']['status'],'UNAVAILABLE_V1')
+  self.assertFalse(d.identity(old,meta,run,7))
   run['experiment']=7
   with self.assertRaises(ValueError):d.crosscheck(wire,out,out,meta,run,7,p)
   with self.assertRaises(ValueError):d.scenario(dict(meta,scenario='pr14_original'))

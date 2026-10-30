@@ -25,6 +25,37 @@
 | 托管SIL/PIL、5EV综合/布线、AXI/ADC/编码器/PWM、实机、烧录/功率级上电 | **NOT_RUN** | 不从PS回放推导外设、电机闭环或功率级验收 |
 | 完整RTL重跑 | **NOT_RUN** | 复用PR14原始记录，没有再跑c_rtl |
 
+## 相位盲区修正与本机TTC核查（当前候选）
+
+本轮先独立提交并推送exp2数据结论`1096f56daba0f811ada044c925a863a3598bde6d`，之后才修改诊断与构建。新增`release_phase`排除软件赋值k0，以ISR帧1..999的released−expected做中心化OLS和两遍残差统计；真实斜率0.999271094742tick/frame，截距251.3174ticks，残差RMS15.0052ticks，slope SE0.0016478563，筛查阈值0.011891146tick/frame，检出趋势。均值ISR间隔10000.91383ticks与OLS间隔趋势10000.99927ticks不同，均含ISR延迟，不能称硬件边沿周期或独立测频。
+
+判据至少32个ISR样本，abs(slope)>6×残差标准误+2ticks/(n−1)时标TREND_DETECTED；两ticks是拟合跨度的计数分辨率余量，标准误项给固定噪声/随机抖动留余量，不强制斜率精确零。OLS噪声假设受相关ISR延迟影响，因此这是描述性趋势筛查，不能当“6σ频率证明”。不足样本标INSUFFICIENT_SPAN/NOT_RUN，不整体PASS。原序号/单调性/名义deadline检验独立保留，坏记录不通过过滤变成好拟合。PC和C分别提供deadline、period与aggregate状态，未更改数值容差或deadline。
+
+实测与合成+1tick/周期反例均是数值/旧deadline规则通过但period拒绝；固定延迟、固定延迟+随机扰动对照不报趋势，负趋势也能检出。Python/C在同份exp2 actual/ticks上的结果一致：compare0、deadline0、period1、aggregate不接受；`crosscheck_consistent=true`不等于周期通过。新分析在`.runtime/ax02a/analysis_exp2_phase`，新HOST结果在`.runtime/ax02a/phase_host/exp2_crosscheck`；精简数据见`p1000_exp2/phase_diagnostic.json`和`phase_validation.json`。旧analysis_exp2_legacy和原始capture均保留。
+
+### 本机驱动/时钟证据与真正未完成项
+
+| 已只读核对的来源 | 事实 / 不能推导的结论 |
+|---|---|
+| 本机2026.1、BSP ttcps3.23 `xttcps.c` CalcIntervalFromFreq约599–625行 | InputClock/Freq，100MHz/10000→10000，prescaler16；没有隐藏的减1 |
+| `xttcps.h` SetInterval约368行 | 直接写interval寄存器，没有自动N−1补偿 |
+| `xttcps.c` SetPrescaler及SetOptions | 16关闭预分频；两个通道期望内部clock，周期interval模式、计数器自由计数 |
+| ConfigTable / xparameters / platform_settings / psu_init | TTC0通道0/1为0xff110000/04，BSP均100000000Hz；PSS_REF33333000、IOPLL FB60/DIV2、LPD除10，配置ACT_FREQ约99.999001MHz。是配置链，不是测频；同模块共享上层选择，不能直接用BSP整数舍入解释相对每帧1tick偏差 |
+| `xttcps.c`中InterruptHandler实际函数体 | 读取/应答中断状态并回调，没有每次ISR软件复位counter；不能按过时函数注释猜测行为 |
+| 当前`bspconfig.h` | XPM_SUPPORT未定义，Release的XPm_ReleaseNode分支未编入，本次不能归咎节点释放 |
+
+[UG1085 Interval Mode](https://docs.amd.com/api/khub/documents/xzMsp_c5sG9J6A3u7NkJYQ/content)说明等于interval时回零，但当前文字及驱动不足以单独判定实际边沿的N/N+1计数；**硬件根因未确认，本轮没有盲改9999，没有仅改logical_period_ticks或加宽deadline。** [TTC寄存器](https://docs.amd.com/r/en-US/ug1087-zynq-ultrascale-registers/TTC-Module)的clock/control/interval/IER可在开始前只读，ISR状态有清读副作用，排除。[IOU_TTC_APB_CLK](https://docs.amd.com/r/en-US/ug1087-zynq-ultrascale-registers/IOU_TTC_APB_CLK-IOU_SLCR-Register)选择上层接口时钟，[LPD_LSBUS_CTRL](https://docs.amd.com/r/en-US/ug1087-zynq-ultrascale-registers/LPD_LSBUS_CTRL-CRL_APB-Register)给出源与分频；实际板值须用户取证。
+
+### 最小实现、协议及独立构建
+
+`timing.c`保留原ISR/计时循环和raw interval10000/nominal period10000，改为不同变量名避免混淆；新增开始前只读`ax02a_ttc_snapshot`（52B），读取两个通道基址/Hz、clock/control/IER、raw interval及nominal period，并对当前内部未分频配置做失败拒绝。快照valid仅表示读回完成，非设置正确或周期PASS；物理根因仍等待用户GUI暂停begin之前的配置记录和独立复验。新后处理仍在timer停止之后，默认关闭。
+
+报告v2=2400B，在v1的2336B后追加64B（两个状态、样本数、保留字、6double）；解码器保留v1历史读取但拒绝把旧mode1 timing PASS升级为周期通过。参考描述符仍32B/version1。报告区仍0x16000000，末地址0x16000960，与原input/output/ticks/reference/descriptor及ELF/栈堆无交叠。main/control旧字段不改；只读脚本source不执行，用户显式调用才读取非清读配置，需保留实际暂停位置，pre_begin字符串本身不证明PC状态。
+
+实际Vitis2026.1新构建到`.runtime/ax02a/vitis_phase_diagnostic`，退出0；旧两个workspace/ELF未覆盖或重建。R5 GCC13.4.0、原O2/FP/double/cache/TCM布局策略不变，text45990/data5100/bss28216B、entry0x3c、LOAD[0,0x7d8)/[0x100000,0x112e00)。精简ELF与HOST证据为`phase_validation.json`/`phase_elf_attributes.txt`。独立只读审查覆盖最终代码/协议/指南及本机驱动，无P1/P2发现，并独立复跑41测试通过；未由审查者重建或操作硬件。41项相关测试通过；先观察缺失诊断失败，再实现；覆盖真trace/+1tick/固定延迟/随机扰动/负趋势/32ISR边界、短样本拒绝、v1不误放行、v2C/PC一致及只读脚本被动加载。没有重跑RTL或模型生成。
+
+下一轮用户Review后先用新workspace到WAIT、装载/verify匹配P1000输入参考描述符、begin入口采只读配置后移除断点、再运行；完成后保存全量output/ticks/run、新2400B报告并交叉分析。具体GUI/命令在指南第8节。**验收盲区已离线修复；物理释放漂移原因/补偿仍待上述用户证据，候选上板与完整A4/A5仍NOT_RUN。** 不要求为离线任务持续供电，不自动连接板卡或合并PR。
+
 ## P1000追加实测证据：仅时间轨迹检查，整体未完成
 
 C2/C3已提交9e846c0b6ee71598b8757b8682e6535d33697181后读取到用户[评论6515463934](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6515463934)：继续用旧基线ELF，before experiment1，结束experiment2、mode1、frames1000、state3、status0、completed1000、failed_frame0，con-block正常到完成断点。timer为clock_hz100000000/interval10000/prescaler16/period_ticks10000，读取计数间隔26/26ticks，start_window91ticks。未切到新后处理固件。

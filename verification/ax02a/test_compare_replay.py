@@ -13,10 +13,10 @@ SCRIPT = ROOT / 'scripts/ax02a_compare_replay.py'
 
 
 class ComparisonTests(unittest.TestCase):
-    def run_case(self, alter=None, timing=None, period_ticks=None):
+    def run_case(self, alter=None, timing=None, period_ticks=None, frames=3):
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory)
-            rows = [[float(k + j) / 10 for j in range(41)] for k in range(3)]
+            rows = [[float(k + j) / 10 for j in range(41)] for k in range(frames)]
             # All discrete fields start with integer data.
             for row in rows:
                 for j in [3,4,6,9,10,11,15,16,17,20,22,24,25,26,29,30,31,32,33,35]:
@@ -27,7 +27,7 @@ class ComparisonTests(unittest.TestCase):
             if alter:
                 alter(actual)
             (folder / 'actual.bin').write_bytes(b''.join(struct.pack('<41d', *r) for r in actual))
-            (folder / 'metadata.json').write_text(json.dumps({'frames':3,'Ts':0.0001}))
+            (folder / 'metadata.json').write_text(json.dumps({'frames':frames,'Ts':0.0001}))
             args=[sys.executable,str(SCRIPT),'--metadata',str(folder/'metadata.json'),
                   '--reference',str(folder/'reference.bin'),'--actual',str(folder/'actual.bin'),
                   '--output',str(folder/'result')]
@@ -61,8 +61,14 @@ class ComparisonTests(unittest.TestCase):
         self.assertNotEqual(self.run_case(timing=records).returncode,0)
 
     def test_valid_timing(self):
+        records=[[k,k,10000*k,10000*k,10000*k,10000*k+20,10000*k+200,10000*k+250] for k in range(40)]
+        self.assertEqual(self.run_case(timing=records,frames=40).returncode,0)
+
+    def test_short_trace_cannot_claim_period_consistency(self):
         records=[[k,k,10000*k,10000*k,10000*k,10000*k+20,10000*k+200,10000*k+250] for k in range(3)]
-        self.assertEqual(self.run_case(timing=records).returncode,0)
+        result=self.run_case(timing=records)
+        self.assertNotEqual(result.returncode,0)
+        self.assertEqual(json.loads(result.stdout)['timing'],'NOT_RUN')
 
     def test_one_millisecond_period_is_not_100us_pass(self):
         records=[[k,k,100000*k,100000*k,100000*k,100000*k+20,100000*k+200,100000*k+250] for k in range(3)]

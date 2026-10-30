@@ -84,6 +84,33 @@ def events(data, frames, ts):
     return result
 
 
+def release_phase(records):
+    """Descriptive ISR phase-trend screen, not a hardware-edge frequency test.
+
+    k=0 is software-assigned. Allow residual jitter and two timestamp ticks
+    across the fitted span; 6 residual standard errors is a conservative
+    stationary-noise screen, not a guarantee for correlated ISR latency.
+    """
+    n=max(0,len(records)-1)
+    result=dict(status='INSUFFICIENT_SPAN',samples=n,excluded_frame=0,
+        slope_ticks_per_frame=0.,intercept_ticks=0.,residual_rms_ticks=0.,
+        slope_standard_error=0.,threshold_ticks_per_frame=0.,mean_isr_interval_ticks=0.,
+        limitation='ISR latency/epoch included; detected trend does not identify hardware root cause')
+    if n<32:return result
+    xm=(n+1)/2
+    ys=[r[3]-r[2] for r in records[1:]]
+    ym=sum(ys)/n;xx=n*(n*n-1)/12
+    slope=sum((k-xm)*(y-ym) for k,y in enumerate(ys,1))/xx
+    intercept=ym-slope*xm
+    ss=sum((y-intercept-slope*k)**2 for k,y in enumerate(ys,1))
+    se=math.sqrt(ss/(n-2)/xx);threshold=6*se+2/(n-1)
+    result.update(status='TREND_DETECTED' if abs(slope)>threshold else 'NO_TREND_DETECTED',
+        slope_ticks_per_frame=slope,intercept_ticks=intercept,residual_rms_ticks=math.sqrt(ss/n),
+        slope_standard_error=se,threshold_ticks_per_frame=threshold,
+        mean_isr_interval_ticks=(records[-1][3]-records[1][3])/(n-1))
+    return result
+
+
 def timing_stats(path, frames, hz, period, outputs):
     if hz <= 0 or not math.isfinite(hz):
         raise ValueError('timer-hz must be finite and positive')
@@ -134,6 +161,9 @@ def timing_stats(path, frames, hz, period, outputs):
                                   p99=ordered[math.ceil(.99*len(samples))-1][metric],
                                   minimum=ordered[0][metric], maximum=ordered[-1][metric],
                                   worst_frame=worst['frame']))
+    phase=release_phase(records)
+    if phase['status']!='NO_TREND_DETECTED':
+        anomalies.append(dict(category='period',reason='release period consistency not accepted',phase=phase))
     return summaries, anomalies
 
 
@@ -172,8 +202,13 @@ def main():
                        timing='PASS' if args.timing and not anomalies else 'FAIL' if args.timing else 'NOT_RUN',
                        anomalies=anomalies)
         if args.timing:
-            summary['actual_period_us']=period*1e6/args.timer_hz
-            summary['period_quantization_us']=summary['actual_period_us']-ts*1e6
+            summary['configured_period_us']=period*1e6/args.timer_hz
+            summary['period_quantization_us']=summary['configured_period_us']-ts*1e6
+            summary['deadline_sequence']='FAIL' if any(a.get('category')!='period' for a in anomalies) else 'PASS'
+            summary['release_phase']=release_phase(list(struct.iter_unpack('<8Q',args.timing.read_bytes())))
+            summary['period_consistency']=summary['release_phase']['status']
+            if summary['period_consistency']=='INSUFFICIENT_SPAN' and summary['deadline_sequence']=='PASS':
+                summary['timing']='NOT_RUN'
         (args.output/'summary.json').write_text(json.dumps(summary, indent=2), encoding='utf-8', newline='\n')
         print(json.dumps(summary))
         return 0 if passed else 1

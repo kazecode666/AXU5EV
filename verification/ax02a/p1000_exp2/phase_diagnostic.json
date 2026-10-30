@@ -1,0 +1,87 @@
+{
+  "passed": false,
+  "origin": "BOARD",
+  "timing": "FAIL",
+  "scope": "short technical precheck, not full A4/A5 or WCET",
+  "run": {
+    "scenario": "current_motion_prefix",
+    "state": 3,
+    "mode": 1,
+    "frames": 1000,
+    "experiment": 2,
+    "interrupted": false,
+    "conditions": "I-cache ON, cold-warm UNKNOWN, D-cache OFF",
+    "result": {
+      "status": 0,
+      "completed_frames": 1000,
+      "failed_frame": 0
+    },
+    "timer": {
+      "clock_hz": 100000000,
+      "interval": 10000,
+      "prescaler": 16,
+      "period_ticks": 10000,
+      "timestamp_read_min_ticks": 26,
+      "timestamp_read_max_ticks": 26,
+      "start_window_ticks": 91
+    }
+  },
+  "valid_completed_records": 1000,
+  "timer": {
+    "clock_hz": 100000000,
+    "interval": 10000,
+    "prescaler": 16,
+    "period_ticks": 10000,
+    "timestamp_read_min_ticks": 26,
+    "timestamp_read_max_ticks": 26,
+    "start_window_ticks": 91
+  },
+  "deadline_sequence": "PASS",
+  "release_phase": {
+    "status": "TREND_DETECTED",
+    "samples": 999,
+    "excluded_frame": 0,
+    "slope_ticks_per_frame": 0.9992710947420367,
+    "intercept_ticks": 251.31740558193462,
+    "residual_rms_ticks": 15.005192504211834,
+    "slope_standard_error": 0.001647856330176592,
+    "threshold_ticks_per_frame": 0.011891145997091616,
+    "mean_isr_interval_ticks": 10000.913827655311,
+    "limitation": "ISR latency/epoch included; detected trend does not identify hardware root cause"
+  },
+  "period_consistency": "TREND_DETECTED",
+  "counter_read_us": [
+    0.26,
+    0.26
+  ],
+  "start_window_us": 0.91,
+  "clock_basis": "This-run TTC BSP ClockHz; conversion basis, not independently measured frequency",
+  "conditions": "I-cache ON, cold-warm UNKNOWN, D-cache OFF",
+  "coverage": {
+    "ordinary": 900,
+    "speed_due": 90,
+    "position_due": 10,
+    "command_event": 0,
+    "alignment_transition": 1
+  },
+  "frames": 1000,
+  "numerical_failures": 0,
+  "anomalies": [
+    {
+      "category": "period",
+      "reason": "release period consistency not accepted",
+      "phase": {
+        "status": "TREND_DETECTED",
+        "samples": 999,
+        "excluded_frame": 0,
+        "slope_ticks_per_frame": 0.9992710947420367,
+        "intercept_ticks": 251.31740558193462,
+        "residual_rms_ticks": 15.005192504211834,
+        "slope_standard_error": 0.001647856330176592,
+        "threshold_ticks_per_frame": 0.011891145997091616,
+        "mean_isr_interval_ticks": 10000.913827655311,
+        "limitation": "ISR latency/epoch included; detected trend does not identify hardware root cause"
+      }
+    }
+  ]
+}

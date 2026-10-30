@@ -4,6 +4,9 @@
 
 ## 当前任务与结果
 
+当前相位候选已在独立`.runtime/ax02a/vitis_phase_diagnostic`构建；两个旧workspace保留。PC/C加入k0排除、至少32ISR样本的OLS趋势筛查（6SE+2tick/span），数值/旧deadline/period状态分开；实测exp2与+1tick反例不再整体PASS，固定延迟/随机抖动对照正常。报告升级v2/2400B，v1的mode1不再可证明周期一致。41测试通过，物理根因尚未确认：原硬件interval/logical period10000均未改，deadline未放宽；本机驱动直接写interval、当前XPM禁用，没有证据可盲改9999。候选开始前保存ax02a_ttc_snapshot；用户只读寄存器/GUI复验步骤在FIRST_BOARD_RUN_ZH.md第8节。候选目标运行/完整A4/A5仍未验收，不能把诊断修复写成硬件漂移已消除。
+
+
 2026-10-30最新任务为PR16评论6516979286/6517272543和Review5708766094。用户`p1000_exp2_capture`的本次328000B output、64000B ticks、run.json已只读核验；配套P1000参考比较1000×41数值PASS，错误0，最大绝对差4.336808689942018e-19。旧规则下序号/截止期无异常，但ISR帧1..999的release−expected斜率0.999271094742 tick/frame，周期一致性不接受；第0帧软件时间戳不拟合。先提交数据结论，再补诊断/本机TTC核查/最小修正，不能盲改interval或放宽deadline。保留两个现有workspace/ELF与原始capture，候选新目录，硬件仅用户操作。新证据在`verification/ax02a/p1000_exp2/`；以下“缺actual”是此前历史记录，已被此次完整capture取代。
 
 

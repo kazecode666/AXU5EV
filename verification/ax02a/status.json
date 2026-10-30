@@ -25,10 +25,15 @@
   "C2_POSTPROCESS": "OFFLINE_TARGET_BUILD_PASS_DEFAULT_DISABLED",
   "C3_POSTPROCESS": "HOST_C_PYTHON_CROSSCHECK_PASS_motion_03",
   "POSTPROCESS_BOARD": "NOT_RUN",
-  "P1000_PERIODIC": "NOT_ACCEPTED: numerical PASS/deadline-sequence legacy PASS/release phase drift unresolved",
-  "new_firmware_workspace": ".runtime/ax02a/vitis_postprocess",
+  "P1000_PERIODIC": "NOT_ACCEPTED: numerical PASS/deadline-sequence PASS/release phase TREND_DETECTED",
+  "new_firmware_workspace": ".runtime/ax02a/vitis_phase_diagnostic",
   "P1000_TRACE": "LEGACY_CHECKS_PASS_ONLY; ISR release phase slope0.999271094742 ticks/frame",
   "P1000_NUMERIC": "PASS_USER_exp2_capture_1000x41",
   "C2_C3_COMMIT": "9e846c0b6ee71598b8757b8682e6535d33697181",
-  "P1000_CAPTURE": "COMPLETE_read_only_analysis"
+  "P1000_CAPTURE": "COMPLETE_read_only_analysis",
+  "PERIOD_PHASE_GATE": "OFFLINE_PC_C_FIXED_AND_TESTED",
+  "TTC_PHYSICAL_ROOT_CAUSE": "UNCONFIRMED_REQUIRES_USER_PRE_BEGIN_CONFIG_AND_RERUN",
+  "PHASE_DIAGNOSTIC_BUILD": "PASS_vitis_phase_diagnostic",
+  "PHASE_CANDIDATE_BOARD": "NOT_RUN",
+  "report_protocol": "v2_2400B; v1 legacy mode1 period unavailable"
 }
