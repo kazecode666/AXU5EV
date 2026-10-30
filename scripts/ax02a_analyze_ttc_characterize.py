@@ -52,10 +52,12 @@ def evaluate(samples_path, run_path):
             or cfg['periodic_hz']!=cfg['timestamp_hz'] or cfg['periodic_hz']!=100000000
             or cfg['periodic_base']!=0xff110000 or cfg['timestamp_base']!=0xff110004):
             raise ValueError('unverified counter configuration')
-        if not all(r[k] for k in ['conditions','session_id','clock_basis','workspace','elf']):
+        if not all(r[k] for k in ['conditions','session_id','clock_basis','workspace','elf','build_id']):
             raise ValueError('missing provenance / session conditions')
         n=r['completed_samples']
         if not 0<=n<=1000: raise ValueError('invalid count')
+        budget=1100*(raw+1)+100000
+        if r['timeout_ticks']!=budget:raise ValueError('timeout budget differs from firmware contract')
         data=Path(samples_path).read_bytes()
         if len(data)!=n*16: raise ValueError('record length mismatch (not P1000 uint64 ticks)')
         rows=list(struct.iter_unpack('<4I',data))
@@ -66,7 +68,7 @@ def evaluate(samples_path, run_path):
             why=[];width=fa-fb
             if seq!=i: why.append('sequence')
             if fa<fb or (previous is not None and fb<=previous): why.append('uint32 wrap / nonmonotonic F')
-            if fa>=20000000: why.append('duration exceeds bounded acquisition')
+            if fa>=budget: why.append('record exceeds this-run timeout budget')
             if width<0 or width>=raw//4: why.append('wide read window')
             if p<=width or p+width>=raw: why.append('possible rollover during read window')
             if p>raw//4: why.append('late / ambiguous IRQ sampling')
@@ -118,7 +120,7 @@ def compare_aba(a1_dir, b_dir, a2_dir, output_dir):
         identities=[x['run'] for x in runs];a,b,c=identities
         if [x['case_id'] for x in identities]!=['A1','B','A2']:issues.append('case order mismatch')
         if not (b['before_experiment']==a['experiment'] and c['before_experiment']==b['experiment']):issues.append('nonconsecutive experiments')
-        for key in ['elf','workspace','session_id','conditions','config','clock_basis']:
+        for key in ['elf','workspace','build_id','session_id','conditions','config','clock_basis']:
             if a[key]!=b[key] or a[key]!=c[key]:issues.append('mixed candidate / session / conditions: '+key)
         if all(x['acquisition_valid'] for x in runs):
             x,z=[runs[i]['all_samples'] for i in [0,2]]

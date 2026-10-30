@@ -1,0 +1,82 @@
+{
+  "status": "OFFLINE_READY_FOR_REVIEW",
+  "owner_repo": "kazecode666/AXU5EV",
+  "pr": 16,
+  "issue": 15,
+  "task_comment": 6525374617,
+  "base": "3da5eee5a277288898f19dd1ef25aa84eb472ff8",
+  "t1": "1c55a3e",
+  "t2": "e070bb6",
+  "tool": "Vitis2026.1 SW6511674; official R5 GCC13.4.0",
+  "build_exit": 0,
+  "config": "firmware/r5/ax02a/build_config.ttc_characterize.json",
+  "workspace": ".runtime\\ax02a\\vitis_ttc_characterize",
+  "elf": ".runtime\\ax02a\\vitis_ttc_characterize\\ax02a_ttc_characterize\\build\\ax02a_ttc_characterize.elf",
+  "map": ".runtime\\ax02a\\vitis_ttc_characterize\\ax02a_ttc_characterize\\build\\ax02a_ttc_characterize.map",
+  "full_build_log": ".runtime/ax02a/vitis_ttc_characterize.console.txt",
+  "build_id": 3113983656,
+  "size_bytes": {
+    "text": 24174,
+    "data": 5152,
+    "bss": 43228
+  },
+  "startup_root_workspace_identical": true,
+  "layout_review": {
+    "mailbox": [
+      "0x10581c",
+      "0x105880"
+    ],
+    "samples": [
+      "0x106b30",
+      "0x10a9b0"
+    ],
+    "heap": [
+      "0x10aba0",
+      "0x10bba0"
+    ],
+    "main_stack": [
+      "0x10bba0",
+      "0x10fba0"
+    ],
+    "all_stacks_end": "0x1113a0",
+    "samples_bytes": 16000,
+    "mailbox_bytes": 100,
+    "overlap": false
+  },
+  "tests": {
+    "command": "python -m unittest discover -s verification/ax02a -p 'test_*.py' -v",
+    "passed": 51,
+    "failed": 0,
+    "skipped": 0,
+    "new_ttc_tests": 10,
+    "origin": "HOST C HAL and synthetic Python/Tcl; not board IRQ evidence"
+  },
+  "red_green": {
+    "initial_missing_implementation": "7 failures -> 7 pass",
+    "delivery_missing": "2 failures -> 9 pass",
+    "review_timeout": "1 failure -> pass; final suite 51 pass"
+  },
+  "review": {
+    "important_fixed": "P2 wrong timeout and over-budget records accepted; test RED->GREEN",
+    "deferred_minor": "P3 pure startup checker leaves ARM profile validation to build-time readelf; current ELF verified R-profile"
+  },
+  "warnings": [
+    "BSP xbasic_types deprecated",
+    "FSBL CRL_APB_RST_LPD_TOP redefined"
+  ],
+  "board_ttc_aba": "NOT_RUN",
+  "physical_root_cause": "UNCONFIRMED",
+  "production_period_correction": "NOT_RUN",
+  "full_A4_remaining": "NOT_RUN",
+  "full_A5": "NOT_RUN",
+  "gui_target_session": "NOT_RUN; passive config and guide only",
+  "protected_workspaces": [
+    "vitis_target_a53fsbl",
+    "vitis_postprocess",
+    "vitis_phase_diagnostic"
+  ],
+  "hardware_access": "NONE",
+  "rtl": "NOT_RUN",
+  "models": "UNTOUCHED",
+  "generated_sources": "NOT_LINKED_OR_EDITED"
+}

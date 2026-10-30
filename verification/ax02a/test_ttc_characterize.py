@@ -1,5 +1,6 @@
 """TTC-only contracts; synthetic IRQs are never hardware evidence."""
 import importlib.util
+from contextlib import contextmanager
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,12 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+@contextmanager
+def preserved_temp():
+    # Project forbids batch deletion; leave explicit test artifacts in ignored runtime.
+    yield tempfile.mkdtemp(prefix='ttc_test_',dir=ROOT/'.runtime/ax02a')
 
 
 def module(name):
@@ -34,8 +41,9 @@ def fixture(path, case='A1', raw=10000, extra=0, delay_growth=0, jitter=False, e
                before_experiment=experiment-1, experiment=experiment, requested_raw=raw,
                actual_raw=raw, nominal_period=10000, requested_samples=1000,
                completed_samples=1000, state=3, error=0, interrupted=False,
+               timeout_ticks=1100*(raw+1)+100000,
                conditions='same warm session I-cache ON D-cache OFF', session_id='session1',
-               clock_basis='BSP configuration, not measured', workspace='candidate1', elf='candidate1/app.elf',
+               clock_basis='BSP configuration, not measured', workspace='candidate1', elf='candidate1/app.elf',build_id=123,
                config=dict(periodic_clock=0, timestamp_clock=0, periodic_control=35,
                            timestamp_control=33, periodic_ier=1, timestamp_ier=0,
                            periodic_hz=100000000, timestamp_hz=100000000,
@@ -50,8 +58,7 @@ def save(path, rows, run):
 
 class AnalyzeTests(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
-        self.path = Path(self.temp.name)
+        self.path = Path(tempfile.mkdtemp(prefix='ttc_analysis_',dir=ROOT/'.runtime/ax02a'))
         self.mod = module('ax02a_analyze_ttc_characterize')
 
     def single(self, extra=0, growth=0, jitter=False, mutate=None):
@@ -78,6 +85,14 @@ class AnalyzeTests(unittest.TestCase):
         self.assertAlmostEqual(r['all_samples']['p_count']['slope'], 1)
         self.assertAlmostEqual(r['all_samples']['isr_phase']['slope'], 1)
         self.assertAlmostEqual(r['all_samples']['event']['slope'], 10000)
+
+    def test_timeout_metadata_and_late_capture_rejected(self):
+        def late(rows,run):
+            for x in rows: x[1]+=8000000; x[3]+=8000000
+        for fault in [late,lambda rows,run: run.update(timeout_ticks=20000000)]:
+            r=self.single(mutate=fault)
+            self.assertFalse(r['acquisition_valid'])
+            self.assertEqual(r['hypothesis'],'INCONCLUSIVE')
 
     def test_bad_data_never_supports_mapping(self):
         faults = [
@@ -131,7 +146,7 @@ class FirmwareTests(unittest.TestCase):
     def test_lifecycle_real_c_with_host_hal(self):
         self.assertTrue((ROOT/'firmware/r5/ax02a/ttc_characterize.c').exists(),'TTC collection C missing')
         gcc=Path('C:/ProgramData/MATLAB/SupportPackages/R2026b/3P.instrset/mingw_w64.instrset/bin/gcc.exe')
-        with tempfile.TemporaryDirectory() as d:
+        with preserved_temp() as d:
             exe=Path(d)/'contract.exe'
             subprocess.run([str(gcc),'-std=c11','-O2','-Wall','-Wextra','-Werror','-DAX02A_TTC_HOST',
                             '-I'+str(ROOT/'firmware/r5/ax02a'),str(ROOT/'firmware/r5/ax02a/ttc_characterize.c'),
@@ -139,6 +154,50 @@ class FirmwareTests(unittest.TestCase):
                            env={**os.environ,'PATH':str(gcc.parent)+os.pathsep+os.environ['PATH']})
             p=subprocess.run([str(exe)],capture_output=True,text=True,check=True)
             self.assertIn('TTC_HOST_CONTRACT_PASS',p.stdout)
+
+
+class DeliveryTests(unittest.TestCase):
+    def test_config_paths_independent_of_cwd(self):
+        m=module('ax02a_build_ttc_characterize')
+        config=ROOT/'firmware/r5/ax02a/build_config.ttc_characterize.json'
+        expected=m.load_config(config)
+        old=Path.cwd()
+        try:
+            os.chdir(ROOT/'.runtime/ax02a/vitis_phase_diagnostic')
+            self.assertEqual(m.load_config(config),expected)
+            self.assertEqual(expected['workspace'],ROOT/'.runtime/ax02a/vitis_ttc_characterize')
+        finally:os.chdir(old)
+
+    def test_passive_readback_stale_mixed_failed_and_existing(self):
+        import tkinter
+        t=tkinter.Tcl();t.eval('set calls {}; proc targets {args} {return [list [dict create is_current 1 name "Cortex-R5 #0" suspended 1]]}')
+        t.eval('proc print {args} {set s [lindex $args end]; if {$s eq "&ax02a_ttc_char_samples"} {return [dict create $s 2097152]}; set f [string range $s 23 end]; return [dict create $s [dict get $::values $f]]}')
+        t.eval('proc mrd {args} {lappend ::calls $args;set i [lsearch $args -file];set f [open [lindex $args [expr {$i+1}]] wb];puts -nonewline $f [string repeat A [lindex $args end]];close $f}')
+        script=ROOT/'firmware/r5/ax02a/readback_ttc_characterize.tcl'
+        self.assertTrue(script.exists(),'passive readback missing')
+        t.call('source',script.as_posix());self.assertEqual(t.eval('llength $calls'),'0')
+        with preserved_temp() as tmp:
+            d=Path(tmp);prov=d/'prov.tcl'
+            prov.write_text('dict create build_id 123 workspace candidate1 elf candidate1/app.elf samples_address 2097152')
+            values=dict(magic=0x31435454,version=1,record_bytes=16,state=3,command=0,experiment=8,case_id=1,
+                        requested_raw=10000,actual_raw=10000,nominal_period=10000,requested_samples=1000,
+                        completed_samples=1000,error=0,timeout_ticks=11101100,build_id=123,
+                        periodic_hz=100000000,timestamp_hz=100000000,periodic_base=0xff110000,timestamp_base=0xff110004,
+                        periodic_clock=0,timestamp_clock=0,periodic_control=35,timestamp_control=33,periodic_ier=1,timestamp_ier=0)
+            def setvalues(v):t.call('set','values',t.call('dict','create',*[y for x in v.items() for y in x]))
+            setvalues(values)
+            args=['A1',7,10000,prov.as_posix(),'session1','same warm session','false']
+            t.call('ax02a_ttc_char::readback',(d/'A1').as_posix(),*args)
+            r=json.loads((d/'A1/run.json').read_text());self.assertEqual(r['completed_samples'],1000)
+            self.assertEqual((d/'A1/samples.bin').stat().st_size,16000)
+            with self.assertRaises(tkinter.TclError):t.call('ax02a_ttc_char::readback',(d/'A1').as_posix(),*args)
+            for key,value in [('build_id',124),('actual_raw',9999),('experiment',7),('case_id',2)]:
+                v={**values,key:value};setvalues(v)
+                with self.assertRaises(tkinter.TclError):t.call('ax02a_ttc_char::readback',(d/key).as_posix(),*args)
+            setvalues({**values,'state':4,'error':3,'completed_samples':12})
+            t.call('ax02a_ttc_char::readback',(d/'failed').as_posix(),*args)
+            self.assertEqual((d/'failed/samples.bin').stat().st_size,192)
+            self.assertEqual(json.loads((d/'failed/run.json').read_text())['state'],4)
 
 
 if __name__ == '__main__': unittest.main()

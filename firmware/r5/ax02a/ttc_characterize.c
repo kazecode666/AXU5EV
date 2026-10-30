@@ -1,10 +1,14 @@
 /* TTC-only diagnostic. Does not link the Simulink Runtime or timing.c. */
 #include "ttc_characterize.h"
 #include <limits.h>
+#ifndef AX02A_TTC_BUILD_ID
+#define AX02A_TTC_BUILD_ID 0U /* HOST only; target builder supplies candidate nonce. */
+#endif
 
 volatile Ax02aTtcCharControl ax02a_ttc_char_control={
     .magic=AX02A_TTC_CHAR_MAGIC,.version=1,.record_bytes=16,.state=CHAR_WAIT,
-    .requested_raw=10000,.nominal_period=10000,.requested_samples=1000,.case_id=1
+    .requested_raw=10000,.nominal_period=10000,.requested_samples=1000,.case_id=1,
+    .build_id=AX02A_TTC_BUILD_ID
 };
 volatile Ax02aTtcCharSample ax02a_ttc_char_samples[AX02A_TTC_CHAR_CAPACITY];
 static volatile uint32_t active;

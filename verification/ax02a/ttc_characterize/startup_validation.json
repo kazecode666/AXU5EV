@@ -1,0 +1,68 @@
+{
+  "status": "OFFLINE_STARTUP_CHECK_PASS",
+  "workspace": "D:\\Project\\AXU5EV\\.runtime\\ax02a\\vitis_ttc_characterize",
+  "elf": "D:\\Project\\AXU5EV\\.runtime\\ax02a\\vitis_ttc_characterize\\ax02a_ttc_characterize\\build\\ax02a_ttc_characterize.elf",
+  "fsbl_path": "D:\\Project\\AXU5EV\\.runtime\\ax02a\\vitis_ttc_characterize\\ax02a_platform\\export\\ax02a_platform\\sw\\boot\\fsbl.elf",
+  "build_id": 3113983656,
+  "application": {
+    "machine": "ARM",
+    "elf_class": 32,
+    "byte_order": "little",
+    "entry": 60,
+    "flags": 83887104,
+    "segments": [
+      {
+        "address": 0,
+        "file_bytes": 2008,
+        "memory_bytes": 2008,
+        "flags": 7
+      },
+      {
+        "address": 1048576,
+        "file_bytes": 27332,
+        "memory_bytes": 70560,
+        "flags": 7
+      }
+    ]
+  },
+  "fsbl": {
+    "processor": "psu_cortexa53_0",
+    "machine": "AArch64",
+    "elf_class": 64,
+    "byte_order": "little",
+    "entry": 4294705152
+  },
+  "symbols": {
+    "ax02a_ttc_char_control": {
+      "address": 1071132,
+      "bytes": 100
+    },
+    "ax02a_ttc_char_samples": {
+      "address": 1076016,
+      "bytes": 16000
+    },
+    "ax02a_ttc_char_prestart": {
+      "address": 1048656,
+      "bytes": 8
+    },
+    "ax02a_ttc_char_done": {
+      "address": 1048664,
+      "bytes": 8
+    },
+    "main": {
+      "address": 1069248,
+      "bytes": 120
+    },
+    "_stack": {
+      "address": 1112992,
+      "bytes": 0
+    },
+    "_heap": {
+      "address": 1092512,
+      "bytes": 0
+    }
+  },
+  "launch": "ax02a_ttc_characterize_hw",
+  "board": "NOT_RUN",
+  "root_cause": "UNCONFIRMED"
+}

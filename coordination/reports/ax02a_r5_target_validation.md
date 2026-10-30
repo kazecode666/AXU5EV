@@ -6,6 +6,26 @@
 
 ## 当前验收状态
 
+### 2026-10-30 TTC-only T1—T3：OFFLINE_READY_FOR_REVIEW
+
+按[评论6525374617](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6525374617)直接执行，原任务书在`coordination/tasks/ax02a_ttc_aba_characterization.md`。下文原“当前候选”属于历史相位回放应用；本轮新增独立TTC-only应用，不替代完整A4/A5。
+
+T1先独立提交`1c55a3e`：只读`board_manual/phase_p1000_01`的328000B output、64000B timing、2400B report_v2及run.json，对照本地`replay/p1000/reference.bin`及metadata，确认experiment0→1、mode1、1000帧、state3/status0、interrupted=false。1000×41独立数值错误0，最大差4.336808689942018e-19；deadline_sequence=PASS，period_consistency=TREND_DETECTED，斜率+0.9977908489651977tick/frame。41字段、30组时间统计和相位摘要与板上v2一致，crosscheck_consistent=true。两条分析命令退出1表示周期拒绝，不是数值/构建失败。证据在`verification/ax02a/phase_p1000_01/`；开始前配置来源`.runtime/ax02a/ttc_pre_begin_01.json`，原始文件未改。
+
+T2提交`e070bb6`：独立邮箱、固定16B×1000全局数组、真实IRQ采集、自由计数器超时与停转保护；分析器与合成故障测试先失败后实现。T3加入候选build_id、被动读回和新构建器。不调用/链接Runtime，不改生成代码、原`timing.c`映射、deadline与v2协议。nominal始终10000；9999仅为B条件。PC先从F−P窗口估计事件周期，再比较raw/raw+1；保留ISR相位、P趋势、窗口/残差/首尾、全部及排除第一真实IRQ的并列结果。异常不被过滤成根因结论，硬件IRQ loss=UNKNOWN。A1/A2不重复或候选/配置/会话不同即INCONCLUSIVE，阈值与限制见协议文档。
+
+真实离线构建：Vitis2026.1 SW6511674／R5 GCC13.4.0，复用既有PS-only XSA，新workspace `.runtime/ax02a/vitis_ttc_characterize`，应用`ax02a_ttc_characterize`，launch=`ax02a_ttc_characterize_hw`。A53_0 FSBL为ELF64/AArch64；应用ELF32/ARM/v7-Realtime/VFPv3-D16/hard-float，入口0x3c，text24174/data5152/bss43228B，LOAD[0,0x7d8)、[0x100000,0x1113a0)。邮箱[0x10581c,0x105880)100B；数组[0x106b30,0x10a9b0)16000B；heap[0x10aba0,0x10bba0)、主stack[0x10bba0,0x10fba0)，IRQ等栈至0x1113a0。实际map核对不交叠，数组未放栈。保留原0x4000主栈/0x1000heap及BSP默认DDR策略，I-cache ON、D-cache OFF。
+
+完整ELF/map在新workspace应用build目录，完整日志`.runtime/ax02a/vitis_ttc_characterize.console.txt`保留。BSP有xbasic_types弃用、FSBL有CRL_APB_RST_LPD_TOP宏重定义警告；应用无已发现编译警告，未改厂商源。精简证据在`verification/ax02a/ttc_characterize/`。纯文件启动检查从仓库根与新workspace使用绝对config实跑，结果一致，检查实际域/FSBL/ELF/launch及数组布局，不套ax02a_replay路径。
+
+被动读回source只定义过程；用户到done显式调用才核对暂停R5、协议、本次experiment、case/raw、build_id及数组符号。已有目录拒绝覆盖，失败只读已完成记录并保留ERROR；不连接/选目标/复位/写寄存器/恢复运行、不读中断状态。run.json包含实际配置、时钟依据、候选/会话条件与中断声明，完整采集16000B，无需21MB输出或reference。
+
+独立代码审查仅发现一项P2：分析器漏核本次timeout预算。新增错预算与超预算反例实际RED→GREEN修复，不改固件。P3暂缓：纯文件check的R-profile属性门禁弱于构建时readelf门禁；当前候选构建已实际验证Realtime/VFP，此限制不使本ELF失效，不能把check当任意替换ELF的完整属性复验。
+
+最终实际验证：`python -m unittest discover -s verification/ax02a -p 'test_ttc_characterize.py' -v` 10/10通过；`python -m unittest discover -s verification/ax02a -p 'test_*.py' -v` 51/51通过，0失败、0跳过。覆盖原P1000/v2、HOST实际数据交叉、新合成故障、真实C HOST HAL与Tcl被动读回桩；这些不等于板上IRQ或GUI会话验证。完整测试输出见`verification/ax02a/ttc_characterize/tests.txt`，构建/布局与限制汇总见`validation.json`。
+
+停在Review：用户Review后按`FIRST_BOARD_RUN_ZH.md`第12节从开始菜单Set Workspace，main→WAIT后逐次显式A1(10000)→B(9999)→A2(10000)，同一供电/会话/ELF，逐次停止读回，不自动三连跑。T4板验NOT_RUN、根因UNCONFIRMED、正式修复NOT_RUN，A4剩余场景与完整A5未验收。原三个workspace/ELF、用户模型/参数与所有原始数据保留；未操作板卡、未重跑RTL、未合并或关闭Issue15。
+
 2026-10-30本轮先闭合exp2：按任务6516979286、执行确认6517272543及Review5708766094，只读新capture；1000×41数值PASS，最大差4.336808689942018e-19、数值错误0。run确认before1→experiment2/state3/mode1/1000帧/status0/completed1000/interrupted=false，本次timer100MHz/period10000/prescaler16。input/reference使用配套p1000，未取motion_03前缀冒充actual。旧分析器写入全新`.runtime/ax02a/analysis_exp2_legacy`；其timing PASS仅表明旧序号/截止期规则无异常，不能关闭周期漂移缺口。
 
 新的精简证据在`verification/ax02a/p1000_exp2/`（summary/run/signals/events/timing）。ISR帧1..999相位OLS斜率0.999271094742 tick/frame，截距251.3174ticks，残差RMS15.0052ticks；0帧为软件epoch，排除。ISR读取时间不是中断边沿，尚不证明硬件N/N+1根因。**数值PASS／旧规则deadline-sequence PASS／period-consistency未确认，完整周期不接受**；不得继续将原始轨迹“无异常”解释为周期一致性PASS。旧数据/旧分析结果保留，下述早前actual缺失说明属历史阶段。

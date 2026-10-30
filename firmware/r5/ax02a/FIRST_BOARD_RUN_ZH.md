@@ -455,3 +455,118 @@ UART依据：当前BSP `bspconfig.h`选`STDOUT_BASEADDRESS=0xff000000`，`outbyt
 GUI/命令参考：[AMD 2026.1启动配置教程](https://docs.amd.com/r/en-US/Vitis-Tutorials-Embedded-Software/Deploying-the-application-on-the-target)、[应用/Stop at entry](https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Application-Part)、[FSBL在平台中的作用](https://docs.amd.com/r/en-US/ug1209-embedded-design-tutorial/Reviewing-FSBL-in-the-Platform)、[XSDB表达式读写](https://docs.amd.com/r/en-US/ug1725-xsdb-reference-guide/print)、[二进制内存读回](https://docs.amd.com/r/en-US/ug1725-xsdb-reference-guide/mrd)。泛用教程的ZCU预设、A53/PMU示例及UART1不搬入本板流程。
 
 本次交付是可供用户操作的离线交接，不是BOARD_BOOT、BOARD_REPLAY或BOARD_PERIODIC_100US证据；这些继续NOT_RUN，PR16保持草稿、不合并。后续由用户提供停点证据，再逐项更新状态。
+
+## 12. TTC-only A—B—A 辨识（本轮离线交付，Review后用户执行）
+
+任务来源为[评论6525374617](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6525374617)，协议见[TTC_CHARACTERIZE_PROTOCOL.md](TTC_CHARACTERIZE_PROTOCOL.md)。本节是独立小诊断应用，不执行Runtime，不装载input/reference，不用旧P1000读回器；9999仅是B实验条件。旧第6—8节仍对应原回放应用。TTC-only完成不能用于A4/A5或WCET验收。
+
+### 12.1 本次电脑产物与纯文件检查
+
+新workspace为`D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize`，platform=`ax02a_platform`，R5域=`r5_standalone`，应用=`ax02a_ttc_characterize`，launch=`ax02a_ttc_characterize_hw`。R5 ELF/map在该workspace的`ax02a_ttc_characterize/build/ax02a_ttc_characterize.elf`及同目录`.map`；A53 FSBL在`ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf`。启动检查与数组地址依据在`startup_validation.json`；本候选被动身份文件为`ttc_provenance.tcl`。不要导入旧`ax02a_replay`配置。
+
+电脑PowerShell可从任意目录执行以下完整单行；它只读文件，不启动Vitis或连接硬件：
+
+```powershell
+python D:/Project/AXU5EV/scripts/ax02a_build_ttc_characterize.py --config D:/Project/AXU5EV/firmware/r5/ax02a/build_config.ttc_characterize.json --check-startup
+```
+
+需重建时必须选明确的新workspace并Review路径；现目录存在时构建器拒绝覆盖。离线构建入口为下列PowerShell单行（电脑编译服务，不是板卡会话；已有候选不应再次运行）：
+
+```powershell
+& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -s D:/Project/AXU5EV/scripts/ax02a_build_ttc_characterize.py
+```
+
+### 12.2 从开始菜单打开，到main／WAIT
+
+1. Review通过后，用户从Windows开始菜单打开 **Vitis 2026.1**；在欢迎页 **Set Workspace**（已有窗口则用工作区切换入口）选择上面的新workspace。保留旧workspace，不点清理/重建旧应用。若新组件或launch没有出现，停止并保留截图。
+2. Explorer中核对本次platform、`r5_standalone`和`ax02a_ttc_characterize`。打开 **Run and Debug**，选 **ax02a_ttc_characterize_hw**，核对A53_0 FSBL路径、本次R5_0 ELF、RPU split=true、Stop at entry=true、禁PL/psu_init/trace/cross-trigger。不得使用旧first_wait/app_hw配置。本节沿用第4节已说明的A53 FSBL状态检查；FSBL退出并不单独证明初始化成功。
+3. 只有用户点击Debug才发生板卡初始化/加载。main入口停点确认当前为 **Cortex-R5 #0** 和本次ELF；不要在A53 FSBL上查看诊断邮箱。main处尚未执行应用缓存配置。Resume后看到`AX02A TTC-only; I-cache ON; D-cache OFF; WAIT`；在WAIT循环Suspend，核对`ax02a_ttc_char_control.state=1`、command=0、experiment=0（若已运行则记真实值）。第一次启动无采集，原始样本尾部无效。
+4. 在GUI的XSDB控制台显式source下列单行。它只定义过程，不连接/选目标/复位/读板；后续显式调用才读取暂停目标。
+
+```tcl
+source D:/Project/AXU5EV/firmware/r5/ax02a/readback_ttc_characterize.tcl
+```
+
+保留唯一完成断点（XSDB单行）：
+
+```tcl
+set ttc_done_bp [bpadd -addr &ax02a_ttc_char_done]
+```
+
+可选地用GUI给`ax02a_ttc_char_prestart`设置函数断点：此处配置快照已就绪、两个计数器仍停止，可以看邮箱的actual_raw、clock/control/IER、Hz及timeout_ticks。应为clock0/0、control35/33、IER1/0、Hz100000000/100000000，actual_raw与本次请求相符。移除prestart断点后再Resume。不得在`char_hw_start`、ISR或采集循环内停下；若意外发生，读回必须声明interrupted=true，不能作辨识证据。
+
+下列每段只发起一次。提前移除main/其他执行路径断点和观察点，关闭Expressions/Memory运行中刷新；采样窗口中不Suspend、单步、读变量或传文件。约100ms仅由BSP配置换算，不承诺墙钟耗时。无完成、ERROR、FSBL错误或目标不符时停下，保存信息，不自动重试/转入下一段。
+
+### 12.3 A1：raw10000，用户显式执行
+
+在已暂停WAIT，先记本次before值，再设置参数，command最后写。以下均为 **XSDB**，每行分别执行：
+
+```tcl
+set ttc_a1_before [ax02a_ttc_char::scalar experiment]
+print -set ax02a_ttc_char_control.case_id 1
+print -set ax02a_ttc_char_control.requested_raw 10000
+print -set ax02a_ttc_char_control.requested_samples 1000
+print -set ax02a_ttc_char_control.command 1
+```
+
+由用户点击GUI Resume，等done断点。此时两计数器与采样中断已经关闭；核对state3、error0、completed_samples1000、experiment=before+1、actual_raw10000。失败也允许保存已完成记录（0—999条及ERROR元数据），不能标成1000条成功。以下XSDB单行默认新目录，若已有则拒绝；最后false必须如实声明。会话和条件字符串用ASCII，三次保持一致：
+
+```tcl
+ax02a_ttc_char::readback D:/Project/AXU5EV/.runtime/ax02a/board_manual/ttc_aba_01/A1 A1 $ttc_a1_before 10000 D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize/ttc_provenance.tcl warm01 {same power session I-cache ON D-cache OFF} false
+```
+
+只读本次已完成记录（完整16000B）及少量邮箱，生成samples.bin/run.json；不会读中断状态寄存器。目录/原始数据不覆盖，partial保留表明读回未完整。任何失败或元数据拒绝先停在这里。
+
+### 12.4 B：raw9999，用户检查A1后再执行
+
+同一Debug会话、同一供电、同一ELF，用户从done Resume返回WAIT，再Suspend并确认state1。不要再次点击Debug/初始化。只改变raw条件和标识，不改clock/cache/编译配置/样本数/nominal10000；不是正式修复。XSDB：
+
+```tcl
+set ttc_b_before [ax02a_ttc_char::scalar experiment]
+print -set ax02a_ttc_char_control.case_id 2
+print -set ax02a_ttc_char_control.requested_raw 9999
+print -set ax02a_ttc_char_control.requested_samples 1000
+print -set ax02a_ttc_char_control.command 1
+```
+
+用户Resume到done，核对本次experiment、state3/error0/count1000/actual_raw9999。再显式执行XSDB单行：
+
+```tcl
+ax02a_ttc_char::readback D:/Project/AXU5EV/.runtime/ax02a/board_manual/ttc_aba_01/B B $ttc_b_before 9999 D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize/ttc_provenance.tcl warm01 {same power session I-cache ON D-cache OFF} false
+```
+
+### 12.5 A2：恢复raw10000，用户检查B后再执行
+
+再次从done Resume回WAIT并Suspend确认state1。XSDB：
+
+```tcl
+set ttc_a2_before [ax02a_ttc_char::scalar experiment]
+print -set ax02a_ttc_char_control.case_id 3
+print -set ax02a_ttc_char_control.requested_raw 10000
+print -set ax02a_ttc_char_control.requested_samples 1000
+print -set ax02a_ttc_char_control.command 1
+```
+
+用户Resume到done并核对本次结果，再执行XSDB单行：
+
+```tcl
+ax02a_ttc_char::readback D:/Project/AXU5EV/.runtime/ax02a/board_manual/ttc_aba_01/A2 A2 $ttc_a2_before 10000 D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize/ttc_provenance.tcl warm01 {same power session I-cache ON D-cache OFF} false
+```
+
+C/raw10001虽在同一ELF中受限支持，本轮默认不执行；需ABA不足辨识且用户另行确认。
+
+### 12.6 结束后在普通终端离线分析
+
+以下为 **PowerShell** 单行，不能粘到XSDB；输出目录须未存在。单次示例A1（B/A2同样可分别分析）：
+
+```powershell
+python D:/Project/AXU5EV/scripts/ax02a_analyze_ttc_characterize.py run D:/Project/AXU5EV/.runtime/ax02a/board_manual/ttc_aba_01/A1/samples.bin D:/Project/AXU5EV/.runtime/ax02a/board_manual/ttc_aba_01/A1/run.json D:/Project/AXU5EV/.runtime/ax02a/board_manual/ttc_aba_01/analysis_A1
+```
+
+三次联合分析，直接读取原始三个目录，拒绝混ELF/build_id/配置/会话条件或实验顺序：
+
+```powershell
+python D:/Project/AXU5EV/scripts/ax02a_analyze_ttc_characterize.py aba D:/Project/AXU5EV/.runtime/ax02a/board_manual/ttc_aba_01/A1 D:/Project/AXU5EV/.runtime/ax02a/board_manual/ttc_aba_01/B D:/Project/AXU5EV/.runtime/ax02a/board_manual/ttc_aba_01/A2 D:/Project/AXU5EV/.runtime/ax02a/board_manual/ttc_aba_01/analysis_ABA
+```
+
+向Review提交三个run.json/samples.bin与summary.json。先看采集有效和全部样本，再看窗口/残差/首尾、P与ISR趋势、排除第一条的并列摘要、A1/A2重复性。RAW_COMPATIBLE或RAW_PLUS_ONE_COMPATIBLE只是限制条件下相容；INCONCLUSIVE时保留异常，提出最小补证，不盲改9999。软件序号连续不能证明没有合并IRQ。物理根因、正式周期修正与T4板验在本次交付时仍UNCONFIRMED/NOT_RUN。

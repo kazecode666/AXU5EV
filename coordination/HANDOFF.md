@@ -4,6 +4,8 @@
 
 ## 当前任务与结果
 
+最新按PR16评论6525374617执行T1—T3，任务书在`tasks/ax02a_ttc_aba_characterization.md`。T1 `1c55a3e`独立比较最新phase_p1000_01：1000×41数值PASS、deadline_sequence PASS、相位+0.997790848965tick/frame仍拒绝，板上v2/PC一致。T2 `e070bb6`独立TTC-only采集/分析；T3真实新构建在`.runtime/ax02a/vitis_ttc_characterize`，应用`ax02a_ttc_characterize`，launch`ax02a_ttc_characterize_hw`，原三个workspace保留。OFFLINE_READY_FOR_REVIEW；用户Review后按FIRST_BOARD_RUN_ZH.md第12节从开始菜单Set Workspace，逐次显式A1(raw10000)→B(9999)→A2(10000)，每次1000条/16000B。9999仅实验条件，不用旧P1000比较器。T4硬件NOT_RUN、根因UNCONFIRMED、正式修复NOT_RUN，完整A4/A5仍未验收；Codex不操作硬件、不合并。以下候选/缺actual描述按历史阶段理解。
+
 当前相位候选已在独立`.runtime/ax02a/vitis_phase_diagnostic`构建；两个旧workspace保留。PC/C加入k0排除、至少32ISR样本的OLS趋势筛查（6SE+2tick/span），数值/旧deadline/period状态分开；实测exp2与+1tick反例不再整体PASS，固定延迟/随机抖动对照正常。报告升级v2/2400B，v1的mode1不再可证明周期一致。41测试通过，物理根因尚未确认：原硬件interval/logical period10000均未改，deadline未放宽；本机驱动直接写interval、当前XPM禁用，没有证据可盲改9999。候选开始前保存ax02a_ttc_snapshot；用户只读寄存器/GUI复验步骤在FIRST_BOARD_RUN_ZH.md第8节。候选目标运行/完整A4/A5仍未验收，不能把诊断修复写成硬件漂移已消除。
 
 

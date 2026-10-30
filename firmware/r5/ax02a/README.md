@@ -1,5 +1,7 @@
 # AX-02A：R5 standalone 回放
 
+最新按PR16任务6525374617完成T1—T3，状态**OFFLINE_READY_FOR_REVIEW**：最新诊断P1000独立数值/板上报告交叉已闭合；独立TTC-only应用在`.runtime/ax02a/vitis_ttc_characterize`真实构建，保留所有旧workspace。用户Review后按[指南第12节](FIRST_BOARD_RUN_ZH.md)逐次显式A1→B→A2，每次16000B。任务书见[版本化原文](../../../coordination/tasks/ax02a_ttc_aba_characterization.md)，协议见[TTC_CHARACTERIZE_PROTOCOL.md](TTC_CHARACTERIZE_PROTOCOL.md)。T4硬件NOT_RUN、根因UNCONFIRMED；9999不是正式修复，以下回放/历史构建适用范围保持不变。
+
 当前已实际生成**手册5EV器件的PS-only XSA、A53_0 FSBL、R5 standalone BSP及含Runtime的ELF/map**。新工作区`.runtime/ax02a/vitis_target_a53fsbl`已通过TARGET_BUILD及离线启动架构检查；旧工作区保留。用户旧GUI日志已暴露R5 FSBL被载到A53_0的启动失败，本版已修正离线产物，尚未重新上板确认。BOARD_BOOT验收、板上数值和100µs实测均 **NOT_RUN**。详见[结果报告](../../../coordination/reports/ax02a_r5_target_validation.md)。
 
 **第一次使用PS端，先读[首次手动启动指南](FIRST_BOARD_RUN_ZH.md)**：打开新workspace，选 **`ax02a_first_wait_a53fsbl`**，依次停在目标识别、应用入口/main、邮箱等待。首次仅确认已有启动消息与`state=1/experiment=0`，由用户亲自上板；Codex只做离线准备。启动配置模板为[launch_first_wait.json](launch_first_wait.json)，采用A53_0 FSBL初始化、RPU split、R5_0应用，禁PL下载，不同时执行`psu_init.tcl`。旧workspace的`ax02a_first_wait_manual`不能继续用于GUI重试。分段XSDB命令、后续回放与故障定位统一放在指南。

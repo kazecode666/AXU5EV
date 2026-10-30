@@ -15,11 +15,11 @@ typedef struct {
     uint32_t requested_samples, completed_samples, error, timeout_ticks;
     uint32_t periodic_hz, timestamp_hz, periodic_base, timestamp_base;
     uint32_t periodic_clock, timestamp_clock, periodic_control, timestamp_control;
-    uint32_t periodic_ier, timestamp_ier;
+    uint32_t periodic_ier, timestamp_ier, build_id;
 } Ax02aTtcCharControl;
 _Static_assert(sizeof(uint32_t)==4,"uint32 width");
 _Static_assert(sizeof(Ax02aTtcCharSample)==16,"TTC record must be 16 bytes");
-_Static_assert(sizeof(Ax02aTtcCharControl)==96,"mailbox protocol v1");
+_Static_assert(sizeof(Ax02aTtcCharControl)==100,"mailbox protocol v1");
 extern volatile Ax02aTtcCharControl ax02a_ttc_char_control;
 extern volatile Ax02aTtcCharSample ax02a_ttc_char_samples[AX02A_TTC_CHAR_CAPACITY];
 void ax02a_ttc_char_prestart(void);

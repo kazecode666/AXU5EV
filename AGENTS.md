@@ -2,6 +2,8 @@
 
 ## 当前开发
 
+- PR16评论6525374617的T1—T3已离线实施：最新phase_p1000_01独立数值PASS，趋势仍约+0.99779tick/frame；新TTC-only workspace `.runtime/ax02a/vitis_ttc_characterize`及应用`ax02a_ttc_characterize`真实构建，OFFLINE_READY_FOR_REVIEW。原三个workspace/ELF保留。用户Review后按指南第12节逐次A1(10000)→B(9999)→A2(10000)，每次1000真实IRQ/16000B；9999仅实验条件，nominal10000与原deadline不变。T4用户上板NOT_RUN、物理根因UNCONFIRMED、正式修复NOT_RUN；Codex不连接/操作板卡，不合并。
+
 - 相位候选为`.runtime/ax02a/vitis_phase_diagnostic`，v2报告2400B，原两个workspace及ELF保留。exp2本次数值PASS、deadline/sequence PASS，但ISR phase趋势0.999271tick/帧被新PC/C诊断拒绝；硬件根因未确认，interval/logical period仍10000，不盲减1、不宽deadline。GUI只读配置取证/复验见指南第8节；候选板上NOT_RUN。
 
 - 最新执行PR16评论6516979286/6517272543及Review5708766094：exp2新capture已完整，数值PASS但存在约1tick/帧ISR相位累积趋势，周期一致性未确认。先提交数据结论，再诊断/核查TTC/证据充分后最小修正；不能盲改9999、修改名义period掩盖漂移或放宽deadline。保留`vitis_target_a53fsbl`与`vitis_postprocess`及全部原始数据，候选新目录；不连接/发现/操作板卡，寄存器步骤交用户。

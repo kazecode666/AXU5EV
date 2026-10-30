@@ -2,7 +2,7 @@
 
 来源：[PR16 任务书](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6525374617)。本诊断不调用 Runtime，不产生 A4/A5/数值或 WCET 验收结论。
 
-`ttc_characterize.h` 是 C 布局定义；邮箱共24个小端 uint32（96B），依声明顺序排列。magic=`0x31435454`、version=1、record_bytes=16。状态 WAIT=1、RUNNING=2、COMPLETE=3、ERROR=4；command=1 单次启动。case_id=1/2/3/4 分别表示 A1/B/A2/C。错误 0=无、1=参数、2=配置、3=自由计数超时、4=自由计数连续1000000次不变、5=回绕、6=非预期间隔IRQ状态。COMPLETE 只表示采集完成。
+`ttc_characterize.h` 是 C 布局定义；邮箱共25个小端 uint32（100B），依声明顺序排列。末字段build_id为构建器产生并编译进ELF的候选标识，读回时与本候选provenance核对，联合分析也核对一致。magic=`0x31435454`、version=1、record_bytes=16。状态 WAIT=1、RUNNING=2、COMPLETE=3、ERROR=4；command=1 单次启动。case_id=1/2/3/4 分别表示 A1/B/A2/C。错误 0=无、1=参数、2=配置、3=自由计数超时、4=自由计数连续1000000次不变、5=回绕、6=非预期间隔IRQ状态。COMPLETE 只表示采集完成。
 
 全局 `ax02a_ttc_char_samples[1000]` 每条为 `sequence,f_before,p_count,f_after`，4×uint32=16B，共16000B；seq0 是第一次真实IRQ。不会写入第1001条，不与旧 P1000 的64B记录或2400B报告混用。只有 completed_samples 之前的记录有效；失败不分析为完整采集。
 
@@ -15,3 +15,5 @@ PC以`[F_before-P,F_after-P]`估计回零窗口。全部样本为主结果，同
 这是明确假设下的分辨率门槛，并非统计置信区间或精确边沿。读窗口≥raw/4、P>raw/4、P接近0或raw、F回绕/倒退、疑似漏事件、身份/配置/中断声明异常均保留并拒绝推断。四字段不足以识别所有跨回零、合并IRQ、时钟同步和总线延迟影响；硬件IRQ丢失状态始终UNKNOWN。A1/A2事件周期范围须重叠且P斜率差≤0.05tick/IRQ；供电会话/条件/ELF/配置不同直接拒绝联合归因。即使兼容raw+1，也须Review真实数据后再决定平台修正。
 
 本轮执行记录：T1提交`1c55a3e`；新增首轮7测试在缺实现时7项FAIL（`.runtime/ax02a/ttc_red.txt`），最小实现后7/7通过（`ttc_green_first.txt`）。真实C HOST HAL覆盖重复A-B-A、容量、无IRQ超时、时钟停转、配置/参数拒绝及统一清理；仅是合成事件，不是板上中断证据。按用户约束在现有分支执行，不创建worktree、不删除原产物；直接沿任务书执行，无额外规划流程。
+
+交付回归另先复现构建/读回缺实现的2项失败，再实现。独立Review发现错timeout预算及过晚样本可能被接受，新增测试先FAIL再GREEN，PC现在核对精确预算且拒绝超预算记录。所有新测试的临时材料保留在忽略的`.runtime/ax02a/ttc_*`目录，不批量清除。P3暂缓：纯文件check不重新解析ARM profile属性，依靠本候选构建时readelf验证；当前真实ELF已通过R-profile/VFP门禁，后续替换ELF须重新构建/核验。
