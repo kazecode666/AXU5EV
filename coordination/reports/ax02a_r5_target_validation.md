@@ -14,11 +14,29 @@
 | A2 | **生成/完整目标链接PASS；用户R5首次motion运行PASS** | 独立Cortex-R配置的同份生成C经官方R5 GCC13.4.0链接进新BSP；ARM32/v7-Realtime/VFPv3-D16/hard-float及装载段检查通过 |
 | A3 | **离线PASS** | 原MAT64536帧完整导出，当前模型同输入参考与43100帧对齐/复位/故障参考；20/41字段、LE double全文件回读一致 |
 | A4 / BOARD_REPLAY | **PARTIAL** | motion_03首次完整64536×41用户BOARD数值PASS，timing NOT_RUN；第二次独立motion及43100帧alignment/reset仍NOT_RUN |
-| A5 / BOARD_PERIODIC_100US | **NOT_RUN** | 定时执行层、TTC适配源码及比较器已准备；漏序号/超期策略定向测试通过，无硬件计时值 |
+| A5 / BOARD_PERIODIC_100US | **NOT_RUN** | P1000局部原始轨迹已按规则检查通过；完整A5尚未验收，不能据1000帧外推WCET |
 | A6 | **离线成果PR** | 可提交源码、入口及精简证据；不能据此关闭板上验收 |
 | BOARD_BOOT / FIRST_WAIT | **PASS（用户硬件证据）** | A53 FSBL退出＋状态0、R5入口/main/UART/WAIT，见评论6459108843 |
 | 托管SIL/PIL、5EV综合/布线、AXI/ADC/编码器/PWM、实机、烧录/功率级上电 | **NOT_RUN** | 不从PS回放推导外设、电机闭环或功率级验收 |
 | 完整RTL重跑 | **NOT_RUN** | 复用PR14原始记录，没有再跑c_rtl |
+
+## P1000追加实测证据：仅时间轨迹检查，整体未完成
+
+C2/C3已提交9e846c0b6ee71598b8757b8682e6535d33697181后读取到用户[评论6515463934](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6515463934)：继续用旧基线ELF，before experiment1，结束experiment2、mode1、frames1000、state3、status0、completed1000、failed_frame0，con-block正常到完成断点。timer为clock_hz100000000/interval10000/prescaler16/period_ticks10000，读取计数间隔26/26ticks，start_window91ticks。未切到新后处理固件。
+
+实际本地原始`p1000_01/timing.bin`64000B，1000×8uint64完整；原比较器时间规则检查序号、预期周期、帧内时间顺序和严格截止期均无异常。`verification/ax02a/p1000_01/timing.csv`列出all/ordinary900/speed90/position10及Python ceil P99。100MHz是BSP换算依据，非独立测频；冷/热状态未记录，26ticks=0.26µs只是读取间隔，91ticks=0.91µs只是启动窗口。
+
+| 指标 | 最大观测值（µs） | 最差帧 |
+|---|---:|---:|
+| 纯Runtime | 38.42 | 699 |
+| 本帧task | 54.11 | 709 |
+| response（completion−expected） | 69.25 | 899 |
+| start jitter | 16.49 | 994 |
+| 最小slack | 30.75 | 899 |
+
+同份C后处理在HOST对真实ticks的上述四类统计与Python一致（统计容差如C3）；因本次actual缺失，C数值输入仅用reference占位来调用接口，其数值结果和依赖actual的command/alignment分类**不作为验证证据**。没有在新固件目标上运行后处理。用户所指`motion_03/output.bin`核实仍为旧mode0的21,167,808B、时间戳11:18:27；本次ticks时间戳13:19:17。没有截取旧输出冒充exp2的328000B actual；新增回归测试确认该旧全长文件被门禁拒绝。
+
+尚缺本次exp2输出以及独立保存的完整run.json/中断声明，后续由用户保持完成停点，按第6节工具读入全新目录（before_experiment1，按事实声明interrupted）。**P1000：运行自检完成/时间轨迹检查PASS，数值NOT_RUN、整体INCOMPLETE；不是完整A5或WCET，新后处理板上验证仍NOT_RUN。**
 
 ## C1：成功基线与P1000离线工具（2026-10-30）
 
@@ -26,7 +44,7 @@
 
 前缀入口从current_motion的[0,1000)提取input160000B、reference328000B，Ts100µs、参数/字段/来源保留；不裁中段或重生成算法。实际产物`.runtime/ax02a/replay/p1000/`，精简metadata在`verification/ax02a/p1000_metadata.json`。读回Tcl被source只定义过程，用户显式调用才检查现有暂停R5目标及本次实验，再以≤64KiB块读328000B输出及64000B ticks；失败只读取completed_frames完整记录，保留failed_frame，不读取未完成尾部作有效证据。
 
-分析入口先核对场景/模式/请求帧数/experiment递增/未中断/完整完成和文件长度，再复用原41字段比较与时间规则。失败实验不能靠正确前缀PASS。独立审查发现并修正中断标记P2：读回要求显式传入true/false，保留用户中断声明；Tcl生成中断记录后分析器拒绝的回归测试通过。时间报告含普通/速度到期/位置到期与事件分类、最大观测值/最差帧/P99（原ceil规则）/最小slack、计数读取和start_window及冷/热条件；无样本分类明确0。ClockHz为本次TTC配置换算依据，不声称独立测频。P1000新硬件数据尚未提供，数值/计时均NOT_RUN；它不是完整A4/A5或WCET证明。
+分析入口先核对场景/模式/请求帧数/experiment递增/未中断/完整完成和文件长度，再复用原41字段比较与时间规则。失败实验不能靠正确前缀PASS。独立审查发现并修正中断标记P2：读回要求显式传入true/false，保留用户中断声明；Tcl生成中断记录后分析器拒绝的回归测试通过。时间报告含普通/速度到期/位置到期与事件分类、最大观测值/最差帧/P99（原ceil规则）/最小slack、计数读取和start_window及冷/热条件；无样本分类明确0。ClockHz为本次TTC配置换算依据，不声称独立测频。C1提交时P1000数据尚未提供；后续收到ticks的局部结论见上节，数值仍待本次actual；它不是完整A4/A5或WCET证明。
 
 ## C2/C3：结束后后处理及HOST交叉验证（2026-10-30）
 
@@ -40,7 +58,7 @@ C1先独立提交`64466414773038524dce40c120dd99434102e7e8`并推送PR16，之�
 
 实际HOST交叉入口`ax02a_post_report.py host`使用motion_03完整output和current_motion reference，输出`.runtime/ax02a/c3_motion03_host/`：全部字段判定/错误位置/max_abs一致；RMS统计abs1e-15/rel1e-12，时间摘要abs1e-12/rel1e-9，仅用于统计一致性，不放宽PASS容差或截止期。HOST run身份来自用户评论转写文件，非自动采集。独立只读审查覆盖C2/C3代码、最终指南/API与新构建证据，无P1/P2发现；独立复跑32项测试通过，未重建或运行硬件。本轮相关32项Python测试通过，其中6项C后处理测试内部覆盖离散微差、连续容差内/外/边界、非零参考容差、NaN/Inf（actual/reference）、±0、缺帧/未完成/模式场景实验号错误、中断、重复/跳号、非单调、恰deadline、错误1ms，以及1000帧900/90/10分类及tie最差帧、报告协议/本次身份。真实motion_03仅用于数值HOST交叉；时间测试全为合成，不能输出为板上µs或WCET。
 
-指南给出Review后的新workspace加载/WAIT、PC准备参考描述符、用户dow/verify参考、显式启用、完成后小报告读回、decode及全量P1000 crosscheck段。脚本导入/source均不连接板卡。**C2/C3离线构建/HOST通过；目标后处理、用户P1000原始周期数据及完整A5仍NOT_RUN；A4第二次motion和alignment/reset仍待补齐。** 本轮未连接/发现/暂停恢复/复位/下载/读写/运行任何板卡，PR16继续Draft，Issue15开放，不自动合并。
+指南给出Review后的新workspace加载/WAIT、PC准备参考描述符、用户dow/verify参考、显式启用、完成后小报告读回、decode及全量P1000 crosscheck段。脚本导入/source均不连接板卡。**C2/C3离线构建/HOST通过；目标后处理及完整A5仍NOT_RUN；用户P1000后续已收到ticks但数值actual尚缺，见追加证据节；A4第二次motion和alignment/reset仍待补齐。** 本轮未连接/发现/暂停恢复/复位/下载/读写/运行任何板卡，PR16继续Draft，Issue15开放，不自动合并。
 
 ## 首次启动故障与离线修正（历史阶段）
 

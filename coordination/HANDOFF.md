@@ -4,7 +4,10 @@
 
 ## 当前任务与结果
 
-C1已独立提交并推送`64466414773038524dce40c120dd99434102e7e8`。随后C2/C3完成离线最小后处理：`postprocess.c/.h`＋main默认关闭的一次性新控制口，独立`.runtime/ax02a/vitis_postprocess`已真实构建ELF/map；旧调试workspace未重建。HOST用真实motion_03全64536×41数据与Python逐字段交叉通过，32项相关测试通过。新参考/descriptor/2336B报告区与ELF及原buffer无交叠；原output/ticks保留，C的P99为NOT_COMPUTED。指南第7节仅供Review后用户决定加载；P1000真实原始ticks尚未提供，目标后处理、P1000和完整A5均NOT_RUN，A4缺项保留。见`verification/ax02a/postprocess_validation.json`。
+最新补充：用户PR16评论6515463934提供旧ELF的P1000 experiment1→2完成回执，本地`p1000_01/timing.bin`64000B完整，原Python规则检查1000条记录无序号/时间顺序/截止期异常。最大观测Runtime38.42µs、task54.11µs、response69.25µs、start jitter16.49µs，最小slack30.75µs；仅按本次TTC100MHz配置换算，非WCET/独立测频。`motion_03/output.bin`经核对仍为旧mode0的21167808B，不能拿其前1000帧替代exp2输出；本次328000B actual尚缺，P1000整体INCOMPLETE，完整A5及新后处理板验收仍未完成。详见`verification/ax02a/p1000_01/`。C2/C3离线成果已推送9e846c0b6ee71598b8757b8682e6535d33697181。
+
+
+C1已独立提交并推送`64466414773038524dce40c120dd99434102e7e8`。随后C2/C3完成离线最小后处理：`postprocess.c/.h`＋main默认关闭的一次性新控制口，独立`.runtime/ax02a/vitis_postprocess`已真实构建ELF/map；旧调试workspace未重建。HOST用真实motion_03全64536×41数据与Python逐字段交叉通过，32项相关测试通过。新参考/descriptor/2336B报告区与ELF及原buffer无交叠；原output/ticks保留，C的P99为NOT_COMPUTED。指南第7节仅供Review后用户决定加载；P1000原始ticks后续已收到，数值actual尚缺；目标后处理和完整A5仍NOT_RUN，A4缺项保留。见`verification/ax02a/postprocess_validation.json`。
 
 
 当前按[PR16 C1—C3评论6514858529](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6514858529)执行。**用户已完成BOARD_BOOT/FIRST_WAIT与motion_03首次完整64536×41字段真板数值PASS；A4第二次motion及43100帧alignment/reset未完成，A5计时NOT_RUN。** 本地motion_03完整输出21,167,808B及报告存在，C1重新调用原比较器通过；必要基线整理于`verification/ax02a/board_motion_03/`。旧失败与中断读回记录保留，以下10月27日启动未运行描述属历史阶段，不能覆盖新证据。

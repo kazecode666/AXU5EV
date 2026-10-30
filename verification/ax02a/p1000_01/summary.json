@@ -1,0 +1,61 @@
+{
+  "scope": "USER_BOARD_TRACE_P1000_old_baseline_ELF_ONLY",
+  "evidence": "https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6515463934",
+  "experiment": 2,
+  "before_experiment": 1,
+  "mode": 1,
+  "requested": 1000,
+  "completed": 1000,
+  "program_status": 0,
+  "failed_frame": 0,
+  "timing_bytes": 64000,
+  "timing_path": ".runtime/ax02a/board_manual/p1000_01/timing.bin",
+  "periodic_trace_checks": "PASS",
+  "anomalies": [],
+  "numerical": "NOT_RUN_MISSING_EXPERIMENT2_OUTPUT",
+  "overall": "INCOMPLETE",
+  "clock_basis": "TTC BSP ClockHz100000000, period_ticks10000/interval10000/prescaler16(no prescaling), not independent frequency measurement",
+  "timestamp_read_ticks": [
+    26,
+    26
+  ],
+  "timestamp_read_us": [
+    0.26,
+    0.26
+  ],
+  "start_window_ticks": 91,
+  "start_window_us": 0.91,
+  "cold_warm_condition": "UNKNOWN; user reused existing session, no explicit cold/warm classification",
+  "interruption_evidence": "User reported con-block normal completion without timeout; no separate captured interruption-ack run.json",
+  "event_categories": "NOT_VALIDATED_WITH_ACTUAL_OUTPUT; no command/alignment coverage claim",
+  "host_C_timing_crosscheck": "PASS for all/ordinary/speed_due/position_due against Python on this real trace; reference placeholders used only for C output-dependent classification, numeric C result deliberately excluded",
+  "first_frame": {
+    "runtime_us": 25.78,
+    "task_us": 40.9,
+    "response_us": 43.480000000000004,
+    "jitter_us": 2.58
+  },
+  "limitation": "Observed1000-frame trace only, not fullA5/WCET, not target new-postprocessor validation. motion_03 oldmode0 output cannot supply experiment2 actual.",
+  "observed_extrema": {
+    "runtime_us": {
+      "value": 38.42,
+      "frame": 699
+    },
+    "task_us": {
+      "value": 54.11,
+      "frame": 709
+    },
+    "response_us": {
+      "value": 69.25,
+      "frame": 899
+    },
+    "jitter_us": {
+      "value": 16.49,
+      "frame": 994
+    },
+    "minimum_slack_us": {
+      "value": 30.75,
+      "frame": 899
+    }
+  }
+}

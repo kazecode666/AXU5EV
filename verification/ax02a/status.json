@@ -13,7 +13,7 @@
   "BOARD_BOOT": "PASS_USER_EVIDENCE_PR16_6459108843",
   "BOARD_MOTION_FIRST": "PASS_USER_BOARD_motion_03_64536x41",
   "BOARD_REPLAY": "PARTIAL: first motion PASS; second motion and alignment/reset NOT_RUN",
-  "P1000_PREPARATION": "PASS_OFFLINE; user periodic run NOT_RUN",
+  "P1000_PREPARATION": "PASS_OFFLINE; user periodic self-check/trace received, numerical output still pending",
   "BOARD_PERIODIC_100US": "NOT_RUN",
   "RTL_RERUN": "NOT_RUN",
   "blockers": [
@@ -25,6 +25,9 @@
   "C2_POSTPROCESS": "OFFLINE_TARGET_BUILD_PASS_DEFAULT_DISABLED",
   "C3_POSTPROCESS": "HOST_C_PYTHON_CROSSCHECK_PASS_motion_03",
   "POSTPROCESS_BOARD": "NOT_RUN",
-  "P1000_PERIODIC": "NOT_RUN",
-  "new_firmware_workspace": ".runtime/ax02a/vitis_postprocess"
+  "P1000_PERIODIC": "USER_RUN_SELF_CHECK_COMPLETE; RAW_TRACE_CHECK_PASS; NUMERIC_PENDING_EXP2_OUTPUT",
+  "new_firmware_workspace": ".runtime/ax02a/vitis_postprocess",
+  "P1000_TRACE": "PASS_1000_RECORDS_no_sequence_timestamp_deadline_anomalies",
+  "P1000_NUMERIC": "NOT_RUN: motion_03/output.bin is old21MB mode0, not experiment2 output",
+  "C2_C3_COMMIT": "9e846c0b6ee71598b8757b8682e6535d33697181"
 }

@@ -27,6 +27,13 @@ class PrefixTests(unittest.TestCase):
    p=Path(d);(p/'metadata.json').write_text(json.dumps(dict(scenario='pr14_original',frames=1,Ts=.0001,input_fields=20,output_fields=41)))
    with self.assertRaises(ValueError):m.prepare(p,p/'out',1)
 class RunTests(unittest.TestCase):
+ def test_old_motion03_file_cannot_supply_periodic_actual(self):
+  m=module('analyze_run')
+  with tempfile.TemporaryDirectory() as d:
+   p=Path(d);r=dict(scenario='current_motion_prefix',state=3,mode=1,frames=1000,experiment=2,interrupted=False,conditions='synthetic gate regression',result=dict(status=0,completed_frames=1000,failed_frame=0))
+   (p/'run.json').write_text(json.dumps(r))
+   s=m.analyze(ROOT/'.runtime/ax02a/replay/p1000/metadata.json',ROOT/'.runtime/ax02a/replay/p1000/reference.bin',ROOT/'.runtime/ax02a/board_manual/motion_03/output.bin',ROOT/'.runtime/ax02a/board_manual/p1000_01/timing.bin',p/'run.json',1,1,p/'analysis','SIMULATED')
+   self.assertFalse(s['passed']);self.assertIn('expected 328000 bytes',s['error'])
  def test_passive_tcl_and_explicit_readback(self):
   t=tkinter.Tcl()
   t.eval('proc targets {args} {return [list [dict create is_current 1 name "Cortex-R5 #0" suspended 1]]}')
