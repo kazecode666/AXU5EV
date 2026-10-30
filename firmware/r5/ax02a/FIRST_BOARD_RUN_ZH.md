@@ -271,7 +271,56 @@ python scripts/ax02a_analyze_run.py --metadata .runtime/ax02a/replay/p1000/metad
 
 先通过运行身份/完成门禁才分析数值与时间。timer频率只是配置换算依据，保留计数读取开销/start_window、I-cache冷暖及运行条件；未覆盖的command/alignment类别显示0（首帧initial alignment样本不等于完整对齐覆盖）。P1000通过只证明这1000帧；下列完整A4/A5仍须补齐。
 
-## 7. 完整A4/A5备查（不自动执行）
+## 7. C2/C3新固件后处理（供Review；由用户决定加载）
+
+当前P1000仍用原`vitis_target_a53fsbl` ELF，无需更新固件。本节新固件只在独立`D:/Project/AXU5EV/.runtime/ax02a/vitis_postprocess`离线构建；**HOST交叉检查与编译通过不代表目标后处理已验证**。待ChatGPT Review通过且用户决定更换时，再由用户打开新workspace，按原A53 FSBL→R5_0启动链路加载，不能在旧workspace点击Build或把新ELF原位覆盖过去。新ELF时序不能继承旧ELF的性能结论。
+
+新程序既有`ax02a_control`字段和START_COMMAND含义保留；另有`ax02a_post_control`，enabled初值0（关闭），设1只对下一实验生效，接收命令后自动清零。回放返回并停止两个计时器后才比较参考/汇总时间，全部完成后到原完成断点。程序result.status、报告compare_status、timing_status分别判断，status0并不等于数值合格。报告原始output/ticks均保留。
+
+| DDR区域 | 地址 / 容量 | 用户装载或读取时机 |
+|---|---|---|
+| 原input / output / ticks | 0x10000000 / 0x11000000 / 0x13000000，容量合同不变 | WAIT装input；完成后读output/ticks |
+| 参考描述符 | 0x12f00000 / 32B，8字节对齐 | WAIT前装载并verify；含magic/version/scenario/frames/41/source_start0/字节数 |
+| 独立reference | 0x14000000 / 最大21,495,808B，8字节对齐 | 必须从PC配套reference预装并verify，不能用actual替代 |
+| 小型报告 | 0x16000000 / 2336B，64字节对齐 | 程序启动/每次实验清valid，后处理完成最后发布valid；仅完成后读回 |
+
+实际XSA覆盖这些地址；新ELF装载/栈堆与各窗口无交叠，详见`verification/ax02a/postprocess_validation.json`。本版不排序、不申请大工作数组，使用原16KB栈；C端P99明确NOT_COMPUTED，Python继续从完整ticks计算原ceil规则P99。
+
+P1000参考描述符已生成在`.runtime/ax02a/postprocess_p1000/reference_descriptor.bin`，source.json记录配套来源。日后准备新场景或新目录时，在电脑执行：
+
+```powershell
+python scripts/ax02a_post_report.py descriptor --metadata .runtime/ax02a/replay/p1000/metadata.json --reference .runtime/ax02a/replay/p1000/reference.bin --output .runtime/ax02a/postprocess_p1000_new
+```
+
+Review后用户决定加载新ELF时，先停在新应用WAIT，检查enabled0和当前experiment。用户自己在现有XSDB执行装载并校验（source工具不会替用户执行这些命令）：
+
+```tcl
+dow -data D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/reference.bin 0x14000000
+verify -data D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/reference.bin 0x14000000
+dow -data D:/Project/AXU5EV/.runtime/ax02a/postprocess_p1000/reference_descriptor.bin 0x12f00000
+verify -data D:/Project/AXU5EV/.runtime/ax02a/postprocess_p1000/reference_descriptor.bin 0x12f00000
+```
+
+input也必须装载/verify（重加载新应用后不要假定旧输入有效）。GUI Watch依次设post_control的scenario1、expected_experiment为启动前experiment+1、expected_mode1、interrupted0（有中断/无法确认不可据此做性能验收）、enabled1；普通邮箱frames1000、mode1，最后才写command。此处完整符号前缀是`ax02a_post_control`。运行期间不暂停/单步/传输；完成断点检查`ax02a_post_control.state=2`和原result/experiment。若descriptor/场景/长度/实验号不符，报告contract_errors非0即拒绝，不比较未完成前缀。
+
+首次新固件验证必须全量读回P1000 output/ticks/run.json（第6节工具仍可用，选新目录，例如post_p1000_01并如实声明中断）。完成后另读小报告，禁止覆盖旧文件：
+
+```tcl
+set ax02a_post_file D:/Project/AXU5EV/.runtime/ax02a/board_manual/post_p1000_01/post_report.bin
+if {[file exists $ax02a_post_file]} {error "preserve old report; use a new run directory"}
+mrd -size b -bin -file $ax02a_post_file 0x16000000 2336
+```
+
+PC端先解码并检查本次身份（只报告C端声明），再以相同完整数据与Python交叉比较，所有输出目录必须未使用：
+
+```powershell
+python scripts/ax02a_post_report.py decode --metadata .runtime/ax02a/replay/p1000/metadata.json --run .runtime/ax02a/board_manual/post_p1000_01/run.json --report .runtime/ax02a/board_manual/post_p1000_01/post_report.bin --before-experiment <本次启动前整数> --output .runtime/ax02a/board_manual/post_p1000_01/decoded
+python scripts/ax02a_post_report.py crosscheck --metadata .runtime/ax02a/replay/p1000/metadata.json --reference .runtime/ax02a/replay/p1000/reference.bin --actual .runtime/ax02a/board_manual/post_p1000_01/output.bin --ticks .runtime/ax02a/board_manual/post_p1000_01/timing.bin --run .runtime/ax02a/board_manual/post_p1000_01/run.json --report .runtime/ax02a/board_manual/post_p1000_01/post_report.bin --before-experiment <本次启动前整数> --output .runtime/ax02a/board_manual/post_p1000_01/crosscheck
+```
+
+数值FAIL规则不变：EXACT按有限double数值相等（含±0相等），其他为abs+rel各1e-9，NaN/Inf拒绝。C/Python每字段判定/位置/max_abs精确核对；RMS统计误差abs1e-15+rel1e-12，时间汇总abs1e-12+rel1e-9，仅用于对照统计计算，不放宽数值/截止期PASS。小报告PASS不能代替首次全量交叉读回；后续完整A4/A5也不因P1000通过而取消。
+
+## 8. 完整A4/A5备查（不自动执行）
 
 ### 停点④：非定时连续回放与本次结果读回
 
@@ -330,7 +379,7 @@ mrd -size b -bin -file $ax02a_root/.runtime/ax02a/board_manual/periodic_01/timin
 
 `periodic_01`须事先新建，output也写入该新目录。`timer.clock_hz`、`period_ticks`必须取本次邮箱，不能把配置值或PC运行时间当实测。motion的计时为64536×8×uint64，即4,130,304B。比较器在前述数值比较参数之外增加`--timing <本次timing.bin> --timer-hz <本次clock_hz> --period-ticks <本次period_ticks>`；保留冷启动、读计数开销、普通/速度/位置/命令/对齐分类和最小slack。超期、漏序号或帧数不符即失败，不补算、不改算法或自动放宽门限。此处尚无硬件时间结果。
 
-## 8. 常见停点与最小排查
+## 9. 常见停点与最小排查
 
 | 现象 | 只先核对什么 / 在哪里停止 |
 |---|---|
@@ -344,7 +393,7 @@ mrd -size b -bin -file $ax02a_root/.runtime/ax02a/board_manual/periodic_01/timin
 | 停在等待输入 | 第一次这是目标。串口输入不是邮箱命令，`experiment=0`说明还没启动实验 |
 | 结果帧数/experiment不符 | 不比较旧DDR；确认本场景frames、先装输入后发command、本次是否失败/被断点中断；保留status与failed_frame |
 
-## 9. 历史首次指南离线依据与交接范围
+## 10. 历史首次指南离线依据与交接范围
 
 本轮实际复核旧导出FSBL为ELF32/ARM/v7-Realtime，结合用户日志定位核不匹配；离线创建新platform/BSP/FSBL及相同生成源的R5 ELF/map，并检查两个域、实际导出FSBL、应用属性与被动launch。精简证据见`verification/ax02a/startup_validation.json`和报告的“首次启动故障与离线修正”；原目标构建证据原样保留。新增FSBL架构回归门禁覆盖原错误。未运行IDE、hw_server、XSDB目标会话或任何板卡命令；没有重建模型、仿真或RTL。CLI构建服务仅用于电脑上的编译，不是硬件调试会话。
 

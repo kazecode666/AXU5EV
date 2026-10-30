@@ -8,6 +8,26 @@
 
 用户BOARD_BOOT及motion_03首次完整数值回放已通过，A4仍缺第二次motion和alignment/reset，完整周期A5尚未运行。当前按照PR16评论6514858529先提交C1：不改固件，不Build正在使用的vitis_target_a53fsbl。第0帧起1000帧配套数据已生成于`.runtime/ax02a/replay/p1000`，日后复现使用`ax02a_prepare_prefix.py`的新目录参数。用户P1000操作与仅显式调用才读回的`readback_short.tcl`见[指南第6节](FIRST_BOARD_RUN_ZH.md#6-已通过首次启动后的p1000技术预检用户手动)。PC分析用`ax02a_analyze_run.py`先核对run.json身份和完成状态，再复用原比较器，不能把完整输出前缀当成新板上实验。新增C2/C3固件将单独输出、供Review，不覆盖现有ELF。
 
+## C2/C3独立固件与复验
+
+新后处理只在回放/计时器停止之后执行，默认disabled，一次性显式enabled1。新workspace为`.runtime/ax02a/vitis_postprocess`；旧`vitis_target_a53fsbl`保留给用户继续P1000，禁止原位重建/覆盖。启动仍A53 FSBL→R5_0。新产物已离线构建完成，用户无需重复Build；先供ChatGPT Review，再由用户决定加载。操作停点和装载/verify/reference/report/全量P1000交叉读回见[指南第7节](FIRST_BOARD_RUN_ZH.md)。
+
+离线构建配置为`firmware/r5/ax02a/build_config.postprocess.json`，默认本地入口改用`.runtime/ax02a/build_config_postprocess.json`，避免误用旧配置。未来复验必须在独立JSON指定新的workspace，脚本拒绝已有目录。本轮实际命令：
+
+```powershell
+# 以下配置和workspace已经存在；不要覆盖或重跑到同一目录。
+$env:AX02A_BUILD_CONFIG='D:/Project/AXU5EV/.runtime/ax02a/build_config_postprocess.json'
+& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -s scripts/ax02a_build_r5.py
+```
+
+HOST复验命令为`python -m unittest discover -s verification/ax02a -p 'test_*.py' -v`，测试自行以既有MATLAB MinGW14.2编译同一纯C后处理，覆盖真实motion_03与故障注入。可重复的显式HOST交叉入口（新output目录）如下，library由该工具链`gcc -shared -O2 -fno-fast-math -ffp-contract=off ... postprocess.c -lm`构建；MinGW bin须加入PATH：
+
+```powershell
+python scripts/ax02a_post_report.py host --metadata .runtime/ax02a/replay/current_motion/metadata.json --reference .runtime/ax02a/replay/current_motion/reference.bin --actual .runtime/ax02a/board_manual/motion_03/output.bin --run .runtime/ax02a/c3_motion03_transcribed_run.json --before-experiment 0 --library .runtime/ax02a/postprocess_probe.dll --gcc-bin C:/ProgramData/MATLAB/SupportPackages/R2026b/3P.instrset/mingw_w64.instrset/bin --output .runtime/ax02a/c3_motion03_host_new
+```
+
+本次HOST的run身份来自用户评论转写文件，非自动抓取邮箱；原始motion_03缺少本地run.json的限制保持。C的P99明确NOT_COMPUTED。HOST一致与交叉链接通过不代表新ELF板上验证通过，也不继承旧ELF性能结果。
+
 ## 本轮离线启动修正
 
 依据[PR16故障评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6443462085)，构建入口显式指定`fsbl_target='psu_cortexa53_0'`，而控制域仍为`psu_cortexr5_0 / r5_standalone`。这是两个独立域，不是把控制应用迁到A53。平台构建后检查实际导出FSBL的ELF64/AArch64架构；应用构建后安装被动首次配置，并检查域、文件架构、配置路径和应用核。没有通过改文件名冒充修正。

@@ -1,7 +1,7 @@
 """Vitis 2026.1 Python API entry; offline build only, never connects hardware.
 
 Run with vitis -s scripts/ax02a_build_r5.py. Configuration defaults to
-.runtime/ax02a/build_config_a53fsbl.json; AX02A_BUILD_CONFIG may select another JSON.
+.runtime/ax02a/build_config_postprocess.json; AX02A_BUILD_CONFIG may select another JSON.
 Standard Python supports --config and --preflight for explicit dependency checks.
 """
 import argparse
@@ -18,7 +18,7 @@ import xml.etree.ElementTree as ET
 ROOT=Path(__file__).resolve().parents[1]
 EXPECTED_PART='xczu5ev-sfvc784-2-i'
 WINDOW_START=0x10000000
-WINDOW_END=0x14000000
+WINDOW_END=0x17000000  # includes independent reference/report space in new firmware
 FIRST_LAUNCH='ax02a_first_wait_a53fsbl'
 
 
@@ -76,7 +76,7 @@ def check_startup(workspace):
 
 def source_files(generated):
     files=[ROOT/'firmware/r5/ax02a'/name for name in
-           ['main.c','replay_runner.c','timing.c','replay_runner.h','timing.h']]
+           ['main.c','replay_runner.c','timing.c','postprocess.c','replay_runner.h','timing.h','postprocess.h']]
     files += [ROOT/'integration/r5_host'/name for name in ['ax01b_r5_bridge.c','ax01b_r5_bridge.h']]
     files += sorted(generated.glob('*.h'))
     files += sorted(f for f in generated.glob('*.c') if f.name!='ert_main.c')
@@ -142,7 +142,7 @@ def compile_runtime(generated,compiler,output):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--config',type=Path,default=Path(os.environ.get('AX02A_BUILD_CONFIG',ROOT/'.runtime/ax02a/build_config_a53fsbl.json')))
+    parser.add_argument('--config',type=Path,default=Path(os.environ.get('AX02A_BUILD_CONFIG',ROOT/'.runtime/ax02a/build_config_postprocess.json')))
     parser.add_argument('--preflight',action='store_true')
     parser.add_argument('--check-startup',action='store_true',help='read existing workspace architecture/domain/launch only; no Vitis client or hardware')
     parser.add_argument('--runtime-only',action='store_true',help='cross-compile objects/archive; no platform or ELF claim')

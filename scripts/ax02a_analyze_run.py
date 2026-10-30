@@ -8,6 +8,16 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 import ax02a_compare_replay as compare
 
 
+def validate_timer(t):
+    hz=t['clock_hz'];period=t['period_ticks']
+    divisor=1<<(t['prescaler']+1) if 0<=t['prescaler']<16 else 1
+    if t['prescaler'] not in range(17) or t['interval']*divisor!=period:
+        raise ValueError('timer interval/prescaler/period mismatch')
+    if not 0<=t['timestamp_read_min_ticks']<=t['timestamp_read_max_ticks'] or t['start_window_ticks']<0:
+        raise ValueError('invalid counter-read/start-window measurement')
+    return hz,period
+
+
 def analyze(metadata,reference,actual,ticks,run,before_experiment,mode,output,origin='BOARD'):
     output=Path(output)
     if output.exists():raise ValueError('analysis output exists; select a new directory')
@@ -37,12 +47,7 @@ def analyze(metadata,reference,actual,ticks,run,before_experiment,mode,output,or
         compare.write_csv(output/'events.csv',compare.events(out,n,m['Ts']))
         anomalies=[]
         if mode:
-            t=r['timer'];hz=t['clock_hz'];period=t['period_ticks']
-            divisor=1<<(t['prescaler']+1) if 0<=t['prescaler']<16 else 1
-            if t['prescaler'] not in range(17) or t['interval']*divisor!=period:
-                raise ValueError('timer interval/prescaler/period mismatch')
-            if not 0<=t['timestamp_read_min_ticks']<=t['timestamp_read_max_ticks'] or t['start_window_ticks']<0:
-                raise ValueError('invalid counter-read/start-window measurement')
+            t=r['timer'];hz,period=validate_timer(t)
             rows,anomalies=compare.timing_stats(Path(ticks),n,hz,period,out)
             compare.write_csv(output/'timing.csv',rows)
             summary.update(timing='FAIL' if anomalies else 'PASS',timer=t,

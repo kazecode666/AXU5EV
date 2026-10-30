@@ -4,6 +4,9 @@
 
 ## 当前任务与结果
 
+C1已独立提交并推送`64466414773038524dce40c120dd99434102e7e8`。随后C2/C3完成离线最小后处理：`postprocess.c/.h`＋main默认关闭的一次性新控制口，独立`.runtime/ax02a/vitis_postprocess`已真实构建ELF/map；旧调试workspace未重建。HOST用真实motion_03全64536×41数据与Python逐字段交叉通过，32项相关测试通过。新参考/descriptor/2336B报告区与ELF及原buffer无交叠；原output/ticks保留，C的P99为NOT_COMPUTED。指南第7节仅供Review后用户决定加载；P1000真实原始ticks尚未提供，目标后处理、P1000和完整A5均NOT_RUN，A4缺项保留。见`verification/ax02a/postprocess_validation.json`。
+
+
 当前按[PR16 C1—C3评论6514858529](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6514858529)执行。**用户已完成BOARD_BOOT/FIRST_WAIT与motion_03首次完整64536×41字段真板数值PASS；A4第二次motion及43100帧alignment/reset未完成，A5计时NOT_RUN。** 本地motion_03完整输出21,167,808B及报告存在，C1重新调用原比较器通过；必要基线整理于`verification/ax02a/board_motion_03/`。旧失败与中断读回记录保留，以下10月27日启动未运行描述属历史阶段，不能覆盖新证据。
 
 C1不改固件；已准备`.runtime/ax02a/replay/p1000/`第0帧起1000帧配套数据、`scripts/ax02a_prepare_prefix.py`、`ax02a_analyze_run.py`与被动`firmware/r5/ax02a/readback_short.tcl`。P1000只作技术预检，不替代A4/A5。**用户正在调试vitis_target_a53fsbl，禁止覆盖/重建该workspace的ELF；新固件用独立输出。Codex不连接/发现/暂停恢复/复位/下载/读写/运行板卡。** 用户手动P1000步骤见FIRST_BOARD_RUN_ZH.md第6节。

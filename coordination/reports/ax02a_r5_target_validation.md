@@ -28,7 +28,21 @@
 
 分析入口先核对场景/模式/请求帧数/experiment递增/未中断/完整完成和文件长度，再复用原41字段比较与时间规则。失败实验不能靠正确前缀PASS。独立审查发现并修正中断标记P2：读回要求显式传入true/false，保留用户中断声明；Tcl生成中断记录后分析器拒绝的回归测试通过。时间报告含普通/速度到期/位置到期与事件分类、最大观测值/最差帧/P99（原ceil规则）/最小slack、计数读取和start_window及冷/热条件；无样本分类明确0。ClockHz为本次TTC配置换算依据，不声称独立测频。P1000新硬件数据尚未提供，数值/计时均NOT_RUN；它不是完整A4/A5或WCET证明。
 
-## 首次启动故障与离线修正（当前入口）
+## C2/C3：结束后后处理及HOST交叉验证（2026-10-30）
+
+C1先独立提交`64466414773038524dce40c120dd99434102e7e8`并推送PR16，之后才增加新固件。当前在用的`vitis_target_a53fsbl`及其10月28日355228B ELF未被重建或覆盖；新`.runtime/ax02a/vitis_postprocess`由Vitis2026.1/官方R5 GCC13.4.0实际构建成功，退出0。复用同一个XSA与独立Cortex-R生成源，不重生成模型/控制算法，不改cache/PI/采样周期/首相/O2/FP，不重跑RTL。
+
+`postprocess.c/.h`只实现回放结束后的纯数值/时间统计，HOST和R5链接同一份C。main另加默认关闭的`ax02a_post_control`，一次性enabled1；原邮箱字段与mode/START_COMMAND保留。程序启动和每次实验使旧报告valid失效，`ax02a_replay`已经调用stop返回后才后处理；结果全部写完，release fence后最后发布valid，再到原完成断点。程序status、数值compare_status、timing_status分开；mode0的timing仍NOT_RUN。失败或不完整实验、长度/场景/模式/experiment不符均不能PASS。原始output/ticks不被后处理写入，failed_frame仍在原邮箱，失败帧不算完整有效记录。
+
+数值覆盖全部41字段：有限EXACT用数值相等（±0相等），其他abs+rel各1e-9，NaN/Inf失败；每字段failure_count/max_abs/最差帧/first_mismatch/RMS和总体错误数全部保留。时间复用Python分类/边界，检查frame/seq/expected/单调/deadline（恰等deadline失败），给出6类别×5指标的数量、mean/min/max/最差帧；C版P99明确NOT_COMPUTED，不用均值冒充，Python可从原始ticks继续算ceil P99。timer的频率/读取开销/start_window仍从本次邮箱保存，配置值不是独立测频。
+
+新布局：descriptor32B@0x12f00000；reference最大21,495,808B@0x14000000；报告2336B@0x16000000。实际XSA的DDR覆盖核对至0x17000000，各窗口与原input/output/ticks及ELF装载/栈堆无重叠；不排序，不另申请大工作区，沿用16KB栈/4KB堆。新ELF为ELF32/ARM/v7-Realtime/VFPv3-D16/hard-float，entry0x3c、LOAD[0,0x7d8)、[0x100000,0x112ad0)，text45225/data5100/bss28160B。原cache设置不变，但新布局和指令足迹已变化，不能继承旧ELF性能结论。精简证据在`postprocess_validation.json`及`postprocess_elf_attributes.txt`。
+
+实际HOST交叉入口`ax02a_post_report.py host`使用motion_03完整output和current_motion reference，输出`.runtime/ax02a/c3_motion03_host/`：全部字段判定/错误位置/max_abs一致；RMS统计abs1e-15/rel1e-12，时间摘要abs1e-12/rel1e-9，仅用于统计一致性，不放宽PASS容差或截止期。HOST run身份来自用户评论转写文件，非自动采集。独立只读审查覆盖C2/C3代码、最终指南/API与新构建证据，无P1/P2发现；独立复跑32项测试通过，未重建或运行硬件。本轮相关32项Python测试通过，其中6项C后处理测试内部覆盖离散微差、连续容差内/外/边界、非零参考容差、NaN/Inf（actual/reference）、±0、缺帧/未完成/模式场景实验号错误、中断、重复/跳号、非单调、恰deadline、错误1ms，以及1000帧900/90/10分类及tie最差帧、报告协议/本次身份。真实motion_03仅用于数值HOST交叉；时间测试全为合成，不能输出为板上µs或WCET。
+
+指南给出Review后的新workspace加载/WAIT、PC准备参考描述符、用户dow/verify参考、显式启用、完成后小报告读回、decode及全量P1000 crosscheck段。脚本导入/source均不连接板卡。**C2/C3离线构建/HOST通过；目标后处理、用户P1000原始周期数据及完整A5仍NOT_RUN；A4第二次motion和alignment/reset仍待补齐。** 本轮未连接/发现/暂停恢复/复位/下载/读写/运行任何板卡，PR16继续Draft，Issue15开放，不自动合并。
+
+## 首次启动故障与离线修正（历史阶段）
 
 依据[PR16故障分析评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6443462085)，用户两次自动launch均先选择`Cortex-A53 #0`，下载旧workspace导出的`fsbl.elf`后等待`XFsbl_Exit`超时。此次本机只读复查同路径FSBL实际为ELF32/ARM/v7-Realtime，平台`zynqmp_fsbl`域为`psu_cortexr5_0`，与日志的A53初始化核不匹配。这是离线可确认的缺陷；修正后的启动是否成功仍需用户重新验证。JTAG-HS1、xczu5/arm_dap和Bootmode0000已由用户日志确认；后来的R5 Suspended不能证明FSBL或DDR成功。没有增大timeout或修改控制算法来掩盖故障。
 
