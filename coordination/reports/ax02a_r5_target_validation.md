@@ -6,6 +6,11 @@
 
 ## 当前验收状态
 
+2026-10-30本轮先闭合exp2：按任务6516979286、执行确认6517272543及Review5708766094，只读新capture；1000×41数值PASS，最大差4.336808689942018e-19、数值错误0。run确认before1→experiment2/state3/mode1/1000帧/status0/completed1000/interrupted=false，本次timer100MHz/period10000/prescaler16。input/reference使用配套p1000，未取motion_03前缀冒充actual。旧分析器写入全新`.runtime/ax02a/analysis_exp2_legacy`；其timing PASS仅表明旧序号/截止期规则无异常，不能关闭周期漂移缺口。
+
+新的精简证据在`verification/ax02a/p1000_exp2/`（summary/run/signals/events/timing）。ISR帧1..999相位OLS斜率0.999271094742 tick/frame，截距251.3174ticks，残差RMS15.0052ticks；0帧为软件epoch，排除。ISR读取时间不是中断边沿，尚不证明硬件N/N+1根因。**数值PASS／旧规则deadline-sequence PASS／period-consistency未确认，完整周期不接受**；不得继续将原始轨迹“无异常”解释为周期一致性PASS。旧数据/旧分析结果保留，下述早前actual缺失说明属历史阶段。
+
+
 **2026-10-30 C1更新**：用户已在10月28日证明BOARD_BOOT/FIRST_WAIT通过（评论6459108843），10月30日提交motion_03完整数值PASS（评论6514447858）。本地完整output.bin及三份compare文件均存在；本轮只读原数据，调用原比较器写入独立`c1_recheck`再次通过。未连接硬件、未修改/重建当前调试ELF、未重跑RTL。此前启动失败与21MB单次读回中断仍属有效历史记录，以下历史NOT_RUN不覆盖本节新证据。
 
 | 项目 | 本次结果 | 依据/未完成项 |

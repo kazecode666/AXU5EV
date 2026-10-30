@@ -2,6 +2,8 @@
 
 ## 当前开发
 
+- 最新执行PR16评论6516979286/6517272543及Review5708766094：exp2新capture已完整，数值PASS但存在约1tick/帧ISR相位累积趋势，周期一致性未确认。先提交数据结论，再诊断/核查TTC/证据充分后最小修正；不能盲改9999、修改名义period掩盖漂移或放宽deadline。保留`vitis_target_a53fsbl`与`vitis_postprocess`及全部原始数据，候选新目录；不连接/发现/操作板卡，寄存器步骤交用户。
+
 - C1已提交64466414773038524dce40c120dd99434102e7e8；C2/C3新固件只在`.runtime/ax02a/vitis_postprocess`离线构建，默认后处理关闭，目标后处理/P1000周期未验证。当前执行PR16评论6514858529的C1—C3。用户BOARD_BOOT/FIRST_WAIT及motion_03首次64536×41真板数值PASS已有评论/本地报告证据；A4第二次motion、alignment/reset及完整A5仍待验收。先提交C1不改固件，再做C2/C3离线后处理。用户正在调试`.runtime/ax02a/vitis_target_a53fsbl`，禁止覆盖/重建其ELF；新固件独立输出。Codex不得连接、发现、暂停/恢复、复位、下载、读写或运行板卡。原始output/ticks保留；比较/时间摘要只在实验结束且计时器停止后做，开关默认关闭，不改算法/cache/TCM/采样首相，不重跑RTL。
 
 - 目标板：AXU5EVB-E，用户已确认。具体PCB修订、芯片完整料号及厂商工程XA/-1与手册XC/-2差异，在板级适配前核对，不阻塞R5软件整理。

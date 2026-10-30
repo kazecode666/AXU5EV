@@ -4,6 +4,9 @@
 
 ## 当前任务与结果
 
+2026-10-30最新任务为PR16评论6516979286/6517272543和Review5708766094。用户`p1000_exp2_capture`的本次328000B output、64000B ticks、run.json已只读核验；配套P1000参考比较1000×41数值PASS，错误0，最大绝对差4.336808689942018e-19。旧规则下序号/截止期无异常，但ISR帧1..999的release−expected斜率0.999271094742 tick/frame，周期一致性不接受；第0帧软件时间戳不拟合。先提交数据结论，再补诊断/本机TTC核查/最小修正，不能盲改interval或放宽deadline。保留两个现有workspace/ELF与原始capture，候选新目录，硬件仅用户操作。新证据在`verification/ax02a/p1000_exp2/`；以下“缺actual”是此前历史记录，已被此次完整capture取代。
+
+
 最新补充：用户PR16评论6515463934提供旧ELF的P1000 experiment1→2完成回执，本地`p1000_01/timing.bin`64000B完整，原Python规则检查1000条记录无序号/时间顺序/截止期异常。最大观测Runtime38.42µs、task54.11µs、response69.25µs、start jitter16.49µs，最小slack30.75µs；仅按本次TTC100MHz配置换算，非WCET/独立测频。`motion_03/output.bin`经核对仍为旧mode0的21167808B，不能拿其前1000帧替代exp2输出；本次328000B actual尚缺，P1000整体INCOMPLETE，完整A5及新后处理板验收仍未完成。详见`verification/ax02a/p1000_01/`。C2/C3离线成果已推送9e846c0b6ee71598b8757b8682e6535d33697181。
 
 

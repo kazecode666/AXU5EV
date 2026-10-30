@@ -13,7 +13,7 @@
   "BOARD_BOOT": "PASS_USER_EVIDENCE_PR16_6459108843",
   "BOARD_MOTION_FIRST": "PASS_USER_BOARD_motion_03_64536x41",
   "BOARD_REPLAY": "PARTIAL: first motion PASS; second motion and alignment/reset NOT_RUN",
-  "P1000_PREPARATION": "PASS_OFFLINE; user periodic self-check/trace received, numerical output still pending",
+  "P1000_PREPARATION": "COMPLETE; new capture analyzed, no substituted old output",
   "BOARD_PERIODIC_100US": "NOT_RUN",
   "RTL_RERUN": "NOT_RUN",
   "blockers": [
@@ -25,9 +25,10 @@
   "C2_POSTPROCESS": "OFFLINE_TARGET_BUILD_PASS_DEFAULT_DISABLED",
   "C3_POSTPROCESS": "HOST_C_PYTHON_CROSSCHECK_PASS_motion_03",
   "POSTPROCESS_BOARD": "NOT_RUN",
-  "P1000_PERIODIC": "USER_RUN_SELF_CHECK_COMPLETE; RAW_TRACE_CHECK_PASS; NUMERIC_PENDING_EXP2_OUTPUT",
+  "P1000_PERIODIC": "NOT_ACCEPTED: numerical PASS/deadline-sequence legacy PASS/release phase drift unresolved",
   "new_firmware_workspace": ".runtime/ax02a/vitis_postprocess",
-  "P1000_TRACE": "PASS_1000_RECORDS_no_sequence_timestamp_deadline_anomalies",
-  "P1000_NUMERIC": "NOT_RUN: motion_03/output.bin is old21MB mode0, not experiment2 output",
-  "C2_C3_COMMIT": "9e846c0b6ee71598b8757b8682e6535d33697181"
+  "P1000_TRACE": "LEGACY_CHECKS_PASS_ONLY; ISR release phase slope0.999271094742 ticks/frame",
+  "P1000_NUMERIC": "PASS_USER_exp2_capture_1000x41",
+  "C2_C3_COMMIT": "9e846c0b6ee71598b8757b8682e6535d33697181",
+  "P1000_CAPTURE": "COMPLETE_read_only_analysis"
 }
