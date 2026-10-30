@@ -1,0 +1,21 @@
+{
+  "scenario": "current_motion",
+  "frames": 64536,
+  "mode": 0,
+  "experiment": 1,
+  "execution_evidence": "PR16 issuecomment-6514447858 (user observed state3/status0/completed64536/experiment1)",
+  "output_bytes": 21167808,
+  "output_path": ".runtime/ax02a/board_manual/motion_03/output.bin",
+  "run_state_file": "NOT_AVAILABLE: mailbox observations come from user comment/screenshots, not a locally saved run.json",
+  "elf_source": "Current user workspace .runtime/ax02a/vitis_target_a53fsbl/ax02a_replay/build/ax02a_replay.elf; local file timestamp 2026-10-28, 355228 bytes. No bit-for-bit identity with loaded image independently established.",
+  "firmware_revision": "1c16efa8bf137a8e0aa1c24ff20592f2d0b628a8 source baseline; workspace main.c no diff on read-only check",
+  "configuration": "A53_0 FSBL -> R5_0; O2/hard-float/VFPv3-D16/no-fast-math/ffp-contract=off; I-cache ON/D-cache OFF; stack16KB/heap4KB",
+  "reference": ".runtime/ax02a/replay/current_motion/reference.bin, Runtime1.50/current local parameters V20/A200/J1000/rate100",
+  "recheck": ".runtime/ax02a/board_manual/motion_03/c1_recheck/summary.json",
+  "numeric": "PASS",
+  "timing": "NOT_RUN",
+  "remaining_A4": [
+    "second independent motion",
+    "43100-frame current_alignment_reset"
+  ]
+}

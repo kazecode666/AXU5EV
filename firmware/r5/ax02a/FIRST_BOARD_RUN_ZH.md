@@ -235,7 +235,43 @@ print -defs ax02a_control
 
 `print`用ELF调试符号读取结构体；`-defs`可查看实际地址/类型，地址不写死。`state=1/experiment=0`后，命令行第一次测试也在此结束。不要输入下一节的`print -set`。
 
-## 6. 后续A4/A5预备段（首次不要执行）
+## 6. 已通过首次启动后的P1000技术预检（用户手动）
+
+2026-10-30：用户BOARD_BOOT和motion_03首次完整数值回放已通过，旧首次操作边界已完成。当前执行PR16评论6514858529的C1；仍缺第二次motion、alignment/reset和完整A5。**不Build，不覆盖正在调试的vitis_target_a53fsbl ELF**。固定A53 FSBL→R5应用，不评估R5-only启动。
+
+P1000数据已在`.runtime/ax02a/replay/p1000`准备，第0帧起1000帧，input160000B/reference328000B，末采样0.0999s。日后需重新准备时，用新目录运行：
+
+```powershell
+python scripts/ax02a_prepare_prefix.py --source .runtime/ax02a/replay/current_motion --output .runtime/ax02a/replay/p1000_new --frames 1000
+```
+
+1. 在当前成功完成断点，记录experiment；Resume回WAIT，再Pause确认state1、command0，记录**启动前experiment**。保留ax02a_result_ready完成断点，禁用Runtime/ISR/路径断点和运行中自动内存刷新。
+2. 同一未断电、未覆盖且已verify的会话可复用原输入前1000帧；新加载/断电后必须用户重装并verify前缀，不能复用旧DDR。需要时仅由用户在现有XSDB执行：
+
+```tcl
+# 仅在WAIT暂停、目标已由用户选为R5_0时执行。
+dow -data D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/input.bin 0x10000000
+verify -data D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/input.bin 0x10000000
+```
+
+3. 用户GUI Watch记下启动前experiment（不固定为1），分别设frames1000、mode1，**最后**写command0x41583241；Resume。周期窗口不得Pause/单步/读写内存/传输。超时不自动停核；用户若暂停，本次标interrupted=true，只作失败诊断，不能作为实时性结果，不重复发command或放宽周期。
+4. 到完成停点后确认当前R5_0暂停、state3或4、experiment递增、result及timer；失败留现场。此时计时器已停止。下列source仅定义过程，第二行显式调用才读板卡；用真实启动前experiment替换变量值，并选择全新目录。最后一个参数必须明确声明本次是否中断（true/false），有过人工Pause/单步就填true；无法确认不要填false，缺参数拒绝执行。该工具不连接/复位/选择目标、不下载/写内存/恢复运行。
+
+```tcl
+source D:/Project/AXU5EV/firmware/r5/ax02a/readback_short.tcl
+# ax02a_before必须由用户按本次记录设置；不是固定experiment=1。
+ax02a_short::readback D:/Project/AXU5EV/.runtime/ax02a/board_manual/p1000_01 $ax02a_before {warm I-cache, D-cache off, no debug traffic during run} false
+```
+
+成功全读回output328000B/timing64000B及run.json。失败时只读completed_frames完整记录，failed_frame可能未写完整；旧DDR尾部不可信。不要把手动中断改成正常完成，也不要将计时数据换成HOST时间。PC分析（新输出目录）：
+
+```powershell
+python scripts/ax02a_analyze_run.py --metadata .runtime/ax02a/replay/p1000/metadata.json --reference .runtime/ax02a/replay/p1000/reference.bin --actual .runtime/ax02a/board_manual/p1000_01/output.bin --ticks .runtime/ax02a/board_manual/p1000_01/timing.bin --run .runtime/ax02a/board_manual/p1000_01/run.json --before-experiment <本次启动前整数> --mode 1 --output .runtime/ax02a/board_manual/p1000_01/analysis --origin BOARD
+```
+
+先通过运行身份/完成门禁才分析数值与时间。timer频率只是配置换算依据，保留计数读取开销/start_window、I-cache冷暖及运行条件；未覆盖的command/alignment类别显示0（首帧initial alignment样本不等于完整对齐覆盖）。P1000通过只证明这1000帧；下列完整A4/A5仍须补齐。
+
+## 7. 完整A4/A5备查（不自动执行）
 
 ### 停点④：非定时连续回放与本次结果读回
 
@@ -294,7 +330,7 @@ mrd -size b -bin -file $ax02a_root/.runtime/ax02a/board_manual/periodic_01/timin
 
 `periodic_01`须事先新建，output也写入该新目录。`timer.clock_hz`、`period_ticks`必须取本次邮箱，不能把配置值或PC运行时间当实测。motion的计时为64536×8×uint64，即4,130,304B。比较器在前述数值比较参数之外增加`--timing <本次timing.bin> --timer-hz <本次clock_hz> --period-ticks <本次period_ticks>`；保留冷启动、读计数开销、普通/速度/位置/命令/对齐分类和最小slack。超期、漏序号或帧数不符即失败，不补算、不改算法或自动放宽门限。此处尚无硬件时间结果。
 
-## 7. 常见停点与最小排查
+## 8. 常见停点与最小排查
 
 | 现象 | 只先核对什么 / 在哪里停止 |
 |---|---|
@@ -308,7 +344,7 @@ mrd -size b -bin -file $ax02a_root/.runtime/ax02a/board_manual/periodic_01/timin
 | 停在等待输入 | 第一次这是目标。串口输入不是邮箱命令，`experiment=0`说明还没启动实验 |
 | 结果帧数/experiment不符 | 不比较旧DDR；确认本场景frames、先装输入后发command、本次是否失败/被断点中断；保留status与failed_frame |
 
-## 8. 本次离线依据与交接范围
+## 9. 历史首次指南离线依据与交接范围
 
 本轮实际复核旧导出FSBL为ELF32/ARM/v7-Realtime，结合用户日志定位核不匹配；离线创建新platform/BSP/FSBL及相同生成源的R5 ELF/map，并检查两个域、实际导出FSBL、应用属性与被动launch。精简证据见`verification/ax02a/startup_validation.json`和报告的“首次启动故障与离线修正”；原目标构建证据原样保留。新增FSBL架构回归门禁覆盖原错误。未运行IDE、hw_server、XSDB目标会话或任何板卡命令；没有重建模型、仿真或RTL。CLI构建服务仅用于电脑上的编译，不是硬件调试会话。
 

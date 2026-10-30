@@ -6,16 +6,27 @@
 
 ## 当前验收状态
 
+**2026-10-30 C1更新**：用户已在10月28日证明BOARD_BOOT/FIRST_WAIT通过（评论6459108843），10月30日提交motion_03完整数值PASS（评论6514447858）。本地完整output.bin及三份compare文件均存在；本轮只读原数据，调用原比较器写入独立`c1_recheck`再次通过。未连接硬件、未修改/重建当前调试ELF、未重跑RTL。此前启动失败与21MB单次读回中断仍属有效历史记录，以下历史NOT_RUN不覆盖本节新证据。
+
 | 项目 | 本次结果 | 依据/未完成项 |
 |---|---|---|
 | A1 / TARGET_BUILD | **PASS（构建）** | 手册part的PS-only XSA继续复用；新workspace已构建A53_0 FSBL与R5 standalone BSP/应用ELF/map，离线启动架构检查通过。旧R5 FSBL不能用于当前GUI初始化；实物完整料号/修订仍待签核 |
-| A2 | **生成/完整目标链接PASS，ARM运行NOT_RUN** | 独立Cortex-R配置的同份生成C经官方R5 GCC13.4.0链接进新BSP；ARM32/v7-Realtime/VFPv3-D16/hard-float及装载段检查通过 |
+| A2 | **生成/完整目标链接PASS；用户R5首次motion运行PASS** | 独立Cortex-R配置的同份生成C经官方R5 GCC13.4.0链接进新BSP；ARM32/v7-Realtime/VFPv3-D16/hard-float及装载段检查通过 |
 | A3 | **离线PASS** | 原MAT64536帧完整导出，当前模型同输入参考与43100帧对齐/复位/故障参考；20/41字段、LE double全文件回读一致 |
-| A4 / BOARD_REPLAY | **NOT_RUN** | 当前生成C主机回放通过，两次独立初始化；尚无真实R5输出 |
+| A4 / BOARD_REPLAY | **PARTIAL** | motion_03首次完整64536×41用户BOARD数值PASS，timing NOT_RUN；第二次独立motion及43100帧alignment/reset仍NOT_RUN |
 | A5 / BOARD_PERIODIC_100US | **NOT_RUN** | 定时执行层、TTC适配源码及比较器已准备；漏序号/超期策略定向测试通过，无硬件计时值 |
 | A6 | **离线成果PR** | 可提交源码、入口及精简证据；不能据此关闭板上验收 |
-| BOARD_BOOT、托管SIL/PIL、5EV综合/布线、AXI/ADC/编码器/PWM、ARM/实机、烧录/上电 | **NOT_RUN** | 用户旧GUI启动在FSBL阶段失败，未到应用WAIT；新启动产物尚未上板。Codex仅离线修正；其余板级验收没有运行证据 |
+| BOARD_BOOT / FIRST_WAIT | **PASS（用户硬件证据）** | A53 FSBL退出＋状态0、R5入口/main/UART/WAIT，见评论6459108843 |
+| 托管SIL/PIL、5EV综合/布线、AXI/ADC/编码器/PWM、实机、烧录/功率级上电 | **NOT_RUN** | 不从PS回放推导外设、电机闭环或功率级验收 |
 | 完整RTL重跑 | **NOT_RUN** | 复用PR14原始记录，没有再跑c_rtl |
+
+## C1：成功基线与P1000离线工具（2026-10-30）
+
+执行依据为[评论6514858529](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6514858529)。用户motion_03的summary为origin BOARD、passed true、64536帧、numerical_failures0、timing NOT_RUN；必要原报告与来源说明保留在`verification/ax02a/board_motion_03/`，完整二进制仍在原.runtime路径。缺少本地独立保存的原邮箱run.json；state3/status0/completed64536/experiment1来自用户评论/截图转写。本机当前ELF355228B、时间戳10月28日；main副本与仓库无差异，ELF/map及实际编译配置只读核对，text41620/data5100/bss28136B、原O2/FP/cache/栈堆配置。没有独立证明板上所载文件的逐字节身份，不补写哈希或伪造运行状态。
+
+前缀入口从current_motion的[0,1000)提取input160000B、reference328000B，Ts100µs、参数/字段/来源保留；不裁中段或重生成算法。实际产物`.runtime/ax02a/replay/p1000/`，精简metadata在`verification/ax02a/p1000_metadata.json`。读回Tcl被source只定义过程，用户显式调用才检查现有暂停R5目标及本次实验，再以≤64KiB块读328000B输出及64000B ticks；失败只读取completed_frames完整记录，保留failed_frame，不读取未完成尾部作有效证据。
+
+分析入口先核对场景/模式/请求帧数/experiment递增/未中断/完整完成和文件长度，再复用原41字段比较与时间规则。失败实验不能靠正确前缀PASS。独立审查发现并修正中断标记P2：读回要求显式传入true/false，保留用户中断声明；Tcl生成中断记录后分析器拒绝的回归测试通过。时间报告含普通/速度到期/位置到期与事件分类、最大观测值/最差帧/P99（原ceil规则）/最小slack、计数读取和start_window及冷/热条件；无样本分类明确0。ClockHz为本次TTC配置换算依据，不声称独立测频。P1000新硬件数据尚未提供，数值/计时均NOT_RUN；它不是完整A4/A5或WCET证明。
 
 ## 首次启动故障与离线修正（当前入口）
 

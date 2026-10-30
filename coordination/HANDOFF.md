@@ -1,8 +1,12 @@
 # AXU5EV — 当前交接
 
-日期：2026-10-27。仓库`kazecode666/AXU5EV`，本地`D:/Project/AXU5EV`。PR #7/#9/#12已合并；AX-00迁移、资料阶段结束，旧Issue #3及M4不作为当前流程。
+日期：2026-10-30。仓库`kazecode666/AXU5EV`，本地`D:/Project/AXU5EV`。PR #7/#9/#12已合并；AX-00迁移、资料阶段结束，旧Issue #3及M4不作为当前流程。
 
 ## 当前任务与结果
+
+当前按[PR16 C1—C3评论6514858529](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6514858529)执行。**用户已完成BOARD_BOOT/FIRST_WAIT与motion_03首次完整64536×41字段真板数值PASS；A4第二次motion及43100帧alignment/reset未完成，A5计时NOT_RUN。** 本地motion_03完整输出21,167,808B及报告存在，C1重新调用原比较器通过；必要基线整理于`verification/ax02a/board_motion_03/`。旧失败与中断读回记录保留，以下10月27日启动未运行描述属历史阶段，不能覆盖新证据。
+
+C1不改固件；已准备`.runtime/ax02a/replay/p1000/`第0帧起1000帧配套数据、`scripts/ax02a_prepare_prefix.py`、`ax02a_analyze_run.py`与被动`firmware/r5/ax02a/readback_short.tcl`。P1000只作技术预检，不替代A4/A5。**用户正在调试vitis_target_a53fsbl，禁止覆盖/重建该workspace的ELF；新固件用独立输出。Codex不连接/发现/暂停恢复/复位/下载/读写/运行板卡。** 用户手动P1000步骤见FIRST_BOARD_RUN_ZH.md第6节。
 
 当前主线为[Issue #15](https://github.com/kazecode666/AXU5EV/issues/15) AX-02A，沿A1—A6推进真实R5目标工程/数值/100µs时间验证，不重规划全项目、不默认重跑完整RTL。见[AX-02A实际报告](reports/ax02a_r5_target_validation.md)与[R5应用入口](../firmware/r5/ax02a/README.md)。
 

@@ -2,16 +2,18 @@
 
 ## 当前开发
 
+- 当前执行PR16评论6514858529的C1—C3。用户BOARD_BOOT/FIRST_WAIT及motion_03首次64536×41真板数值PASS已有评论/本地报告证据；A4第二次motion、alignment/reset及完整A5仍待验收。先提交C1不改固件，再做C2/C3离线后处理。用户正在调试`.runtime/ax02a/vitis_target_a53fsbl`，禁止覆盖/重建其ELF；新固件独立输出。Codex不得连接、发现、暂停/恢复、复位、下载、读写或运行板卡。原始output/ticks保留；比较/时间摘要只在实验结束且计时器停止后做，开关默认关闭，不改算法/cache/TCM/采样首相，不重跑RTL。
+
 - 目标板：AXU5EVB-E，用户已确认。具体PCB修订、芯片完整料号及厂商工程XA/-1与手册XC/-2差异，在板级适配前核对，不阻塞R5软件整理。
 - R5F：位置P、速度PI、原五态对齐及一次性偏置、Reference_Manager/轨迹/命令与恢复管理。
 - PL：复用已接受的电流FOC，负责同步采样/位置接口、运行中角度/偏置应用、PWM及快速禁止。
 - 算法源为现有Simulink/Stateflow；不手改生成SV/C补算法，不重做PI/FOC和定点化，不强制三环全部HDL化。
 - Simulink搭建完成后逐层检查连线与排版；From/Goto使用局部作用域，Inport/Outport保持默认大小与外观。
 - 先读 `coordination/HANDOFF.md`。AX-00迁移已完成；旧迁移任务、Issue #3及旧M4仅作历史记录，不作为继续开发的流程清单。
-- 当前优先Issue #15的AX-02A（A1—A6）：先真实R5目标工程、数值与100µs时间证据，不重规划全项目、不默认重跑完整RTL。PR #14已合并（ae9a11d2d59abc952cce0b979d004a315878639a），Issue #13仿真收尾仅作既有证据。当前Cortex-R生成/全采样导出/主机比较及真实5EV PS-only XSA、R5 standalone BSP/FSBL/ELF/map构建通过；BOARD_BOOT/REPLAY/PERIODIC仍NOT_RUN，见`coordination/reports/ax02a_r5_target_validation.md`。不得以构建或主机结果关闭板上验收。
+- 当前优先Issue #15的AX-02A（A1—A6）：先真实R5目标工程、数值与100µs时间证据，不重规划全项目、不默认重跑完整RTL。PR #14已合并（ae9a11d2d59abc952cce0b979d004a315878639a），Issue #13仿真收尾仅作既有证据。当前Cortex-R生成/全采样导出/主机比较及真实5EV PS-only XSA、R5 standalone BSP/FSBL/ELF/map构建通过；10月27日历史BOARD_BOOT/REPLAY/PERIODIC为NOT_RUN；10月30日新状态见本节首条及`coordination/reports/ax02a_r5_target_validation.md`。不得以构建或主机结果关闭板上验收。
 - 继续取消C源码学习、逐行讲解及教学配置更改。Ready是当拍许可，Busy=0不保证Ready=1；status3未Ready拒绝、不排队。Issue #11和AX-02B/C不在本轮实施。活动模型和必要.m集中在`simulation/`，唯一日常参数入口`init_AXU5EV.m`，启动入口`START_HERE.m`。保留用户本地SLX/参数修改；旧PR14输入可复用，但当前参数参考必须独立标识。目标生成不覆盖PC目录/MEX、不保存未保存模型。板卡复位/JTAG加载运行须本次明确授权。
 - 当前按PR16“用户手动上板与首次PS开发学习”评论补齐离线操作交接，上板由用户本人完成；Codex不连接、复位、写内存、加载或运行板卡，也不自动探测已接好的线。首次手动测试只到现有R5应用等待输入；操作见`firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md`。不恢复C语法教学，不另建Hello World/LED/QEMU项目，不把后续回放段自动执行。
-- PR16首次故障已定位旧GUI将R5 FSBL加载到A53_0；当前离线启动工程为`.runtime/ax02a/vitis_target_a53fsbl`，A53_0 FSBL＋R5_0应用，launch为`ax02a_first_wait_a53fsbl`。先用构建入口的`--check-startup`核对实际架构/域/路径；保留旧workspace，旧`ax02a_first_wait_manual`不再用于GUI重试。修正后的板上验证仍NOT_RUN，不把旧R5 Suspended当初始化成功。
+- PR16首次故障已定位旧GUI将R5 FSBL加载到A53_0；当前离线启动工程为`.runtime/ax02a/vitis_target_a53fsbl`，A53_0 FSBL＋R5_0应用，launch为`ax02a_first_wait_a53fsbl`。先用构建入口的`--check-startup`核对实际架构/域/路径；保留旧workspace，旧`ax02a_first_wait_manual`不再用于GUI重试。用户修正后BOARD_BOOT和首次motion已有PASS；其他板上验收见C1—C3首条，不把旧R5 Suspended当初始化成功。
 - 板型以《AXU5EVB-E开发板用户手册》为依据；用户确认核心板可参考`ACU5EV核心板原理图.pdf`，底板可参考`AXU5EVB-E开发板原理图.pdf`（与AXU3EG底板共用），实物以太网收发芯片JL2121。不得仅凭图框AXU3EG否定底板资料，也不因此在AX-02A扩展网络适配。
 - 保留用户现有紫色分区与Host/Alignment_Task/Motion_Control布局；修改仅微调受影响区域。MATLAB/Simulink操作使用MCP，不使用Computer Use。
 

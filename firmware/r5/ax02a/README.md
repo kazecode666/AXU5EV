@@ -4,6 +4,10 @@
 
 **第一次使用PS端，先读[首次手动启动指南](FIRST_BOARD_RUN_ZH.md)**：打开新workspace，选 **`ax02a_first_wait_a53fsbl`**，依次停在目标识别、应用入口/main、邮箱等待。首次仅确认已有启动消息与`state=1/experiment=0`，由用户亲自上板；Codex只做离线准备。启动配置模板为[launch_first_wait.json](launch_first_wait.json)，采用A53_0 FSBL初始化、RPU split、R5_0应用，禁PL下载，不同时执行`psu_init.tcl`。旧workspace的`ax02a_first_wait_manual`不能继续用于GUI重试。分段XSDB命令、后续回放与故障定位统一放在指南。
 
+## 当前C1：P1000预检与基线
+
+用户BOARD_BOOT及motion_03首次完整数值回放已通过，A4仍缺第二次motion和alignment/reset，完整周期A5尚未运行。当前按照PR16评论6514858529先提交C1：不改固件，不Build正在使用的vitis_target_a53fsbl。第0帧起1000帧配套数据已生成于`.runtime/ax02a/replay/p1000`，日后复现使用`ax02a_prepare_prefix.py`的新目录参数。用户P1000操作与仅显式调用才读回的`readback_short.tcl`见[指南第6节](FIRST_BOARD_RUN_ZH.md#6-已通过首次启动后的p1000技术预检用户手动)。PC分析用`ax02a_analyze_run.py`先核对run.json身份和完成状态，再复用原比较器，不能把完整输出前缀当成新板上实验。新增C2/C3固件将单独输出、供Review，不覆盖现有ELF。
+
 ## 本轮离线启动修正
 
 依据[PR16故障评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6443462085)，构建入口显式指定`fsbl_target='psu_cortexa53_0'`，而控制域仍为`psu_cortexr5_0 / r5_standalone`。这是两个独立域，不是把控制应用迁到A53。平台构建后检查实际导出FSBL的ELF64/AArch64架构；应用构建后安装被动首次配置，并检查域、文件架构、配置路径和应用核。没有通过改文件名冒充修正。

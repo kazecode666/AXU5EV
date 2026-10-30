@@ -9,14 +9,16 @@
   "OFFLINE_STARTUP_CHECK": "PASS",
   "startup_workspace": ".runtime/ax02a/vitis_target_a53fsbl",
   "startup_route": "A53_0 AArch64 FSBL -> R5_0 standalone application",
-  "previous_user_launch": "FAILED before WAIT: GUI selected A53_0 with an R5 FSBL; see PR16 issuecomment-6443462085. Corrected board launch is NOT_RUN.",
-  "BOARD_BOOT": "NOT_RUN",
-  "BOARD_REPLAY": "NOT_RUN",
+  "previous_user_launch": "Historical failure: R5 FSBL loaded on A53_0. Corrected A53 FSBL -> R5 app user boot PASS on 2026-10-28; PR16 issuecomment-6459108843.",
+  "BOARD_BOOT": "PASS_USER_EVIDENCE_PR16_6459108843",
+  "BOARD_MOTION_FIRST": "PASS_USER_BOARD_motion_03_64536x41",
+  "BOARD_REPLAY": "PARTIAL: first motion PASS; second motion and alignment/reset NOT_RUN",
+  "P1000_PREPARATION": "PASS_OFFLINE; user periodic run NOT_RUN",
   "BOARD_PERIODIC_100US": "NOT_RUN",
   "RTL_RERUN": "NOT_RUN",
   "blockers": [
     "Physical device marking and PCB/core revision are not signed off; offline build uses the user-designated manual part",
-    "Corrected startup has not been tested on board; all board operations remain user-only, first stop at application WAIT"
+    "Remaining A4 second motion/alignment and full A5 require user board evidence; Codex must not operate hardware"
   ],
   "reference": "Current Runtime 1.50, local user edits; V20/A200/J1000/minRamp0.2/rate100. Historical PR14 input is reused without interpolation; current reference is Runtime-only, not a new plant closed loop."
 }
