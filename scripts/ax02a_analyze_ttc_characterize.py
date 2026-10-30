@@ -7,6 +7,7 @@ import statistics
 import struct
 
 MAGIC = 0x31435454
+WINDOW_QUANTIZATION_TICKS = 2
 
 
 def ols(values):
@@ -26,15 +27,28 @@ def summaries(rows):
     # Deterministic endpoint read-window bounds, enlarged by two counter ticks
     # at either end. Not a statistical confidence interval or an atomic edge.
     span=seq[-1]-seq[0]
-    bounds=[(lows[-1]-highs[0]-4)/span,(highs[-1]-lows[0]+4)/span]
+    margin=2*WINDOW_QUANTIZATION_TICKS
+    bounds=[(lows[-1]-highs[0]-margin)/span,(highs[-1]-lows[0]+margin)/span]
     return dict(count=len(rows),event=ols(centers),p_count=ols(p),
                 isr_phase=ols([(f+a)/2-(k+1)*10000 for k,f,v,a in rows]),
                 read_window=ols(widths),event_period_bounds=bounds,
                 first_event_window=[lows[0],highs[0]],last_event_window=[lows[-1],highs[-1]])
 
 
+def candidate_epoch(rows, period):
+    """Intersect every event window's epoch constraint; never fit away a conflict."""
+    q=WINDOW_QUANTIZATION_TICKS
+    windows=[(seq,fb-p-q-seq*period,fa-p+q-seq*period) for seq,fb,p,fa in rows]
+    lower=max(windows,key=lambda w:w[1]);upper=min(windows,key=lambda w:w[2])
+    return dict(period_ticks=period,quantization_ticks=q,
+                epoch_lower=lower[1],epoch_upper=upper[2],
+                lower_sequence=lower[0],upper_sequence=upper[0],
+                feasible=lower[1]<=upper[2])
+
+
 def evaluate(samples_path, run_path):
     result=dict(acquisition_valid=False,usable_samples=0,hypothesis='INCONCLUSIVE',issues=[],
+                hypothesis_reason='ACQUISITION_INVALID',
                 hardware_irq_loss='UNKNOWN',origin='TTC_ONLY',
                 limitation='Same-source synchronous counters assumed. Read-window edge estimates are not atomic; multiple rollovers inside the window and all merged IRQs cannot be proven absent. No A4/A5/WCET conclusion.')
     try:
@@ -92,9 +106,17 @@ def evaluate(samples_path, run_path):
         result['acquisition_valid']=not result['issues'] and len(usable)==1000
         if result['acquisition_valid']:
             lo,hi=result['all_samples']['event_period_bounds']
-            compatible=[label for value,label in [(raw,'RAW_COMPATIBLE'),(raw+1,'RAW_PLUS_ONE_COMPATIBLE')] if lo<=value<=hi]
-            result['threshold_basis']='Endpoint read-window bound plus 2 ticks per endpoint; require total slope bound width <=0.25 tick/IRQ, consistent gaps and residuals. This resolution gate is not the old P1000 trend threshold.'
-            if hi-lo<=.25 and len(compatible)==1: result['hypothesis']=compatible[0]
+            candidates={label:candidate_epoch(rows,value) for value,label in
+                        [(raw,'RAW_COMPATIBLE'),(raw+1,'RAW_PLUS_ONE_COMPATIBLE')]}
+            result['candidate_feasibility']=candidates
+            compatible=[label for label,c in candidates.items() if c['feasible'] and lo<=c['period_ticks']<=hi]
+            result['threshold_basis']='All samples must share a feasible epoch for the candidate period, with 2 ticks per window endpoint; also require endpoint slope bound width <=0.25 tick/IRQ, consistent gaps and residuals. This resolution gate is not the old P1000 trend threshold.'
+            if not compatible:result['hypothesis_reason']='NO_CANDIDATE_HAS_COMMON_EPOCH'
+            elif len(compatible)>1:result['hypothesis_reason']='MULTIPLE_FEASIBLE_CANDIDATES'
+            elif hi-lo>.25:result['hypothesis_reason']='INSUFFICIENT_PERIOD_RESOLUTION'
+            else:
+                result['hypothesis']=compatible[0]
+                result['hypothesis_reason']='UNIQUE_CANDIDATE_WITH_COMMON_EPOCH'
     except (OSError,ValueError,KeyError,TypeError,struct.error,ZeroDivisionError) as e:
         result['issues'].append(str(e))
     return result
@@ -128,6 +150,8 @@ def compare_aba(a1_dir, b_dir, a2_dir, output_dir):
             repeatable=(max(x['event_period_bounds'][0],z['event_period_bounds'][0])<=min(x['event_period_bounds'][1],z['event_period_bounds'][1])
                         and abs(x['p_count']['slope']-z['p_count']['slope'])<=.05)
             if not repeatable:issues.append('A1/A2 not repeatable')
+            if any(x['hypothesis']=='INCONCLUSIVE' for x in runs):
+                issues.append('single-run candidate inference inconclusive; inspect per-run window feasibility and resolution')
             if not issues and repeatable and len(set(x['hypothesis'] for x in runs))==1:
                 conclusion=runs[0]['hypothesis']
         else:issues.append('invalid acquisition; do not infer mapping')

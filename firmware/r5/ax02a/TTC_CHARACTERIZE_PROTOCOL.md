@@ -10,10 +10,18 @@
 
 MMIO 使用本机2026.1 R5 SDT BSP的XTtcPs/Xil_In32，三次读之间各有`dsb sy`及编译器memory屏障。驱动`XTtcPs_InterruptHandler`负责唯一一次运行中clear-on-read应答；回调不再次读状态、不复位P、不打印/分配/浮点计算。配置阶段停止时清旧状态与运行时应答分开。本平台已核对TTC0通道0/1地址0xff110000/0xff110004、同源未分频100MHz配置；这不是独立测频。安装目录未修改。
 
-PC以`[F_before-P,F_after-P]`估计回零窗口。全部样本为主结果，同时单列排除第一条的启动诊断；不以过滤异常支持映射。保存OLS、残差、首尾、窗口、P趋势和ISR相位。相位参考`(sequence+1)*10000`，保留负值。候选周期先由数据估计；兼容范围为首尾窗口差/跨度，再为每端增加2tick量化余量。要求该斜率范围总宽≤0.25tick/IRQ、相邻估计事件间隔不偏离拟合周期20%（至少100tick）、残差不超最大读窗口+4tick，才输出单一RAW或RAW_PLUS_ONE_COMPATIBLE。
+PC以`[F_before-P,F_after-P]`估计回零窗口。全部样本为主结果，同时单列排除第一条的启动诊断；不以过滤异常支持映射。保存OLS、残差、首尾、窗口、P趋势和ISR相位。相位参考`(sequence+1)*10000`，保留负值。先由数据估计事件周期；首尾窗口差/跨度及每端2tick余量仍作为斜率范围诊断，但不能单独判定候选相容。
+
+对每个候选`D=raw`及`D=raw+1`，必须核对全部1000条窗口是否存在同一个epoch。令`L_i=F_before_i-P_i`、`U_i=F_after_i-P_i`、`i=sequence`、每端量化余量`q=2tick`，只有`max(L_i-q-i*D) <= min(U_i+q-i*D)`才有共同epoch；不扩大原误差预算，不依赖OLS拟合消除窗口矛盾，也不使用after_first替代全采样检查。输出`candidate_feasibility`保留每个候选的可行性、epoch交集上下界及提供极值的样本序号。
+
+仍保留原斜率范围总宽≤0.25tick/IRQ、相邻估计事件间隔不偏离拟合周期20%（至少100tick）、残差不超最大读窗口+4tick等门槛。仅一个候选满足全窗口与原门槛时，才输出RAW或RAW_PLUS_ONE_COMPATIBLE。无共同epoch、多个候选可行或分辨率不足均保留INCONCLUSIVE，`hypothesis_reason`分别说明原因。采集有效与固定周期假设相容分开：窗口矛盾不删除原始样本或诊断；A1/A2即使可重复，联合结果也不能覆盖单次INCONCLUSIVE。
 
 这是明确假设下的分辨率门槛，并非统计置信区间或精确边沿。读窗口≥raw/4、P>raw/4、P接近0或raw、F回绕/倒退、疑似漏事件、身份/配置/中断声明异常均保留并拒绝推断。四字段不足以识别所有跨回零、合并IRQ、时钟同步和总线延迟影响；硬件IRQ丢失状态始终UNKNOWN。A1/A2事件周期范围须重叠且P斜率差≤0.05tick/IRQ；供电会话/条件/ELF/配置不同直接拒绝联合归因。即使兼容raw+1，也须Review真实数据后再决定平台修正。
 
 本轮执行记录：T1提交`1c55a3e`；新增首轮7测试在缺实现时7项FAIL（`.runtime/ax02a/ttc_red.txt`），最小实现后7/7通过（`ttc_green_first.txt`）。真实C HOST HAL覆盖重复A-B-A、容量、无IRQ超时、时钟停转、配置/参数拒绝及统一清理；仅是合成事件，不是板上中断证据。按用户约束在现有分支执行，不创建worktree、不删除原产物；直接沿任务书执行，无额外规划流程。
 
 交付回归另先复现构建/读回缺实现的2项失败，再实现。独立Review发现错timeout预算及过晚样本可能被接受，新增测试先FAIL再GREEN，PC现在核对精确预算且拒绝超预算记录。所有新测试的临时材料保留在忽略的`.runtime/ax02a/ttc_*`目录，不批量清除。P3暂缓：纯文件check不重新解析ARM profile属性，依靠本候选构建时readelf验证；当前真实ELF已通过R-profile/VFP门禁，后续替换ELF须重新构建/核验。
+
+[Review5714581774](https://github.com/kazecode666/AXU5EV/pull/16#pullrequestreview-5714581774)补充：按其三角形中段偏移反例，单次及A—B—A回归在旧实现均先失败（误报RAW_COMPATIBLE），增加全窗口共同epoch检查后通过。raw10000反例交集下界10618、上界10562，raw/raw+1均不可行；采集仍有效、全部与after_first诊断保留，联合只能INCONCLUSIVE。修正仅涉及PC分析器、测试与本说明，不要求重采或重建目标ELF；已有记录应保留并用修正版离线重分析。板上T4、物理根因和正式周期修复状态不变。
+
+本次实际回归：TTC专项12/12、AX-02A相关全套53/53通过，0失败/0跳过；原有正反例全部保留。RED、GREEN、专项及全套日志分别保留在`.runtime/ax02a/ttc_window_review_red.txt`、`ttc_window_review_green.txt`、`ttc_window_review_tests.txt`和`ttc_window_review_full_tests.txt`。这些是HOST/合成验证，不是新的硬件证据。

@@ -56,6 +56,14 @@ def save(path, rows, run):
     (path/'run.json').write_text(json.dumps(run))
 
 
+def review_triangle(rows, raw):
+    # PR16 Review 5714581774: endpoints recover, middle windows contradict raw.
+    for k in range(1000):
+        triangle = round(180 * min(k, 999-k) / 499)
+        event = 500 + (k+1) * raw + triangle
+        rows[k] = [k, event + 240, 300, event + 360]
+
+
 class AnalyzeTests(unittest.TestCase):
     def setUp(self):
         self.path = Path(tempfile.mkdtemp(prefix='ttc_analysis_',dir=ROOT/'.runtime/ax02a'))
@@ -85,6 +93,36 @@ class AnalyzeTests(unittest.TestCase):
         self.assertAlmostEqual(r['all_samples']['p_count']['slope'], 1)
         self.assertAlmostEqual(r['all_samples']['isr_phase']['slope'], 1)
         self.assertAlmostEqual(r['all_samples']['event']['slope'], 10000)
+
+    def test_review_triangle_single_requires_common_epoch_for_all_windows(self):
+        r=self.single(mutate=lambda rows,run: review_triangle(rows,run['requested_raw']))
+        self.assertTrue(r['acquisition_valid'])
+        self.assertEqual(r['usable_samples'],1000)
+        self.assertEqual(r['hypothesis'],'INCONCLUSIVE')
+        self.assertEqual(r['hypothesis_reason'],'NO_CANDIDATE_HAS_COMMON_EPOCH')
+        raw=r['candidate_feasibility']['RAW_COMPATIBLE']
+        self.assertFalse(raw['feasible'])
+        self.assertEqual((raw['epoch_lower'],raw['epoch_upper']),(10618,10562))
+        self.assertFalse(r['candidate_feasibility']['RAW_PLUS_ONE_COMPATIBLE']['feasible'])
+        self.assertEqual(r['all_samples']['count'],1000)
+        self.assertEqual(r['after_first']['count'],999)
+        self.assertLess(r['all_samples']['event']['residual_max'],124)
+        self.assertLessEqual(r['all_samples']['event_period_bounds'][0],10000)
+        self.assertGreaterEqual(r['all_samples']['event_period_bounds'][1],10000)
+
+    def test_review_triangle_aba_cannot_override_single_run_contradictions(self):
+        paths=[]
+        for case,raw,e in [('A1',10000,8),('B',9999,9),('A2',10000,10)]:
+            d=self.path/case;rows,run=fixture(d,case,raw,experiment=e)
+            review_triangle(rows,raw);save(d,rows,run);paths.append(d)
+        r=self.mod.compare_aba(*paths,self.path/'triangle_aba')
+        self.assertEqual(r['conclusion'],'INCONCLUSIVE')
+        self.assertTrue(r['repeatable'])
+        self.assertTrue(r['issues'])
+        for run in r['runs']:
+            self.assertTrue(run['acquisition_valid'])
+            self.assertEqual(run['hypothesis'],'INCONCLUSIVE')
+            self.assertEqual(run['hypothesis_reason'],'NO_CANDIDATE_HAS_COMMON_EPOCH')
 
     def test_timeout_metadata_and_late_capture_rejected(self):
         def late(rows,run):
