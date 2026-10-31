@@ -1,10 +1,25 @@
 # Passive definitions. Source does not contact a target or load provenance.
 namespace eval ax02a_ttc_char {
+    proc uint32 {value} {
+        if {![string is entier -strict $value] || $value < -2147483648 || $value > 4294967295} {error "Value is not a signed/unsigned uint32 representation"}
+        if {$value < 0} {return [expr {$value + 4294967296}]}
+        return [expr {wide($value)}]
+    }
+    proc address {value} {
+        if {[llength $value]==1} {return [uint32 [lindex $value 0]]}
+        if {[llength $value]!=4} {error "Address requires one integer or four little-endian bytes"}
+        set result 0;set shift 0
+        foreach byte $value {
+            if {![string is entier -strict $byte] || $byte<0 || $byte>255} {error "Address byte out of range"}
+            set result [expr {$result | (wide($byte) << $shift)}];incr shift 8
+        }
+        return $result
+    }
     proc scalar {field} {
         set symbol ax02a_ttc_char_control.$field
         set value [print -dict $symbol]
         if {![dict exists $value $symbol]} {error "Missing diagnostic symbol: $symbol"}
-        return [expr {wide([dict get $value $symbol])}]
+        return [uint32 [dict get $value $symbol]]
     }
     proc readback {dir case_id before_experiment raw provenance session_id conditions interrupted} {
         # Explicit call in the existing user's XSDB session, at done only.
@@ -28,6 +43,8 @@ namespace eval ax02a_ttc_char {
         if {[lrange $words 0 1] ne {dict create}} {error "Invalid candidate provenance"}
         set prov [lrange $words 2 end]
         foreach k {build_id workspace elf samples_address} {if {![dict exists $prov $k]} {error "Missing provenance: $k"}}
+        dict set prov build_id [uint32 [dict get $prov build_id]]
+        dict set prov samples_address [uint32 [dict get $prov samples_address]]
         foreach k {workspace elf} {
             if {[regexp {["\\\n\r]} [dict get $prov $k]]} {error "Unsafe provenance path"}
         }
@@ -47,19 +64,19 @@ namespace eval ax02a_ttc_char {
         if {[dict get $v actual_raw]!=$raw && !($n==0 && [dict get $v state]==4 && [dict get $v actual_raw]==0)} {error "Actual raw mismatch"}
         set symbol &ax02a_ttc_char_samples
         set address [print -dict $symbol]
-        if {![dict exists $address $symbol] || [expr {wide([dict get $address $symbol])}]!=[dict get $prov samples_address]} {error "Candidate sample symbol mismatch"}
+        if {![dict exists $address $symbol] || [address [dict get $address $symbol]]!=[dict get $prov samples_address]} {error "Candidate sample symbol mismatch"}
         set config {}
         foreach field {periodic_hz timestamp_hz periodic_base timestamp_base periodic_clock timestamp_clock periodic_control timestamp_control periodic_ier timestamp_ier} {
-            lappend config [format {"%s":%d} $field [dict get $v $field]]
+            lappend config [format {"%s":%lld} $field [dict get $v $field]]
         }
         set members {}
         foreach field {magic version record_bytes state experiment requested_raw actual_raw nominal_period requested_samples completed_samples error timeout_ticks build_id} {
-            lappend members [format {"%s":%d} $field [dict get $v $field]]
+            lappend members [format {"%s":%lld} $field [dict get $v $field]]
         }
         file mkdir $dir
         set f [open [file join $dir run.json] {WRONLY CREAT EXCL}]
         try {
-            puts $f [format {{%s,"case_id":"%s","before_experiment":%d,"interrupted":%s,"session_id":"%s","conditions":"%s","workspace":"%s","elf":"%s","clock_basis":"BSP configuration, not measured","config":{%s}}} [join $members ,] $case_id $before_experiment $interrupted $session_id $conditions [dict get $prov workspace] [dict get $prov elf] [join $config ,]]
+            puts $f [format {{%s,"case_id":"%s","before_experiment":%lld,"interrupted":%s,"session_id":"%s","conditions":"%s","workspace":"%s","elf":"%s","clock_basis":"BSP configuration, not measured","config":{%s}}} [join $members ,] $case_id $before_experiment $interrupted $session_id $conditions [dict get $prov workspace] [dict get $prov elf] [join $config ,]]
         } finally {close $f}
         set path [file join $dir samples.bin]
         if {$n==0} {set f [open $path {WRONLY CREAT EXCL}];close $f} else {

@@ -1,0 +1,23 @@
+{
+  "status": "BOARD_TTC_ABA_COMPLETE",
+  "source": ".runtime\\ax02a\\board_manual\\ttc_aba_01",
+  "origin": "USER_BOARD_RAW_RECORDS_PC_REANALYSIS",
+  "analysis": ".runtime\\ax02a\\analysis_aba_runtime_r1_t1",
+  "samples_each": 1000,
+  "bytes_each": 16000,
+  "raw": [
+    10000,
+    9999,
+    10000
+  ],
+  "experiments": [
+    1,
+    2,
+    3
+  ],
+  "build_id": 3113983656,
+  "normalization": "Only legacy signed uint32 build_id/periodic_base/timestamp_base normalized in memory; raw JSON/samples unchanged",
+  "mapping_scope": "This board TTC0 channels0/1 internal same-source100MHz unprescaled interval mode",
+  "runtime_candidate_board": "NOT_RUN",
+  "full_A4_A5": "NOT_RUN"
+}

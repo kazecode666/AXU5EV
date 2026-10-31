@@ -53,6 +53,15 @@ def evaluate(samples_path, run_path):
                 limitation='Same-source synchronous counters assumed. Read-window edge estimates are not atomic; multiple rollovers inside the window and all merged IRQs cannot be proven absent. No A4/A5/WCET conclusion.')
     try:
         r=json.loads(Path(run_path).read_text(encoding='utf-8-sig'));result['run']=r
+        # Legacy XSDB/Tcl serialized these uint32 fields as signed int32.
+        # Normalize metadata in memory only, with a checked representation range.
+        conversions=[]
+        for container,key in [(r,'build_id'),(r['config'],'periodic_base'),(r['config'],'timestamp_base')]:
+            value=container[key]
+            if type(value) is not int or not -2**31<=value<2**32:raise ValueError('uint32 metadata out of range: '+key)
+            if value<0:
+                container[key]=value+2**32;conversions.append(dict(field=key,original=value,unsigned=container[key]))
+        result['metadata_normalization']=conversions
         raw=r['requested_raw']; cfg=r['config']
         if (r['magic']!=MAGIC or r['version']!=1 or r['record_bytes']!=16 or raw not in [9999,10000,10001]
             or r['actual_raw']!=raw or r['nominal_period']!=10000 or r['requested_samples']!=1000

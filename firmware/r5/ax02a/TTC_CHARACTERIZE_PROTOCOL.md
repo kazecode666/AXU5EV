@@ -25,3 +25,7 @@ PC以`[F_before-P,F_after-P]`估计回零窗口。全部样本为主结果，同
 [Review5714581774](https://github.com/kazecode666/AXU5EV/pull/16#pullrequestreview-5714581774)补充：按其三角形中段偏移反例，单次及A—B—A回归在旧实现均先失败（误报RAW_COMPATIBLE），增加全窗口共同epoch检查后通过。raw10000反例交集下界10618、上界10562，raw/raw+1均不可行；采集仍有效、全部与after_first诊断保留，联合只能INCONCLUSIVE。修正仅涉及PC分析器、测试与本说明，不要求重采或重建目标ELF；已有记录应保留并用修正版离线重分析。板上T4、物理根因和正式周期修复状态不变。
 
 本次实际回归：TTC专项12/12、AX-02A相关全套53/53通过，0失败/0跳过；原有正反例全部保留。RED、GREEN、专项及全套日志分别保留在`.runtime/ax02a/ttc_window_review_red.txt`、`ttc_window_review_green.txt`、`ttc_window_review_tests.txt`和`ttc_window_review_full_tests.txt`。这些是HOST/合成验证，不是新的硬件证据。
+
+2026-10-31任务6541052405的T1：用户`ttc_aba_01`原始三组各1000真实IRQ已完整，按全窗口规则复算事件周期10000.999985476985／9999.999988308988／10000.999700386701，联合RAW_PLUS_ONE_COMPATIBLE、repeatable=true、issues=[]。仅支持本板TTC0内部同源100MHz、无分频间隔模式；不表示Runtime周期验收。
+
+读回器现兼容XSDB地址的单整数与4个小端字节，逐字节检查0..255、严格长度，仍与provenance地址核对。邮箱uint32先检查输入范围[-2^31,2^32-1]再将负int32转正，使用Tcl的`%lld`十进制宽整数格式保存已归一化的无符号值（`%d`会按平台截成int32，`%llu`在本机Tcl不支持）。旧run.json仅在PC内存中转换build_id和两个base这三个uint32字段，保留转换前后诊断；不改原文件或样本，不绕过候选一致性。此次build_id=3113983656，base=0xff110000/0xff110004。地址越界/错地址/错构建/短读保护测试已先失败后通过，原始数据无需重采。
