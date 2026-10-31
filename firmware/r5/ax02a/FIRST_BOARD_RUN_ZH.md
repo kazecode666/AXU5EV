@@ -570,3 +570,67 @@ python D:/Project/AXU5EV/scripts/ax02a_analyze_ttc_characterize.py aba D:/Projec
 ```
 
 向Review提交三个run.json/samples.bin与summary.json。先看采集有效和全部样本，再看窗口/残差/首尾、P与ISR趋势、排除第一条的并列摘要、A1/A2重复性。RAW_COMPATIBLE或RAW_PLUS_ONE_COMPATIBLE只是限制条件下相容；INCONCLUSIVE时保留异常，提出最小补证，不盲改9999。软件序号连续不能证明没有合并IRQ。物理根因、正式周期修正与T4板验在本次交付时仍UNCONFIRMED/NOT_RUN。
+
+## 13. Runtime 100µs R1：ABA实测之后的P1000候选（Review后用户执行）
+
+任务[6541052405](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6541052405)。ABA实测已完成，全窗口支持本配置raw+1映射；无需重复ABA或运行C。本节为带原生成Runtime的独立候选，板验NOT_RUN；不覆盖旧工程，不继承旧时间结果。平台/PC版本合同见[RUNTIME_100US_R1.md](RUNTIME_100US_R1.md)。
+
+从Windows开始菜单打开Vitis2026.1，**Set Workspace**选择`D:/Project/AXU5EV/.runtime/ax02a/vitis_runtime_100us_r1`。platform=`ax02a_platform`、domain=`r5_standalone`、应用=`ax02a_replay`（不是TTC-only），launch=`ax02a_first_wait_a53fsbl`。确认应用ELF位于本workspace的`ax02a_replay/build/ax02a_replay.elf`，FSBL为本workspace的`ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf`；A53 FSBL→R5_0 split、Stop at entry、禁PL/第二套psu_init。初始化状态检查仍按第4节；只选本次workspace路径。
+
+普通PowerShell纯文件检查（任意目录，既不启动IDE也不连接板卡）：
+
+```powershell
+python D:/Project/AXU5EV/scripts/ax02a_build_r5.py --config D:/Project/AXU5EV/firmware/r5/ax02a/build_config.runtime_100us_r1.json --check-startup
+```
+
+用户Debug到R5 main，Resume到已有WAIT后Suspend，核对state1和真实experiment。XSDB逐行操作；先装载并verify同一配套数据，最后才发command：
+
+```tcl
+source D:/Project/AXU5EV/firmware/r5/ax02a/readback_short.tcl
+set r1_before [ax02a_short::scalar experiment]
+set r1_expected [expr {$r1_before+1}]
+dow -data D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/input.bin 0x10000000
+verify -data D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/input.bin 0x10000000
+dow -data D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/reference.bin 0x14000000
+verify -data D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/reference.bin 0x14000000
+dow -data D:/Project/AXU5EV/.runtime/ax02a/phase_p1000_descriptor/reference_descriptor.bin 0x12f00000
+verify -data D:/Project/AXU5EV/.runtime/ax02a/phase_p1000_descriptor/reference_descriptor.bin 0x12f00000
+set r1_done_bp [bpadd -addr &ax02a_result_ready]
+set r1_begin_bp [bpadd -addr &begin]
+print -set ax02a_post_control.scenario 1
+print -set ax02a_post_control.expected_experiment $r1_expected
+print -set ax02a_post_control.expected_mode 1
+print -set ax02a_post_control.interrupted 0
+print -set ax02a_post_control.enabled 1
+print -set ax02a_control.frames 1000
+print -set ax02a_control.mode 1
+print -set ax02a_control.command 0x41583241
+```
+
+用户Resume到`begin`入口，两个counter尚未启动；保存实际GUI位置及`ax02a_ttc_snapshot`（valid1、hardware_interval9999、logical_period_ticks10000、两个Hz100000000、clock0/0、control35/33、IER1/0）。这里`ax02a_control.timer`尚未在本次结束发布，不用其旧值取代快照。XSDB只读取证：
+
+```tcl
+print ax02a_ttc_snapshot
+source D:/Project/AXU5EV/firmware/r5/ax02a/read_ttc_config.tcl
+ax02a_ttc::read_config D:/Project/AXU5EV/.runtime/ax02a/runtime_r1_pre_begin_01.json pre_begin
+```
+
+配置不符立即停止，保留原值；不写寄存器“纠正”。在GUI移除begin/main及执行路径断点/观察点，关闭运行中刷新，只保留done停点，再Resume。测量中不暂停/单步/读写/传输；意外中断必须声明true。done时计时器已停止，核对本次experiment=before+1、state3/status0/completed1000、post_control.state2和timer.interval9999/period_ticks10000。任一失败保留异常，不自动重试、改9998或放宽deadline。
+
+XSDB显式读回（新目录，最后false必须真实；可保存失败已完成前缀，但不能把它认作1000帧通过）：
+
+```tcl
+ax02a_short::readback D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01 $r1_before {same session I-cache ON D-cache OFF pre-begin only} false D:/Project/AXU5EV/.runtime/ax02a/vitis_runtime_100us_r1/runtime_candidate.tcl
+```
+
+新参数要求本候选版本/身份及实际snapshot一致，自动保存run.json、output328000B、timing64000B、report_v2 2400B；失败条数不足时不填充旧尾部。source只定义过程，不连接/选择/重置目标、不恢复运行。保留开始前配置JSON及GUI停点截图。
+
+回到普通PowerShell，以下每条均完整单行，分析目录必须未存在：
+
+```powershell
+$r1_before=(Get-Content -Raw D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01/run.json | ConvertFrom-Json).before_experiment
+python D:/Project/AXU5EV/scripts/ax02a_analyze_run.py --metadata D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/metadata.json --reference D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/reference.bin --actual D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01/output.bin --ticks D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01/timing.bin --run D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01/run.json --before-experiment $r1_before --mode 1 --output D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01/analysis
+python D:/Project/AXU5EV/scripts/ax02a_post_report.py crosscheck --metadata D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/metadata.json --reference D:/Project/AXU5EV/.runtime/ax02a/replay/p1000/reference.bin --actual D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01/output.bin --ticks D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01/timing.bin --run D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01/run.json --report D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01/report_v2.bin --before-experiment $r1_before --output D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01/crosscheck
+```
+
+通过须同时满足候选/experiment正确、未中断且完整1000帧；41字段原容差0失败、序号正常/零截止期超限/最小余量>0；既有相位门槛无持续趋势（仍排除回放软件首帧，999个ISR样本），报告斜率/阈值与旧+0.997790849tick/frame对照；板上报告与PC一致。失败或证据不足保留首个异常并停。通过也只记录带Runtime的100µs短段通过，之后另补A4第二次完整运动/对齐复位，再做完整A5；本轮不自动延长采集、不扩展外设/电流环。

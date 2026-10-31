@@ -36,7 +36,23 @@ def inspect_fsbl(elf):
                 byte_order='little',entry=h[4])
 
 
-def check_startup(workspace):
+def runtime_candidate(workspace):
+    """Read the actual initialized ELF constants, not a claimed filename."""
+    from ax02a_build_ttc_characterize import symbols
+    elf=workspace/'ax02a_replay/build/ax02a_replay.elf'
+    data=elf.read_bytes();syms=symbols(elf);h=struct.unpack_from('<16sHHIIIIIHHHHHH',data)
+    for name,expected in [('ax02a_timer_mapping_version',1),('ax02a_runtime_candidate_id',0x52313031)]:
+        if name not in syms or syms[name]['bytes']!=4:raise ValueError('missing runtime candidate ELF marker: '+name)
+        address=syms[name]['address'];actual=None
+        for i in range(h[10]):
+            kind,off,va,pa,filesz,memsz,flags,align=struct.unpack_from('<8I',data,h[5]+i*h[9])
+            if kind==1 and va<=address and address+4<=va+filesz:actual=struct.unpack_from('<I',data,off+address-va)[0]
+        if actual!=expected:raise ValueError('runtime candidate ELF marker mismatch: '+name)
+    if 'AXU5EV_R5_Runtime_step' not in syms:raise ValueError('candidate does not link generated Runtime')
+    return dict(mapping_version=1,candidate_id=0x52313031,workspace=workspace.as_posix(),elf=elf.as_posix())
+
+
+def check_startup(workspace,runtime_mapping=0):
     """Read files only: no debugger imports, target discovery or hardware access."""
     platform=workspace/'ax02a_platform'
     domains=json.loads((platform/'vitis-comp.json').read_text(encoding='utf-8'))['configuration']['domains']
@@ -71,6 +87,11 @@ def check_startup(workspace):
     result['application']['processor']='psu_cortexr5_0'
     result['launch']=FIRST_LAUNCH
     result['status']='OFFLINE_STARTUP_CHECK_PASS'
+    if runtime_mapping or (workspace/'runtime_candidate.json').exists():
+        if runtime_mapping not in (0,1):raise ValueError('unknown runtime mapping version')
+        expected=runtime_candidate(workspace)
+        if json.loads((workspace/'runtime_candidate.json').read_text())!=expected:raise ValueError('runtime candidate record differs from actual ELF')
+        result['runtime_candidate']=expected
     return result
 
 
@@ -150,10 +171,11 @@ def main():
     parser.add_argument('--output',type=Path,help='new output directory for --runtime-only')
     args=parser.parse_args()
     config=json.loads(args.config.read_text(encoding='utf-8-sig'))
-    xsa=Path(config['xsa']).resolve();generated=Path(config['generated']).resolve()
-    workspace=Path(config['workspace']).resolve()
+    xsa=(ROOT/Path(config['xsa'])).resolve();generated=(ROOT/Path(config['generated'])).resolve()
+    workspace=(ROOT/Path(config['workspace'])).resolve()
+    runtime_mapping=config.get('runtime_mapping',0)
     if args.check_startup:
-        print(json.dumps(check_startup(workspace),indent=2));return
+        print(json.dumps(check_startup(workspace,runtime_mapping),indent=2));return
     files=source_files(generated)
     if args.runtime_only:
         if not args.compiler or not args.output:
@@ -227,7 +249,13 @@ def main():
             raise ValueError('manual launch already exists; preserve it rather than overwrite')
         launch['configurations'].append(manual)
         launch_path.write_text(json.dumps(launch,indent=2)+'\n',encoding='utf-8')
-        startup=check_startup(workspace)
+        if runtime_mapping:
+            if runtime_mapping!=1:raise ValueError('unknown runtime mapping version')
+            candidate=runtime_candidate(workspace)
+            (workspace/'runtime_candidate.json').write_text(json.dumps(candidate,indent=2)+'\n',encoding='utf-8',newline='\n')
+            if any(any(c in str(v) for c in '{}\n\r') for v in candidate.values()):raise ValueError('unsafe candidate path')
+            (workspace/'runtime_candidate.tcl').write_text('dict create '+' '.join(k+' {'+str(v)+'}' for k,v in candidate.items())+'\n',encoding='utf-8',newline='\n')
+        startup=check_startup(workspace,runtime_mapping)
         (workspace/'startup_validation.json').write_text(json.dumps(startup,indent=2)+'\n',encoding='utf-8')
         print('OFFLINE_STARTUP_CHECK_PASS: A53_0 FSBL -> R5_0 application; passive launch installed')
         print('TARGET_ELF_BUILD_PASS',elf)

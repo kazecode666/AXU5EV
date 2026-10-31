@@ -9,3 +9,5 @@
 `readback_short.tcl`保留原4参数历史入口；新候选额外传入本构建生成的被动`runtime_candidate.tcl`。source不读板。用户显式调用时核对版本/身份、快照与真实timer，保存候选workspace/ELF来源及run/output/timing/report_v2四文件。不覆写旧目录、不自动连接/选目标或运行；失败的已完成前缀不能冒充完整1000帧。
 
 测试先行：新PC映射和平台映射函数在缺实现时失败，最小实现后通过；错raw、logical9999、时钟、预分频、通道/身份被拒绝，旧漂移保持拒绝。HOST编译并执行真实生成Runtime＋原runner的合同测试，保留原1000tick合成用例，再加逻辑10000的漏序号/截止期退出测试；不是ARM性能或板上中断证据。未修改模型、生成代码、BSP、PLL/cache/TCM布局。
+
+T3已真实构建新`.runtime/ax02a/vitis_runtime_100us_r1`：ELF32/R5/hard-float与实际A53 FSBL通过，候选常量从ELF读取核对，不只信文件名。`runtime_candidate.json/.tcl`由该构建生成；相对config路径按仓库ROOT解析，根目录/新workspace纯文件检查结果一致。专项及相关全套最终63/63通过，独立审查无新P1/P2。精简证据在`verification/ax02a/runtime_100us_r1/`，用户步骤见`FIRST_BOARD_RUN_ZH.md`第13节。状态OFFLINE_READY_FOR_REVIEW；T4仅用户Review后执行，未以离线通过宣布Runtime物理周期已验证。

@@ -78,7 +78,7 @@ namespace eval ax02a_short {
                 lappend timer [format {"%s":%lld} $key $value]
             }
             lappend timer {"mapping_version":1} {"candidate_id":1378955313}
-            set identity [format {,"candidate":{"workspace":"%s","elf":"%s"}} [dict get $candidate workspace] [dict get $candidate elf]]
+            set identity [format {,"before_experiment":%lld,"candidate":{"workspace":"%s","elf":"%s"}} $before_experiment [dict get $candidate workspace] [dict get $candidate elf]]
         }
         file mkdir $dir
         set state [open [file join $dir run.json] {WRONLY CREAT EXCL}]

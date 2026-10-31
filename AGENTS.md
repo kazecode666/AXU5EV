@@ -2,6 +2,8 @@
 
 ## 当前开发
 
+- 当前执行PR16任务6541052405 T1—T3：用户`ttc_aba_01`三组真实IRQ已复算，全窗口RAW_PLUS_ONE_COMPATIBLE、A1/A2可重复；只读兼容旧uint32签名元数据，原始run/samples保留。Runtime平台仅对已验证TTC0通道0/1内部同源100MHz、无分频、10kHz映射raw9999/logical10000，其他配置拒绝；不改expected/deadline。新候选workspace `.runtime/ax02a/vitis_runtime_100us_r1`，旧workspace/ELF全保留。T4必须Review后用户按指南第13节手动P1000，Runtime候选板验NOT_RUN，不重复ABA/C，不操作板卡、不合并。
+
 - PR16评论6525374617的T1—T3已离线实施：最新phase_p1000_01独立数值PASS，趋势仍约+0.99779tick/frame；新TTC-only workspace `.runtime/ax02a/vitis_ttc_characterize`及应用`ax02a_ttc_characterize`真实构建，OFFLINE_READY_FOR_REVIEW。原三个workspace/ELF保留。用户Review后按指南第12节逐次A1(10000)→B(9999)→A2(10000)，每次1000真实IRQ/16000B；9999仅实验条件，nominal10000与原deadline不变。T4用户上板NOT_RUN、物理根因UNCONFIRMED、正式修复NOT_RUN；Codex不连接/操作板卡，不合并。
 
 - 相位候选为`.runtime/ax02a/vitis_phase_diagnostic`，v2报告2400B，原两个workspace及ELF保留。exp2本次数值PASS、deadline/sequence PASS，但ISR phase趋势0.999271tick/帧被新PC/C诊断拒绝；硬件根因未确认，interval/logical period仍10000，不盲减1、不宽deadline。GUI只读配置取证/复验见指南第8节；候选板上NOT_RUN。

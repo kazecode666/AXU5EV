@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import struct
 import tempfile
 import tkinter
 import unittest
@@ -22,6 +23,11 @@ def timer():
 
 
 class RuntimeMappingTests(unittest.TestCase):
+    def test_runtime_candidate_startup_rejects_legacy_elf(self):
+        spec=importlib.util.spec_from_file_location('build_r5',ROOT/'scripts/ax02a_build_r5.py')
+        build=importlib.util.module_from_spec(spec);spec.loader.exec_module(build)
+        with self.assertRaises(ValueError):build.check_startup(ROOT/'.runtime/ax02a/vitis_phase_diagnostic',1)
+
     def test_new_candidate_readback_identity_and_bad_snapshot_rejected(self):
         t=tkinter.Tcl();t.eval('set calls {}; proc targets {args} {return [list [dict create is_current 1 name "Cortex-R5 #0" suspended 1]]}')
         t.eval('proc print {args} {set n [lindex $args end];return [dict create $n [dict get $::values $n]]}')
@@ -51,6 +57,24 @@ class RuntimeMappingTests(unittest.TestCase):
         for key in ['mapping_version','candidate_id','periodic_base','timestamp_base']:
             t=timer();del t[key]
             with self.subTest(missing=key),self.assertRaises((ValueError,KeyError)):ANALYZE.validate_timer(t)
+
+    def test_new_mapping_does_not_relax_sequence_deadline_or_trend(self):
+        p=Path(tempfile.mkdtemp(prefix='runtime_r1_faults_',dir=ROOT/'.runtime/ax02a'))
+        meta=dict(scenario='current_motion_prefix',source_scenario='current_motion',source_range=[0,40],frames=40,Ts=.0001,input_fields=20,output_fields=41)
+        (p/'metadata.json').write_text(json.dumps(meta));(p/'reference.bin').write_bytes(bytes(40*41*8));(p/'output.bin').write_bytes(bytes(40*41*8))
+        run=dict(scenario='current_motion_prefix',state=3,mode=1,frames=40,experiment=1,interrupted=False,conditions='SIMULATED R1 faults',result=dict(status=0,completed_frames=40,failed_frame=0),timer=timer())
+        (p/'run.json').write_text(json.dumps(run))
+        for fault in ['none','sequence','deadline','trend']:
+            rows=[]
+            for k in range(40):
+                e=k*10000;r=e+100+(k if fault=='trend' else 0)
+                rows.append([k,k,e,r,r+1,r+2,r+3,r+4])
+            if fault=='sequence':rows[2][1]+=1
+            if fault=='deadline':rows[2][7]=rows[2][2]+10000
+            (p/'timing.bin').write_bytes(b''.join(struct.pack('<8Q',*row) for row in rows))
+            s=ANALYZE.analyze(p/'metadata.json',p/'reference.bin',p/'output.bin',p/'timing.bin',p/'run.json',0,1,p/fault,'SIMULATED')
+            self.assertEqual(s['passed'],fault=='none')
+            if fault=='trend':self.assertEqual(s['period_consistency'],'TREND_DETECTED')
 
     def test_legacy_still_uses_raw_period_and_retains_observed_drift(self):
         old=json.loads((ROOT/'.runtime/ax02a/board_manual/phase_p1000_01/run.json').read_text())

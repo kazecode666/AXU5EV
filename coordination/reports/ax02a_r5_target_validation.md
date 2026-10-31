@@ -6,6 +6,20 @@
 
 ## 当前验收状态
 
+### 2026-10-31：ABA实测闭合与Runtime 100µs R1候选
+
+按[任务6541052405](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6541052405)执行T1—T3，任务原文在`coordination/tasks/ax02a_runtime_100us_r1.md`。T1独立提交`b46fdf6`：只读`board_manual/ttc_aba_01/{A1,B,A2}`各16000B/1000真实IRQ，raw=10000/9999/10000、experiment=1/2/3、同一构建3113983656/同会话且未中断。事件周期复算10000.999985476985／9999.999988308988／10000.999700386701 ticks；全窗口RAW_PLUS_ONE_COMPATIBLE、repeatable=true、issues=[]。证据在`verification/ax02a/ttc_aba_01/`。这支持本板TTC0内部同源100MHz、无分频间隔模式的映射，不是Runtime时间/完整A5验收，也不要求重采ABA或可选C。
+
+同次T1正式修复XSDB地址4小端字节/单整数兼容及uint32序列化。逐字节检查长度/0..255，仍核对候选地址；邮箱值先核范围再转无符号，宽整数十进制写JSON。旧run.json只在PC内存中转换build_id及两个基址，原文件/样本不改；摘要保留转换记录，错地址/构建/越界/短读均有反例。先复现4项缺陷测试失败，修正后4/4通过，T1相关全套57/57通过。
+
+T2提交`2aa9a9a`：自有`timer_mapping.h`限定通道/频率/分频/目标，`timing.c`先算logical10000再映射hardware9999；其他配置拒绝。timer.interval及快照保存真实raw，period_ticks、expected、deadline、释放超时、防回绕仍按10000；未改ISR、runner生产逻辑、算法或阈值。PC按mapping_version1及候选标识0x52313031严查9999/10000、时钟/通道/分频；历史无版本数据保留旧约定和旧趋势拒绝。新增正反例先失败后通过，HOST实际链接原生成Runtime并执行旧及logical10000的漏拍/超期退出合同。
+
+T3真实离线构建于`.runtime/ax02a/vitis_runtime_100us_r1`，应用`ax02a_replay`（非TTC-only）。Vitis2026.1 SW6511674／R5 GCC13.4.0，复用原PS-only XSA、A53 FSBL→R5_0 split与原生成源、O2/FP/cache/默认布局。ELF32/ARM/v7-Realtime/VFPv3-D16/hard-float，入口0x3c；text46134/data5100/bss28216B，LOAD[0,0x7d8)、[0x100000,0x112e90)。heap[0x10c690,0x10d690)、主stack[0x10d690,0x111690)，其余栈至0x112e90，与回放/参考/报告DDR窗口无交叠。实际ELF两个候选常量与新被动manifest一致；启动检查在仓库根及新workspace按绝对config执行结果相同。
+
+完整ELF/map在该workspace的`ax02a_replay/build/`；实际AArch64 FSBL在`ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf`；日志`.runtime/ax02a/vitis_runtime_100us_r1.console.txt`。BSP弃用和FSBL宏重定义警告保留，未改厂商源。精简构建/属性/日志/测试在`verification/ax02a/runtime_100us_r1/`。最终63/63相关测试通过，0失败/0跳过；独立审查无新P1/P2或Minor，先前纯文件R-profile属性复验限制仍在，实际本候选构建时readelf已通过。
+
+状态OFFLINE_READY_FOR_REVIEW。新读回入口以被动候选记录核对实际ELF标识、开始前快照和timer，保留原4参数历史入口；新run带mapping/candidate、before_experiment及ELF来源，并保存output328000B/timing64000B/report_v2 2400B。Review后用户按指南第13节从开始菜单Set Workspace到main/WAIT，配置P1000和一次性后处理、begin前取证后移除断点，结束再读同次四文件并PC交叉；测量中不暂停/读写。Runtime候选板验T4=NOT_RUN，完整A4/A5/WCET仍未验收。无Simulink/生成代码/参数更改，无RTL/板卡操作，所有旧workspace/ELF及原始数据保留，PR保持Draft不合并。
+
 ### 2026-10-30 TTC-only T1—T3：OFFLINE_READY_FOR_REVIEW
 
 按[评论6525374617](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6525374617)直接执行，原任务书在`coordination/tasks/ax02a_ttc_aba_characterization.md`。下文原“当前候选”属于历史相位回放应用；本轮新增独立TTC-only应用，不替代完整A4/A5。

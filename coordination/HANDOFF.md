@@ -1,8 +1,10 @@
 # AXU5EV — 当前交接
 
-日期：2026-10-30。仓库`kazecode666/AXU5EV`，本地`D:/Project/AXU5EV`。PR #7/#9/#12已合并；AX-00迁移、资料阶段结束，旧Issue #3及M4不作为当前流程。
+日期：2026-10-31。仓库`kazecode666/AXU5EV`，本地`D:/Project/AXU5EV`。PR #7/#9/#12已合并；AX-00迁移、资料阶段结束，旧Issue #3及M4不作为当前流程。
 
 ## 当前任务与结果
+
+最新执行任务6541052405（`tasks/ax02a_runtime_100us_r1.md`）。T1提交`b46fdf6`闭合用户ABA实测及读回格式：周期10000.999985／9999.999988／10000.999700 ticks，全窗口RAW_PLUS_ONE_COMPATIBLE、repeatable=true、issues=[]；原始数据保留。T2 `2aa9a9a`以板测限定配置在Runtime平台映射raw9999/logical10000，PC按版本1/候选身份区分新旧timer；旧漂移仍拒绝，expected/deadline/超时不改。T3独立workspace为`.runtime/ax02a/vitis_runtime_100us_r1`，应用`ax02a_replay`，候选标识0x52313031；用户Review后按指南第13节运行带Runtime的P1000并保存run/output/timing/report_v2四文件。ABA实测已完成，不重复ABA或可选C；Runtime候选板验仍NOT_RUN。历史TTC-only/相位候选记载按所属阶段理解，旧工程/模型/生成源/原始数据全部保留。
 
 最新按PR16评论6525374617执行T1—T3，任务书在`tasks/ax02a_ttc_aba_characterization.md`。T1 `1c55a3e`独立比较最新phase_p1000_01：1000×41数值PASS、deadline_sequence PASS、相位+0.997790848965tick/frame仍拒绝，板上v2/PC一致。T2 `e070bb6`独立TTC-only采集/分析；T3真实新构建在`.runtime/ax02a/vitis_ttc_characterize`，应用`ax02a_ttc_characterize`，launch`ax02a_ttc_characterize_hw`，原三个workspace保留。OFFLINE_READY_FOR_REVIEW；用户Review后按FIRST_BOARD_RUN_ZH.md第12节从开始菜单Set Workspace，逐次显式A1(raw10000)→B(9999)→A2(10000)，每次1000条/16000B。9999仅实验条件，不用旧P1000比较器。T4硬件NOT_RUN、根因UNCONFIRMED、正式修复NOT_RUN，完整A4/A5仍未验收；Codex不操作硬件、不合并。以下候选/缺actual描述按历史阶段理解。
 

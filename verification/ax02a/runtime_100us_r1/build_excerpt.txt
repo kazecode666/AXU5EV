@@ -1,0 +1,24 @@
+****** Vitis v2026.1 (64-bit)
+****** SW Build 6511674 on 2026-06-16-13:14:45
+****** SW Build 6511674 on 2026-06-16-13:14:45
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+D:/Project/AXU5EV/.runtime/ax02a/vitis_runtime_100us_r1/ax02a_platform/psu_cortexr5_0/r5_standalone/bsp/libsrc/build_configs/gen_bsp/include/xbasic_types.h:102:2: warning: #warning The xbasics_type.h file is deprecated and users should use xil_types.h and xil_assert. [-Wcpp]
+
+D:/Project/AXU5EV/.runtime/ax02a/vitis_runtime_100us_r1/ax02a_platform/psu_cortexr5_0/r5_standalone/bsp/libsrc/build_configs/gen_bsp/include/xbasic_types.h:103:2: warning: #warning Please refer the Standalone BSP UG647 for further details [-Wcpp]
+
+D:/Project/AXU5EV/.runtime/ax02a/vitis_runtime_100us_r1/ax02a_platform/zynqmp_fsbl/zynqmp_fsbl_bsp/libsrc/build_configs/gen_bsp/include/xbasic_types.h:102:2: warning: #warning The xbasics_type.h file is deprecated and users should use xil_types.h and xil_assert. [-Wcpp]
+
+D:/Project/AXU5EV/.runtime/ax02a/vitis_runtime_100us_r1/ax02a_platform/zynqmp_fsbl/zynqmp_fsbl_bsp/libsrc/build_configs/gen_bsp/include/xbasic_types.h:103:2: warning: #warning Please refer the Standalone BSP UG647 for further details [-Wcpp]
+
+D:/Project/AXU5EV/.runtime/ax02a/vitis_runtime_100us_r1/ax02a_platform/zynqmp_fsbl/psu_init.c:15766: warning: "CRL_APB_RST_LPD_TOP" redefined
+
+Platform Build Finished successfully.
+Initiating build for the ax02a_replay component.
+  46134	   5100	  28216	  79450	  1365a	ax02a_replay.elf
+
+Build Finished successfully
+OFFLINE_STARTUP_CHECK_PASS: A53_0 FSBL -> R5_0 application; passive launch installed
+OFFLINE_STARTUP_CHECK_PASS: A53_0 FSBL -> R5_0 application; passive launch installed
+TARGET_ELF_BUILD_PASS D:\Project\AXU5EV\.runtime\ax02a\vitis_runtime_100us_r1\ax02a_replay\build\ax02a_replay.elf
+TARGET_ELF_BUILD_PASS D:\Project\AXU5EV\.runtime\ax02a\vitis_runtime_100us_r1\ax02a_replay\build\ax02a_replay.elf
+NOT_RUN: board boot, DDR window verification, RPU split launch, numeric replay, actual timing

@@ -1,5 +1,7 @@
 # AX-02A：R5 standalone 回放
 
+2026-10-31最新任务6541052405：用户ABA实测已复算支持本配置raw+1，Runtime平台按限定TTC0/100MHz/无分频映射raw9999/logical10000；候选板上NOT_RUN。新workspace为`.runtime/ax02a/vitis_runtime_100us_r1`，仍是`ax02a_replay`，版本化配置`build_config.runtime_100us_r1.json`。Review后用户按[指南第13节](FIRST_BOARD_RUN_ZH.md)手动P1000；合同见[RUNTIME_100US_R1.md](RUNTIME_100US_R1.md)。旧workspace/ELF保留，不重复ABA/C，不把短段当完整A4/A5。
+
 最新按PR16任务6525374617完成T1—T3，状态**OFFLINE_READY_FOR_REVIEW**：最新诊断P1000独立数值/板上报告交叉已闭合；独立TTC-only应用在`.runtime/ax02a/vitis_ttc_characterize`真实构建，保留所有旧workspace。用户Review后按[指南第12节](FIRST_BOARD_RUN_ZH.md)逐次显式A1→B→A2，每次16000B。任务书见[版本化原文](../../../coordination/tasks/ax02a_ttc_aba_characterization.md)，协议见[TTC_CHARACTERIZE_PROTOCOL.md](TTC_CHARACTERIZE_PROTOCOL.md)。T4硬件NOT_RUN、根因UNCONFIRMED；9999不是正式修复，以下回放/历史构建适用范围保持不变。
 
 当前已实际生成**手册5EV器件的PS-only XSA、A53_0 FSBL、R5 standalone BSP及含Runtime的ELF/map**。新工作区`.runtime/ax02a/vitis_target_a53fsbl`已通过TARGET_BUILD及离线启动架构检查；旧工作区保留。用户旧GUI日志已暴露R5 FSBL被载到A53_0的启动失败，本版已修正离线产物，尚未重新上板确认。BOARD_BOOT验收、板上数值和100µs实测均 **NOT_RUN**。详见[结果报告](../../../coordination/reports/ax02a_r5_target_validation.md)。
