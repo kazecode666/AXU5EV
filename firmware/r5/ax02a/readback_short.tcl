@@ -1,10 +1,15 @@
 # Passive definitions only. source does not query a target or transfer data.
 namespace eval ax02a_short {
-    proc scalar {field} {
-        set name ax02a_control.$field
+    proc symbol {name} {
         set values [print -dict $name]
         if {![dict exists $values $name]} {error "Cannot resolve symbol: $name"}
-        return [expr {wide([dict get $values $name])}]
+        set v [dict get $values $name]
+        if {![string is entier -strict $v] || $v < -2147483648 || $v > 4294967295} {error "Invalid uint32 symbol: $name"}
+        if {$v<0} {set v [expr {$v+4294967296}]}
+        return $v
+    }
+    proc scalar {field} {
+        return [symbol ax02a_control.$field]
     }
     proc bytes {dir name base total} {
         set partial [file join $dir $name.partial]
@@ -23,7 +28,7 @@ namespace eval ax02a_short {
         if {[file size $partial]!=$total} {error "Merged length mismatch: $partial"}
         file rename $partial [file join $dir $name]
     }
-    proc readback {dir before_experiment conditions interrupted} {
+    proc readback {dir before_experiment conditions interrupted {candidate_file {}}} {
         if {$interrupted ni {true false}} {error "Explicitly declare interrupted true or false; omitted/unknown is not accepted"}
         # Explicit user call only, in the existing GUI XSDB session, after timer stop.
         set current {}
@@ -51,15 +56,38 @@ namespace eval ax02a_short {
             ($n!=1000 || [dict get $v state]!=3))} {error "Inconsistent completion count/state"}
         set timer {}
         foreach f {clock_hz interval prescaler period_ticks timestamp_read_min_ticks timestamp_read_max_ticks start_window_ticks} {
-            lappend timer [format {"%s":%d} $f [scalar timer.$f]]
+            lappend timer [format {"%s":%lld} $f [scalar timer.$f]]
+        }
+        set identity {}
+        if {$candidate_file ne {}} {
+            set f [open $candidate_file r];try {set words [string trim [read $f]]} finally {close $f}
+            if {[lrange $words 0 1] ne {dict create}} {error "Invalid passive runtime candidate record"}
+            set candidate [lrange $words 2 end]
+            foreach key {candidate_id mapping_version workspace elf} {if {![dict exists $candidate $key]} {error "Missing runtime candidate $key"}}
+            foreach key {workspace elf} {if {[regexp {["\\\n\r]} [dict get $candidate $key]]} {error "Unsafe candidate path"}}
+            if {[dict get $candidate candidate_id]!=0x52313031 || [dict get $candidate mapping_version]!=1 ||
+                [symbol ax02a_runtime_candidate_id]!=0x52313031 || [symbol ax02a_timer_mapping_version]!=1 ||
+                [scalar timer.clock_hz]!=100000000 || [scalar timer.interval]!=9999 ||
+                [scalar timer.period_ticks]!=10000 || [scalar timer.prescaler]!=16 ||
+                [symbol ax02a_ttc_snapshot.valid]!=1 || [symbol ax02a_ttc_snapshot.hardware_interval]!=9999 ||
+                [symbol ax02a_ttc_snapshot.logical_period_ticks]!=10000 ||
+                [symbol ax02a_ttc_snapshot.periodic_hz]!=100000000 || [symbol ax02a_ttc_snapshot.timestamp_hz]!=100000000} {error "Runtime R1 candidate/snapshot/timer mismatch"}
+            foreach {key expected} {periodic_base 4279304192 timestamp_base 4279304196 periodic_clock 0 timestamp_clock 0} {
+                set value [symbol ax02a_ttc_snapshot.$key]
+                if {$value!=$expected} {error "Runtime R1 configuration mismatch: $key"}
+                lappend timer [format {"%s":%lld} $key $value]
+            }
+            lappend timer {"mapping_version":1} {"candidate_id":1378955313}
+            set identity [format {,"candidate":{"workspace":"%s","elf":"%s"}} [dict get $candidate workspace] [dict get $candidate elf]]
         }
         file mkdir $dir
         set state [open [file join $dir run.json] {WRONLY CREAT EXCL}]
-        puts $state [format {{"scenario":"current_motion_prefix","state":%d,"mode":1,"frames":1000,"experiment":%d,"interrupted":%s,"conditions":"%s","result":{"status":%d,"completed_frames":%d,"failed_frame":%d},"timer":{%s}}} [dict get $v state] [dict get $v experiment] $interrupted $conditions [dict get $v result.status] $n [dict get $v result.failed_frame] [join $timer ,]]
+        puts $state [format {{"scenario":"current_motion_prefix","state":%lld,"mode":1,"frames":1000,"experiment":%lld,"interrupted":%s,"conditions":"%s","result":{"status":%lld,"completed_frames":%lld,"failed_frame":%lld},"timer":{%s}%s}} [dict get $v state] [dict get $v experiment] $interrupted $conditions [dict get $v result.status] $n [dict get $v result.failed_frame] [join $timer ,] $identity]
         close $state
         # Only fully completed records are valid; failed_frame may be unwritten/partial.
         bytes $dir output.bin 0x11000000 [expr {$n*41*8}]
         bytes $dir timing.bin 0x13000000 [expr {$n*64}]
+        if {$candidate_file ne {}} {bytes $dir report_v2.bin 0x16000000 2400}
         puts "AX02A_SHORT_READBACK_COMPLETE: $n completed records; analyze run.json before judging PASS"
     }
 }

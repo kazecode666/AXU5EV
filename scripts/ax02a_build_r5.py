@@ -76,7 +76,7 @@ def check_startup(workspace):
 
 def source_files(generated):
     files=[ROOT/'firmware/r5/ax02a'/name for name in
-           ['main.c','replay_runner.c','timing.c','postprocess.c','replay_runner.h','timing.h','postprocess.h']]
+           ['main.c','replay_runner.c','timing.c','postprocess.c','replay_runner.h','timing.h','timer_mapping.h','postprocess.h']]
     files += [ROOT/'integration/r5_host'/name for name in ['ax01b_r5_bridge.c','ax01b_r5_bridge.h']]
     files += sorted(generated.glob('*.h'))
     files += sorted(f for f in generated.glob('*.c') if f.name!='ert_main.c')

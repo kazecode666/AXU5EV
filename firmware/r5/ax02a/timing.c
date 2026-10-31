@@ -1,4 +1,5 @@
 #include "timing.h"
+#include "timer_mapping.h"
 #include "xttcps.h"
 #include "xinterrupt_wrap.h"
 #include "xil_exception.h"
@@ -13,6 +14,8 @@ static volatile uint32_t release_sequence,release_tick;
 static uint32_t epoch_tick;
 static Ax02aTimerInfo *timer_info;
 volatile Ax02aTtcSnapshot ax02a_ttc_snapshot;
+const uint32_t ax02a_timer_mapping_version=AX02A_TIMER_MAPPING_VERSION;
+const uint32_t ax02a_runtime_candidate_id=AX02A_RUNTIME_CANDIDATE_ID;
 
 static uint64_t read_tick(void *unused)
 {
@@ -78,7 +81,7 @@ static void end(void *unused)
 int ax02a_timing_prepare(Ax02aClock *clock,Ax02aTimerInfo *info,uint32_t frames)
 {
     XTtcPs_Config *a=&XTtcPs_ConfigTable[0],*b=&XTtcPs_ConfigTable[1];
-    uint32_t hardware_interval,logical_period_ticks,prescaler,divisor,j,minimum=UINT_MAX,maximum=0;
+    uint32_t hardware_interval,logical_interval,logical_period_ticks,prescaler,divisor,j,minimum=UINT_MAX,maximum=0;
     ax02a_ttc_snapshot.valid=0;
     if(!a->Name||!b->Name||a->InputClockHz!=b->InputClockHz)return 1;
     if(XTtcPs_CfgInitialize(&periodic,a,a->BaseAddress)!=XST_SUCCESS||
@@ -89,14 +92,17 @@ int ax02a_timing_prepare(Ax02aClock *clock,Ax02aTimerInfo *info,uint32_t frames)
     XTtcPs_SetPrescaler(&counter,16); /* no prescaler: independent 32-bit counter */
     {
         uint8_t p;
-        XTtcPs_CalcIntervalFromFreq(&periodic,10000,&hardware_interval,&p);prescaler=p;
+        XTtcPs_CalcIntervalFromFreq(&periodic,10000,&logical_interval,&p);prescaler=p;
     }
-    if(!hardware_interval||hardware_interval==UINT_MAX||prescaler>16)return 1;
+    if(!logical_interval||logical_interval==UINT_MAX||prescaler>16)return 1;
     divisor=prescaler<16?(1U<<(prescaler+1)):1;
-    logical_period_ticks=hardware_interval*divisor;
-    if((uint64_t)(frames+2)*hardware_interval*divisor>=UINT_MAX)return 1;
-    /* Keep driver register value and nominal schedule distinct. No unproven
-       N-1 or N+1 compensation: physical rollover semantics await user evidence. */
+    if((uint64_t)logical_interval*divisor>UINT_MAX)return 1;
+    logical_period_ticks=logical_interval*divisor;
+    if(((uint64_t)frames+2)*logical_period_ticks>=UINT_MAX)return 1;
+    if(ax02a_timer_map((uint32_t)a->BaseAddress,(uint32_t)b->BaseAddress,
+                      a->InputClockHz,prescaler,logical_period_ticks,&hardware_interval))return 1;
+    /* Only this board's verified TTC0/unprescaled100MHz interval mapping.
+       Schedule, deadline, release timeout and wrap budget remain logical10000. */
     XTtcPs_SetInterval(&periodic,hardware_interval);XTtcPs_SetPrescaler(&periodic,(uint8_t)prescaler);
     info->clock_hz=b->InputClockHz;info->interval=hardware_interval;info->prescaler=prescaler;
     info->period_ticks=logical_period_ticks;timer_info=info;
@@ -130,8 +136,9 @@ int ax02a_timing_prepare(Ax02aClock *clock,Ax02aTimerInfo *info,uint32_t frames)
     if(ax02a_ttc_snapshot.hardware_interval!=hardware_interval||
         (ax02a_ttc_snapshot.periodic_clock&0x3fU)!=0||
         (ax02a_ttc_snapshot.timestamp_clock&0x3fU)!=0||
-        !(ax02a_ttc_snapshot.periodic_control&0x2U)||
-        (ax02a_ttc_snapshot.timestamp_control&0x2U))return 1;
+        ax02a_ttc_snapshot.periodic_control!=0x23U||
+        ax02a_ttc_snapshot.timestamp_control!=0x21U||
+        ax02a_ttc_snapshot.periodic_ier!=1U||ax02a_ttc_snapshot.timestamp_ier!=0U)return 1;
     clock->context=NULL;clock->period_ticks=info->period_ticks;clock->now=read_tick;
     clock->start=begin;clock->wait_release=await_release;clock->stop=end;
     return 0;
