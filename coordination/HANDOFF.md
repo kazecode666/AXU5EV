@@ -5,13 +5,23 @@
 ## 当前入口
 
 - [工作区、上板工程与数据保存位置](../docs/WORKSPACE_GUIDE_ZH.md)：目录职责、完整ELF/FSBL路径、数据命名和ChatGPT交接。
-- [首次上板指南第13节](../firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md#13-runtime-100µs-r1aba实测之后的p1000候选review后用户执行)：下一次Runtime R1 P1000，先Review，再由用户手动操作。
+- [首次指南第14节](../firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md#14-runtime-r1完整场景review后用户逐次执行)及[完整场景操作步骤](../firmware/r5/ax02a/FULL_SCENE_RUN_ZH.md)：下一次current_motion/64536帧与current_alignment_reset/43100帧，先Review，用户手动逐次执行。
 - 日常仿真：`simulation/START_HERE.m`；唯一参数入口 `simulation/init_AXU5EV.m`，保留本地模型/参数/wrapper修改，不保存未保存窗口。
 - 原逐阶段交接保留在 [HANDOFF_HISTORY_2026-10-31.md](HANDOFF_HISTORY_2026-10-31.md)。其中“当前”“NOT_RUN”等按当时阶段理解，不覆盖本文状态。
 
-## Review 5722212233：待复审
+## 本轮：R1 P1000实测PASS，完整场景准备待Review
 
-从目录整理提交 `f6c0fcb` 接续，已按[Review](https://github.com/kazecode666/AXU5EV/pull/16#pullrequestreview-5722212233)修复两个P2及完整构建版本保护。反例先复现：8项测试、23个失败子用例；修正后AX-02A相关离线回归72/72通过，0失败/0错误/0跳过。见[本轮报告](reports/ax02a_review_5722212233.md)及[验证记录](../verification/ax02a/review_5722212233/validation.json)。状态 **OFFLINE_FIXES_READY_FOR_REREVIEW**，PR16保持Draft，T4仍NOT_RUN。
+已只读分析 `.runtime/ax02a/board_manual/runtime_r1_p1000_01`、同次runtime_r1_pre_begin_01.json和replay/p1000参考，两条正式分析命令均exit0。1000×41数值0失败、最大差4.336808689942018e-19；deadline/sequence PASS，999 ISR相位斜率−0.000559882528tick/帧，低于原阈值0.012544565143；NO_TREND_DETECTED，板报与PC一致。最大Runtime37.61µs、task52.96µs、response59.19µs、jitter7.26µs，最小slack40.81µs；仅本次100MHz配置换算，非WCET/独立测频。上游配置与旧pre-begin基线一致，raw9999/logical10000符合本候选。[真实PASS证据](../verification/ax02a/runtime_r1_p1000_01/evidence.json)。
+
+现有R1 ELF静态检查可复用到两完整场景，不重建：实际ELF保留65536帧上限和timing/replay/postprocess调用，数据/参考均在DDR边界内且帧预算低于32位回绕。已生成 `.runtime/ax02a/full_scene_descriptors/{current_motion,current_alignment_reset}/reference_descriptor.bin`。readback_short.tcl末尾新增显式场景参数，沿用64KiB分块及原身份/失败路径；旧P1000调用不变。现有完整比较器和板报CLI可直接分析，prefix-only analyze_run不用于完整场景。
+
+完整场景原始数据预定为 `.runtime/ax02a/board_manual/runtime_r1_motion_01` 和 `runtime_r1_alignment_reset_01`，开始前配置分别为 `.runtime/ax02a/runtime_r1_motion_pre_begin_01.json` / `runtime_r1_alignment_reset_pre_begin_01.json`。操作见第14节链接；两个场景板验均NOT_RUN，由用户Review后逐次执行，不自动采集。原输入/参考及所有workspace/ELF留原路径。
+
+仅增加一个相关全尺寸传输用例覆盖两场景，先失败再通过；相关离线回归73/73，0失败/错误/跳过。[准备/限制与验证](../verification/ax02a/full_scene_r1/preparation.json)。不改模型/参数/生成代码/TTC映射/截止期，不运行板卡，不重复ABA，不清理。PR16保持Draft、Issue15开放；完整A4/A5/WCET仍待实际两次回放证据。
+
+## 历史：Review 5722212233修复交接
+
+从目录整理提交 `f6c0fcb` 接续，已按[Review](https://github.com/kazecode666/AXU5EV/pull/16#pullrequestreview-5722212233)修复两个P2及完整构建版本保护。反例先复现：8项测试、23个失败子用例；修正后AX-02A相关离线回归72/72通过，0失败/0错误/0跳过。见[本轮报告](reports/ax02a_review_5722212233.md)及[验证记录](../verification/ax02a/review_5722212233/validation.json)。该阶段状态 **OFFLINE_FIXES_READY_FOR_REREVIEW**；此后的P1000实测结果见上节，PR16保持Draft。
 
 板报状态/样本数/空组计数与PC原始结果逐项核对；双方一致拒绝与矛盾分开。合法早失败保存run.json及真实timer/snapshot（valid=0时不信任残留字段），不读旧DDR；有效失败前缀排除失败帧，不读报告。完整成功且后处理完成才捕获报告，仍须PC交叉。当前R1 ELF不重建，workspace、输入/参考/描述符/原始数据路径不变。
 
@@ -35,13 +45,13 @@
 | 首次完整运动数值 | motion_03，64536×41 PASS；[精简证据](../verification/ax02a/board_motion_03/baseline.json) |
 | 旧exp2及phase P1000 | 数值、deadline/sequence PASS；ISR约+1tick/帧，周期不接受，不是R1板验 |
 | TTC-only ABA | 三组各1000真实IRQ/16000B；周期10000.999985/9999.999988/10000.999700ticks，全窗口RAW_PLUS_ONE_COMPATIBLE、repeatable=true、issues=[]；[摘要](../verification/ax02a/ttc_aba_01/summary.json) |
-| Runtime R1 | 离线构建/启动文件检查PASS；**T4板验NOT_RUN**，[证据](../verification/ax02a/runtime_100us_r1/validation.json) |
+| Runtime R1 P1000 | **用户实测及PC/板报交叉PASS**；[本次证据](../verification/ax02a/runtime_r1_p1000_01/evidence.json)，不替代完整A4/A5 |
 | 完整A4 | 第二次独立完整motion、43100帧alignment/reset仍未验收 |
 | 完整A5/WCET | 未完成，TTC-only和短段P1000不替代 |
 
-ABA已完成，不重复ABA或可选C。Review后按第13节保存独立 `board_manual/runtime_r1_p1000_01` 的 `run.json/output.bin/timing.bin/report_v2.bin`，另保留同次开始前配置；输入/参考仍用 `replay/p1000`，v2描述符仍用 `phase_p1000_descriptor`。这些路径均位于 `.runtime/ax02a/`。新采集和分析目录不得覆盖已有目录。
+ABA及R1 P1000已完成，不重复ABA/C或P1000。第13节保留为其历史步骤；下一次按第14节使用两个完整场景的各自输入/参考/描述符，原始和分析目录不得覆盖。
 
-T4成功也只记“带Runtime的100µs短段通过”；失败保留首个异常，不改9998、expected、deadline或容差。之后完整A4/A5另行推进，不扩展ADC/QEP/PS—PL/实物FOC。
+本次T4只记“带Runtime的100µs短段通过”；失败保留首个异常，不改9998、expected、deadline或容差。之后完整A4/A5另行推进，不扩展ADC/QEP/PS—PL/实物FOC。
 
 ## 本轮目录整理
 

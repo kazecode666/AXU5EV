@@ -1,6 +1,6 @@
 # AX-02A：用户手动上板指南（Vitis 2026.1）
 
-**2026-10-31当前导航：下一次使用第13节Runtime 100µs R1，workspace为 `.runtime/ax02a/vitis_runtime_100us_r1`，先Review，用户手动操作，候选板验NOT_RUN。** [工作区与数据保存位置](../../../docs/WORKSPACE_GUIDE_ZH.md)列出完整ELF/FSBL和独立实验目录。ABA已完成，不重复第12节或可选C。用户BOARD_BOOT/FIRST_WAIT和motion_03首次完整数值已PASS，完整A4/A5仍未验收。
+**2026-10-31当前导航：R1 P1000用户实测已PASS；下一次使用第14节的两个完整场景，workspace仍为 `.runtime/ax02a/vitis_runtime_100us_r1`，先Review、用户手动逐次操作，完整场景板验NOT_RUN。** [工作区与数据保存位置](../../../docs/WORKSPACE_GUIDE_ZH.md)列出完整ELF/FSBL和独立实验目录。ABA已完成，不重复第12节或可选C。用户BOARD_BOOT/FIRST_WAIT和motion_03首次完整数值已PASS，完整A4/A5仍未验收。
 
 第1—6节保留首次启动/旧回放步骤，第7/8/12节分别是历史后处理/phase/TTC-only阶段；具体路径与状态按所属阶段理解。第13节会复用其中通用初始化检查，但工程/ELF/数据以第13节为准。以下开头的启动故障描述是首次修复时的记录。
 
@@ -578,6 +578,8 @@ python D:/Project/AXU5EV/scripts/ax02a_analyze_ttc_characterize.py aba D:/Projec
 
 ## 13. Runtime 100µs R1：ABA实测之后的P1000候选（Review后用户执行）
 
+本节实验现已由用户完成并独立复算PASS；以下保留当时步骤，不要求重复。当前下一步是第14节完整场景。
+
 Review5722212233的PC交叉/失败读回/构建入口修复已离线完成，72/72回归通过，**等待复审**；当前R1 ELF不重建。详情见[本轮报告](../../../coordination/reports/ax02a_review_5722212233.md)。原成功数据/相位/deadline门槛不变。
 
 任务[6541052405](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6541052405)。ABA实测已完成，全窗口支持本配置raw+1映射；无需重复ABA或运行C。本节为带原生成Runtime的独立候选，板验NOT_RUN；不覆盖旧工程，不继承旧时间结果。平台/PC版本合同见[RUNTIME_100US_R1.md](RUNTIME_100US_R1.md)。
@@ -645,3 +647,9 @@ python D:/Project/AXU5EV/scripts/ax02a_post_report.py crosscheck --metadata D:/P
 ```
 
 通过须同时满足候选/experiment正确、未中断且完整1000帧；41字段原容差0失败、序号正常/零截止期超限/最小余量>0；既有相位门槛无持续趋势（仍排除回放软件首帧，999个ISR样本），报告斜率/阈值与旧+0.997790849tick/frame对照；板上报告与PC一致。失败或证据不足保留首个异常并停。通过也只记录带Runtime的100µs短段通过，之后另补A4第二次完整运动/对齐复位，再做完整A5；本轮不自动延长采集、不扩展外设/电流环。
+
+## 14. Runtime R1完整场景（Review后用户逐次执行）
+
+第13节P1000真实数据已完整归档PASS，见[证据](../../../verification/ax02a/runtime_r1_p1000_01/evidence.json)。完整场景沿用现有ELF、DDR与原生成Runtime，不Build。**具体Vitis/XSDB逐步操作、两份数据/描述符/读回目录及两条分析命令集中在 [FULL_SCENE_RUN_ZH.md](FULL_SCENE_RUN_ZH.md)。**
+
+先current_motion（64536帧/mode1/scenario2），用户保存并分析通过后，再显式执行current_alignment_reset（43100帧/mode1/scenario3）。两次板验NOT_RUN；不重复ABA或P1000，不改采样参数/映射/deadline，不自动执行另一个场景，PR16保持Draft、Issue15开放。

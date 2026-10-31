@@ -2,9 +2,11 @@
 
 ## 当前开发
 
+- 最新R1 P1000用户实测已复算PASS：1000×41/数值零失败、deadline/sequence PASS、相位无趋势、PC/板报一致，证据 `verification/ax02a/runtime_r1_p1000_01/`。本轮完整场景准备已离线完成：现有R1 ELF不重建，描述符在 `.runtime/ax02a/full_scene_descriptors/`，readback_short.tcl末尾显式场景支持current_motion64536/current_alignment_reset43100。下一步指南第14节及FULL_SCENE_RUN_ZH.md，用户Review后手动逐次执行；两次完整板验NOT_RUN，73/73离线回归不代替ARM实测。保留全部workspace/原始数据，不重复ABA/不清理/不改算法参数。
+
 - PR16 Review5722212233从f6c0fcb接续：板报假PASS、初始化失败现场保存及完整构建显式runtime_mapping=1保护已离线修复，72/72相关回归通过，待复审。当前R1 ELF不重建，TTC映射/deadline/生成代码/模型不改，不操作板卡。用户已手动清理旧临时目录，不恢复、不再清理；本轮新测试隔离于 `.runtime/ax02a/review_5722212233/`。
 
-- 目录/上板/数据保存统一索引为 `docs/WORKSPACE_GUIDE_ZH.md`；当前状态读 `coordination/HANDOFF.md`，历史交接见 `coordination/HANDOFF_HISTORY_2026-10-31.md`。下一次Runtime R1只用指南第13节及 `vitis_runtime_100us_r1`；历史清理候选已由用户手动删除，不恢复、不再清理；workspace/原始数据不搬动。
+- 目录/上板/数据保存统一索引为 `docs/WORKSPACE_GUIDE_ZH.md`；当前状态读 `coordination/HANDOFF.md`，历史交接见 `coordination/HANDOFF_HISTORY_2026-10-31.md`。下一次Runtime R1完整场景用指南第14节及 `vitis_runtime_100us_r1`；历史清理候选已由用户手动删除，不恢复、不再清理；workspace/原始数据不搬动。
 
 - 当前执行PR16任务6541052405 T1—T3：用户`ttc_aba_01`三组真实IRQ已复算，全窗口RAW_PLUS_ONE_COMPATIBLE、A1/A2可重复；只读兼容旧uint32签名元数据，原始run/samples保留。Runtime平台仅对已验证TTC0通道0/1内部同源100MHz、无分频、10kHz映射raw9999/logical10000，其他配置拒绝；不改expected/deadline。新候选workspace `.runtime/ax02a/vitis_runtime_100us_r1`，旧workspace/ELF全保留。T4必须Review后用户按指南第13节手动P1000，Runtime候选板验NOT_RUN，不重复ABA/C，不操作板卡、不合并。
 

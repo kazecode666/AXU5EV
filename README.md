@@ -2,13 +2,13 @@
 
 **当前优先：[Issue #15](https://github.com/kazecode666/AXU5EV/issues/15)，AX-02A真实R5目标工程、数值回放与100µs时间验证。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。PR #14已合并；完整RTL结果直接复用，不默认重跑。见[AX-02A实际结果与阻塞](coordination/reports/ax02a_r5_target_validation.md)及[R5构建/回放入口](firmware/r5/ax02a/README.md)。C源码教学已取消，Issue #11和AX-02B/C不在本轮实施。
 
-**目录与保存位置统一入口：[工作区指南](docs/WORKSPACE_GUIDE_ZH.md)。当前上板候选为 `.runtime/ax02a/vitis_runtime_100us_r1`，Review后按[手动指南第13节](firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md#13-runtime-100µs-r1aba实测之后的p1000候选review后用户执行)，不重复ABA/C。**
+**目录与保存位置统一入口：[工作区指南](docs/WORKSPACE_GUIDE_ZH.md)。当前上板候选为 `.runtime/ax02a/vitis_runtime_100us_r1`，R1 P1000实测已PASS；下一步Review后按[完整场景指南](firmware/r5/ax02a/FULL_SCENE_RUN_ZH.md)，不重复ABA/C或P1000。**
 
 日常仍从`simulation/START_HERE.m`开始。只读显示给出R5采样Send、同拍Ready/Busy及最近请求时间/结果/计数；Busy=0不保证Ready=1，未Ready拒绝且不排队。Issue #11为后续架构讨论，不在本轮实施。实际鼠标Dashboard操作/刷新仍NOT_RUN；本轮完整RTL三段运动已完成。
 
 本轮完整C/真实RTL同Run `10→0→−2 mm` 已完成：实际RTL 64536帧，三段均满足原Ready，接受3/拒绝1；位置、速度、dq电流、参考及应用duty差均0。见[AX-01C结果与曲线](coordination/reports/ax01c_simulation_closeout.md)。先前默认点位修复与发送回执分别见[Issue #8原报告](coordination/reports/issue8_manual_run.md)、[发送报告](coordination/reports/issue8_send_ready.md)。
 
-[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)已合并（`ae9a11d2d59abc952cce0b979d004a315878639a`）。用户补齐2026.1组件后，手册5EV器件的PS-only XSA、R5 standalone BSP/FSBL及含Runtime的真实ELF/map已构建通过；全采样导出与主机数值证据保持有效。用户BOARD_BOOT/FIRST_WAIT及motion_03首次完整数值已PASS；TTC-only ABA实测已闭合。Runtime R1候选T4板验NOT_RUN，完整A4/A5/WCET未完成；见[构建与验证报告](coordination/reports/ax02a_r5_target_validation.md)。
+[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)已合并（`ae9a11d2d59abc952cce0b979d004a315878639a`）。用户补齐2026.1组件后，手册5EV器件的PS-only XSA、R5 standalone BSP/FSBL及含Runtime的真实ELF/map已构建通过；全采样导出与主机数值证据保持有效。用户BOARD_BOOT/FIRST_WAIT及motion_03首次完整数值已PASS；TTC-only ABA实测已闭合。Runtime R1 P1000数值/时间及板报交叉已PASS，两个完整场景待用户执行，完整A4/A5/WCET未完成；见[构建与验证报告](coordination/reports/ax02a_r5_target_validation.md)。
 
 ## 目标与分工
 

@@ -1,0 +1,29 @@
+{
+  "status": "OFFLINE_READY_FOR_REVIEW",
+  "tests": 73,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "new_test_scope": "one test, two full-size scenes: HOST C reports + reference copies/synthetic ticks -> real Tcl chunk merger -> existing compare and crosscheck CLIs",
+  "before_change": {
+    "tests": 1,
+    "failed_scene_subtests": 2,
+    "reason": "P1000-only readback rejected the full-scene argument"
+  },
+  "after_change": {
+    "scenes": [
+      "current_motion",
+      "current_alignment_reset"
+    ],
+    "both_comparison_clis_exit": 0,
+    "chunk_bytes_max": 65536
+  },
+  "elf_rebuild": "NOT_RUN_NOT_NEEDED",
+  "board_full_scenes": "NOT_RUN",
+  "hardware": "NONE",
+  "algorithm_or_parameter_changes": "NONE",
+  "rtl": "NOT_RUN",
+  "cleanup": "NONE",
+  "local_artifacts": ".runtime/ax02a/runtime_r1_full_handoff",
+  "test_command": "python verification/ax02a/run_offline_tests.py --output .runtime/ax02a/runtime_r1_full_handoff/regression"
+}

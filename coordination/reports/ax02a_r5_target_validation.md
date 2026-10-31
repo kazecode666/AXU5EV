@@ -8,6 +8,18 @@
 
 ## 当前验收状态
 
+### 2026-10-31：Runtime R1 P1000真实PASS归档及完整场景准备
+
+从 `cc4dee9ef202e9ff4597c59e997d8813383b1c20` 接续。只读 `.runtime/ax02a/board_manual/runtime_r1_p1000_01/` 的run/output328000B/timing64000B/report_v2 2400B、同次 `.runtime/ax02a/runtime_r1_pre_begin_01.json` 与 `replay/p1000` 参考。现有ax02a_analyze_run和修正后板报crosscheck两条CLI均exit0：1000×41数值0失败，最大绝对差4.336808689942018e-19；deadline/sequence PASS，原始异常0；999 ISR斜率−0.0005598825278183996tick/帧，原阈值0.012544565142580701，NO_TREND_DETECTED；crosscheck_consistent=true、passed=true，无状态/统计矛盾。
+
+最大观测Runtime37.61µs、task52.96µs、response59.19µs、start jitter7.26µs，最小slack40.81µs。按此候选100MHz配置换算，不是独立测频或WCET。pre-begin raw9999/logical10000、clock/control/IER符合候选，TTC0选择/上游lpd_lsbus_ctrl/iopll_ctrl与此前基线分别保持0/16779778/80896，只有预期raw从10000改为9999。精简PASS证据/数值/时间/板报及配置在[本次归档](../../verification/ax02a/runtime_r1_p1000_01/evidence.json)，大型原始二进制只留本地。仅签收带Runtime的100µs短段，不代替完整A4/A5。
+
+现有R1 ELF可直接接受current_motion64536和current_alignment_reset43100的mode1。纯文件启动/实际候选常量检查通过；实际ELF main反汇编仍含65536帧比较及timing/replay/postprocess调用。对应workspace导入源支持scenario2/3和32B描述符。两组input/output/timing/reference的实际长度全部落在原DDR窗口，帧预算645380000/431020000tick低于UINT32_MAX，不改逻辑周期/超时/截止期。
+
+两份描述符已由原工具生成于 `.runtime/ax02a/full_scene_descriptors/{current_motion,current_alignment_reset}/reference_descriptor.bin`，输入/参考直接复用replay下同名目录；readback_short.tcl末尾新增显式场景参数，帧数固定64536/43100，沿用64KiB分块、身份及失败保存逻辑，旧P1000调用不变。只新增一个全尺寸功能用例覆盖两场景：先复现旧入口拒绝，再经真实Tcl分块/合并送入现有完整数值/时间CLI及板报CLI，两个场景均通过。HOST C报告/参考副本与合成ticks只证明读回及分析可用；相关离线回归73/73、0失败/错误/跳过，不能当ARM证据。[准备和静态能力](../../verification/ax02a/full_scene_r1/preparation.json)、[验证记录](../../verification/ax02a/full_scene_r1/validation.json)。
+
+当前 **OFFLINE_READY_FOR_REVIEW**。具体逐次Vitis/XSDB及两个独立保存/分析路径见[完整场景指南](../../firmware/r5/ax02a/FULL_SCENE_RUN_ZH.md)和首次指南第14节。motion原始目录预定board_manual/runtime_r1_motion_01，alignment/reset为runtime_r1_alignment_reset_01；两次完整实验均NOT_RUN，用户Review后手动执行并各自保存pre-begin。完整A4/A5/WCET未完成，不关闭Issue15、不合并PR16。没有重新生成模型/算法、修改参数、重建当前ELF、重复ABA、清理或连接板卡；全部workspace及原始数据保留。
+
 ### 2026-10-31：ABA实测闭合与Runtime 100µs R1候选
 
 按[任务6541052405](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6541052405)执行T1—T3，任务原文在`coordination/tasks/ax02a_runtime_100us_r1.md`。T1独立提交`b46fdf6`：只读`board_manual/ttc_aba_01/{A1,B,A2}`各16000B/1000真实IRQ，raw=10000/9999/10000、experiment=1/2/3、同一构建3113983656/同会话且未中断。事件周期复算10000.999985476985／9999.999988308988／10000.999700386701 ticks；全窗口RAW_PLUS_ONE_COMPATIBLE、repeatable=true、issues=[]。证据在`verification/ax02a/ttc_aba_01/`。这支持本板TTC0内部同源100MHz、无分频间隔模式的映射，不是Runtime时间/完整A5验收，也不要求重采ABA或可选C。

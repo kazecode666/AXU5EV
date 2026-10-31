@@ -1,12 +1,12 @@
 # AX-02A：R5 standalone 回放
 
-更新：2026-10-31。当前为任务6541052405的Runtime 100µs R1，**OFFLINE_READY_FOR_REVIEW，T4板验NOT_RUN**。ABA实测已复算闭合，不重复ABA/C。用户已完成BOARD_BOOT/FIRST_WAIT和motion_03首次完整数值；A4剩余项与完整A5/WCET未完成。
+更新：2026-10-31。当前为任务6541052405的Runtime 100µs R1，**P1000用户实测/PC交叉PASS，完整场景准备待Review**。ABA实测已复算闭合，不重复ABA/C。用户已完成BOARD_BOOT/FIRST_WAIT和motion_03首次完整数值；A4剩余项与完整A5/WCET未完成。
 
 - 目录与数据保存：[工作区指南](../../../docs/WORKSPACE_GUIDE_ZH.md)，当前状态：[HANDOFF](../../../coordination/HANDOFF.md)。
-- 下一次上板：[手动指南第13节](FIRST_BOARD_RUN_ZH.md#13-runtime-100µs-r1aba实测之后的p1000候选review后用户执行)，先Review，用户本人操作。
+- 下一次上板：[完整场景手动指南](FULL_SCENE_RUN_ZH.md)，先Review，用户本人操作。
 - Workspace：`.runtime/ax02a/vitis_runtime_100us_r1`；应用 `ax02a_replay`；launch `ax02a_first_wait_a53fsbl`。旧workspace有同名launch，须核对该workspace自己的ELF与A53 FSBL。
 - 配置：[build_config.runtime_100us_r1.json](build_config.runtime_100us_r1.json)；合同：[RUNTIME_100US_R1.md](RUNTIME_100US_R1.md)。候选0x52313031、mapping_version1，仅已验证配置raw9999/logical10000，原expected/deadline不变。
-- 新采集：`.runtime/ax02a/board_manual/runtime_r1_p1000_01`，同一次run/output/timing/report_v2四文件。输入/参考仍用replay/p1000，描述符仍用phase_p1000_descriptor，完整规则见工作区指南。
+- 已有P1000原始数据保留；新采集为board_manual/runtime_r1_motion_01和runtime_r1_alignment_reset_01，配套输入/参考为replay/current_motion和current_alignment_reset，描述符为full_scene_descriptors下对应场景。均位于.runtime/ax02a。
 
 Review5722212233修复待复审：[反例/验证报告](../../../coordination/reports/ax02a_review_5722212233.md)。PC交叉逐项核对板报状态/计数，合法初始化失败可仅保存run.json，失败不读报告。既有R1 ELF保持不变。
 

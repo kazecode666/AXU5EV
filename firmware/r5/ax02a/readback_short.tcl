@@ -28,7 +28,16 @@ namespace eval ax02a_short {
         if {[file size $partial]!=$total} {error "Merged length mismatch: $partial"}
         file rename $partial [file join $dir $name]
     }
-    proc readback {dir before_experiment conditions interrupted {candidate_file {}}} {
+    proc readback {dir before_experiment conditions interrupted {candidate_file {}} {scenario current_motion_prefix}} {
+        # Legacy four/five-argument calls remain P1000. Full scenes are explicit
+        # and reuse this same bounded 64KiB chunk transfer and identity checks.
+        switch -- $scenario {
+            current_motion_prefix {set frames 1000}
+            current_motion {set frames 64536}
+            current_alignment_reset {set frames 43100}
+            default {error "Unknown replay scenario"}
+        }
+        if {$scenario ne "current_motion_prefix" && $candidate_file eq {}} {error "Full scene requires the Runtime R1 candidate record"}
         if {$interrupted ni {true false}} {error "Explicitly declare interrupted true or false; omitted/unknown is not accepted"}
         # Explicit user call only, in the existing GUI XSDB session, after timer stop.
         set current {}
@@ -47,15 +56,15 @@ namespace eval ax02a_short {
             dict set v $f [scalar $f]
         }
         if {[dict get $v state] ni {3 4} || [dict get $v command]!=0 ||
-            [dict get $v mode]!=1 || [dict get $v frames]!=1000 ||
+            [dict get $v mode]!=1 || [dict get $v frames]!=$frames ||
             [dict get $v experiment]!=$before_experiment+1} {
-            error "Not this P1000 completed/failed experiment; do not read running or stale buffers"
+            error "Not this $scenario completed/failed experiment; do not read running or stale buffers"
         }
         set n [dict get $v result.completed_frames]
         set status [dict get $v result.status]
-        if {$n<0 || $n>1000 || $status ni {0 1 2 3 4} ||
-            ($status==0 && ($n!=1000 || [dict get $v state]!=3)) ||
-            ($status!=0 && ([dict get $v state]!=4 || $n>=1000 ||
+        if {$n<0 || $n>$frames || $status ni {0 1 2 3 4} ||
+            ($status==0 && ($n!=$frames || [dict get $v state]!=3)) ||
+            ($status!=0 && ([dict get $v state]!=4 || $n>=$frames ||
                 [dict get $v result.failed_frame]!=$n)) ||
             ($status in {3 4} && $n!=0)} {error "Inconsistent completion count/state"}
         set timer {}
@@ -108,7 +117,7 @@ namespace eval ax02a_short {
         set report_validity [expr {$report_captured?"UNVALIDATED_REQUIRES_PC_CROSSCHECK":"NOT_CAPTURED"}]
         file mkdir $dir
         set state [open [file join $dir run.json] {WRONLY CREAT EXCL}]
-        puts $state [format {{"scenario":"current_motion_prefix","state":%lld,"mode":1,"frames":1000,"experiment":%lld,"interrupted":%s,"conditions":"%s","result":{"status":%lld,"completed_frames":%lld,"failed_frame":%lld},"timer":{%s},"captured_records":%lld,"report_captured":%s,"report_validity":"%s"%s}} [dict get $v state] [dict get $v experiment] $interrupted $conditions $status $n [dict get $v result.failed_frame] [join $timer ,] $captured $report_captured $report_validity $identity]
+        puts $state [format {{"scenario":"%s","state":%lld,"mode":1,"frames":%lld,"experiment":%lld,"interrupted":%s,"conditions":"%s","result":{"status":%lld,"completed_frames":%lld,"failed_frame":%lld},"timer":{%s},"captured_records":%lld,"report_captured":%s,"report_validity":"%s"%s}} $scenario [dict get $v state] $frames [dict get $v experiment] $interrupted $conditions $status $n [dict get $v result.failed_frame] [join $timer ,] $captured $report_captured $report_validity $identity]
         close $state
         # Only fully completed records are valid; failed_frame may be unwritten/partial.
         if {$captured>0} {
