@@ -3,6 +3,8 @@
 Run with vitis -s scripts/ax02a_build_r5.py. Configuration defaults to
 .runtime/ax02a/build_config_phase.json; AX02A_BUILD_CONFIG may select another JSON.
 Standard Python supports --config and --preflight for explicit dependency checks.
+Full builds/preflight require runtime_mapping=1 for this branch's R1 sources;
+legacy configurations remain supported by read-only --check-startup.
 """
 import argparse
 import json
@@ -176,6 +178,13 @@ def main():
     runtime_mapping=config.get('runtime_mapping',0)
     if args.check_startup:
         print(json.dumps(check_startup(workspace,runtime_mapping),indent=2));return
+    # Current source_files always imports R1 timing.c. Never create an unmarked
+    # R1 ELF from an implicit/legacy configuration, even in a fresh workspace.
+    # Read-only historical checks and Runtime object-only compilation are separate.
+    if not args.runtime_only and (type(runtime_mapping) is not int or runtime_mapping!=1):
+        raise ValueError('full builds/preflight require explicit runtime_mapping=1 for current R1 sources; '
+                         'use build_config.runtime_100us_r1.json with a new workspace; '
+                         'legacy ELF inspection uses --check-startup')
     files=source_files(generated)
     if args.runtime_only:
         if not args.compiler or not args.output:

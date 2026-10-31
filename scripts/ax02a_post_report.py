@@ -47,30 +47,48 @@ def identity(report,m,run,before):
   or run['experiment']!=report['experiment'] or run['mode']!=report['mode'] or run['frames']!=report['requested']
   or run['scenario']!=m['scenario'] or run['state']!=3 or run['result']['status']!=0
   or run['result']['completed_frames']!=m['frames'] or run['interrupted'] is not False):raise ValueError('saved run/report identity or completion mismatch')
- return not any(report[k] for k in ['program_status','compare_status','contract_errors','numeric_errors','timing_errors']) and report['completed']==m['frames'] and report['timing_status']==(0 if report['mode'] else 2) and (not report['mode'] or (report['version']>=2 and report['period_status']==0))
+ return not any(report[k] for k in ['program_status','compare_status','contract_errors','numeric_errors','timing_errors']) and report['completed']==m['frames'] and report['timing_status']==(0 if report['mode'] else 2) and (not report['mode'] or (report['version']>=2 and report['deadline_status']==0 and report['period_status']==0 and report['release_phase']['samples']==m['frames']-1))
 def crosscheck(r,reference,actual,m,run,before,ticks=None):
  claimed=identity(r,m,run,before);stats=py.compare(reference,actual,m['frames'],m['Ts']);errors=[]
  for a,b in zip(r['fields'],stats):
   for k in ['failures','max_frame','first_mismatch_frame','max_abs']:
    if a[k]!=b[k]:errors.append(dict(field=a['field'],metric=k))
   if not math.isclose(a['rms'],b['rms'],abs_tol=1e-15,rel_tol=1e-12):errors.append(dict(field=a['field'],metric='rms'))
- anomalies=[]
- phase_agrees=True
+ # Derive report statuses/counts from the raw PC comparison, independently of
+ # the board's PASS claim. Agreement on a rejection is still not a PASS.
+ numeric_errors=sum(s['failures'] for s in stats)
+ expected=dict(program_status=run['result']['status'],completed=m['frames'],
+  contract_errors=0,numeric_errors=numeric_errors,compare_status=int(bool(numeric_errors)),
+  p99_status=2,timing_errors=0,timing_status=2,deadline_status=2,period_status=2)
+ anomalies=[];rows=[]
+ phase=dict(status='INSUFFICIENT_SPAN',samples=0)
  if r['mode']:
   hz,period=validate_timer(run['timer'])
   rows,anomalies=py.timing_stats(ticks,m['frames'],hz,period,actual)
   phase=py.release_phase(list(struct.iter_unpack('<8Q',ticks.read_bytes())))
-  phase_agrees=(r['release_phase']['status']==phase['status'])
+  deadline_errors=sum(a.get('category')!='period' for a in anomalies)
+  period_status={'NO_TREND_DETECTED':0,'TREND_DETECTED':1,'INSUFFICIENT_SPAN':2}[phase['status']]
+  timing_errors=deadline_errors+int(period_status==1)
+  expected.update(deadline_status=int(bool(deadline_errors)),period_status=period_status,
+   timing_errors=timing_errors,timing_status=1 if timing_errors else period_status)
   if r['version']>=2:
    for key in ['slope_ticks_per_frame','intercept_ticks','residual_rms_ticks','slope_standard_error','threshold_ticks_per_frame','mean_isr_interval_ticks']:
-    if not math.isclose(r['release_phase'][key],phase[key],abs_tol=1e-10,rel_tol=1e-9):phase_agrees=False
-  for b in rows:
-   a=next(x for x in r['metrics'] if x['category']==b['category'] and x['metric']==b['metric'])
-   for k in ['samples','worst_frame']:
-    if a[k]!=b[k]:errors.append(dict(category=b['category'],metric=k))
-   for k in ['mean','minimum','maximum']:
-    if not math.isclose(a[k],b[k],abs_tol=1e-12,rel_tol=1e-9):errors.append(dict(category=b['category'],metric=b['metric'],stat=k))
- return dict(passed=claimed and not errors and not anomalies and phase_agrees and not any(s['failures'] for s in stats),crosscheck_consistent=not errors and phase_agrees,period_status=r['release_phase']['status'],origin='HOST_POSTPROCESS',input_origin='BOARD motion_03 or explicitly supplied run; HOST is not target postprocessor validation',frames=m['frames'],field_metrics_mismatches=errors,python_timing_anomalies=anomalies,p99='NOT_COMPUTED in C v1/v2; Python retains its ceil P99',statistics_tolerances='RMS abs1e-15/rel1e-12; time summaries abs1e-12/rel1e-9; no change to numeric PASS tolerances')
+    if not math.isclose(r['release_phase'][key],phase[key],abs_tol=1e-10,rel_tol=1e-9):errors.append(dict(phase=key))
+  else:errors.append(dict(phase='UNAVAILABLE_V1'))
+ if r['version']>=2:
+  if r['release_phase']['status']!=phase['status']:errors.append(dict(phase='status'))
+  if r['release_phase']['samples']!=phase['samples']:errors.append(dict(phase='samples'))
+ status_errors=[dict(status=k,reported=r[k],expected=v) for k,v in expected.items() if r[k]!=v]
+ # PC omits empty groups; the wire report must still describe all 30 slots.
+ by_metric={(b['category'],b['metric']):b for b in rows}
+ for a in r['metrics']:
+  b=by_metric.get((a['category'],a['metric']),dict(samples=0,worst_frame=0,mean=0.,minimum=0.,maximum=0.))
+  for k in ['samples','worst_frame']:
+   if a[k]!=b[k]:errors.append(dict(category=a['category'],metric=a['metric'],stat=k))
+  for k in ['mean','minimum','maximum']:
+   if not math.isclose(a[k],b[k],abs_tol=1e-12,rel_tol=1e-9):errors.append(dict(category=a['category'],metric=a['metric'],stat=k))
+ consistent=not errors and not status_errors
+ return dict(passed=claimed and consistent and not anomalies and not numeric_errors,crosscheck_consistent=consistent,period_status=r['release_phase']['status'],origin='HOST_POSTPROCESS',input_origin='BOARD motion_03 or explicitly supplied run; HOST is not target postprocessor validation',frames=m['frames'],field_metrics_mismatches=errors,report_status_mismatches=status_errors,python_timing_anomalies=anomalies,p99='NOT_COMPUTED in C v1/v2; Python retains its ceil P99',statistics_tolerances='RMS abs1e-15/rel1e-12; time summaries abs1e-12/rel1e-9; no change to numeric PASS tolerances')
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['descriptor','decode','host','crosscheck'])
  for k in ['metadata','output']:p.add_argument('--'+k,type=Path,required=True)

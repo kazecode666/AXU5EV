@@ -9,7 +9,15 @@
 - 日常仿真：`simulation/START_HERE.m`；唯一参数入口 `simulation/init_AXU5EV.m`，保留本地模型/参数/wrapper修改，不保存未保存窗口。
 - 原逐阶段交接保留在 [HANDOFF_HISTORY_2026-10-31.md](HANDOFF_HISTORY_2026-10-31.md)。其中“当前”“NOT_RUN”等按当时阶段理解，不覆盖本文状态。
 
-## 当前任务与证据
+## Review 5722212233：待复审
+
+从目录整理提交 `f6c0fcb` 接续，已按[Review](https://github.com/kazecode666/AXU5EV/pull/16#pullrequestreview-5722212233)修复两个P2及完整构建版本保护。反例先复现：8项测试、23个失败子用例；修正后AX-02A相关离线回归72/72通过，0失败/0错误/0跳过。见[本轮报告](reports/ax02a_review_5722212233.md)及[验证记录](../verification/ax02a/review_5722212233/validation.json)。状态 **OFFLINE_FIXES_READY_FOR_REREVIEW**，PR16保持Draft，T4仍NOT_RUN。
+
+板报状态/样本数/空组计数与PC原始结果逐项核对；双方一致拒绝与矛盾分开。合法早失败保存run.json及真实timer/snapshot（valid=0时不信任残留字段），不读旧DDR；有效失败前缀排除失败帧，不读报告。完整成功且后处理完成才捕获报告，仍须PC交叉。当前R1 ELF不重建，workspace、输入/参考/描述符/原始数据路径不变。
+
+用户已按清单手动删除此前临时目录；不恢复、不再清理。本轮新测试产物集中在 `.runtime/ax02a/review_5722212233/`，无删除。源码/参数/模型本地修改继续保留。
+
+## Runtime R1已有任务与证据
 
 最新为[任务6541052405](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6541052405)，[版本化任务书](tasks/ax02a_runtime_100us_r1.md)。T1—T3完成，状态 **OFFLINE_READY_FOR_REVIEW**：
 
@@ -37,7 +45,7 @@ T4成功也只记“带Runtime的100µs短段通过”；失败保留首个异�
 
 ## 本轮目录整理
 
-统一README、固件入口、当前状态和工作区指南，历史交接单独保留；workspace/原始数据/生成源物理路径不变。可手动清理项见[清单](reports/workspace_cleanup_2026-10-31.md)。按AGENTS禁止批量删除，Codex未删除文件；清单交用户手动处理。`.runtime/`不入库，推送GitHub不备份本地原始数据。
+统一README、固件入口、当前状态和工作区指南，历史交接单独保留；workspace/原始数据/生成源物理路径不变。历史清理项见[清单](reports/workspace_cleanup_2026-10-31.md)，用户已手动删除；本轮不恢复、不再清理。`.runtime/`不入库，推送GitHub不备份本地原始数据。
 
 ## 固定方向与工作边界
 

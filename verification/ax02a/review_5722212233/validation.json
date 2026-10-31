@@ -1,0 +1,60 @@
+{
+  "status": "OFFLINE_FIXES_READY_FOR_REREVIEW",
+  "owner_repo": "kazecode666/AXU5EV",
+  "pr": 16,
+  "review": 5722212233,
+  "base_commit": "f6c0fcbe1be63445baa4b744e1a06415ab7ebec1",
+  "red": {
+    "tests": 8,
+    "failed_subtests": 23,
+    "errors": 0,
+    "source": "verification/ax02a/review_5722212233/red_tests.txt"
+  },
+  "green": {
+    "tests": 72,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "command": "python verification/ax02a/run_offline_tests.py --output .runtime/ax02a/review_5722212233/verified_runner",
+    "log": "verification/ax02a/review_5722212233/tests.txt"
+  },
+  "counterexamples": {
+    "report_deadline_status": [
+      "CLI_EXIT_0_PASS_TRUE_CONSISTENT_TRUE",
+      "CLI_EXIT_1_PASS_FALSE_CONSISTENT_FALSE"
+    ],
+    "report_phase_samples": [
+      "CLI_EXIT_0_PASS_TRUE_CONSISTENT_TRUE",
+      "CLI_EXIT_1_PASS_FALSE_CONSISTENT_FALSE"
+    ],
+    "report_empty_command_samples": [
+      "CLI_EXIT_0_PASS_TRUE_CONSISTENT_TRUE",
+      "CLI_EXIT_1_PASS_FALSE_CONSISTENT_FALSE"
+    ],
+    "prepare_failure": [
+      "TCL_EXCEPTION_NO_RUN_JSON",
+      "RUN_JSON_STATUS3_COMPLETED0_NO_DDR_READS_NO_REPORT"
+    ],
+    "legacy_full_build": [
+      "NO_VERSION_GATE_REACHED_COMPILER_DEPENDENCY_CHECK",
+      "EXPLICIT_VERSION_REJECTION_BEFORE_WORKSPACE_CREATION"
+    ]
+  },
+  "controls": [
+    "PC/C agree PASS => consistent=true, passed=true",
+    "PC/C agree numeric/deadline/phase/short-span rejection => consistent=true, passed=false",
+    "changed report status/count => consistent=false, passed=false",
+    "correct failed prefix copies exactly 7 records, no report",
+    "success without postprocess completion does not read report DDR",
+    "wrong candidate/version/experiment or successful invalid timer rejected",
+    "explicit R1 preflight PASS without creating workspace; legacy and R1 read-only startup PASS"
+  ],
+  "origin": "HOST C report production, PC CLI, XSDB/Tcl stubs, pure-file startup/preflight; not ARM timing",
+  "runtime_r1_elf": "NOT_REBUILT",
+  "hardware_access": "NONE",
+  "simulink_generated_timer_mapping_deadlines": "UNTOUCHED",
+  "rtl": "NOT_RUN",
+  "t4_runtime_board": "NOT_RUN",
+  "cleanup": "NONE; prior temporary directories not restored; new tests isolated under review_5722212233",
+  "local_artifacts": ".runtime/ax02a/review_5722212233"
+}

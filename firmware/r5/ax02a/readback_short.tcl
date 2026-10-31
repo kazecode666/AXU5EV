@@ -52,13 +52,21 @@ namespace eval ax02a_short {
             error "Not this P1000 completed/failed experiment; do not read running or stale buffers"
         }
         set n [dict get $v result.completed_frames]
-        if {$n<0 || $n>1000 || ([dict get $v result.status]==0 &&
-            ($n!=1000 || [dict get $v state]!=3))} {error "Inconsistent completion count/state"}
+        set status [dict get $v result.status]
+        if {$n<0 || $n>1000 || $status ni {0 1 2 3 4} ||
+            ($status==0 && ($n!=1000 || [dict get $v state]!=3)) ||
+            ($status!=0 && ([dict get $v state]!=4 || $n>=1000 ||
+                [dict get $v result.failed_frame]!=$n)) ||
+            ($status in {3 4} && $n!=0)} {error "Inconsistent completion count/state"}
         set timer {}
+        set timer_values {}
         foreach f {clock_hz interval prescaler period_ticks timestamp_read_min_ticks timestamp_read_max_ticks start_window_ticks} {
-            lappend timer [format {"%s":%lld} $f [scalar timer.$f]]
+            set value [scalar timer.$f]
+            dict set timer_values $f $value
+            lappend timer [format {"%s":%lld} $f $value]
         }
         set identity {}
+        set timer_ok 1
         if {$candidate_file ne {}} {
             set f [open $candidate_file r];try {set words [string trim [read $f]]} finally {close $f}
             if {[lrange $words 0 1] ne {dict create}} {error "Invalid passive runtime candidate record"}
@@ -66,28 +74,48 @@ namespace eval ax02a_short {
             foreach key {candidate_id mapping_version workspace elf} {if {![dict exists $candidate $key]} {error "Missing runtime candidate $key"}}
             foreach key {workspace elf} {if {[regexp {["\\\n\r]} [dict get $candidate $key]]} {error "Unsafe candidate path"}}
             if {[dict get $candidate candidate_id]!=0x52313031 || [dict get $candidate mapping_version]!=1 ||
-                [symbol ax02a_runtime_candidate_id]!=0x52313031 || [symbol ax02a_timer_mapping_version]!=1 ||
-                [scalar timer.clock_hz]!=100000000 || [scalar timer.interval]!=9999 ||
-                [scalar timer.period_ticks]!=10000 || [scalar timer.prescaler]!=16 ||
-                [symbol ax02a_ttc_snapshot.valid]!=1 || [symbol ax02a_ttc_snapshot.hardware_interval]!=9999 ||
-                [symbol ax02a_ttc_snapshot.logical_period_ticks]!=10000 ||
-                [symbol ax02a_ttc_snapshot.periodic_hz]!=100000000 || [symbol ax02a_ttc_snapshot.timestamp_hz]!=100000000} {error "Runtime R1 candidate/snapshot/timer mismatch"}
-            foreach {key expected} {periodic_base 4279304192 timestamp_base 4279304196 periodic_clock 0 timestamp_clock 0} {
+                [symbol ax02a_runtime_candidate_id]!=0x52313031 || [symbol ax02a_timer_mapping_version]!=1} {
+                error "Runtime R1 candidate identity mismatch"
+            }
+            # Snapshot globals may contain invalid/previous fields after prepare
+            # fails. Preserve actual values and valid flag, never infer success.
+            set snapshot {}; set snapshot_values {}
+            foreach key {valid periodic_base timestamp_base periodic_hz timestamp_hz hardware_interval logical_period_ticks periodic_clock timestamp_clock periodic_control timestamp_control periodic_ier timestamp_ier} {
                 set value [symbol ax02a_ttc_snapshot.$key]
-                if {$value!=$expected} {error "Runtime R1 configuration mismatch: $key"}
+                dict set snapshot_values $key $value
+                lappend snapshot [format {"%s":%lld} $key $value]
+            }
+            foreach {key expected} {clock_hz 100000000 interval 9999 period_ticks 10000 prescaler 16} {
+                if {[dict get $timer_values $key]!=$expected} {set timer_ok 0}
+            }
+            foreach {key expected} {valid 1 hardware_interval 9999 logical_period_ticks 10000 periodic_hz 100000000 timestamp_hz 100000000} {
+                if {[dict get $snapshot_values $key]!=$expected} {set timer_ok 0}
+            }
+            foreach {key expected} {periodic_base 4279304192 timestamp_base 4279304196 periodic_clock 0 timestamp_clock 0} {
+                set value [dict get $snapshot_values $key]
+                if {$value!=$expected} {set timer_ok 0}
                 lappend timer [format {"%s":%lld} $key $value]
             }
+            if {$status==0 && !$timer_ok} {error "Runtime R1 snapshot/timer mismatch on successful experiment"}
             lappend timer {"mapping_version":1} {"candidate_id":1378955313}
-            set identity [format {,"before_experiment":%lld,"candidate":{"workspace":"%s","elf":"%s"}} $before_experiment [dict get $candidate workspace] [dict get $candidate elf]]
+            set identity [format {,"before_experiment":%lld,"candidate":{"workspace":"%s","elf":"%s"},"ttc_snapshot":{%s},"timer_snapshot_valid":%s} $before_experiment [dict get $candidate workspace] [dict get $candidate elf] [join $snapshot ,] [expr {$timer_ok?"true":"false"}]]
         }
+        # Failed frame is excluded. No DDR output/ticks exist on early failure;
+        # uncertain timer/configuration also cannot establish a valid prefix.
+        set captured [expr {$timer_ok && $status in {0 1 2} ? $n : 0}]
+        set report_captured false
+        if {$candidate_file ne {} && $status==0 && [symbol ax02a_post_control.state]==2} {set report_captured true}
+        set report_validity [expr {$report_captured?"UNVALIDATED_REQUIRES_PC_CROSSCHECK":"NOT_CAPTURED"}]
         file mkdir $dir
         set state [open [file join $dir run.json] {WRONLY CREAT EXCL}]
-        puts $state [format {{"scenario":"current_motion_prefix","state":%lld,"mode":1,"frames":1000,"experiment":%lld,"interrupted":%s,"conditions":"%s","result":{"status":%lld,"completed_frames":%lld,"failed_frame":%lld},"timer":{%s}%s}} [dict get $v state] [dict get $v experiment] $interrupted $conditions [dict get $v result.status] $n [dict get $v result.failed_frame] [join $timer ,] $identity]
+        puts $state [format {{"scenario":"current_motion_prefix","state":%lld,"mode":1,"frames":1000,"experiment":%lld,"interrupted":%s,"conditions":"%s","result":{"status":%lld,"completed_frames":%lld,"failed_frame":%lld},"timer":{%s},"captured_records":%lld,"report_captured":%s,"report_validity":"%s"%s}} [dict get $v state] [dict get $v experiment] $interrupted $conditions $status $n [dict get $v result.failed_frame] [join $timer ,] $captured $report_captured $report_validity $identity]
         close $state
         # Only fully completed records are valid; failed_frame may be unwritten/partial.
-        bytes $dir output.bin 0x11000000 [expr {$n*41*8}]
-        bytes $dir timing.bin 0x13000000 [expr {$n*64}]
-        if {$candidate_file ne {}} {bytes $dir report_v2.bin 0x16000000 2400}
-        puts "AX02A_SHORT_READBACK_COMPLETE: $n completed records; analyze run.json before judging PASS"
+        if {$captured>0} {
+            bytes $dir output.bin 0x11000000 [expr {$captured*41*8}]
+            bytes $dir timing.bin 0x13000000 [expr {$captured*64}]
+        }
+        if {$report_captured} {bytes $dir report_v2.bin 0x16000000 2400}
+        puts "AX02A_SHORT_READBACK_COMPLETE: $n completed, $captured captured records; report $report_validity; inspect run.json before judging PASS"
     }
 }

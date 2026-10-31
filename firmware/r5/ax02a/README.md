@@ -8,13 +8,15 @@
 - 配置：[build_config.runtime_100us_r1.json](build_config.runtime_100us_r1.json)；合同：[RUNTIME_100US_R1.md](RUNTIME_100US_R1.md)。候选0x52313031、mapping_version1，仅已验证配置raw9999/logical10000，原expected/deadline不变。
 - 新采集：`.runtime/ax02a/board_manual/runtime_r1_p1000_01`，同一次run/output/timing/report_v2四文件。输入/参考仍用replay/p1000，描述符仍用phase_p1000_descriptor，完整规则见工作区指南。
 
+Review5722212233修复待复审：[反例/验证报告](../../../coordination/reports/ax02a_review_5722212233.md)。PC交叉逐项核对板报状态/计数，合法初始化失败可仅保存run.json，失败不读报告。既有R1 ELF保持不变。
+
 普通PowerShell只做文件检查：
 
 ```powershell
 python D:/Project/AXU5EV/scripts/ax02a_build_r5.py --config D:/Project/AXU5EV/firmware/r5/ax02a/build_config.runtime_100us_r1.json --check-startup
 ```
 
-不要省略配置或去掉检查开关；无参数构建仍默认历史phase配置。已有候选不重建，全部六套workspace/ELF与原始数据保留。Codex不连接/操作板卡，PR16仍Draft、不合并。
+不要省略配置或去掉检查开关；无参数仍指向历史phase配置；完整构建/预检现在要求显式runtime_mapping=1，旧配置只能用于历史ELF只读检查。已有候选不重建，全部六套workspace/ELF与原始数据保留。Codex不连接/操作板卡，PR16仍Draft、不合并。
 
 ## 以下为历史阶段说明与复用方法
 

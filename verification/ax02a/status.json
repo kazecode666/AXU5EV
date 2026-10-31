@@ -48,5 +48,9 @@
   "RUNTIME_R1_MAPPING_VERSION": 1,
   "NEXT_BOARD_GUIDE_SECTION": 13,
   "NEXT_BOARD_CAPTURE": ".runtime/ax02a/board_manual/runtime_r1_p1000_01",
-  "runtime_r1_validation": "verification/ax02a/runtime_100us_r1/validation.json"
+  "runtime_r1_validation": "verification/ax02a/runtime_100us_r1/validation.json",
+  "REVIEW_5722212233": "OFFLINE_FIXES_READY_FOR_REREVIEW",
+  "REVIEW_5722212233_TESTS": "72_PASS_0_FAIL_0_ERROR_0_SKIP",
+  "review_5722212233_validation": "verification/ax02a/review_5722212233/validation.json",
+  "runtime_r1_elf_review_fix": "NOT_REBUILT"
 }

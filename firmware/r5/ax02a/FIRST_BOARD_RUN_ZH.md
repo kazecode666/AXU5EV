@@ -578,6 +578,8 @@ python D:/Project/AXU5EV/scripts/ax02a_analyze_ttc_characterize.py aba D:/Projec
 
 ## 13. Runtime 100µs R1：ABA实测之后的P1000候选（Review后用户执行）
 
+Review5722212233的PC交叉/失败读回/构建入口修复已离线完成，72/72回归通过，**等待复审**；当前R1 ELF不重建。详情见[本轮报告](../../../coordination/reports/ax02a_review_5722212233.md)。原成功数据/相位/deadline门槛不变。
+
 任务[6541052405](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6541052405)。ABA实测已完成，全窗口支持本配置raw+1映射；无需重复ABA或运行C。本节为带原生成Runtime的独立候选，板验NOT_RUN；不覆盖旧工程，不继承旧时间结果。平台/PC版本合同见[RUNTIME_100US_R1.md](RUNTIME_100US_R1.md)。
 
 从Windows开始菜单打开Vitis2026.1，**Set Workspace**选择`D:/Project/AXU5EV/.runtime/ax02a/vitis_runtime_100us_r1`。platform=`ax02a_platform`、domain=`r5_standalone`、应用=`ax02a_replay`（不是TTC-only），launch=`ax02a_first_wait_a53fsbl`。确认应用ELF位于本workspace的`ax02a_replay/build/ax02a_replay.elf`，FSBL为本workspace的`ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf`；A53 FSBL→R5_0 split、Stop at entry、禁PL/第二套psu_init。初始化状态检查仍按第4节；只选本次workspace路径。
@@ -620,6 +622,8 @@ source D:/Project/AXU5EV/firmware/r5/ax02a/read_ttc_config.tcl
 ax02a_ttc::read_config D:/Project/AXU5EV/.runtime/ax02a/runtime_r1_pre_begin_01.json pre_begin
 ```
 
+测量前将本次保存的 `ttc_apb_select`（含TTC0_SEL）、`lpd_lsbus_ctrl`、`iopll_ctrl` 与上次确认的pre-begin基线对照上游选择/有效分频配置。两路局部clock=0及BSP声明100MHz不独立证明上游配置或绝对频率；不写寄存器修正、不重做ABA或外部测频。
+
 配置不符立即停止，保留原值；不写寄存器“纠正”。在GUI移除begin/main及执行路径断点/观察点，关闭运行中刷新，只保留done停点，再Resume。测量中不暂停/单步/读写/传输；意外中断必须声明true。done时计时器已停止，核对本次experiment=before+1、state3/status0/completed1000、post_control.state2和timer.interval9999/period_ticks10000。任一失败保留异常，不自动重试、改9998或放宽deadline。
 
 XSDB显式读回（新目录，最后false必须真实；可保存失败已完成前缀，但不能把它认作1000帧通过）：
@@ -628,7 +632,9 @@ XSDB显式读回（新目录，最后false必须真实；可保存失败已完�
 ax02a_short::readback D:/Project/AXU5EV/.runtime/ax02a/board_manual/runtime_r1_p1000_01 $r1_before {same session I-cache ON D-cache OFF pre-begin only} false D:/Project/AXU5EV/.runtime/ax02a/vitis_runtime_100us_r1/runtime_candidate.tcl
 ```
 
-新参数要求本候选版本/身份及实际snapshot一致，自动保存run.json、output328000B、timing64000B、report_v2 2400B；失败条数不足时不填充旧尾部。source只定义过程，不连接/选择/重置目标、不恢复运行。保留开始前配置JSON及GUI停点截图。
+成功路径仍严格核对本候选版本/身份、timer及snapshot，完整1000帧且后处理state2时保存run.json、output328000B、timing64000B及report_v2 2400B。报告仅为捕获，必须PC交叉后判断；板报状态/相位样本数/空组计数矛盾会拒绝。
+
+合法ERROR终态先核对板核/候选/本次实验身份，再保存run.json及实际timer/snapshot。timer prepare早失败可能只有run.json（status3/completed0、snapshot.valid0），不读取旧DDR输出/ticks/报告；valid0的其他快照字段仅留痕，不能当有效配置。配置可确认的失败只读completed有效前缀，排除failed_frame；失败或后处理未完成时不读取报告。run中的captured_records/report_captured/report_validity说明捕获范围，缺失文件不补读旧数据、不补旧尾部。source只定义过程，不连接/选择/重置目标、不恢复运行。保留开始前配置JSON及GUI停点截图。
 
 回到普通PowerShell，以下每条均完整单行，分析目录必须未存在：
 

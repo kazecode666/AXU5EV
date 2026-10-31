@@ -38,7 +38,8 @@ class RuntimeMappingTests(unittest.TestCase):
         v={'ax02a_control.'+k:x for k,x in dict(state=3,command=0,mode=1,frames=1000,experiment=8).items()}
         v.update({'ax02a_control.result.'+k:x for k,x in dict(status=0,completed_frames=1000,failed_frame=0).items()})
         v.update({'ax02a_control.timer.'+k:x for k,x in timer().items() if k not in ['mapping_version','candidate_id','periodic_base','timestamp_base','periodic_clock','timestamp_clock']})
-        v.update({'ax02a_ttc_snapshot.'+k:x for k,x in dict(valid=1,hardware_interval=9999,logical_period_ticks=10000,periodic_hz=100000000,timestamp_hz=100000000,periodic_base=-15663104,timestamp_base=-15663100,periodic_clock=0,timestamp_clock=0).items()})
+        v.update({'ax02a_ttc_snapshot.'+k:x for k,x in dict(valid=1,hardware_interval=9999,logical_period_ticks=10000,periodic_hz=100000000,timestamp_hz=100000000,periodic_base=-15663104,timestamp_base=-15663100,periodic_clock=0,timestamp_clock=0,periodic_control=35,timestamp_control=33,periodic_ier=1,timestamp_ier=0).items()})
+        v['ax02a_post_control.state']=2
         v.update(ax02a_runtime_candidate_id=0x52313031,ax02a_timer_mapping_version=1)
         def values(data):t.call('set','values',t.call('dict','create',*[y for item in data.items() for y in item]))
         values(v);args=[7,'same session I-cache ON D-cache OFF','false',prov.as_posix()]

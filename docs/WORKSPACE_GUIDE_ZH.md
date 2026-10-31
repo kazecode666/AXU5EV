@@ -42,12 +42,12 @@
 python D:/Project/AXU5EV/scripts/ax02a_build_r5.py --config D:/Project/AXU5EV/firmware/r5/ax02a/build_config.runtime_100us_r1.json --check-startup
 ```
 
-**不要省略 `--config`。** 构建器无参数默认值仍指向历史phase配置。候选已构建，只检查时保留 `--check-startup`；未来重建须另定独立workspace，不覆盖现有ELF。
+**不要省略 `--config`。** 构建器无参数默认值仍指向历史phase配置；当前完整新构建/预检须显式 `runtime_mapping=1`，省略/旧版本在创建workspace前拒绝。历史ELF的只读检查继续兼容。候选已构建，只检查时保留 `--check-startup`；未来重建须另定独立workspace，不覆盖现有ELF。
 
 ## 每次实验如何保存
 
 1. 首次R1使用 `runtime_r1_p1000_01` 和 `runtime_r1_pre_begin_01.json`。路径已存在时先查看所属实验；后续新实验使用下一未占用编号，将读回、分析、交叉命令中的路径一起更新。保留真实before/after experiment、候选身份及中断声明，不拼接旧输出。
-2. P1000完成后，同一次目录保存 `run.json`、`output.bin`（328000B）、`timing.bin`（64000B）、`report_v2.bin`（2400B），另保留同次开始前配置和GUI停点证据。失败只读已完成前缀，不填充旧尾部或标为完整通过。
+2. P1000完成后，同一次目录保存 `run.json`、`output.bin`（328000B）、`timing.bin`（64000B）、`report_v2.bin`（2400B），另保留同次开始前配置和GUI停点证据。合法早失败可能只有run.json，保存真实错误码及timer/snapshot；snapshot.valid=0时残留字段不作当前配置证据。有效失败前缀排除失败帧；失败或后处理未完成时不读取报告。run.json的captured_records/report_captured/report_validity说明实际捕获范围，捕获的报告仍须PC交叉，不填充旧尾部或标为完整通过。
 3. 按指南用该次run和同套参考离线分析，分别记录数值、deadline/sequence、period consistency及PC/C一致性。分析目录已有时换新目录；原始文件不改。
 4. 原始二进制、完整workspace保留本地；GitHub只提交必要摘要、来源、身份和结论到 `verification/ax02a/<同名实验>/`，更新HANDOFF。`.runtime/` 已被Git忽略，**推送仓库不备份原始数据**；需要转存时由用户另存整次实验及配套参考/候选来源。
 
@@ -94,7 +94,7 @@ TTC-only的16B记录与Runtime的64B timing记录不同，不可交叉解码。m
 
 ## 清理与ChatGPT交接
 
-可手动清理项见[清理候选](../coordination/reports/workspace_cleanup_2026-10-31.md)：109个测试临时目录，共892文件、11127885B，约10.6MiB。它们是合成数据、桩读回或测试用历史数据副本；清单交用户手动删除，Codex未删除。其他probe/安装/构建中间目录本轮保留，未笼统认定无用。
+历史[清理候选](../coordination/reports/workspace_cleanup_2026-10-31.md)记录整理时109个测试临时目录（892文件/约10.6MiB）；用户已手动删除，不恢复、不再清理。关键workspace和原始数据仍在原路径。本轮Review5722212233的新测试产物隔离于 `.runtime/ax02a/review_5722212233/`。修复详情见[本轮报告](../coordination/reports/ax02a_review_5722212233.md)，当前等待复审，R1 ELF未重建。
 
 给ChatGPT端可直接引用本指南和HANDOFF，并转述：
 
