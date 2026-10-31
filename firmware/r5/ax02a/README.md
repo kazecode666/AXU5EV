@@ -1,14 +1,26 @@
 # AX-02A：R5 standalone 回放
 
-2026-10-31最新任务6541052405：用户ABA实测已复算支持本配置raw+1，Runtime平台按限定TTC0/100MHz/无分频映射raw9999/logical10000；候选板上NOT_RUN。新workspace为`.runtime/ax02a/vitis_runtime_100us_r1`，仍是`ax02a_replay`，版本化配置`build_config.runtime_100us_r1.json`。Review后用户按[指南第13节](FIRST_BOARD_RUN_ZH.md)手动P1000；合同见[RUNTIME_100US_R1.md](RUNTIME_100US_R1.md)。旧workspace/ELF保留，不重复ABA/C，不把短段当完整A4/A5。
+更新：2026-10-31。当前为任务6541052405的Runtime 100µs R1，**OFFLINE_READY_FOR_REVIEW，T4板验NOT_RUN**。ABA实测已复算闭合，不重复ABA/C。用户已完成BOARD_BOOT/FIRST_WAIT和motion_03首次完整数值；A4剩余项与完整A5/WCET未完成。
 
-最新按PR16任务6525374617完成T1—T3，状态**OFFLINE_READY_FOR_REVIEW**：最新诊断P1000独立数值/板上报告交叉已闭合；独立TTC-only应用在`.runtime/ax02a/vitis_ttc_characterize`真实构建，保留所有旧workspace。用户Review后按[指南第12节](FIRST_BOARD_RUN_ZH.md)逐次显式A1→B→A2，每次16000B。任务书见[版本化原文](../../../coordination/tasks/ax02a_ttc_aba_characterization.md)，协议见[TTC_CHARACTERIZE_PROTOCOL.md](TTC_CHARACTERIZE_PROTOCOL.md)。T4硬件NOT_RUN、根因UNCONFIRMED；9999不是正式修复，以下回放/历史构建适用范围保持不变。
+- 目录与数据保存：[工作区指南](../../../docs/WORKSPACE_GUIDE_ZH.md)，当前状态：[HANDOFF](../../../coordination/HANDOFF.md)。
+- 下一次上板：[手动指南第13节](FIRST_BOARD_RUN_ZH.md#13-runtime-100µs-r1aba实测之后的p1000候选review后用户执行)，先Review，用户本人操作。
+- Workspace：`.runtime/ax02a/vitis_runtime_100us_r1`；应用 `ax02a_replay`；launch `ax02a_first_wait_a53fsbl`。旧workspace有同名launch，须核对该workspace自己的ELF与A53 FSBL。
+- 配置：[build_config.runtime_100us_r1.json](build_config.runtime_100us_r1.json)；合同：[RUNTIME_100US_R1.md](RUNTIME_100US_R1.md)。候选0x52313031、mapping_version1，仅已验证配置raw9999/logical10000，原expected/deadline不变。
+- 新采集：`.runtime/ax02a/board_manual/runtime_r1_p1000_01`，同一次run/output/timing/report_v2四文件。输入/参考仍用replay/p1000，描述符仍用phase_p1000_descriptor，完整规则见工作区指南。
 
-当前已实际生成**手册5EV器件的PS-only XSA、A53_0 FSBL、R5 standalone BSP及含Runtime的ELF/map**。新工作区`.runtime/ax02a/vitis_target_a53fsbl`已通过TARGET_BUILD及离线启动架构检查；旧工作区保留。用户旧GUI日志已暴露R5 FSBL被载到A53_0的启动失败，本版已修正离线产物，尚未重新上板确认。BOARD_BOOT验收、板上数值和100µs实测均 **NOT_RUN**。详见[结果报告](../../../coordination/reports/ax02a_r5_target_validation.md)。
+普通PowerShell只做文件检查：
 
-**第一次使用PS端，先读[首次手动启动指南](FIRST_BOARD_RUN_ZH.md)**：打开新workspace，选 **`ax02a_first_wait_a53fsbl`**，依次停在目标识别、应用入口/main、邮箱等待。首次仅确认已有启动消息与`state=1/experiment=0`，由用户亲自上板；Codex只做离线准备。启动配置模板为[launch_first_wait.json](launch_first_wait.json)，采用A53_0 FSBL初始化、RPU split、R5_0应用，禁PL下载，不同时执行`psu_init.tcl`。旧workspace的`ax02a_first_wait_manual`不能继续用于GUI重试。分段XSDB命令、后续回放与故障定位统一放在指南。
+```powershell
+python D:/Project/AXU5EV/scripts/ax02a_build_r5.py --config D:/Project/AXU5EV/firmware/r5/ax02a/build_config.runtime_100us_r1.json --check-startup
+```
 
-## 当前相位诊断候选（先Review，用户上板）
+不要省略配置或去掉检查开关；无参数构建仍默认历史phase配置。已有候选不重建，全部六套workspace/ELF与原始数据保留。Codex不连接/操作板卡，PR16仍Draft、不合并。
+
+## 以下为历史阶段说明与复用方法
+
+第4—6节首次启动/旧P1000、第7节v1后处理、第8节phase、第12节TTC-only步骤按所属阶段理解。TTC-only ABA现已完成；这些历史构建命令不作为当前R1操作入口。
+
+## 历史：相位诊断候选
 
 exp2新capture的数值已通过，最大差4.336808689942018e-19；但ISR相位约0.999271tick/帧，不能完整周期PASS。本轮先提交数据结论1096f56，再修复PC/C诊断盲区。候选实际构建于`.runtime/ax02a/vitis_phase_diagnostic`，原两个workspace/ELF保留；原interval10000/logical period10000和deadline未改，物理根因尚待用户读取开始前配置。新报告v2为2400B，兼容解析历史v1但不承认其mode1周期结论。GUI停点、最小只读步骤与回归后的全量交叉见[指南第8节](FIRST_BOARD_RUN_ZH.md)。
 
@@ -20,13 +32,13 @@ $env:AX02A_BUILD_CONFIG='D:/Project/AXU5EV/.runtime/ax02a/build_config_phase.jso
 python -m unittest discover -s verification/ax02a -p 'test_*.py' -v
 ```
 
-下面C1/C2/C3为此前阶段交接，涉及2336B/vitis_postprocess的命令只适用于旧v1；当前候选按第8节2400B/新workspace执行。控制算法、原始数据、FP/cache/TCM策略均不改。
+下面C1/C2/C3为此前阶段交接，涉及2336B/vitis_postprocess的命令只适用于旧v1；该历史phase候选按第8节2400B/新workspace执行。控制算法、原始数据、FP/cache/TCM策略均不改。
 
-## 当前C1：P1000预检与基线
+## 历史C1：P1000预检与基线
 
 用户BOARD_BOOT及motion_03首次完整数值回放已通过，A4仍缺第二次motion和alignment/reset，完整周期A5尚未运行。当前按照PR16评论6514858529先提交C1：不改固件，不Build正在使用的vitis_target_a53fsbl。第0帧起1000帧配套数据已生成于`.runtime/ax02a/replay/p1000`，日后复现使用`ax02a_prepare_prefix.py`的新目录参数。用户P1000操作与仅显式调用才读回的`readback_short.tcl`见[指南第6节](FIRST_BOARD_RUN_ZH.md#6-已通过首次启动后的p1000技术预检用户手动)。PC分析用`ax02a_analyze_run.py`先核对run.json身份和完成状态，再复用原比较器，不能把完整输出前缀当成新板上实验。新增C2/C3固件将单独输出、供Review，不覆盖现有ELF。
 
-## C2/C3独立固件与复验
+## 历史C2/C3独立固件与复验
 
 新后处理只在回放/计时器停止之后执行，默认disabled，一次性显式enabled1。新workspace为`.runtime/ax02a/vitis_postprocess`；旧`vitis_target_a53fsbl`保留给用户继续P1000，禁止原位重建/覆盖。启动仍A53 FSBL→R5_0。新产物已离线构建完成，用户无需重复Build；先供ChatGPT Review，再由用户决定加载。操作停点和装载/verify/reference/report/全量P1000交叉读回见[指南第7节](FIRST_BOARD_RUN_ZH.md)。
 

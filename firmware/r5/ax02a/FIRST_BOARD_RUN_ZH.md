@@ -1,8 +1,13 @@
-# AX-02A：第一次手动启动 R5（Vitis 2026.1）
+# AX-02A：用户手动上板指南（Vitis 2026.1）
 
-本指南对应 `kazecode666/AXU5EV` [PR16首次启动故障评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6443462085)。用户旧日志显示GUI先选A53_0，却加载了R5 FSBL，等待`XFsbl_Exit`超时。本版修正为 **A53_0 FSBL初始化＋R5_0控制应用**，使用新的离线工作区`vitis_target_a53fsbl`，保留旧`vitis_target`及用户设置。当前XSA、生成算法和配套参考复用。本轮Codex只做离线构建/检查，**没有连接或操作板卡，也没有实测点击GUI；修正后的硬件步骤均待用户亲自执行确认**。
+**2026-10-31当前导航：下一次使用第13节Runtime 100µs R1，workspace为 `.runtime/ax02a/vitis_runtime_100us_r1`，先Review，用户手动操作，候选板验NOT_RUN。** [工作区与数据保存位置](../../../docs/WORKSPACE_GUIDE_ZH.md)列出完整ELF/FSBL和独立实验目录。ABA已完成，不重复第12节或可选C。用户BOARD_BOOT/FIRST_WAIT和motion_03首次完整数值已PASS，完整A4/A5仍未验收。
 
-**停止使用旧workspace中的`ax02a_first_wait_manual`和`app_hw_1`反复重试。** 仅改launch名称或等待时间不会改变FSBL的处理器架构。旧日志中的R5 `Suspended`只说明调试器暂停了核，不能证明FSBL、DDR或应用启动成功。旧尝试未到WAIT；BOARD_BOOT验收仍NOT_RUN。
+第1—6节保留首次启动/旧回放步骤，第7/8/12节分别是历史后处理/phase/TTC-only阶段；具体路径与状态按所属阶段理解。第13节会复用其中通用初始化检查，但工程/ELF/数据以第13节为准。以下开头的启动故障描述是首次修复时的记录。
+
+
+本指南对应 `kazecode666/AXU5EV` [PR16首次启动故障评论](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6443462085)。用户旧日志显示GUI先选A53_0，却加载了R5 FSBL，等待`XFsbl_Exit`超时。本版修正为 **A53_0 FSBL初始化＋R5_0控制应用**，使用新的离线工作区`vitis_target_a53fsbl`，保留旧`vitis_target`及用户设置。当前XSA、生成算法和配套参考复用。本轮Codex只做离线构建/检查，**没有连接或操作板卡，也没有实测点击GUI；首次修复时硬件步骤待用户确认，后续实际结果见顶部当前导航**。
+
+**停止使用旧workspace中的`ax02a_first_wait_manual`和`app_hw_1`反复重试。** 仅改launch名称或等待时间不会改变FSBL的处理器架构。旧日志中的R5 `Suspended`只说明调试器暂停了核，不能证明FSBL、DDR或应用启动成功。旧尝试当时未到WAIT；后续修正后用户BOARD_BOOT/FIRST_WAIT已PASS，见当前交接。
 
 第一次只做停点①—③：识别目标 → 初始化并停在R5应用入口/main → 看到已有的等待消息并确认邮箱状态。到③即结束，不发送实验命令，不装载64536帧，不启动定时器。后面的回放命令仅留作下一次操作。
 

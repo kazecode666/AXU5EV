@@ -2,6 +2,8 @@
 
 ## 当前开发
 
+- 目录/上板/数据保存统一索引为 `docs/WORKSPACE_GUIDE_ZH.md`；当前状态读 `coordination/HANDOFF.md`，历史交接见 `coordination/HANDOFF_HISTORY_2026-10-31.md`。下一次Runtime R1只用指南第13节及 `vitis_runtime_100us_r1`；本轮清理候选仅交用户手动删除，workspace/原始数据不搬动。
+
 - 当前执行PR16任务6541052405 T1—T3：用户`ttc_aba_01`三组真实IRQ已复算，全窗口RAW_PLUS_ONE_COMPATIBLE、A1/A2可重复；只读兼容旧uint32签名元数据，原始run/samples保留。Runtime平台仅对已验证TTC0通道0/1内部同源100MHz、无分频、10kHz映射raw9999/logical10000，其他配置拒绝；不改expected/deadline。新候选workspace `.runtime/ax02a/vitis_runtime_100us_r1`，旧workspace/ELF全保留。T4必须Review后用户按指南第13节手动P1000，Runtime候选板验NOT_RUN，不重复ABA/C，不操作板卡、不合并。
 
 - PR16评论6525374617的T1—T3已离线实施：最新phase_p1000_01独立数值PASS，趋势仍约+0.99779tick/frame；新TTC-only workspace `.runtime/ax02a/vitis_ttc_characterize`及应用`ax02a_ttc_characterize`真实构建，OFFLINE_READY_FOR_REVIEW。原三个workspace/ELF保留。用户Review后按指南第12节逐次A1(10000)→B(9999)→A2(10000)，每次1000真实IRQ/16000B；9999仅实验条件，nominal10000与原deadline不变。T4用户上板NOT_RUN、物理根因UNCONFIRMED、正式修复NOT_RUN；Codex不连接/操作板卡，不合并。

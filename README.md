@@ -2,11 +2,13 @@
 
 **当前优先：[Issue #15](https://github.com/kazecode666/AXU5EV/issues/15)，AX-02A真实R5目标工程、数值回放与100µs时间验证。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。PR #14已合并；完整RTL结果直接复用，不默认重跑。见[AX-02A实际结果与阻塞](coordination/reports/ax02a_r5_target_validation.md)及[R5构建/回放入口](firmware/r5/ax02a/README.md)。C源码教学已取消，Issue #11和AX-02B/C不在本轮实施。
 
+**目录与保存位置统一入口：[工作区指南](docs/WORKSPACE_GUIDE_ZH.md)。当前上板候选为 `.runtime/ax02a/vitis_runtime_100us_r1`，Review后按[手动指南第13节](firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md#13-runtime-100µs-r1aba实测之后的p1000候选review后用户执行)，不重复ABA/C。**
+
 日常仍从`simulation/START_HERE.m`开始。只读显示给出R5采样Send、同拍Ready/Busy及最近请求时间/结果/计数；Busy=0不保证Ready=1，未Ready拒绝且不排队。Issue #11为后续架构讨论，不在本轮实施。实际鼠标Dashboard操作/刷新仍NOT_RUN；本轮完整RTL三段运动已完成。
 
 本轮完整C/真实RTL同Run `10→0→−2 mm` 已完成：实际RTL 64536帧，三段均满足原Ready，接受3/拒绝1；位置、速度、dq电流、参考及应用duty差均0。见[AX-01C结果与曲线](coordination/reports/ax01c_simulation_closeout.md)。先前默认点位修复与发送回执分别见[Issue #8原报告](coordination/reports/issue8_manual_run.md)、[发送报告](coordination/reports/issue8_send_ready.md)。
 
-[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)已合并（`ae9a11d2d59abc952cce0b979d004a315878639a`）。用户补齐2026.1组件后，手册5EV器件的PS-only XSA、R5 standalone BSP/FSBL及含Runtime的真实ELF/map已构建通过；全采样导出与主机数值证据保持有效。板上启动/数值/100µs周期均NOT_RUN；目标构建通过不代替真实R5运行，见[构建与验证报告](coordination/reports/ax02a_r5_target_validation.md)。
+[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)已合并（`ae9a11d2d59abc952cce0b979d004a315878639a`）。用户补齐2026.1组件后，手册5EV器件的PS-only XSA、R5 standalone BSP/FSBL及含Runtime的真实ELF/map已构建通过；全采样导出与主机数值证据保持有效。用户BOARD_BOOT/FIRST_WAIT及motion_03首次完整数值已PASS；TTC-only ABA实测已闭合。Runtime R1候选T4板验NOT_RUN，完整A4/A5/WCET未完成；见[构建与验证报告](coordination/reports/ax02a_r5_target_validation.md)。
 
 ## 目标与分工
 
@@ -37,7 +39,7 @@
 |---|---|
 | `simulation/` | 唯一活动模型与日常.m入口：Hybrid、Runtime、Control、FOC、浮点基线及参数/轨迹/构建辅助 |
 | `simulink模型/` | 旧初始化的薄转发及用户本地wrapper；不放第二套活动模型/参数定义 |
-| `firmware/r5/` | R5复用说明与AX-02A standalone回放源码；真实BSP/ELF构建通过，板上验证待授权 |
+| `firmware/r5/` | 版本化回放/平台源码、配置与手动指南；当前R1板验待Review后用户执行 |
 | `hardware/axu5ev/` | 经板卡版本核对后的Vivado/Vitis平台脚本与硬件清单 |
 | `integration/ps_pl/` | 本轮仿真交换字段、事件顺序及后续硬件总线合同 |
 | `scripts/`、`verification/` | 可移植构建、必要复验与精简证据 |
@@ -46,7 +48,7 @@
 | `references/legacy/` | 精选MIL/DSP/StudyL1资料，仅作来源与研究参考 |
 | `references/` | 资料索引；无分发许可的PDF和厂商大包放忽略的`local_only/` |
 | `coordination/`、`docs/` | 当前任务、交接、来源和报告 |
-| `.runtime/` | 本地缓存、波形、DCP及未公开快照，不入库 |
+| `.runtime/` | 本地workspace、XSA/ELF、生成源、输入/参考与原始板测数据；不入库，不可整体清理 |
 
 只创建真正需要的目录，不放虚假的板级配置或空壳应用。旧Artix引脚、器件约束和通过结论不得直接套给AXU5EV；完整芯片料号、板卡版本和工具配置由本地已有资料确认。
 
@@ -57,7 +59,7 @@
 - **AX-02：** 5EV电流核重生成/实现、R5/PL混合闭环及实际处理器时限验证。
 - **AX-03：** ADC、光栅/磁栅、门极PWM、驱动板保护和受控硬件集成，另行授权上电。
 
-日期：2026-10-27。Issue #13已完成；当前实施Issue #15，板卡复位/JTAG运行须本次明确授权。PS—PL与电机接口适配不在AX-02A提前展开。继承已有模型与MBDL4接口，无需重做PI/FOC或重复LED学习。
+更新：2026-10-31。Issue #13已完成；当前实施Issue #15，板卡复位/JTAG运行须本次明确授权。PS—PL与电机接口适配不在AX-02A提前展开。继承已有模型与MBDL4接口，无需重做PI/FOC或重复LED学习。
 
 首批[R5软件提取结果](coordination/reports/ax01_r5_extraction.md)提供外环/Reference_Manager/原对齐来源。`simulation/AXU5EV_R5_Runtime.slx`纳入原Host_Core／轨迹，生成C在线接入同目录Hybrid；三种后端共用原对象、量化和50µs应用边界。软件/PL端口及帧顺序见[接口边界](integration/ps_pl/INTERFACE.md)。
 
@@ -65,6 +67,6 @@
 
 ## 本地打开与复验
 
-日常运行`simulation/START_HERE.m`，默认10 mm、5 s、V10/A100不变。需研究原浮点基线时，在同一初始化后打开同目录`PMLSM_PI_FOC_Float_Baseline`；停止后选择`FOC_Impl_Select=0/1`。不要给references/baselines使用递归genpath。
+日常运行`simulation/START_HERE.m`，参数取自唯一入口 `simulation/init_AXU5EV.m`；保留用户本地修改，不用PR14历史V10/A100覆盖当前参数。需研究原浮点基线时，在同一初始化后打开同目录`PMLSM_PI_FOC_Float_Baseline`；停止后选择`FOC_Impl_Select=0/1`。不要给references/baselines使用递归genpath。
 
 独立复验命令见[运行说明](verification/AX00_REPRODUCE.md)。本轮支持原点位测试的 `live` 和对齐测试的 `chart` 阶段；没有搬运全套历史学习回归依赖。`references/legacy/mil` 是旧库磁盘来源，`pmslm_disk` 是完整 PMSLM 工程磁盘参考，后者不加入活动路径。未保存窗口未被保存或导出。

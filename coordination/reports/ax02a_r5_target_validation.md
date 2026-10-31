@@ -1,6 +1,8 @@
 # AX-02A：真实目标构建与离线数值验证
 
-日期2026-10-27；仓库`kazecode666/AXU5EV`，[Issue #15](https://github.com/kazecode666/AXU5EV/issues/15)。基点为PR14合并`ae9a11d2d59abc952cce0b979d004a315878639a`，分支`codex/ax02a-r5-target`。本报告记录实际成果；不展开AX-02B/C或AX-03。
+当前入口与数据保存规则见[工作区指南](../../docs/WORKSPACE_GUIDE_ZH.md)和[HANDOFF](../HANDOFF.md)。本报告保留分阶段证据；旧段落中的NOT_RUN/当前候选按该段日期理解。
+
+初始报告日期2026-10-27；仓库`kazecode666/AXU5EV`，[Issue #15](https://github.com/kazecode666/AXU5EV/issues/15)。基点为PR14合并`ae9a11d2d59abc952cce0b979d004a315878639a`，分支`codex/ax02a-r5-target`。本报告记录实际成果；不展开AX-02B/C或AX-03。
 
 成果为草稿[PR #16](https://github.com/kazecode666/AXU5EV/pull/16)，未合并。实现提交`8d892695705a61a1295389a3bc7343e87ca59aa7`，ARM对象/周期门禁`6d9e5397478361762e947b5812b701dc554b24da`，验证补充`77a7d358baf1b0bd8577e8c929be9156026fcf84`；本轮完整PS平台/BSP/ELF与构建证据`1b4834526275b1824098ad66a2c2a6ce0d04dc0b`。本PR不关闭真实R5数值/周期验收。
 
