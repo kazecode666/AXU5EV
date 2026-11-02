@@ -139,4 +139,6 @@ if __name__ == '__main__':
     OUT=(ROOT/c['output']).resolve();WS=(ROOT/c['workspace']).resolve()
     if not OUT.is_relative_to(ROOT/'.runtime/ethernet') or not WS.is_relative_to(OUT): raise ValueError('ETH01 output/workspace must remain inside .runtime/ethernet')
     if '--check-startup' in sys.argv: print(json.dumps(check_startup(),indent=2))
-    else: build('--resume' in sys.argv)
+    else:
+        build('--resume' in sys.argv)
+        print('ETH01_BUILD_PASS')

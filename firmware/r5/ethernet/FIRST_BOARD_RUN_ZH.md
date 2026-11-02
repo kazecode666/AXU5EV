@@ -1,6 +1,6 @@
 # ETH-01：Review后用户分步上板唯一入口
 
-当前仅离线准备完成，PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER全部 **NOT_RUN**。本指南的连接、上电、GUI启动、网卡与客户端命令均由用户本人执行。功率级断开，不接完整电机Runtime；不得用旧R1 ELF或旧同名launch。失败保存首次现场并停止，不自动改PHY寄存器/反复重试凑PASS。
+按PR17评论6576502869，下一步由用户依次进行PHY识别与链路、TCP小数据、Simulink模型往返、大文件读回。PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER目前全部 **NOT_RUN**。本指南的连接、上电、GUI启动、网卡与客户端命令均由用户本人执行。首次实验固定网线，启动协商成功后保持连接；发生连接异常时，结束本次实验并重新启动应用后定位。静默失联/半帧停滞回收、keepalive和PHY热插拔/重新协商恢复暂缓开发，不作为本轮首次联网的前置条件。功率级断开，不接完整电机Runtime；不得用旧R1 ELF或旧同名launch。
 
 ## 1. 先核对文件，不连接板卡
 
@@ -44,7 +44,11 @@ START_ETH01('check');  % 现有目标的纯文件检查
 & E:/AMDDesignTools/2026.1/Vivado/bin/vivado.bat -mode batch -source hardware/axu5ev/eth01_ps_ethernet.tcl -tclargs xczu5ev-sfvc784-2-i .runtime/ethernet/eth01/reproduce_ps 资料/course_s2/01_ps_hello/vivado/ps_hello.srcs/sources_1/bd/design_1/design_1.bd
 ```
 
-当前默认XSA为已生成的ps_target/eth01_ps.xsa。复用它复现软件时，复制 `build_config.json` 到新的明确配置文件，workspace改为同output下一个不存在的新候选（例如vitis_ethernet_reproduce_01）。在MATLAB使用`setenv('ETH01_CONFIG','该配置绝对路径')`后执行`START_ETH01('build')`；或在同一PowerShell用`$env:ETH01_CONFIG='该配置绝对路径'`后直接执行`& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -s scripts/eth01_build.py`。PowerShell环境变量不会修改已经运行的MATLAB进程。已存在workspace默认拒绝；`-- --resume`只用于本任务未验证完成的候选，不用于重建R1或已冻结候选。Vitis批处理launcher有时在Python异常后仍exit0，必须另查Build Finished successfully与新的startup_validation.json，再用普通Python纯文件检查；不能只凭launcher exit0判PASS。
+当前默认XSA为已生成的ps_target/eth01_ps.xsa。本轮只改构建入口反馈，固件未变，继续使用表中的vitis_ethernet_r2，无需重建。直接对该已验证候选执行`START_ETH01('build')`会因拒绝重建而在MATLAB报错；这不影响使用现有候选，执行`START_ETH01('check')`检查即可。
+
+确需离线复现软件时，复制 `build_config.json` 到新的明确配置文件，workspace改为同output下一个不存在的新候选（例如vitis_ethernet_reproduce_01）。在MATLAB使用`setenv('ETH01_CONFIG','该配置绝对路径')`后执行`START_ETH01('build')`；或在同一PowerShell用`$env:ETH01_CONFIG='该配置绝对路径'`后直接执行`& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -s scripts/eth01_build.py`。PowerShell环境变量不会修改已经运行的MATLAB进程。已存在workspace默认拒绝；`-- --resume`仅用于未验证完成的候选。
+
+MATLAB的build分支现在要求本次Python构建正常完成后输出`ETH01_BUILD_PASS`，再调用已有`--check-startup`；两步成功才返回0。Python构建失败时，即使Vitis启动器返回0，MATLAB也会报`ETH01:BuildFailed`，不会用旧startup_validation.json冒充本次构建成功。
 
 若workspace被本次离线Vitis服务占用，待其退出；不要关闭用户其他Vitis会话。PHY适配源变化会拒绝旧overlay，另建候选/overlay，不静默复用缓存。
 
@@ -99,10 +103,10 @@ python scripts/eth01_client.py --ip 192.168.50.10 --stage bulk --bytes 33554432 
 
 result记录方向、字节数、upload/download秒和MiB/s、实际初始协商Mbps、cache、错误与1MiB/s目标是否达成。HOST目录里的相同尺寸测试不能充当此处板测。吞吐未达目标按实报告，不减校验或把链路速率当有效吞吐。
 
-## 7. 受控断线重连，仍逐步执行
+## 7. 后续可选：受控断线事项
 
-完成前述三个尺寸后，用户另选如 `board/interrupted_01`，显式启动32MiB测试并在传输中按Ctrl+C；保留transfer.json.partial及已经产生的readback.bin.partial（上传阶段尚未读回时可能没有后者）。目标TCP超时/FIN结束后，用户另开新目录执行small，核对新连接/seq/计数；再按Review指定尺寸重做新transfer，不能续写旧结果。首次异常即停，不自动重试；不得删除原.partial或覆写旧目录。
+本轮首次联网不执行受控断线测试，先完成前述正常通信链路。静默失联或半帧停滞可能占用现有会话；PHY热插拔、重新协商及速率改变后的自动恢复尚未实现，不能期待拔插网线或客户端重连自动恢复服务。
 
-客户端完整请求后half-close发送方向仍允许目标drain已接受回复；RST/链路中断会丢弃该会话部分帧和未发送回复，测试缓冲有效标记清除。R5持续服务才能等待ACK/超时、接受新连接。
+实际遇到连接异常时，保存完整串口、result.json和已产生的.partial，结束本次实验，由用户重新启动应用，再使用新的输出目录继续定位。受控断线验证作为后续可选事项另行安排；不续写旧结果、不覆盖原.partial。
 
-回传完整串口、各result.json、保留的partial说明以及上电/暂停/cache/网线/协商条件。Codex后续只读分析归档。本次交接停在Draft待Review，不自动上板、合并、关闭Issue15或接入完整电机Runtime。
+回传正常通信结果及上电/暂停/cache/网线/协商条件后，Codex只读分析归档。PR继续Draft，不自动合并、关闭Issue15或接入完整电机Runtime。
