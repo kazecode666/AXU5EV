@@ -1,0 +1,4 @@
+{
+  "output": ".runtime/ethernet/eth01",
+  "workspace": ".runtime/ethernet/eth01/vitis_ethernet_r2"
+}

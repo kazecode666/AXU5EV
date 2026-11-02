@@ -1,6 +1,12 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-02。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`，分支 `codex/ax02a-r5-target`、草稿 [PR #16](https://github.com/kazecode666/AXU5EV/pull/16)，未合并。当前优先 [Issue #15](https://github.com/kazecode666/AXU5EV/issues/15) AX-02A；AX-00及PR14仿真已完成，不重规划项目、不默认重跑RTL。
+更新：2026-11-02。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`。PR16已合并到main：`24d86097bfd83abef28047dafd2594ee89a707db`。当前分支 `codex/eth01-ps-ethernet` 执行 [ETH-01任务6574356461](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6574356461)；Issue15未覆盖项继续保留。下文AX-02A状态按历史阶段理解，不重跑已签收场景。
+
+## 当前：ETH-01离线实现待Review
+
+入口：[用户分步上板指南](../firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md)、[板级/SoC复用报告](reports/eth01_platform_and_soc_reuse.md)、[阶段状态](../verification/ethernet/eth01/status.json)。独立XSA在`.runtime/ethernet/eth01/ps_target/eth01_ps.xsa`，最终软件候选`.runtime/ethernet/eth01/vitis_ethernet_r2`、应用eth01_tcp、launch eth01_tcp_manual、构建身份0x45303102；旧R1及ETH01先前候选均保留。
+
+本机SoC消息模块保留为仿真探针；实际目标模型ETH01_Target使用C Caller有界字节接口，异或/计数来自生成代码，R5构建和纯文件启动检查有证据。用户Review前不运行客户端、不连接板卡；PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER全部NOT_RUN。不接完整Runtime、不换时基、不替R1重新背书、不合并。
 
 ## 当前入口
 

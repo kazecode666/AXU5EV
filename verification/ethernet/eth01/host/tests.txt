@@ -1,0 +1,21 @@
+test_native_generated_model_and_queues (test_eth01_core.CoreTests.test_native_generated_model_and_queues) ... ok
+test_bulk_1MiB (test_eth01_loopback.LoopbackTests.test_bulk_1MiB) ... ok
+test_bulk_32MiB (test_eth01_loopback.LoopbackTests.test_bulk_32MiB) ... ok
+test_bulk_64KiB (test_eth01_loopback.LoopbackTests.test_bulk_64KiB) ... ok
+test_interrupted_read_keeps_partial (test_eth01_loopback.LoopbackTests.test_interrupted_read_keeps_partial) ... ok
+test_small_generated_model_roundtrip (test_eth01_loopback.LoopbackTests.test_small_generated_model_roundtrip) ... ok
+test_bad_headers_crc_truncation (test_eth01_protocol.ProtocolTests.test_bad_headers_crc_truncation) ... ok
+test_exact_read_short_and_disconnect (test_eth01_protocol.ProtocolTests.test_exact_read_short_and_disconnect) ... ok
+test_pattern_chunk_independence (test_eth01_protocol.ProtocolTests.test_pattern_chunk_independence) ... ok
+test_segments_and_coalescing (test_eth01_protocol.ProtocolTests.test_segments_and_coalescing) ... ok
+test_pbuf_chain_err_mem_credit_and_half_close (test_eth01_raw.RawCallbackTests.test_pbuf_chain_err_mem_credit_and_half_close) ... ok
+test_bad_crc_version_length_and_duplicate (test_eth01_service.ServiceTests.test_bad_crc_version_length_and_duplicate) ... ok
+test_bulk_boundary_integrity_and_session_abandon (test_eth01_service.ServiceTests.test_bulk_boundary_integrity_and_session_abandon) ... ok
+test_fragmentation_coalescing_and_tx_backpressure (test_eth01_service.ServiceTests.test_fragmentation_coalescing_and_tx_backpressure) ... ok
+test_full_queue_atomic_and_reset (test_eth01_service.ServiceTests.test_full_queue_atomic_and_reset) ... ok
+test_macro_expression_has_grouped_frequency (test_eth01_timebase.TimebaseTests.test_macro_expression_has_grouped_frequency) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 8.687s
+
+OK

@@ -17,3 +17,6 @@ scripts/** -text
 verification/** -text
 simulink*/** -text
 simulation/*.m -text
+# ETH01 archives keep generated/tool-output bytes; accept their native CRLF.
+generated/ethernet/eth01/** whitespace=cr-at-eol
+verification/ethernet/eth01/** whitespace=cr-at-eol

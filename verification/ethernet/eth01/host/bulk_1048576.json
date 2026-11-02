@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "ip": "127.0.0.1",
+  "port": 2946,
+  "stage": "bulk",
+  "evidence": "HOST_LOOPBACK",
+  "errors": [],
+  "build_id": 1160786177,
+  "negotiated_mbps": 1000,
+  "cache": 1,
+  "initial_model_count": 0,
+  "bytes": 1048576,
+  "crc32": 658366143,
+  "upload_seconds": 0.09562510000250768,
+  "download_seconds": 0.0899820999984513,
+  "upload_MiBps": 10.45750540364168,
+  "download_MiBps": 11.113321427452917,
+  "throughput_target_MiBps": 1,
+  "throughput_target_met": true
+}
