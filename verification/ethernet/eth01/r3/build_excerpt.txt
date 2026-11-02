@@ -1,0 +1,4 @@
+Platform Build Finished successfully.
+  92224	   5100	37034480	37131804	236961c	eth01_tcp.elf
+Build Finished successfully
+ETH01_BUILD_PASS

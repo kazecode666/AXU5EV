@@ -4,7 +4,7 @@
 
 ## 当前：ETH-01离线实现待Review
 
-入口：[用户分步上板指南](../firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md)、[板级/SoC复用报告](reports/eth01_platform_and_soc_reuse.md)、[阶段状态](../verification/ethernet/eth01/status.json)。独立XSA在`.runtime/ethernet/eth01/ps_target/eth01_ps.xsa`，最终软件候选`.runtime/ethernet/eth01/vitis_ethernet_r2`、应用eth01_tcp、launch eth01_tcp_manual、构建身份0x45303102；旧R1及ETH01先前候选均保留。
+入口：[用户分步上板指南](../firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md)、[板级/SoC复用报告](reports/eth01_platform_and_soc_reuse.md)、[阶段状态](../verification/ethernet/eth01/status.json)。按PR17评论6576959934修正r2实板PHY_FAIL code=6：全双工改读PHYSR bit3并打印实际PHYSR/速率/双工。当前候选`.runtime/ethernet/eth01/vitis_ethernet_r3`，应用eth01_tcp、launch eth01_tcp_manual_r3、构建身份0x45303103；新局部overlay为sw_repo_r3。XSA仍复用`.runtime/ethernet/eth01/ps_target/eth01_ps.xsa`，r2及原始输出、旧R1和其他历史候选均保留。r3板测NOT_RUN，待用户重试。
 
 本机SoC消息模块保留为仿真探针；实际目标模型ETH01_Target使用C Caller有界字节接口，异或/计数来自生成代码，R5构建和纯文件启动检查有证据。用户Review前不运行客户端、不连接板卡；PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER全部NOT_RUN。不接完整Runtime、不换时基、不替R1重新背书、不合并。
 

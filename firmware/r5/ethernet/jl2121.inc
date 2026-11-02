@@ -4,7 +4,7 @@
  */
 volatile unsigned eth_phy_error, eth_phy_speed, eth_phy_id;
 static u32_t eth_jl_setup(XEmacPs *mac, u32_t address) {
- u16 id1,id2,control,status,partner; unsigned i;
+ u16 id1,id2,control,status; unsigned i;
  eth_phy_error=1;eth_phy_speed=0;
  if(address!=1)goto fail;
 #define RD(r,v) if(XEmacPs_PhyRead(mac,1,(r),&(v))!=XST_SUCCESS){eth_phy_error=2;goto fail;}
@@ -15,7 +15,7 @@ static u32_t eth_jl_setup(XEmacPs *mac, u32_t address) {
   * JL2101 shares family ID: board BOM/user confirmation selects JL2121.
   */
  if((eth_phy_id&0xfffffff0U)!=0x937c4030U){eth_phy_error=3;goto fail;}
- /* Advertise only full duplex locally, then validate matching partner mode.
+ /* Advertise only full duplex locally, then validate resolved PHYSR duplex.
   * This makes the resolved mode consistent with AMD's full-duplex MAC path.
   */
  RD(4,control);control=(control&~0x2a0U)|0x140U;WR(4,control);
@@ -28,18 +28,18 @@ static u32_t eth_jl_setup(XEmacPs *mac, u32_t address) {
  }
  if(i==300){eth_phy_error=4;goto fail;}
  WR(31,0xA43);RD(0x1A,status);WR(31,0);
- if((status&0x30)==0x20)eth_phy_speed=1000;
- else if((status&0x30)==0x10)eth_phy_speed=100;
- else if((status&0x30)==0)eth_phy_speed=10;
- else {eth_phy_error=5;goto fail;}
- /* Read standard negotiated partner ability; reject half duplex because the
-  * AMD MAC path configures full duplex. Never print a guessed duplex value.
+ eth_phy_speed=(status&0x30)==0x20?1000:(status&0x30)==0x10?100:(status&0x30)==0?10:0;
+ xil_printf("ETH01 PHYSR=0x%04x speed=%u Mbps duplex=%s\r\n",
+            status,eth_phy_speed,(status&0x0008U)?"full":"half");
+ if(!eth_phy_speed){eth_phy_error=5;goto fail;}
+ /* JL21xx page 0xA43/reg 0x1A bit3 is the resolved duplex state.
+  * Reject actual half duplex; partner advertisement is not resolved status.
+  * Reference: lists.openwall.net/linux-kernel/2026/10/16/2293
   */
- if(eth_phy_speed==1000){RD(10,partner);if(!(partner&0x800)){eth_phy_error=6;goto fail;}}
- else {RD(5,partner);if(!(partner&(eth_phy_speed==100?0x100:0x40))){eth_phy_error=6;goto fail;}}
+ if(!(status&0x0008U)){eth_phy_error=6;goto fail;}
  SetUpSLCRDivisors(mac,eth_phy_speed);
  eth_phy_error=0;
- xil_printf("ETH01 LINK %u Mbps full duplex (partner validated)\r\n",eth_phy_speed);
+ xil_printf("ETH01 LINK %u Mbps full duplex (PHYSR validated)\r\n",eth_phy_speed);
  return eth_phy_speed;
 fail:
  xil_printf("ETH01 PHY_FAIL code=%u id=%08x (STOP)\r\n",eth_phy_error,eth_phy_id);

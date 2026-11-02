@@ -2,7 +2,7 @@
 
 ## 当前开发
 
-- 2026-11-02 ETH-01：PR16已合并到main（24d86097bfd83abef28047dafd2594ee89a707db）。当前执行PR16评论6574356461的Task1—5，分支codex/eth01-ps-ethernet，独立候选.runtime/ethernet/eth01/vitis_ethernet_r2。JL2121/GEM3/lwIP Raw API与实际C Caller模型已离线实现；阶段证据verification/ethernet/eth01/status.json，唯一上板入口firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md。所有硬件状态NOT_RUN，Draft待Review；不连接/操作板卡，不覆盖R1，不接完整电机Runtime，不合并、不关闭Issue15。下列PR16待合并等记录按历史阶段理解。
+- 2026-11-02 ETH-01：PR16已合并到main（24d86097bfd83abef28047dafd2594ee89a707db）。分支codex/eth01-ps-ethernet，按PR17评论6576959934修正r2实板PHY_FAIL code=6；双工改读PHYSR bit3，新候选.runtime/ethernet/eth01/vitis_ethernet_r3、新overlay sw_repo_r3、launch eth01_tcp_manual_r3。r2与原始输出保留，r3板测NOT_RUN，PR17保持Draft待用户重试。阶段证据verification/ethernet/eth01/status.json，唯一上板入口firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md。不连接/操作板卡，不覆盖R1，不接完整电机Runtime，不合并、不关闭Issue15；不新增功能/测试。下列PR16待合并等记录按历史阶段理解。
 
 - 2026-11-02最新：R1 motion64536帧与alignment_reset43100帧真实mode1均数值/时序/板报交叉PASS，精简证据分别在verification/ax02a/runtime_r1_motion_01和runtime_r1_alignment_reset_01。alignment本次两CLI均exit0，motion既有结果只读归档。详见coordination/reports/ax02a_full_board_results_2026-11-02.md的Issue15逐条审计：A5冷启动条件未明确、A4严格mode0分阶段口径待Review，不能自动全签。PR16保持Draft、Issue15开放，待最终Review/用户决定；不重跑实验、不改模型参数/TTC、不操作板卡。以下NOT_RUN按历史阶段理解。
 

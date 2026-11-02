@@ -12,7 +12,7 @@ def replace_body(source, signature, body):
     return source[:opening]+'{\n'+body+'\n}'+source[end:]
 
 def prepare(root,out):
-    repo=out/'sw_repo_r2'; lib=repo/'ThirdParty/sw_services/lwip220'
+    repo=out/'sw_repo_r3'; lib=repo/'ThirdParty/sw_services/lwip220'
     if lib.exists() and (repo/'overlay_ready_v2.txt').exists():
         phy=lib/'src/lwip-2.2.0/contrib/ports/xilinx/netif/xemacpsif_physpeed.c'
         if (root/'firmware/r5/ethernet/jl2121.inc').read_text(encoding='utf-8') not in phy.read_text(encoding='utf-8'):

@@ -1,6 +1,6 @@
 # 工作区、上板工程与数据保存位置
 
-**2026-11-02 ETH-01当前入口：PR16已合并（24d86097）。独立以太网实现分支codex/eth01-ps-ethernet，最终离线候选`.runtime/ethernet/eth01/vitis_ethernet_r2`；唯一用户入口为[ETH-01分步上板指南](../firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md)，状态见[verification/ethernet/eth01/status.json](../verification/ethernet/eth01/status.json)。先Review，所有网络板测NOT_RUN；原R1和所有原始数据留原路径，下文AX-02A操作按历史理解，不再重跑已通过场景。**
+**2026-11-02 ETH-01当前入口：PR16已合并（24d86097）。分支codex/eth01-ps-ethernet，当前候选`.runtime/ethernet/eth01/vitis_ethernet_r3`、launch `eth01_tcp_manual_r3`，修正r2实板PHY_FAIL code=6的双工状态判断；r3板测NOT_RUN，用户按[ETH-01分步上板指南](../firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md)重试。状态见[verification/ethernet/eth01/status.json](../verification/ethernet/eth01/status.json)。r2工程/原始输出及原R1全部保留；下文AX-02A操作按历史理解，不再重跑已通过场景。**
 
 **2026-11-02实际状态：motion与alignment/reset两个完整R1 mode1场景均已实测并离线分析PASS；原01读回目录均已占用，不重复执行以下历史操作。最终结论及尚缺验收项以coordination/HANDOFF.md和ax02a_full_board_results_2026-11-02.md为准。**
 

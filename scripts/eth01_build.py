@@ -11,7 +11,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '.runtime/ethernet/eth01'
-WS = OUT / 'vitis_ethernet_r2'
+WS = OUT / 'vitis_ethernet_r3'
 APP = 'eth01_tcp'
 
 def check_startup():
@@ -37,7 +37,7 @@ def check_startup():
     assert s['test_ddr']==dict(address=0x10000000,bytes=0x2000000),'DDR arena mismatch'
     assert s['_heap']['address']<0x10000000 and s['_stack']['address']<0x10000000
     launch=json.loads((WS/APP/'_ide/launch.json').read_text(encoding='utf-8'))
-    profile=[x for x in launch['configurations'] if x['name']=='eth01_tcp_manual'];assert len(profile)==1
+    profile=[x for x in launch['configurations'] if x['name']=='eth01_tcp_manual_r3'];assert len(profile)==1
     p=profile[0];t=p['targetSetup'];z=t['zuInitialization'];apps=t['downloadElf']
     def local(v):return Path(v.replace('${workspaceFolder}',WS.as_posix())).resolve()
     assert p['type']=='tcf-debug' and p['request']=='launch' and p['debugType']=='baremetal-zu'
@@ -62,7 +62,7 @@ def check_startup():
     generated_calls=subprocess.check_output([str(tool/'armr5-none-eabi-objdump.exe'),'-d','--disassemble=ETH01_Target_step',str(elf)],text=True)
     assert all(x in generated_calls for x in ['<Eth01Rx>','<Eth01Tx>']),'C Caller model backend not called in ARM binary'
     return dict(status='STARTUP_CHECK_PASS',workspace=str(WS),elf=str(elf),fsbl=str(fsbl),
-                launch='eth01_tcp_manual',r5=e,a53_fsbl=f,symbols={k:s[k] for k in ['test_ddr','_heap','_stack','ETH01_Target_step']},
+                launch='eth01_tcp_manual_r3',r5=e,a53_fsbl=f,symbols={k:s[k] for k in ['test_ddr','_heap','_stack','ETH01_Target_step']},
                 arm_call_chain=calls,generated_call_chain=generated_calls,attributes=attributes,board='NOT_RUN')
 
 def build(resume=False):
@@ -103,7 +103,7 @@ def create_app(client):
             files=[x.name for x in folder.iterdir() if x.suffix in ('.c','.h') and x.name!='ert_main.c']
             app.import_files(from_loc=str(folder),files=files)
     app.set_app_config(key='USER_COMPILE_OPTIMIZATION_LEVEL',values='-O2')
-    app.set_app_config(key='USER_COMPILE_OTHER_FLAGS',values='-fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard -DETH_BUILD_ID=0x45303102U')
+    app.set_app_config(key='USER_COMPILE_OTHER_FLAGS',values='-fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard -DETH_BUILD_ID=0x45303103U')
     app.set_app_config(key='USER_LINK_OTHER_FLAGS',values='-Wl,-Map=eth01_tcp.map')
     ld=app.get_ld_script();ld.set_stack_size('0x10000');ld.set_heap_size('0x40000')
     script=WS/APP/'src/lscript.ld'
@@ -127,10 +127,10 @@ def create_app(client):
     launch_path=WS/APP/'_ide/launch.json'
     launch=json.loads(launch_path.read_text(encoding='utf-8'))
     profile=json.loads((ROOT/'firmware/r5/ax02a/launch_first_wait.json').read_text(encoding='utf-8'))['configurations'][0]
-    profile['name']='eth01_tcp_manual'
+    profile['name']='eth01_tcp_manual_r3'
     profile['targetSetup']['zuInitialization']['usingFSBL']['fsblFile']='${workspaceFolder}/eth01_platform/export/eth01_platform/sw/boot/fsbl.elf'
     profile['targetSetup']['downloadElf'][0]['elfFile']='${workspaceFolder}/eth01_tcp/build/eth01_tcp.elf'
-    launch['configurations']=[x for x in launch['configurations'] if x['name']!='eth01_tcp_manual']+[profile]
+    launch['configurations']=[x for x in launch['configurations'] if x['name']!='eth01_tcp_manual_r3']+[profile]
     launch_path.write_text(json.dumps(launch,indent=2)+'\n',encoding='utf-8')
 
 if __name__ == '__main__':

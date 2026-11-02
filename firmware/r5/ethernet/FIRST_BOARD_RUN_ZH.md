@@ -1,6 +1,6 @@
 # ETH-01：Review后用户分步上板唯一入口
 
-按PR17评论6576502869，下一步由用户依次进行PHY识别与链路、TCP小数据、Simulink模型往返、大文件读回。PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER目前全部 **NOT_RUN**。本指南的连接、上电、GUI启动、网卡与客户端命令均由用户本人执行。首次实验固定网线，启动协商成功后保持连接；发生连接异常时，结束本次实验并重新启动应用后定位。静默失联/半帧停滞回收、keepalive和PHY热插拔/重新协商恢复暂缓开发，不作为本轮首次联网的前置条件。功率级断开，不接完整电机Runtime；不得用旧R1 ELF或旧同名launch。
+按PR17评论6576959934，r2用户实板已读到ID=937c4032，但在伙伴广告位检查处报PHY_FAIL code=6。本轮r3改为读取JL21xx PHYSR bit3判断实际双工，并增加一次PHYSR日志；r2工程及原始输出保留。r3的PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER仍为 **NOT_RUN**，由用户依次重试PHY识别与链路、TCP小数据、Simulink模型往返、大文件读回。首次实验固定网线，启动协商成功后保持连接；发生连接异常时结束本次实验并重新启动应用后定位。失联/半帧回收、keepalive和PHY热插拔/重新协商恢复仍暂缓，不作为首次联网前置条件。功率级断开，不接完整电机Runtime。
 
 ## 1. 先核对文件，不连接板卡
 
@@ -9,21 +9,21 @@
 | 项目 | 实际路径/名称 |
 |---|---|
 | XSA | `D:/Project/AXU5EV/.runtime/ethernet/eth01/ps_target/eth01_ps.xsa` |
-| workspace | `D:/Project/AXU5EV/.runtime/ethernet/eth01/vitis_ethernet_r2` |
+| workspace | `D:/Project/AXU5EV/.runtime/ethernet/eth01/vitis_ethernet_r3` |
 | platform / domain | `eth01_platform` / `r5_standalone`（psu_cortexr5_0、standalone） |
 | application | `eth01_tcp` |
-| R5 ELF | `D:/Project/AXU5EV/.runtime/ethernet/eth01/vitis_ethernet_r2/eth01_tcp/build/eth01_tcp.elf` |
+| R5 ELF | `D:/Project/AXU5EV/.runtime/ethernet/eth01/vitis_ethernet_r3/eth01_tcp/build/eth01_tcp.elf` |
 | map | 上述build目录的 `eth01_tcp.map` |
-| A53 FSBL | `D:/Project/AXU5EV/.runtime/ethernet/eth01/vitis_ethernet_r2/eth01_platform/export/eth01_platform/sw/boot/fsbl.elf` |
-| launch文件 / 配置 | `eth01_tcp/_ide/launch.json` / **eth01_tcp_manual** |
-| 构建身份 | `0x45303102`，与本次精简验证证据对应 |
+| A53 FSBL | `D:/Project/AXU5EV/.runtime/ethernet/eth01/vitis_ethernet_r3/eth01_platform/export/eth01_platform/sw/boot/fsbl.elf` |
+| launch文件 / 配置 | `eth01_tcp/_ide/launch.json` / **eth01_tcp_manual_r3** |
+| 构建身份 | `0x45303103` |
 
 ```powershell
 Set-Location D:/Project/AXU5EV
 python scripts/eth01_build.py --check-startup
 ```
 
-必须exit0、STARTUP_CHECK_PASS、workspace尾部为vitis_ethernet_r2。此命令只读文件，不启动调试器。确认R5 ELF32/Realtime/VFPv3-D16、A53 FSBL ELF64及实际launch核选择。旧R1和ETH01早期vitis_ethernet/vitis_ethernet_r1均保留，不能混用。不要重建已验证候选；构建方法在下节，仅为离线复现。
+必须exit0、STARTUP_CHECK_PASS、workspace尾部为vitis_ethernet_r3、launch为eth01_tcp_manual_r3。此命令只读文件，不启动调试器。确认R5 ELF32/Realtime/VFPv3-D16、A53 FSBL ELF64及实际launch核选择。旧R1及包括r2在内的ETH01历史候选均保留，不能混用。不要重建已验证候选；构建方法在下节，仅为离线复现。
 
 ## 2. 离线复现入口（不下载）
 
@@ -44,7 +44,7 @@ START_ETH01('check');  % 现有目标的纯文件检查
 & E:/AMDDesignTools/2026.1/Vivado/bin/vivado.bat -mode batch -source hardware/axu5ev/eth01_ps_ethernet.tcl -tclargs xczu5ev-sfvc784-2-i .runtime/ethernet/eth01/reproduce_ps 资料/course_s2/01_ps_hello/vivado/ps_hello.srcs/sources_1/bd/design_1/design_1.bd
 ```
 
-当前默认XSA为已生成的ps_target/eth01_ps.xsa。本轮只改构建入口反馈，固件未变，继续使用表中的vitis_ethernet_r2，无需重建。直接对该已验证候选执行`START_ETH01('build')`会因拒绝重建而在MATLAB报错；这不影响使用现有候选，执行`START_ETH01('check')`检查即可。
+当前默认XSA仍为已生成的ps_target/eth01_ps.xsa。本轮只改PHY双工状态判断及对应日志，使用新的vitis_ethernet_r3和sw_repo_r3局部overlay重新构建，模型生成代码直接复用。r2及其sw_repo_r2不覆盖。对已验证完成的r3再次执行`START_ETH01('build')`会拒绝重建；使用现有r3时执行`START_ETH01('check')`即可。
 
 确需离线复现软件时，复制 `build_config.json` 到新的明确配置文件，workspace改为同output下一个不存在的新候选（例如vitis_ethernet_reproduce_01）。在MATLAB使用`setenv('ETH01_CONFIG','该配置绝对路径')`后执行`START_ETH01('build')`；或在同一PowerShell用`$env:ETH01_CONFIG='该配置绝对路径'`后直接执行`& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -s scripts/eth01_build.py`。PowerShell环境变量不会修改已经运行的MATLAB进程。已存在workspace默认拒绝；`-- --resume`仅用于未验证完成的候选。
 
@@ -63,21 +63,22 @@ MATLAB的build分支现在要求本次Python构建正常完成后输出`ETH01_BU
 用户可执行以下GUI入口；它会打开workspace，不等于授权Codex执行：
 
 ```powershell
-& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -w D:/Project/AXU5EV/.runtime/ethernet/eth01/vitis_ethernet_r2
+& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -w D:/Project/AXU5EV/.runtime/ethernet/eth01/vitis_ethernet_r3
 ```
 
-在应用的Debug配置中明确选 **eth01_tcp_manual**，不要选默认自动生成配置。核对A53_0初始化FSBL、R5_0应用、RPU split、programDevice关闭、无bitstream；Start/Stop at entry用于人工核对后，用户Continue R5。历史错误是将R5 FSBL交给A53_0执行，本候选必须使用表中匹配A53 FSBL。
+在应用的Debug配置中明确选 **eth01_tcp_manual_r3**，不要选r2的eth01_tcp_manual或默认自动生成配置。核对A53_0初始化FSBL、R5_0应用、RPU split、programDevice关闭、无bitstream；Start/Stop at entry用于人工核对后，用户Continue R5。历史错误是将R5 FSBL交给A53_0执行，本候选必须使用表中匹配A53 FSBL。
 
 串口顺序应包含：
 
 ```text
-ETH01 R5_0 standalone build=45303102 I-cache=ON D-cache=OFF GEM3=ff0e0000 PMU/64 no TTC
+ETH01 R5_0 standalone build=45303103 I-cache=ON D-cache=OFF GEM3=ff0e0000 PMU/64 no TTC
 ETH01 PHY addr=1 id=937c403x
-ETH01 LINK <10/100/1000> Mbps full duplex (partner validated)
+ETH01 PHYSR=0x<实际4位十六进制值> speed=<10/100/1000> Mbps duplex=full
+ETH01 LINK <10/100/1000> Mbps full duplex (PHYSR validated)
 ETH01 TCP_READY 192.168.50.10:5001 MAC=02:45:30:31:00:10 DDR=10000000..11ffffff
 ```
 
-ID低nibble是现场修订，不是要求必须某个x。ID mask只识别JL21xx家族；JL2121型号由实物/板资料确认。PHY_FAIL code1地址、2MDIO、3ID、4协商超时、5速率、6双工能力，或INIT_FAIL/BIND_FAIL均保存日志并停。没有无限协商、地址扫描、静默使用其他PHY或GPIO复位。
+保留PHYSR实读值，不预设固定十六进制结果。其page0xA43/reg0x1A的bit3=1表示协商后全双工，bit[5:4]表示速率，依据为[驱动资料中的JLSEMI_PHYSR_DUPLEX/jlsemi_read_status](https://lists.openwall.net/linux-kernel/2026/10/16/2293)。若日志为duplex=half，仍报PHY_FAIL code=6并停止，不强制全双工。ID mask只识别JL21xx家族，板型仍按用户确认的JL2121；r2实测ID=937c4032不改变地址/掩码。其余PHY_FAIL code1地址、2MDIO、3ID、4协商超时、5速率，以及INIT_FAIL/BIND_FAIL，均保存日志并停。
 
 链路灯或用户必要时`ping 192.168.50.10`只能辅助；必须记录实际协商速率。百兆就记百兆。整个TCP测试期间R5要持续运行，不能停在main/完成断点后要求下载。调试暂停会导致超时，不能据此误判PHY故障；暂停后不要把被扰动会话作为吞吐证据。
 

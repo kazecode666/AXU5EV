@@ -2,6 +2,8 @@
 
 2026-11-02，`kazecode666/AXU5EV`，任务来源 [PR16 评论6574356461](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6574356461)。基线 `origin/main=24d86097bfd83abef28047dafd2594ee89a707db`，PR16 已合并。实现分支 `codex/eth01-ps-ethernet`，协议为 **TCP**。
 
+最新修正按[PR17评论6576959934](https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6576959934)：r2用户实板读出ID=937c4032后报PHY_FAIL code=6。本轮只把reg5/reg10伙伴广告位检查改为page0xA43/reg0x1A的PHYSR bit3实际双工状态，打印PHYSR/速率/双工，半双工仍拒绝。新候选vitis_ethernet_r3、sw_repo_r3、build0x45303103、launch eth01_tcp_manual_r3已离线编译及原有启动检查通过；r3板测NOT_RUN。下文r2构建/16项Host/模型结果为此前归档，本轮未重跑测试或生成模型。当前入口以唯一上板指南为准。
+
 ## Task1：本地板级证据
 
 厂商原件均在 `资料/`，不提交原件。只针对所需页面提取文本并目视核对底板第7页；提取/渲染在 `.runtime/ethernet/eth01/recon/`。
