@@ -2,6 +2,8 @@
 
 ## 当前开发
 
+- 2026-11-02最新：R1 motion64536帧与alignment_reset43100帧真实mode1均数值/时序/板报交叉PASS，精简证据分别在verification/ax02a/runtime_r1_motion_01和runtime_r1_alignment_reset_01。alignment本次两CLI均exit0，motion既有结果只读归档。详见coordination/reports/ax02a_full_board_results_2026-11-02.md的Issue15逐条审计：A5冷启动条件未明确、A4严格mode0分阶段口径待Review，不能自动全签。PR16保持Draft、Issue15开放，待最终Review/用户决定；不重跑实验、不改模型参数/TTC、不操作板卡。以下NOT_RUN按历史阶段理解。
+
 - 最新R1 P1000用户实测已复算PASS：1000×41/数值零失败、deadline/sequence PASS、相位无趋势、PC/板报一致，证据 `verification/ax02a/runtime_r1_p1000_01/`。本轮完整场景准备已离线完成：现有R1 ELF不重建，描述符在 `.runtime/ax02a/full_scene_descriptors/`，readback_short.tcl末尾显式场景支持current_motion64536/current_alignment_reset43100。下一步指南第14节及FULL_SCENE_RUN_ZH.md，用户Review后手动逐次执行；两次完整板验NOT_RUN，73/73离线回归不代替ARM实测。保留全部workspace/原始数据，不重复ABA/不清理/不改算法参数。
 
 - PR16 Review5722212233从f6c0fcb接续：板报假PASS、初始化失败现场保存及完整构建显式runtime_mapping=1保护已离线修复，72/72相关回归通过，待复审。当前R1 ELF不重建，TTC映射/deadline/生成代码/模型不改，不操作板卡。用户已手动清理旧临时目录，不恢复、不再清理；本轮新测试隔离于 `.runtime/ax02a/review_5722212233/`。

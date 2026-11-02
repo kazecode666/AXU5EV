@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "origin": "BOARD",
+  "frames": 43100,
+  "numerical_failures": 0,
+  "timing": "PASS",
+  "anomalies": [],
+  "configured_period_us": 100.0,
+  "period_quantization_us": 0.0,
+  "deadline_sequence": "PASS",
+  "release_phase": {
+    "status": "NO_TREND_DETECTED",
+    "samples": 43099,
+    "excluded_frame": 0,
+    "slope_ticks_per_frame": 6.768131171380081e-06,
+    "intercept_ticks": 253.25571061464518,
+    "residual_rms_ticks": 15.754386368249138,
+    "slope_standard_error": 6.099600646075819e-06,
+    "threshold_ticks_per_frame": 8.300346957787957e-05,
+    "mean_isr_interval_ticks": 9999.999767970672,
+    "limitation": "ISR latency/epoch included; detected trend does not identify hardware root cause"
+  },
+  "period_consistency": "NO_TREND_DETECTED"
+}

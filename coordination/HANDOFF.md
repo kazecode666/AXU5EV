@@ -1,13 +1,25 @@
 # AXU5EV — 当前交接
 
-更新：2026-10-31。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`，分支 `codex/ax02a-r5-target`、草稿 [PR #16](https://github.com/kazecode666/AXU5EV/pull/16)，未合并。当前优先 [Issue #15](https://github.com/kazecode666/AXU5EV/issues/15) AX-02A；AX-00及PR14仿真已完成，不重规划项目、不默认重跑RTL。
+更新：2026-11-02。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`，分支 `codex/ax02a-r5-target`、草稿 [PR #16](https://github.com/kazecode666/AXU5EV/pull/16)，未合并。当前优先 [Issue #15](https://github.com/kazecode666/AXU5EV/issues/15) AX-02A；AX-00及PR14仿真已完成，不重规划项目、不默认重跑RTL。
 
 ## 当前入口
 
 - [工作区、上板工程与数据保存位置](../docs/WORKSPACE_GUIDE_ZH.md)：目录职责、完整ELF/FSBL路径、数据命名和ChatGPT交接。
-- [首次指南第14节](../firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md#14-runtime-r1完整场景review后用户逐次执行)及[完整场景操作步骤](../firmware/r5/ax02a/FULL_SCENE_RUN_ZH.md)：下一次current_motion/64536帧与current_alignment_reset/43100帧，先Review，用户手动逐次执行。
+- [首次指南第14节](../firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md#14-runtime-r1完整场景review后用户逐次执行)及[完整场景操作步骤](../firmware/r5/ax02a/FULL_SCENE_RUN_ZH.md)：已完成两个场景；链接保留操作来源，当前以本次汇总及最终Review为准。
 - 日常仿真：`simulation/START_HERE.m`；唯一参数入口 `simulation/init_AXU5EV.m`，保留本地模型/参数/wrapper修改，不保存未保存窗口。
 - 原逐阶段交接保留在 [HANDOFF_HISTORY_2026-10-31.md](HANDOFF_HISTORY_2026-10-31.md)。其中“当前”“NOT_RUN”等按当时阶段理解，不覆盖本文状态。
+
+## 2026-11-02：两个完整场景真实PASS，待最终Review
+
+current_alignment_reset/scenario3/mode1/43100帧本次完整比较及板报crosscheck均exit0，passed=true/consistent=true；与已有current_motion/64536帧PASS一起归档。原始数据/已有分析不覆盖，两场景精简证据在verification/ax02a/runtime_r1_motion_01及runtime_r1_alignment_reset_01。alignment experiment2/before1，承接相同R1候选motion experiment1；两次数值零失败、deadline/sequence PASS、ISR无趋势。
+
+motion最大runtime/task/response/jitter为38.74/54.42/60.82/6.94µs、最小slack39.18µs；alignment为17.43/32.33/38.39/6.92µs、最小slack61.61µs。全组均值/P99/极值/最坏帧和Issue15 A4/A5逐条审计见[本次汇总](reports/ax02a_full_board_results_2026-11-02.md)。计时为100MHz配置换算，不是WCET。
+
+两个完整场景现在均为真实PASS，不再是NOT_RUN。A5.6独立冷启动/冷cache条件尚缺明确声明；A4严格连续mode0分阶段签收口径待最终Review（R1两场景mode1，历史mode0 motion_03为旧workspace）。同ELF两个独立不同场景已满足数量条件，不擅加必须同输入重跑的门槛。A1器件/PCB签核和最终Review/用户决定仍未完成。PR16保持Draft、Issue15开放；无新实验、Build、模型/参数/TTC修改或板卡操作。下文NOT_RUN均按历史阶段理解，不覆盖本节。
+
+## 历史：2026-11-02板测前交接
+
+只读核对runtime_r1_motion_01的run/analysis/crosscheck和pre-begin：已有64536帧mode1数值/时间PASS、板报一致，无趋势；本轮未重跑/覆盖。第二场景input/reference/metadata/32B描述符匹配43100帧/scenario3；R1纯文件启动检查PASS，ELF未重建。读回runtime_r1_alignment_reset_01及runtime_r1_alignment_reset_pre_begin_01.json均未占用，采用01。实际路径、停点预期和手动命令见[本次交接](reports/ax02a_alignment_manual_handoff_2026-11-02.md)。current_alignment_reset仍NOT_RUN；不连接/操作板卡，停在交接处。下文“两次均NOT_RUN”属准备时历史状态，不覆盖此次motion已有实测结论。
 
 ## 本轮：R1 P1000实测PASS，完整场景准备待Review
 

@@ -8,6 +8,10 @@
 
 ## 当前验收状态
 
+### 2026-11-02：两个完整R1 mode1场景真实PASS
+
+完整motion64536帧及alignment/reset43100帧数值/100µs时序/板报交叉均PASS。本次alignment两条正式CLI exit0，motion复用既有PASS报告，不覆盖原始证据。[完整时间统计与Issue15 A4/A5逐条验收审计](ax02a_full_board_results_2026-11-02.md)，[motion证据](../../verification/ax02a/runtime_r1_motion_01/evidence.json)，[alignment证据](../../verification/ax02a/runtime_r1_alignment_reset_01/evidence.json)。最大Runtime分别38.74/17.43µs，最小slack39.18/61.61µs；两次零截止期/序号异常、ISR无趋势。仅观察最大值，不是WCET。A5冷启动条件证据不足、A4严格mode0阶段签收待Review；器件/PCB签核与最终用户决定仍待完成，不将所有条款自动签PASS。PR16 Draft，Issue15开放，无板卡操作或重Build。后文NOT_RUN为历史阶段状态。
+
 ### 2026-10-31：Runtime R1 P1000真实PASS归档及完整场景准备
 
 从 `cc4dee9ef202e9ff4597c59e997d8813383b1c20` 接续。只读 `.runtime/ax02a/board_manual/runtime_r1_p1000_01/` 的run/output328000B/timing64000B/report_v2 2400B、同次 `.runtime/ax02a/runtime_r1_pre_begin_01.json` 与 `replay/p1000` 参考。现有ax02a_analyze_run和修正后板报crosscheck两条CLI均exit0：1000×41数值0失败，最大绝对差4.336808689942018e-19；deadline/sequence PASS，原始异常0；999 ISR斜率−0.0005598825278183996tick/帧，原阈值0.012544565142580701，NO_TREND_DETECTED；crosscheck_consistent=true、passed=true，无状态/统计矛盾。

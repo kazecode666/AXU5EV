@@ -12,9 +12,9 @@
   "previous_user_launch": "Historical failure: R5 FSBL loaded on A53_0. Corrected A53 FSBL -> R5 app user boot PASS on 2026-10-28; PR16 issuecomment-6459108843.",
   "BOARD_BOOT": "PASS_USER_EVIDENCE_PR16_6459108843",
   "BOARD_MOTION_FIRST": "PASS_USER_BOARD_motion_03_64536x41",
-  "BOARD_REPLAY": "PARTIAL: first motion PASS; second motion and alignment/reset NOT_RUN",
+  "BOARD_REPLAY": "FULL_MODE1_BOTH_NUMERIC_PASS_REVIEW_A4_STAGE_INTERPRETATION",
   "P1000_PREPARATION": "COMPLETE; new capture analyzed, no substituted old output",
-  "BOARD_PERIODIC_100US": "SHORT_P1000_PASS_FULL_SCENES_NOT_RUN",
+  "BOARD_PERIODIC_100US": "BOTH_FULL_SCENES_PASS_RECORDED_CONDITIONS_COLD_COVERAGE_UNCONFIRMED",
   "RTL_RERUN": "NOT_RUN",
   "blockers": [
     "Physical device marking and PCB/core revision are not signed off; offline build uses the user-designated manual part",
@@ -37,27 +37,31 @@
   "PHASE_CANDIDATE_BOARD": "NUMERIC_AND_DEADLINE_SEQUENCE_PASS_PERIOD_TREND_REJECTED_phase_p1000_01",
   "report_protocol": "v2_2400B; v1 legacy mode1 period unavailable",
   "board_boot_workspace": ".runtime/ax02a/vitis_target_a53fsbl",
-  "updated": "2026-10-31",
+  "updated": "2026-11-02",
   "current_task_comment": 6541052405,
   "current_handoff": "coordination/HANDOFF.md",
   "workspace_guide": "docs/WORKSPACE_GUIDE_ZH.md",
   "TTC_ABA_BOARD": "COMPLETE_SCOPE_LIMITED_RAW_PLUS_ONE_COMPATIBLE_REPEATABLE",
   "RUNTIME_R1_OFFLINE": "OFFLINE_READY_FOR_REVIEW_T1_T2_T3_COMPLETE",
-  "RUNTIME_R1_BOARD": "PASS_USER_runtime_r1_p1000_01_1000x41_NUMERIC_TIMING_CROSSCHECK",
+  "RUNTIME_R1_BOARD": "P1000_MOTION_ALIGNMENT_FULL_PASS",
   "RUNTIME_R1_CANDIDATE_ID": "0x52313031",
   "RUNTIME_R1_MAPPING_VERSION": 1,
-  "NEXT_BOARD_GUIDE_SECTION": 14,
-  "NEXT_BOARD_CAPTURE": ".runtime/ax02a/board_manual/runtime_r1_motion_01",
+  "NEXT_BOARD_GUIDE_SECTION": null,
+  "NEXT_BOARD_CAPTURE": null,
   "runtime_r1_validation": "verification/ax02a/runtime_100us_r1/validation.json",
   "REVIEW_5722212233": "OFFLINE_FIXES_READY_FOR_REREVIEW",
   "REVIEW_5722212233_TESTS": "72_PASS_0_FAIL_0_ERROR_0_SKIP",
   "review_5722212233_validation": "verification/ax02a/review_5722212233/validation.json",
   "runtime_r1_elf_review_fix": "NOT_REBUILT",
-  "NEXT_BOARD_CAPTURES": [
-    ".runtime/ax02a/board_manual/runtime_r1_motion_01",
-    ".runtime/ax02a/board_manual/runtime_r1_alignment_reset_01"
-  ],
+  "NEXT_BOARD_CAPTURES": [],
   "runtime_r1_p1000_evidence": "verification/ax02a/runtime_r1_p1000_01/evidence.json",
-  "FULL_SCENE_R1": "OFFLINE_READY_FOR_REVIEW_BOARD_NOT_RUN",
-  "full_scene_preparation": "verification/ax02a/full_scene_r1/preparation.json"
+  "FULL_SCENE_R1": "USER_BOARD_BOTH_PASS_PENDING_FINAL_REVIEW",
+  "full_scene_preparation": "verification/ax02a/full_scene_r1/preparation.json",
+  "full_board_report": "coordination/reports/ax02a_full_board_results_2026-11-02.md",
+  "remaining_acceptance": [
+    "A5.6 cold-start conditions/coverage not explicitly evidenced",
+    "A4 mode0 vs full mode1 stage acceptance interpretation needs final Review",
+    "A1 physical part/PCB signoff remains open",
+    "Final ChatGPT Review and user decision pending"
+  ]
 }

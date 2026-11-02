@@ -1,5 +1,7 @@
 # AX-02A：R5 standalone 回放
 
+**2026-11-02实际状态：motion与alignment/reset两个完整R1 mode1场景均已实测并离线分析PASS；原01读回目录均已占用，不重复执行以下历史操作。最终结论及尚缺验收项以coordination/HANDOFF.md和ax02a_full_board_results_2026-11-02.md为准。**
+
 更新：2026-10-31。当前为任务6541052405的Runtime 100µs R1，**P1000用户实测/PC交叉PASS，完整场景准备待Review**。ABA实测已复算闭合，不重复ABA/C。用户已完成BOARD_BOOT/FIRST_WAIT和motion_03首次完整数值；A4剩余项与完整A5/WCET未完成。
 
 - 目录与数据保存：[工作区指南](../../../docs/WORKSPACE_GUIDE_ZH.md)，当前状态：[HANDOFF](../../../coordination/HANDOFF.md)。

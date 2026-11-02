@@ -1,5 +1,7 @@
 # Runtime R1完整场景回放：用户手动执行
 
+**2026-11-02实际状态：motion与alignment/reset两个完整R1 mode1场景均已实测并离线分析PASS；原01读回目录均已占用，不重复执行以下历史操作。最终结论及尚缺验收项以coordination/HANDOFF.md和ax02a_full_board_results_2026-11-02.md为准。**
+
 当前PR16分支，先Review本轮交接，再由用户逐次执行。R1 P1000真实板测已PASS，精简证据见[归档](../../../verification/ax02a/runtime_r1_p1000_01/evidence.json)。以下两次完整实验均 **NOT_RUN**，不自动执行，不重复TTC ABA，不重建ELF或重新生成算法。
 
 ## 1. 工程与数据

@@ -1,5 +1,7 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
+**2026-11-02：两个完整R1场景真实数值/100µs时序/板报交叉已PASS。** [统计与A4/A5逐条审计](coordination/reports/ax02a_full_board_results_2026-11-02.md)。仍有冷启动条件及分阶段验收口径待Review，不等同整项验收完成；以下操作准备状态按原阶段理解。
+
 **当前优先：[Issue #15](https://github.com/kazecode666/AXU5EV/issues/15)，AX-02A真实R5目标工程、数值回放与100µs时间验证。目标AXU5EVB-E。** 私有仓库为 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地根目录 `D:/Project/AXU5EV`。PR #14已合并；完整RTL结果直接复用，不默认重跑。见[AX-02A实际结果与阻塞](coordination/reports/ax02a_r5_target_validation.md)及[R5构建/回放入口](firmware/r5/ax02a/README.md)。C源码教学已取消，Issue #11和AX-02B/C不在本轮实施。
 
 **目录与保存位置统一入口：[工作区指南](docs/WORKSPACE_GUIDE_ZH.md)。当前上板候选为 `.runtime/ax02a/vitis_runtime_100us_r1`，R1 P1000实测已PASS；下一步Review后按[完整场景指南](firmware/r5/ax02a/FULL_SCENE_RUN_ZH.md)，不重复ABA/C或P1000。**

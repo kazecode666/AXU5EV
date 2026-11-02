@@ -1,0 +1,253 @@
+{
+  "status": "PASS_USER_BOARD_MODE1_FULL_SCENE",
+  "scenario": "current_alignment_reset",
+  "frames": 43100,
+  "fields": 41,
+  "experiment": 2,
+  "before_experiment": 1,
+  "raw_directory": ".runtime/ax02a/board_manual/runtime_r1_alignment_reset_01",
+  "reference_directory": ".runtime/ax02a/replay/current_alignment_reset",
+  "pre_begin": ".runtime/ax02a/runtime_r1_alignment_reset_pre_begin_01.json",
+  "candidate": {
+    "workspace": "D:/Project/AXU5EV/.runtime/ax02a/vitis_runtime_100us_r1",
+    "elf": "D:/Project/AXU5EV/.runtime/ax02a/vitis_runtime_100us_r1/ax02a_replay/build/ax02a_replay.elf"
+  },
+  "mapping_version": 1,
+  "candidate_id": "0x52313031",
+  "raw_bytes": {
+    "output.bin": 14136800,
+    "timing.bin": 2758400,
+    "report_v2.bin": 2400
+  },
+  "numerical_failures": 0,
+  "max_absolute_error": 0.0,
+  "deadline_anomalies": 0,
+  "all_anomalies": 0,
+  "phase": {
+    "status": "NO_TREND_DETECTED",
+    "samples": 43099,
+    "excluded_frame": 0,
+    "slope_ticks_per_frame": 6.768131171380081e-06,
+    "intercept_ticks": 253.25571061464518,
+    "residual_rms_ticks": 15.754386368249138,
+    "slope_standard_error": 6.099600646075819e-06,
+    "threshold_ticks_per_frame": 8.300346957787957e-05,
+    "mean_isr_interval_ticks": 9999.999767970672,
+    "limitation": "ISR latency/epoch included; detected trend does not identify hardware root cause"
+  },
+  "crosscheck_passed": true,
+  "crosscheck_consistent": true,
+  "command_exit_codes": {
+    "compare": 0,
+    "crosscheck": 0
+  },
+  "execution_note": "Both formal commands run this turn, new analysis/crosscheck directories",
+  "statistics": {
+    "all": {
+      "samples": 43100,
+      "metrics": {
+        "runtime_us": {
+          "mean": 12.705866589327146,
+          "p99": 14.08,
+          "minimum": 11.69,
+          "maximum": 17.43,
+          "worst_frame": 42099
+        },
+        "task_us": {
+          "mean": 27.70095011600928,
+          "p99": 29.47,
+          "minimum": 26.39,
+          "maximum": 32.33,
+          "worst_frame": 42099
+        },
+        "response_us": {
+          "mean": 33.903642691415314,
+          "p99": 35.75,
+          "minimum": 32.6,
+          "maximum": 38.39,
+          "worst_frame": 42099
+        },
+        "jitter_us": {
+          "mean": 6.202692575406032,
+          "p99": 6.79,
+          "minimum": 2.59,
+          "maximum": 6.92,
+          "worst_frame": 38687
+        },
+        "slack_us": {
+          "mean": 66.09635730858469,
+          "p99": 67.02,
+          "minimum": 61.61,
+          "maximum": 67.4,
+          "worst_frame": 42099
+        }
+      }
+    },
+    "ordinary": {
+      "samples": 38790,
+      "metrics": {
+        "runtime_us": {
+          "mean": 12.58560634184068,
+          "p99": 12.98,
+          "minimum": 11.69,
+          "maximum": 15.8,
+          "worst_frame": 0
+        },
+        "task_us": {
+          "mean": 27.577764887857697,
+          "p99": 28.86,
+          "minimum": 26.39,
+          "maximum": 30.96,
+          "worst_frame": 0
+        },
+        "response_us": {
+          "mean": 33.78016860015468,
+          "p99": 35.17,
+          "minimum": 32.6,
+          "maximum": 36.85,
+          "worst_frame": 40010
+        },
+        "jitter_us": {
+          "mean": 6.2024037122969835,
+          "p99": 6.79,
+          "minimum": 2.59,
+          "maximum": 6.92,
+          "worst_frame": 38687
+        },
+        "slack_us": {
+          "mean": 66.21983139984532,
+          "p99": 67.03,
+          "minimum": 63.15,
+          "maximum": 67.4,
+          "worst_frame": 40010
+        }
+      }
+    },
+    "speed_due": {
+      "samples": 3879,
+      "metrics": {
+        "runtime_us": {
+          "mean": 13.722730085073472,
+          "p99": 14.1,
+          "minimum": 13.03,
+          "maximum": 14.74,
+          "worst_frame": 42019
+        },
+        "task_us": {
+          "mean": 28.76145140500129,
+          "p99": 30.0,
+          "minimum": 27.76,
+          "maximum": 30.85,
+          "worst_frame": 42139
+        },
+        "response_us": {
+          "mean": 34.967391080175304,
+          "p99": 36.34,
+          "minimum": 33.91,
+          "maximum": 36.66,
+          "worst_frame": 42139
+        },
+        "jitter_us": {
+          "mean": 6.205939675174014,
+          "p99": 6.81,
+          "minimum": 5.67,
+          "maximum": 6.91,
+          "worst_frame": 3939
+        },
+        "slack_us": {
+          "mean": 65.0326089198247,
+          "p99": 65.85,
+          "minimum": 63.34,
+          "maximum": 66.09,
+          "worst_frame": 26169
+        }
+      }
+    },
+    "position_due": {
+      "samples": 431,
+      "metrics": {
+        "runtime_us": {
+          "mean": 14.377517401392112,
+          "p99": 14.73,
+          "minimum": 13.97,
+          "maximum": 17.43,
+          "worst_frame": 42099
+        },
+        "task_us": {
+          "mean": 29.2431090487239,
+          "p99": 29.85,
+          "minimum": 28.46,
+          "maximum": 32.33,
+          "worst_frame": 42099
+        },
+        "response_us": {
+          "mean": 35.44257540603248,
+          "p99": 36.43,
+          "minimum": 34.55,
+          "maximum": 38.39,
+          "worst_frame": 42099
+        },
+        "jitter_us": {
+          "mean": 6.199466357308585,
+          "p99": 6.78,
+          "minimum": 5.69,
+          "maximum": 6.82,
+          "worst_frame": 21199
+        },
+        "slack_us": {
+          "mean": 64.55742459396751,
+          "p99": 65.24,
+          "minimum": 61.61,
+          "maximum": 65.45,
+          "worst_frame": 42099
+        }
+      }
+    },
+    "command_event": {
+      "samples": 0,
+      "metrics": {}
+    },
+    "alignment_transition": {
+      "samples": 9,
+      "metrics": {
+        "runtime_us": {
+          "mean": 13.131111111111112,
+          "p99": 15.8,
+          "minimum": 11.69,
+          "maximum": 15.8,
+          "worst_frame": 0
+        },
+        "task_us": {
+          "mean": 28.174444444444443,
+          "p99": 30.96,
+          "minimum": 26.79,
+          "maximum": 30.96,
+          "worst_frame": 0
+        },
+        "response_us": {
+          "mean": 34.15555555555555,
+          "p99": 36.85,
+          "minimum": 33.18,
+          "maximum": 36.85,
+          "worst_frame": 40010
+        },
+        "jitter_us": {
+          "mean": 5.981111111111111,
+          "p99": 6.77,
+          "minimum": 2.59,
+          "maximum": 6.77,
+          "worst_frame": 40010
+        },
+        "slack_us": {
+          "mean": 65.84444444444445,
+          "p99": 66.82,
+          "minimum": 63.15,
+          "maximum": 66.82,
+          "worst_frame": 40010
+        }
+      }
+    }
+  },
+  "scope": "Observed task performance under recorded I-cache ON/D-cache OFF and BSP100MHz; not WCET or motor closed-loop",
+  "hardware_access_this_turn": "NONE"
+}
