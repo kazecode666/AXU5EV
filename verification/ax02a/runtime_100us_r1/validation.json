@@ -1,0 +1,68 @@
+{
+  "status": "OFFLINE_READY_FOR_REVIEW",
+  "task_comment": 6541052405,
+  "owner_repo": "kazecode666/AXU5EV",
+  "pr": 16,
+  "issue": 15,
+  "aba": "BOARD_COMPLETE_SCOPE_LIMITED",
+  "aba_source": ".runtime/ax02a/board_manual/ttc_aba_01",
+  "t1": "b46fdf6",
+  "t2": "2aa9a9a",
+  "workspace": ".runtime/ax02a/vitis_runtime_100us_r1",
+  "elf": ".runtime/ax02a/vitis_runtime_100us_r1/ax02a_replay/build/ax02a_replay.elf",
+  "map": ".runtime/ax02a/vitis_runtime_100us_r1/ax02a_replay/build/ax02a_replay.map",
+  "fsbl": ".runtime/ax02a/vitis_runtime_100us_r1/ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf",
+  "full_build_log": ".runtime/ax02a/vitis_runtime_100us_r1.console.txt",
+  "build_exit": 0,
+  "tool": "Vitis2026.1 SW6511674 R5 GCC13.4.0",
+  "size_bytes": {
+    "text": 46134,
+    "data": 5100,
+    "bss": 28216
+  },
+  "mapping": {
+    "version": 1,
+    "candidate_id": "0x52313031",
+    "hardware_interval": 9999,
+    "logical_period_ticks": 10000,
+    "scope": "TTC0 channels0/1 internal same-source100MHz unprescaled interval mode only; unsupported configurations rejected"
+  },
+  "layout": {
+    "load_end": "0x112e90",
+    "heap": [
+      "0x10c690",
+      "0x10d690"
+    ],
+    "main_stack": [
+      "0x10d690",
+      "0x111690"
+    ],
+    "all_stacks_end": "0x112e90",
+    "overlap_with_replay_reference_report": false
+  },
+  "startup_root_workspace_identical": true,
+  "tests": {
+    "passed": 63,
+    "failed": 0,
+    "skipped": 0,
+    "host_runner": "real generated Runtime with original and logical10000 sequence/deadline fault cases PASS",
+    "origin": "HOST and synthetic/MMIO-format stubs, not ARM timing"
+  },
+  "review": "No new P1/P2 or minor findings; prior pure-check R-profile limitation unchanged, actual build-time readelf PASS",
+  "warnings": [
+    "BSP xbasic_types deprecated",
+    "FSBL CRL_APB_RST_LPD_TOP redefined"
+  ],
+  "t4_runtime_board": "NOT_RUN",
+  "full_A4_A5": "NOT_RUN",
+  "wcet": "NOT_RUN",
+  "hardware_access": "NONE",
+  "models_generated_algorithms": "UNTOUCHED",
+  "rtl": "NOT_RUN",
+  "preserved_workspaces": [
+    "vitis_target_a53fsbl",
+    "vitis_postprocess",
+    "vitis_phase_diagnostic",
+    "vitis_ttc_characterize"
+  ]
+}

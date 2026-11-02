@@ -1,0 +1,82 @@
+{
+  "status": "OFFLINE_C2_TARGET_BUILD_PASS",
+  "workspace": ".runtime/ax02a/vitis_postprocess",
+  "source_base": "C1 64466414773038524dce40c120dd99434102e7e8 + postprocessor extension",
+  "protected_workspace": ".runtime/ax02a/vitis_target_a53fsbl (not built or overwritten)",
+  "elf_layout": {
+    "machine": "ARM",
+    "elf_class": 32,
+    "byte_order": "little",
+    "entry": 60,
+    "flags": 83887104,
+    "segments": [
+      {
+        "address": 0,
+        "file_bytes": 2008,
+        "memory_bytes": 2008,
+        "flags": 7
+      },
+      {
+        "address": 1048576,
+        "file_bytes": 48332,
+        "memory_bytes": 76496,
+        "flags": 7
+      }
+    ],
+    "processor": "psu_cortexr5_0"
+  },
+  "size_bytes": {
+    "text": 45225,
+    "data": 5100,
+    "bss": 28160
+  },
+  "regions": {
+    "input": {
+      "address": "0x10000000",
+      "bytes": 10485760,
+      "end_exclusive": "0x10a00000"
+    },
+    "output": {
+      "address": "0x11000000",
+      "bytes": 21495808,
+      "end_exclusive": "0x12480000"
+    },
+    "descriptor": {
+      "address": "0x12f00000",
+      "bytes": 32,
+      "end_exclusive": "0x12f00020"
+    },
+    "ticks": {
+      "address": "0x13000000",
+      "bytes": 4194304,
+      "end_exclusive": "0x13400000"
+    },
+    "reference": {
+      "address": "0x14000000",
+      "bytes": 21495808,
+      "end_exclusive": "0x15480000"
+    },
+    "report": {
+      "address": "0x16000000",
+      "bytes": 2336,
+      "end_exclusive": "0x16000920"
+    }
+  },
+  "allocation_basis": "Actual XSA DDR coverage checked by build through0x17000000; ELF PT_LOAD and linker DDR region checked; all buffer ranges pairwise disjoint. No extra large scratch region: postprocess uses existing16KB stack, no sort/P99.",
+  "postprocess_default": "disabled; separate one-shot enabled=1; reference descriptor and payload must be preloaded/verified by user",
+  "cache": "I-cache ON/D-cache OFF unchanged",
+  "p99": "NOT_COMPUTED in C v1",
+  "host_crosscheck": {
+    "passed": true,
+    "origin": "HOST_POSTPROCESS",
+    "input_origin": "BOARD motion_03 or explicitly supplied run; HOST is not target postprocessor validation",
+    "frames": 64536,
+    "field_metrics_mismatches": [],
+    "python_timing_anomalies": [],
+    "p99": "NOT_COMPUTED in C v1; Python retains its ceil P99",
+    "statistics_tolerances": "RMS abs1e-15/rel1e-12; time summaries abs1e-12/rel1e-9; no change to numeric PASS tolerances"
+  },
+  "target_postprocess": "NOT_RUN",
+  "p1000_periodic": "NOT_RUN",
+  "full_A5": "NOT_RUN"
+}

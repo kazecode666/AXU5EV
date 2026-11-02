@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "crosscheck_consistent": true,
+  "period_status": "NO_TREND_DETECTED",
+  "origin": "BOARD_REPORT_VS_PC",
+  "input_origin": "BOARD motion_03 or explicitly supplied run; HOST is not target postprocessor validation",
+  "frames": 1000,
+  "field_metrics_mismatches": [],
+  "report_status_mismatches": [],
+  "python_timing_anomalies": [],
+  "p99": "NOT_COMPUTED in C v1/v2; Python retains its ceil P99",
+  "statistics_tolerances": "RMS abs1e-15/rel1e-12; time summaries abs1e-12/rel1e-9; no change to numeric PASS tolerances"
+}

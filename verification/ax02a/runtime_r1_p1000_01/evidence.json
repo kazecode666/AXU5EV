@@ -1,0 +1,59 @@
+{
+  "status": "BOARD_RUNTIME_R1_P1000_PASS",
+  "owner_repo": "kazecode666/AXU5EV",
+  "pr": 16,
+  "implementation_commit": "44872ec40e4df2efced9bf557f7459664ce72d31",
+  "analysis_commit": "cc4dee9ef202e9ff4597c59e997d8813383b1c20",
+  "raw": ".runtime/ax02a/board_manual/runtime_r1_p1000_01",
+  "reference": ".runtime/ax02a/replay/p1000",
+  "pre_begin": ".runtime/ax02a/runtime_r1_pre_begin_01.json",
+  "before_experiment": 0,
+  "experiment": 1,
+  "frames": 1000,
+  "fields": 41,
+  "interrupted": false,
+  "raw_bytes": {
+    "output": 328000,
+    "timing": 64000,
+    "report_v2": 2400
+  },
+  "command_exit_codes": {
+    "numeric_timing": 0,
+    "board_report_crosscheck": 0
+  },
+  "numeric_failures": 0,
+  "max_absolute_error": 4.336808689942018e-19,
+  "deadline_sequence": "PASS",
+  "period_consistency": "NO_TREND_DETECTED",
+  "release_phase": {
+    "status": "NO_TREND_DETECTED",
+    "samples": 999,
+    "excluded_frame": 0,
+    "slope_ticks_per_frame": -0.0005598825278183996,
+    "intercept_ticks": 253.6783396623076,
+    "residual_rms_ticks": 15.996852586511055,
+    "slope_standard_error": 0.0017567595210914394,
+    "threshold_ticks_per_frame": 0.012544565142580701,
+    "mean_isr_interval_ticks": 9999.92985971944,
+    "limitation": "ISR latency/epoch included; detected trend does not identify hardware root cause"
+  },
+  "board_report_crosscheck": true,
+  "upstream_register_comparison": {
+    "baseline": ".runtime/ax02a/ttc_pre_begin_01.json",
+    "unchanged": {
+      "ttc_apb_select": 0,
+      "lpd_lsbus_ctrl": 16779778,
+      "iopll_ctrl": 80896
+    },
+    "changed_hardware_interval": [
+      10000,
+      9999
+    ],
+    "scope": "configuration comparison only; not independent frequency measurement"
+  },
+  "scope": "1000-frame Runtime short periodic replay, not full A4/A5/WCET",
+  "full_motion_board": "NOT_RUN",
+  "alignment_reset_board": "NOT_RUN",
+  "hardware_access_this_turn": "NONE",
+  "raw_binary_committed": false
+}

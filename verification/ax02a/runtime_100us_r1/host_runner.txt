@@ -1,0 +1,1 @@
+RUNNER_CONTRACT_PASS: k0 epoch, sequence loss, deadline stop

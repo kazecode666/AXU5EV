@@ -2,6 +2,8 @@
 
 本轮只读本地资料，标记 `DOC_VERIFIED`（文档事实）、`PROJECT_INSPECTED`（工程参数）、`INFERRED`（本项目判断）、`NOT_RUN`（未执行）。**目标板AXU5EVB-E，用户已确认**；具体PCB修订和芯片完整料号另待板级核对。非B版仅作对照。表中页码均为PDF从1开始的页序；原理图标题号可能与PDF页序不同。
 
+2026-10-27用户补充确认：以《AXU5EVB-E开发板用户手册》作为当前板型/器件依据；核心板参考`ACU5EV核心板原理图.pdf`，底板参考`AXU5EVB-E开发板原理图.pdf`。底板与AXU3EG共用，不能只因图框名称而弃用；实物以太网收发芯片为JL2121（USER_CONFIRMED，当前AX-02A不使用以太网）。AX-02A选择手册XC/-2器件；物理PCB修订及配置/实测差异仍分开记录。
+
 ## 来源定位
 
 `VENDOR_ROOT` 是本地项目下的 `资料/`，原件不入Git。完整SHA256及读取范围见[资料索引](../../references/alinx/ALINX_MATERIALS_INVENTORY.csv)。

@@ -1,0 +1,27 @@
+{
+  "status": "T1_INDEPENDENT_CROSSCHECK_COMPLETE",
+  "source": ".runtime/ax02a/board_manual/phase_p1000_01",
+  "reference": ".runtime/ax02a/replay/p1000/reference.bin",
+  "metadata": ".runtime/ax02a/replay/p1000/metadata.json",
+  "pre_begin": ".runtime/ax02a/ttc_pre_begin_01.json",
+  "experiment": 1,
+  "before_experiment": 0,
+  "numeric": "PASS",
+  "deadline_sequence": "PASS",
+  "period_consistency": "TREND_DETECTED",
+  "crosscheck_consistent": true,
+  "max_abs": 4.336808689942018e-19,
+  "fields": 41,
+  "frames": 1000,
+  "report_bytes": 2400,
+  "output_bytes": 328000,
+  "timing_bytes": 64000,
+  "analysis_exit_codes": [
+    1,
+    1
+  ],
+  "exit_explanation": "Expected rejection of period trend; independent numeric and PC/board report crosscheck agree; not a build failure",
+  "root_cause": "UNCONFIRMED",
+  "full_A4_remaining": "NOT_RUN",
+  "full_A5": "NOT_RUN"
+}

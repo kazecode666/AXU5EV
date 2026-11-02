@@ -1,0 +1,79 @@
+{
+  "fsbl": {
+    "processor": "psu_cortexa53_0",
+    "machine": "AArch64",
+    "elf_class": 64,
+    "byte_order": "little",
+    "entry": 4294705152,
+    "path": ".runtime/ax02a/vitis_target_a53fsbl/ax02a_platform/export/ax02a_platform/sw/boot/fsbl.elf",
+    "boot_domain": "zynqmp_fsbl",
+    "compile_flags": [
+      "-DSDT",
+      "-Os",
+      "-DARMA53_64"
+    ],
+    "compiler": "aarch64-xilinx-elf-gcc.exe (GCC) 13.4.0",
+    "size_bytes": {
+      "text": 64604,
+      "data": 3336,
+      "bss": 83024
+    }
+  },
+  "application": {
+    "machine": "ARM",
+    "elf_class": 32,
+    "byte_order": "little",
+    "entry": 60,
+    "flags": 83887104,
+    "segments": [
+      {
+        "address": 0,
+        "file_bytes": 2008,
+        "memory_bytes": 2008,
+        "flags": 7
+      },
+      {
+        "address": 1048576,
+        "file_bytes": 44724,
+        "memory_bytes": 72864,
+        "flags": 7
+      }
+    ],
+    "processor": "psu_cortexr5_0",
+    "path": ".runtime/ax02a/vitis_target_a53fsbl/ax02a_replay/build/ax02a_replay.elf",
+    "domain": "r5_standalone",
+    "compile_flags": [
+      "-DSDT",
+      "-mcpu=cortex-r5",
+      "-mfloat-abi=hard",
+      "-mfpu=vfpv3-d16",
+      "-DARMR5",
+      "-O2",
+      "-g3",
+      "-fno-fast-math",
+      "-ffp-contract=off"
+    ],
+    "compiler": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0",
+    "size_bytes": {
+      "text": 41620,
+      "data": 5100,
+      "bss": 28136
+    },
+    "primary_stack_bytes": 16384,
+    "heap_bytes": 4096
+  },
+  "launch": "ax02a_first_wait_a53fsbl",
+  "status": "OFFLINE_STARTUP_CHECK_PASS",
+  "target_build": "PASS",
+  "workspace": ".runtime/ax02a/vitis_target_a53fsbl",
+  "xsa": ".runtime/ax02a/ps_target/ax02a_ps.xsa",
+  "runtime_source": ".runtime/ax02a/target/codegen/AXU5EV_R5_Runtime_ert_rtw",
+  "vitis": "2026.1 SW6511674",
+  "fault_comment": "https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6443462085",
+  "old_workspace_preserved": ".runtime/ax02a/vitis_target",
+  "old_fsbl_architecture": "ELF32/ARM/v7-Realtime; incompatible with the observed GUI A53_0 FSBL load",
+  "board_boot": "NOT_RUN",
+  "board_replay": "NOT_RUN",
+  "board_periodic_100us": "NOT_RUN",
+  "limitation": "Old user launch attempt failed before WAIT. Corrected artifacts were built/checked offline only; no corrected GUI or target run by Codex."
+}

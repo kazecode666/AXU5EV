@@ -1,0 +1,20 @@
+****** Vitis v2026.1 (64-bit)
+****** SW Build 6511674 on 2026-06-16-13:14:45
+****** SW Build 6511674 on 2026-06-16-13:14:45
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize/ax02a_platform/psu_cortexr5_0/r5_standalone/bsp/libsrc/build_configs/gen_bsp/include/xbasic_types.h:102:2: warning: #warning The xbasics_type.h file is deprecated and users should use xil_types.h and xil_assert. [-Wcpp]
+
+D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize/ax02a_platform/psu_cortexr5_0/r5_standalone/bsp/libsrc/build_configs/gen_bsp/include/xbasic_types.h:103:2: warning: #warning Please refer the Standalone BSP UG647 for further details [-Wcpp]
+
+D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize/ax02a_platform/zynqmp_fsbl/zynqmp_fsbl_bsp/libsrc/build_configs/gen_bsp/include/xbasic_types.h:102:2: warning: #warning The xbasics_type.h file is deprecated and users should use xil_types.h and xil_assert. [-Wcpp]
+
+D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize/ax02a_platform/zynqmp_fsbl/zynqmp_fsbl_bsp/libsrc/build_configs/gen_bsp/include/xbasic_types.h:103:2: warning: #warning Please refer the Standalone BSP UG647 for further details [-Wcpp]
+
+D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize/ax02a_platform/zynqmp_fsbl/psu_init.c:15766: warning: "CRL_APB_RST_LPD_TOP" redefined
+
+Platform Build Finished successfully.
+Initiating build for the ax02a_ttc_characterize component.
+  24174	   5152	  43228	  72554	  11b6a	ax02a_ttc_characterize.elf
+
+Build Finished successfully
+{

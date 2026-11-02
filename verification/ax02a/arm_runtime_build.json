@@ -1,0 +1,26 @@
+{
+  "status": "ARM_RUNTIME_OBJECT_BUILD_PASS",
+  "standalone_elf": "NOT_BUILT",
+  "compiler": "arm-none-eabi-gcc.exe (GNU Tools for STM32 12.3.rel1.20240926-1715) 12.3.1 20230626",
+  "flags": [
+    "-std=c11",
+    "-O2",
+    "-g",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "-mcpu=cortex-r5",
+    "-marm",
+    "-mlittle-endian",
+    "-mfpu=vfpv3-d16",
+    "-mfloat-abi=hard"
+  ],
+  "objects": [
+    "replay_runner.o",
+    "ax01b_r5_bridge.o",
+    "AXU5EV_R5_Runtime.o",
+    "rt_nonfinite.o",
+    "rtGetInf.o",
+    "rtGetNaN.o"
+  ],
+  "library": "D:\\Project\\AXU5EV\\.runtime\\ax02a\\arm_runtime\\libax02a_runtime.a"
+}

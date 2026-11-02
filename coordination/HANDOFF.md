@@ -1,40 +1,81 @@
 # AXU5EV — 当前交接
 
-日期：2026-10-27。仓库`kazecode666/AXU5EV`，本地`D:/Project/AXU5EV`。PR #7/#9/#12已合并；AX-00迁移、资料阶段结束，旧Issue #3及M4不作为当前流程。
+更新：2026-11-02。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`，分支 `codex/ax02a-r5-target`、草稿 [PR #16](https://github.com/kazecode666/AXU5EV/pull/16)，未合并。当前优先 [Issue #15](https://github.com/kazecode666/AXU5EV/issues/15) AX-02A；AX-00及PR14仿真已完成，不重规划项目、不默认重跑RTL。
 
-## 当前任务与结果
+## 当前入口
 
-本轮完成Issue #13最新正文：必要小修、同命令时刻的完整10→0→−2 mm生成C/真实RTL比较，以及短的Simulink模块搭建说明。C源码阅读/逐行学习任务已取消；Issue #11和板级工作不实施。见[本轮报告](reports/ax01c_simulation_closeout.md)及[唯一运行说明](../simulation/README_运行说明.md)。
+- [工作区、上板工程与数据保存位置](../docs/WORKSPACE_GUIDE_ZH.md)：目录职责、完整ELF/FSBL路径、数据命名和ChatGPT交接。
+- [首次指南第14节](../firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md#14-runtime-r1完整场景review后用户逐次执行)及[完整场景操作步骤](../firmware/r5/ax02a/FULL_SCENE_RUN_ZH.md)：已完成两个场景；链接保留操作来源，当前以本次汇总及最终Review为准。
+- 日常仿真：`simulation/START_HERE.m`；唯一参数入口 `simulation/init_AXU5EV.m`，保留本地模型/参数/wrapper修改，不保存未保存窗口。
+- 原逐阶段交接保留在 [HANDOFF_HISTORY_2026-10-31.md](HANDOFF_HISTORY_2026-10-31.md)。其中“当前”“NOT_RUN”等按当时阶段理解，不覆盖本文状态。
 
-开放实现[PR #14](https://github.com/kazecode666/AXU5EV/pull/14)，仓库`kazecode666/AXU5EV`，实现提交`9a6877546581301638a2bde7203db47896b4f8aa`，待Review，不自动合并。
+## 2026-11-02：两个完整场景真实PASS，待最终Review
 
-完整RTL已结束，实际64536帧/每帧5000拍，捕获315、有效1、保持违规0；墙钟15527.072198 s。与c_fixed相同参数/初态，实际采样命令均为2.0915、2.1016、5.2999 s；接受3/拒绝1/段号3。三段首次Ready为1.9199、3.9599、6.3499 s，五事件最大误差分别0.01987350、0.01951992、0.01962843 mm。末帧6.4535 s位置−2.018663179 mm、Busy=0、Ready=0；Ready原规则回落，未强制保持。
+current_alignment_reset/scenario3/mode1/43100帧本次完整比较及板报crosscheck均exit0，passed=true/consistent=true；与已有current_motion/64536帧PASS一起归档。原始数据/已有分析不覆盖，两场景精简证据在verification/ax02a/runtime_r1_motion_01及runtime_r1_alignment_reset_01。alignment experiment2/before1，承接相同R1候选motion experiment1；两次数值零失败、deadline/sequence PASS、ISR无趋势。
 
-完整41字段、位置/速度/dq电流/四项参考与三相应用duty差均0；字差0，+50 µs时间误差≤1.1653e−16 s。精简CSV/曲线在`verification/ax01c/`，完整MAT/日志留`.runtime/ax01c/`。3份相关.m的Code Analyzer无问题，实际曲线与SLX局部图已检查。MCP请求曾超时但后台继续完成，未重复Run。普通Run不编译；旧PR7映射升级显式重建一次已在PR9完成。
+motion最大runtime/task/response/jitter为38.74/54.42/60.82/6.94µs、最小slack39.18µs；alignment为17.43/32.33/38.39/6.92µs、最小slack61.61µs。全组均值/P99/极值/最坏帧和Issue15 A4/A5逐条审计见[本次汇总](reports/ax02a_full_board_results_2026-11-02.md)。计时为100MHz配置换算，不是WCET。
 
-已合并[PR #12](https://github.com/kazecode666/AXU5EV/pull/12)，合并提交`22c783d57a8ed43773efa2c986f2d5dab9731852`，实现提交`bff686425bfdc440bad421d03ae9737483fca69b`。其model_fixed/c_fixed六次发送均采集，模型/C全41字段最大差1.77635683940025e−15；证据见[发送报告](reports/issue8_send_ready.md)。当前基于该合并继续，不重复排查既有拒绝问题。
+两个完整场景现在均为真实PASS，不再是NOT_RUN。A5.6独立冷启动/冷cache条件尚缺明确声明；A4严格连续mode0分阶段签收口径待最终Review（R1两场景mode1，历史mode0 motion_03为旧workspace）。同ELF两个独立不同场景已满足数量条件，不擅加必须同输入重跑的门槛。A1器件/PCB签核和最终Review/用户决定仍未完成。PR16保持Draft、Issue15开放；无新实验、Build、模型/参数/TTC修改或板卡操作。下文NOT_RUN均按历史阶段理解，不覆盖本节。
 
-PR9反馈字段错位与PR12发送回执已有根因/修复证据，不重复排查。Ready为当拍许可，Busy=0不保证Ready=1；status3未Ready拒绝、不排队。状态7可由运动中断异步产生，不能当作新请求回执。
+## 历史：2026-11-02板测前交接
 
-活动模型和必要.m已逐项迁到`simulation/`。用户只编辑`init_AXU5EV.m`，运行`START_HERE.m`后点击Hybrid的Run；默认model_fixed，不自动Run。旧入口仅薄转发，不重复恢复默认目标。操作见[同目录中文说明](../simulation/README_运行说明.md)。
+只读核对runtime_r1_motion_01的run/analysis/crosscheck和pre-begin：已有64536帧mode1数值/时间PASS、板报一致，无趋势；本轮未重跑/覆盖。第二场景input/reference/metadata/32B描述符匹配43100帧/scenario3；R1纯文件启动检查PASS，ELF未重建。读回runtime_r1_alignment_reset_01及runtime_r1_alignment_reset_pre_begin_01.json均未占用，采用01。实际路径、停点预期和手动命令见[本次交接](reports/ax02a_alignment_manual_handoff_2026-11-02.md)。current_alignment_reset仍NOT_RUN；不连接/操作板卡，停在交接处。下文“两次均NOT_RUN”属准备时历史状态，不覆盖此次motion已有实测结论。
 
-用户Hybrid、Runtime、Control紫色分区保留；本轮未编辑SLX、生成C/SV或控制算法。MATLAB/Simulink只通过MCP操作。修复`axu5ev_run_case`缺失输出目录，并增加同拍收尾运行/导出辅助；模块说明集中在原README，不另做C教材。程序调参不等同鼠标/键盘操作，实际UI刷新仍NOT_RUN；本轮完整RTL三段已完成，板级工作仍NOT_RUN。
+## 本轮：R1 P1000实测PASS，完整场景准备待Review
 
-先前已合并[PR #9](https://github.com/kazecode666/AXU5EV/pull/9)完成接口字段修复、simulation集中入口、默认10 mm、复位释放及连续命令验证，实际范围见[原报告](reports/issue8_manual_run.md)。接口修复提交`08e727e64e2a04c4f9666b513d5704e71e8b84f2`；入口/验证提交`3d5d009e1c85b1bfddf3b041711c91496189c374`。旧213帧RTL与PR7旧1 mm均不作为本轮完整运动验收。实现PR供Review，不自动合并，不继续上板。
+已只读分析 `.runtime/ax02a/board_manual/runtime_r1_p1000_01`、同次runtime_r1_pre_begin_01.json和replay/p1000参考，两条正式分析命令均exit0。1000×41数值0失败、最大差4.336808689942018e-19；deadline/sequence PASS，999 ISR相位斜率−0.000559882528tick/帧，低于原阈值0.012544565143；NO_TREND_DETECTED，板报与PC一致。最大Runtime37.61µs、task52.96µs、response59.19µs、jitter7.26µs，最小slack40.81µs；仅本次100MHz配置换算，非WCET/独立测频。上游配置与旧pre-begin基线一致，raw9999/logical10000符合本候选。[真实PASS证据](../verification/ax02a/runtime_r1_p1000_01/evidence.json)。
 
-## 固定方向与可复用来源
+现有R1 ELF静态检查可复用到两完整场景，不重建：实际ELF保留65536帧上限和timing/replay/postprocess调用，数据/参考均在DDR边界内且帧预算低于32位回绕。已生成 `.runtime/ax02a/full_scene_descriptors/{current_motion,current_alignment_reset}/reference_descriptor.bin`。readback_short.tcl末尾新增显式场景参数，沿用64KiB分块及原身份/失败路径；旧P1000调用不变。现有完整比较器和板报CLI可直接分析，prefix-only analyze_run不用于完整场景。
 
-- 目标板AXU5EVB-E；PCB/芯片完整料号、厂商XA/-1与手册XC/-2差异留待板级适配前核对。
-- 单Cortex-R5F负责位置P、速度PI、原五态对齐/偏置、Host/参考/轨迹/恢复管理；PL复用电流FOC，负责同步采样/位置/角度、PWM与快速禁止。
-- 活动算法源均在`simulation/`。Hybrid是日常整体闭环；Runtime是软件C生成入口；Control是PR5独立组件来源，复制进Runtime后不自动同步。不手改生成C/SV补算法。
-- 原点位/S曲线函数、PI、采样周期与首相、手动Start、10000/30000/2000拍与0.5 A、一次死区、50 µs应用、PWM禁止后机械继续保留。
-- PL来源`generated/legacy_m3_p3/FOC_DUT.sv`，仍按5000拍/帧合同；314拍不是新增外围后的整链延迟。
-- 继承`references/legacy/PMLSM_Hardware_Interface_Map.md`、MBDL4和MIL/DSP的ia/ib/ic、0.1µm/count光栅、RELCON/ENCON/F_Reset及低有效ERRI/ERRU。不照搬DSP引脚，不重复索要已有定义。
+完整场景原始数据预定为 `.runtime/ax02a/board_manual/runtime_r1_motion_01` 和 `runtime_r1_alignment_reset_01`，开始前配置分别为 `.runtime/ax02a/runtime_r1_motion_pre_begin_01.json` / `runtime_r1_alignment_reset_pre_begin_01.json`。操作见第14节链接；两个场景板验均NOT_RUN，由用户Review后逐次执行，不自动采集。原输入/参考及所有workspace/ELF留原路径。
 
-## 工作与验证边界
+仅增加一个相关全尺寸传输用例覆盖两场景，先失败再通过；相关离线回归73/73，0失败/错误/跳过。[准备/限制与验证](../verification/ax02a/full_scene_r1/preparation.json)。不改模型/参数/生成代码/TTC映射/截止期，不运行板卡，不重复ABA，不清理。PR16保持Draft、Issue15开放；完整A4/A5/WCET仍待实际两次回放证据。
 
-保留当前本地编辑，不stash/reset/clean、不额外clone/worktree、不保存未保存窗口、不批量删除；From/Goto局部、端口默认外观，不全图重排。不增加位置积分、运动中重规划、CORDIC、标幺化或缩位。只做变更所需验证，不增加哈希清单、快照保护报表、额外冒烟或无关历史回归。
+## 历史：Review 5722212233修复交接
 
-本轮为Windows主机生成C/MEX与完整一组实际RTL反馈联合仿真；没有真实R5或其指令集/周期精确模型，20/41字段向量不是实际AXI。托管SIL/PIL、R5目标编译/任务时间、真实AXI、5EV综合/布线、ADC/编码器/PWM板级适配、ARM实测、烧录与实机均NOT_RUN。硬件下载和功率级上电须另行授权。旧Artix结果不能当5EV验收。
+从目录整理提交 `f6c0fcb` 接续，已按[Review](https://github.com/kazecode666/AXU5EV/pull/16#pullrequestreview-5722212233)修复两个P2及完整构建版本保护。反例先复现：8项测试、23个失败子用例；修正后AX-02A相关离线回归72/72通过，0失败/0错误/0跳过。见[本轮报告](reports/ax02a_review_5722212233.md)及[验证记录](../verification/ax02a/review_5722212233/validation.json)。该阶段状态 **OFFLINE_FIXES_READY_FOR_REREVIEW**；此后的P1000实测结果见上节，PR16保持Draft。
 
-原AX-01B结果见[历史报告](reports/ax01b_runtime_hybrid.md)，原R5提取见[PR5报告](reports/ax01_r5_extraction.md)，厂商/R5参考见[AX-00B](reports/ax00b_vendor_review.md)和[R5指南](../firmware/r5/ALINX_R5_REUSE_GUIDE.md)，仅当前需要时查用。旧运行指南已转向新的simulation入口。
+板报状态/样本数/空组计数与PC原始结果逐项核对；双方一致拒绝与矛盾分开。合法早失败保存run.json及真实timer/snapshot（valid=0时不信任残留字段），不读旧DDR；有效失败前缀排除失败帧，不读报告。完整成功且后处理完成才捕获报告，仍须PC交叉。当前R1 ELF不重建，workspace、输入/参考/描述符/原始数据路径不变。
+
+用户已按清单手动删除此前临时目录；不恢复、不再清理。本轮新测试产物集中在 `.runtime/ax02a/review_5722212233/`，无删除。源码/参数/模型本地修改继续保留。
+
+## Runtime R1已有任务与证据
+
+最新为[任务6541052405](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6541052405)，[版本化任务书](tasks/ax02a_runtime_100us_r1.md)。T1—T3完成，状态 **OFFLINE_READY_FOR_REVIEW**：
+
+| 阶段 | 实际提交 | 结果 |
+|---|---|---|
+| T1 | `b46fdf69830baa36072af6b8ab047b4196e1c900` | ABA真实数据闭合；XSDB地址及uint32兼容，原始run/samples不改 |
+| T2 | `2aa9a9aa691c78f7ca70c897b091635a8ff37283` | 仅已验证TTC0通道0/1、内部同源100MHz、无分频10kHz映射raw9999/logical10000；其他配置拒绝，expected/deadline不变 |
+| T3 | `44872ec40e4df2efced9bf557f7459664ce72d31` | 独立Runtime R1真实构建、实际ELF身份检查及第13节交接；当时相关63/63离线测试通过 |
+
+六套workspace和全部ELF保留。**下一次选择 `.runtime/ax02a/vitis_runtime_100us_r1`**，应用 `ax02a_replay`，launch `ax02a_first_wait_a53fsbl`。旧workspace存在同名launch，必须核对路径；候选0x52313031、mapping_version1。完整路径及纯文件检查见工作区指南。现有候选不随未提交模型/参数自动更新。
+
+| 验收项 | 当前实际状态/证据 |
+|---|---|
+| BOARD_BOOT/FIRST_WAIT | 用户实测PASS；A53 FSBL→R5_0启动，旧架构不匹配失败保留作历史 |
+| 首次完整运动数值 | motion_03，64536×41 PASS；[精简证据](../verification/ax02a/board_motion_03/baseline.json) |
+| 旧exp2及phase P1000 | 数值、deadline/sequence PASS；ISR约+1tick/帧，周期不接受，不是R1板验 |
+| TTC-only ABA | 三组各1000真实IRQ/16000B；周期10000.999985/9999.999988/10000.999700ticks，全窗口RAW_PLUS_ONE_COMPATIBLE、repeatable=true、issues=[]；[摘要](../verification/ax02a/ttc_aba_01/summary.json) |
+| Runtime R1 P1000 | **用户实测及PC/板报交叉PASS**；[本次证据](../verification/ax02a/runtime_r1_p1000_01/evidence.json)，不替代完整A4/A5 |
+| 完整A4 | 第二次独立完整motion、43100帧alignment/reset仍未验收 |
+| 完整A5/WCET | 未完成，TTC-only和短段P1000不替代 |
+
+ABA及R1 P1000已完成，不重复ABA/C或P1000。第13节保留为其历史步骤；下一次按第14节使用两个完整场景的各自输入/参考/描述符，原始和分析目录不得覆盖。
+
+本次T4只记“带Runtime的100µs短段通过”；失败保留首个异常，不改9998、expected、deadline或容差。之后完整A4/A5另行推进，不扩展ADC/QEP/PS—PL/实物FOC。
+
+## 本轮目录整理
+
+统一README、固件入口、当前状态和工作区指南，历史交接单独保留；workspace/原始数据/生成源物理路径不变。历史清理项见[清单](reports/workspace_cleanup_2026-10-31.md)，用户已手动删除；本轮不恢复、不再清理。`.runtime/`不入库，推送GitHub不备份本地原始数据。
+
+## 固定方向与工作边界
+
+- AXU5EVB-E；PCB/完整芯片料号及厂商XA/-1与手册XC/-2差异待板级核对。核心板参考ACU5EV、底板参考AXU5EVB-E/共用AXU3EG资料，实物以太网JL2121，本轮不做网络适配。
+- R5F负责位置P、速度PI、原五态对齐/一次偏置、Host/参考/轨迹/恢复；PL复用FOC及采样/位置/角度/PWM/快速禁止。算法源为Simulink/Stateflow，不手改生成C/SV补算法，不改PI、时基、首相、一次死区、50µs应用边界。
+- 保留紫色分区和Host/Alignment_Task/Motion_Control布局；MATLAB/Simulink仅MCP操作，From/Goto局部，端口默认。Ready为当拍许可，Busy=0不保证Ready，未Ready拒绝、不排队。
+- 不stash/reset/clean、强制同步、clone/worktree、批量删除或覆盖用户修改，不保存未保存窗口。旧 `D:/Project/FPGA_XC7A200T` 只读。
+- Codex不连接/发现/复位/读写/下载/运行板卡，不启动或连接hw_server；用户本人Review后操作。合并和功率级上电另行授权。
+- C教学、Issue11、AX-02B/C及旧M4不在本轮范围。区分HOST、RTL、目标构建、ARM实测，未运行写NOT_RUN。
+
+详细实际结果见[AX-02A阶段报告](reports/ax02a_r5_target_validation.md)；基线方向见[架构](../docs/ARCHITECTURE.md)、[接口需求](../references/legacy/PMLSM_Hardware_Interface_Map.md)及[历史交接](HANDOFF_HISTORY_2026-10-31.md)。

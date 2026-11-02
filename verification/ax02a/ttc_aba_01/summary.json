@@ -1,0 +1,566 @@
+{
+  "conclusion": "RAW_PLUS_ONE_COMPATIBLE",
+  "repeatable": true,
+  "issues": [],
+  "runs": [
+    {
+      "acquisition_valid": true,
+      "usable_samples": 1000,
+      "hypothesis": "RAW_PLUS_ONE_COMPATIBLE",
+      "issues": [],
+      "hypothesis_reason": "UNIQUE_CANDIDATE_WITH_COMMON_EPOCH",
+      "hardware_irq_loss": "UNKNOWN",
+      "origin": "TTC_ONLY",
+      "limitation": "Same-source synchronous counters assumed. Read-window edge estimates are not atomic; multiple rollovers inside the window and all merged IRQs cannot be proven absent. No A4/A5/WCET conclusion.",
+      "run": {
+        "magic": 826496084,
+        "version": 1,
+        "record_bytes": 16,
+        "state": 3,
+        "experiment": 1,
+        "requested_raw": 10000,
+        "actual_raw": 10000,
+        "nominal_period": 10000,
+        "requested_samples": 1000,
+        "completed_samples": 1000,
+        "error": 0,
+        "timeout_ticks": 11101100,
+        "build_id": 3113983656,
+        "case_id": "A1",
+        "before_experiment": 0,
+        "interrupted": false,
+        "session_id": "warm01",
+        "conditions": "same power session I-cache ON D-cache OFF",
+        "workspace": "D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize",
+        "elf": "D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize/ax02a_ttc_characterize/build/ax02a_ttc_characterize.elf",
+        "clock_basis": "BSP configuration, not measured",
+        "config": {
+          "periodic_hz": 100000000,
+          "timestamp_hz": 100000000,
+          "periodic_base": 4279304192,
+          "timestamp_base": 4279304196,
+          "periodic_clock": 0,
+          "timestamp_clock": 0,
+          "periodic_control": 35,
+          "timestamp_control": 33,
+          "periodic_ier": 1,
+          "timestamp_ier": 0
+        }
+      },
+      "metadata_normalization": [
+        {
+          "field": "build_id",
+          "original": -1180983640,
+          "unsigned": 3113983656
+        },
+        {
+          "field": "periodic_base",
+          "original": -15663104,
+          "unsigned": 4279304192
+        },
+        {
+          "field": "timestamp_base",
+          "original": -15663100,
+          "unsigned": 4279304196
+        }
+      ],
+      "all_samples": {
+        "count": 1000,
+        "event": {
+          "slope": 10000.999985476985,
+          "first": 10063.5,
+          "last": 10001063.5,
+          "minimum": 10063.5,
+          "maximum": 10001063.5,
+          "residual_rms": 3.5623377399665337,
+          "residual_max": 18.458413859363645
+        },
+        "p_count": {
+          "slope": 0.0003716163716163713,
+          "first": 301,
+          "last": 230,
+          "minimum": 223,
+          "maximum": 301,
+          "residual_rms": 16.21511380731581,
+          "residual_max": 62.661622377622365
+        },
+        "isr_phase": {
+          "slope": 1.0003570933570933,
+          "first": 364.5,
+          "last": 1293.5,
+          "minimum": 292.5,
+          "maximum": 1320.5,
+          "residual_rms": 15.849659852979592,
+          "residual_max": 62.115868131868126
+        },
+        "read_window": {
+          "slope": -0.0003502863502863503,
+          "first": 75,
+          "last": 75,
+          "minimum": 75,
+          "maximum": 113,
+          "residual_rms": 7.115978496755872,
+          "residual_max": 35.20056415056416
+        },
+        "event_period_bounds": [
+          10000.921921921921,
+          10001.08008008008
+        ],
+        "first_event_window": [
+          10026,
+          10101
+        ],
+        "last_event_window": [
+          10001026,
+          10001101
+        ]
+      },
+      "after_first": {
+        "count": 999,
+        "event": {
+          "slope": 10000.999982192614,
+          "first": 20065.0,
+          "last": 10001063.5,
+          "minimum": 20065.0,
+          "maximum": 10001063.5,
+          "residual_rms": 3.5640782518406784,
+          "residual_max": 18.457167987711728
+        },
+        "p_count": {
+          "slope": 0.0007487166525242677,
+          "first": 231,
+          "last": 230,
+          "minimum": 223,
+          "maximum": 288,
+          "residual_rms": 16.10114711865947,
+          "residual_max": 49.58346153769
+        },
+        "isr_phase": {
+          "slope": 1.0007309092659793,
+          "first": 296.0,
+          "last": 1293.5,
+          "minimum": 292.5,
+          "maximum": 1320.5,
+          "residual_rms": 15.734848255952363,
+          "residual_max": 48.54335405545828
+        },
+        "read_window": {
+          "slope": -0.0003677384799629289,
+          "first": 76,
+          "last": 75,
+          "minimum": 75,
+          "maximum": 113,
+          "residual_rms": 7.118945554924381,
+          "residual_max": 35.193943976040174
+        },
+        "event_period_bounds": [
+          10000.920841683366,
+          10001.080160320642
+        ],
+        "first_event_window": [
+          20027,
+          20103
+        ],
+        "last_event_window": [
+          10001026,
+          10001101
+        ]
+      },
+      "exclusion_rule": "All samples authoritative; after_first is a parallel startup diagnostic only (first sample is real IRQ).",
+      "candidate_feasibility": {
+        "RAW_COMPATIBLE": {
+          "period_ticks": 10000,
+          "quantization_ticks": 2,
+          "epoch_lower": 11024,
+          "epoch_upper": 10103,
+          "lower_sequence": 999,
+          "upper_sequence": 0,
+          "feasible": false
+        },
+        "RAW_PLUS_ONE_COMPATIBLE": {
+          "period_ticks": 10001,
+          "quantization_ticks": 2,
+          "epoch_lower": 10025,
+          "epoch_upper": 10103,
+          "lower_sequence": 2,
+          "upper_sequence": 0,
+          "feasible": true
+        }
+      },
+      "threshold_basis": "All samples must share a feasible epoch for the candidate period, with 2 ticks per window endpoint; also require endpoint slope bound width <=0.25 tick/IRQ, consistent gaps and residuals. This resolution gate is not the old P1000 trend threshold."
+    },
+    {
+      "acquisition_valid": true,
+      "usable_samples": 1000,
+      "hypothesis": "RAW_PLUS_ONE_COMPATIBLE",
+      "issues": [],
+      "hypothesis_reason": "UNIQUE_CANDIDATE_WITH_COMMON_EPOCH",
+      "hardware_irq_loss": "UNKNOWN",
+      "origin": "TTC_ONLY",
+      "limitation": "Same-source synchronous counters assumed. Read-window edge estimates are not atomic; multiple rollovers inside the window and all merged IRQs cannot be proven absent. No A4/A5/WCET conclusion.",
+      "run": {
+        "magic": 826496084,
+        "version": 1,
+        "record_bytes": 16,
+        "state": 3,
+        "experiment": 2,
+        "requested_raw": 9999,
+        "actual_raw": 9999,
+        "nominal_period": 10000,
+        "requested_samples": 1000,
+        "completed_samples": 1000,
+        "error": 0,
+        "timeout_ticks": 11100000,
+        "build_id": 3113983656,
+        "case_id": "B",
+        "before_experiment": 1,
+        "interrupted": false,
+        "session_id": "warm01",
+        "conditions": "same power session I-cache ON D-cache OFF",
+        "workspace": "D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize",
+        "elf": "D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize/ax02a_ttc_characterize/build/ax02a_ttc_characterize.elf",
+        "clock_basis": "BSP configuration, not measured",
+        "config": {
+          "periodic_hz": 100000000,
+          "timestamp_hz": 100000000,
+          "periodic_base": 4279304192,
+          "timestamp_base": 4279304196,
+          "periodic_clock": 0,
+          "timestamp_clock": 0,
+          "periodic_control": 35,
+          "timestamp_control": 33,
+          "periodic_ier": 1,
+          "timestamp_ier": 0
+        }
+      },
+      "metadata_normalization": [
+        {
+          "field": "build_id",
+          "original": -1180983640,
+          "unsigned": 3113983656
+        },
+        {
+          "field": "periodic_base",
+          "original": -15663104,
+          "unsigned": 4279304192
+        },
+        {
+          "field": "timestamp_base",
+          "original": -15663100,
+          "unsigned": 4279304196
+        }
+      ],
+      "all_samples": {
+        "count": 1000,
+        "event": {
+          "slope": 9999.999988308988,
+          "first": 10062.5,
+          "last": 10000060.0,
+          "minimum": 10062.5,
+          "maximum": 10000060.0,
+          "residual_rms": 3.3505668714297157,
+          "residual_max": 18.340482463128865
+        },
+        "p_count": {
+          "slope": -0.0006914586914586915,
+          "first": 290,
+          "last": 244,
+          "minimum": 223,
+          "maximum": 290,
+          "residual_rms": 15.931102539153093,
+          "residual_max": 51.53161638361638
+        },
+        "isr_phase": {
+          "slope": -0.0007031497031497032,
+          "first": 352.5,
+          "last": 304.0,
+          "minimum": 286.5,
+          "maximum": 352.5,
+          "residual_rms": 15.568292846866084,
+          "residual_max": 50.86627672327671
+        },
+        "read_window": {
+          "slope": 0.00020758220758220755,
+          "first": 75,
+          "last": 84,
+          "minimum": 75,
+          "maximum": 114,
+          "residual_rms": 6.701143196439108,
+          "residual_max": 36.47000994200994
+        },
+        "event_period_bounds": [
+          9999.913913913913,
+          10000.081081081082
+        ],
+        "first_event_window": [
+          10025,
+          10100
+        ],
+        "last_event_window": [
+          10000018,
+          10000102
+        ]
+      },
+      "after_first": {
+        "count": 999,
+        "event": {
+          "slope": 9999.999984304946,
+          "first": 20062.5,
+          "last": 10000060.0,
+          "minimum": 20062.5,
+          "maximum": 10000060.0,
+          "residual_rms": 3.3521770536627824,
+          "residual_max": 18.33980844914913
+        },
+        "p_count": {
+          "slope": -0.00038133925508675013,
+          "first": 256,
+          "last": 244,
+          "minimum": 223,
+          "maximum": 289,
+          "residual_rms": 15.855133466469924,
+          "residual_max": 50.777918583914584
+        },
+        "isr_phase": {
+          "slope": -0.00039703430885795613,
+          "first": 318.5,
+          "last": 304.0,
+          "minimum": 286.5,
+          "maximum": 351.5,
+          "residual_rms": 15.492385310773056,
+          "residual_max": 50.11154318246105
+        },
+        "read_window": {
+          "slope": 0.00019296250157973605,
+          "first": 75,
+          "last": 84,
+          "minimum": 75,
+          "maximum": 114,
+          "residual_rms": 6.704053941677087,
+          "residual_max": 36.46735890198816
+        },
+        "event_period_bounds": [
+          9999.913827655311,
+          10000.08116232465
+        ],
+        "first_event_window": [
+          20025,
+          20100
+        ],
+        "last_event_window": [
+          10000018,
+          10000102
+        ]
+      },
+      "exclusion_rule": "All samples authoritative; after_first is a parallel startup diagnostic only (first sample is real IRQ).",
+      "candidate_feasibility": {
+        "RAW_COMPATIBLE": {
+          "period_ticks": 9999,
+          "quantization_ticks": 2,
+          "epoch_lower": 11021,
+          "epoch_upper": 10102,
+          "lower_sequence": 998,
+          "upper_sequence": 0,
+          "feasible": false
+        },
+        "RAW_PLUS_ONE_COMPATIBLE": {
+          "period_ticks": 10000,
+          "quantization_ticks": 2,
+          "epoch_lower": 10024,
+          "epoch_upper": 10102,
+          "lower_sequence": 3,
+          "upper_sequence": 0,
+          "feasible": true
+        }
+      },
+      "threshold_basis": "All samples must share a feasible epoch for the candidate period, with 2 ticks per window endpoint; also require endpoint slope bound width <=0.25 tick/IRQ, consistent gaps and residuals. This resolution gate is not the old P1000 trend threshold."
+    },
+    {
+      "acquisition_valid": true,
+      "usable_samples": 1000,
+      "hypothesis": "RAW_PLUS_ONE_COMPATIBLE",
+      "issues": [],
+      "hypothesis_reason": "UNIQUE_CANDIDATE_WITH_COMMON_EPOCH",
+      "hardware_irq_loss": "UNKNOWN",
+      "origin": "TTC_ONLY",
+      "limitation": "Same-source synchronous counters assumed. Read-window edge estimates are not atomic; multiple rollovers inside the window and all merged IRQs cannot be proven absent. No A4/A5/WCET conclusion.",
+      "run": {
+        "magic": 826496084,
+        "version": 1,
+        "record_bytes": 16,
+        "state": 3,
+        "experiment": 3,
+        "requested_raw": 10000,
+        "actual_raw": 10000,
+        "nominal_period": 10000,
+        "requested_samples": 1000,
+        "completed_samples": 1000,
+        "error": 0,
+        "timeout_ticks": 11101100,
+        "build_id": 3113983656,
+        "case_id": "A2",
+        "before_experiment": 2,
+        "interrupted": false,
+        "session_id": "warm01",
+        "conditions": "same power session I-cache ON D-cache OFF",
+        "workspace": "D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize",
+        "elf": "D:/Project/AXU5EV/.runtime/ax02a/vitis_ttc_characterize/ax02a_ttc_characterize/build/ax02a_ttc_characterize.elf",
+        "clock_basis": "BSP configuration, not measured",
+        "config": {
+          "periodic_hz": 100000000,
+          "timestamp_hz": 100000000,
+          "periodic_base": 4279304192,
+          "timestamp_base": 4279304196,
+          "periodic_clock": 0,
+          "timestamp_clock": 0,
+          "periodic_control": 35,
+          "timestamp_control": 33,
+          "periodic_ier": 1,
+          "timestamp_ier": 0
+        }
+      },
+      "metadata_normalization": [
+        {
+          "field": "build_id",
+          "original": -1180983640,
+          "unsigned": 3113983656
+        },
+        {
+          "field": "periodic_base",
+          "original": -15663104,
+          "unsigned": 4279304192
+        },
+        {
+          "field": "timestamp_base",
+          "original": -15663100,
+          "unsigned": 4279304196
+        }
+      ],
+      "all_samples": {
+        "count": 1000,
+        "event": {
+          "slope": 10000.999700386701,
+          "first": 10048.0,
+          "last": 10001063.5,
+          "minimum": 10048.0,
+          "maximum": 10001063.5,
+          "residual_rms": 3.4941049039849723,
+          "residual_max": 18.580307038500905
+        },
+        "p_count": {
+          "slope": 0.00023357423357423361,
+          "first": 324,
+          "last": 225,
+          "minimum": 223,
+          "maximum": 324,
+          "residual_rms": 16.232850291748846,
+          "residual_max": 85.77167032967034
+        },
+        "isr_phase": {
+          "slope": 0.9999339609339609,
+          "first": 372.0,
+          "last": 1288.5,
+          "minimum": 292.5,
+          "maximum": 1336.5,
+          "residual_rms": 15.910146646731759,
+          "residual_max": 69.24651348651344
+        },
+        "read_window": {
+          "slope": -0.0009574989574989575,
+          "first": 110,
+          "last": 75,
+          "minimum": 75,
+          "maximum": 114,
+          "residual_rms": 6.909905840308732,
+          "residual_max": 36.20776890376891
+        },
+        "event_period_bounds": [
+          10000.91991991992,
+          10001.113113113113
+        ],
+        "first_event_window": [
+          9993,
+          10103
+        ],
+        "last_event_window": [
+          10001026,
+          10001101
+        ]
+      },
+      "after_first": {
+        "count": 999,
+        "event": {
+          "slope": 10000.999600937612,
+          "first": 20065.0,
+          "last": 10001063.5,
+          "minimum": 20065.0,
+          "maximum": 10001063.5,
+          "residual_rms": 3.4563766795735162,
+          "residual_max": 18.549046874511987
+        },
+        "p_count": {
+          "slope": 0.0007497517557637799,
+          "first": 238,
+          "last": 225,
+          "minimum": 223,
+          "maximum": 289,
+          "residual_rms": 16.01173081959977,
+          "residual_max": 50.64102375722416
+        },
+        "isr_phase": {
+          "slope": 1.0003506893667213,
+          "first": 303.0,
+          "last": 1288.5,
+          "minimum": 292.5,
+          "maximum": 1336.5,
+          "residual_rms": 15.766008541821341,
+          "residual_max": 49.80220716307497
+        },
+        "read_window": {
+          "slope": -0.0007656995673027738,
+          "first": 76,
+          "last": 75,
+          "minimum": 75,
+          "maximum": 114,
+          "residual_rms": 6.839134151357236,
+          "residual_max": 36.26805784542057
+        },
+        "event_period_bounds": [
+          10000.920841683366,
+          10001.080160320642
+        ],
+        "first_event_window": [
+          20027,
+          20103
+        ],
+        "last_event_window": [
+          10001026,
+          10001101
+        ]
+      },
+      "exclusion_rule": "All samples authoritative; after_first is a parallel startup diagnostic only (first sample is real IRQ).",
+      "candidate_feasibility": {
+        "RAW_COMPATIBLE": {
+          "period_ticks": 10000,
+          "quantization_ticks": 2,
+          "epoch_lower": 11024,
+          "epoch_upper": 10105,
+          "lower_sequence": 999,
+          "upper_sequence": 0,
+          "feasible": false
+        },
+        "RAW_PLUS_ONE_COMPATIBLE": {
+          "period_ticks": 10001,
+          "quantization_ticks": 2,
+          "epoch_lower": 10025,
+          "epoch_upper": 10103,
+          "lower_sequence": 3,
+          "upper_sequence": 8,
+          "feasible": true
+        }
+      },
+      "threshold_basis": "All samples must share a feasible epoch for the candidate period, with 2 ticks per window endpoint; also require endpoint slope bound width <=0.25 tick/IRQ, consistent gaps and residuals. This resolution gate is not the old P1000 trend threshold."
+    }
+  ],
+  "limitation": "Compatibility in TTC-only conditions, not confirmed N+1 or a production correction. Hardware IRQ loss remains UNKNOWN."
+}

@@ -1,0 +1,36 @@
+{
+  "scenario": "current_motion_prefix",
+  "frames": 1000,
+  "Ts": 0.0001,
+  "input_fields": 20,
+  "output_fields": 41,
+  "format": "little-endian float64, frame-major",
+  "input_source": "D:\\Project\\AXU5EV\\.runtime\\ax01c\\c_fixed_continuous.mat",
+  "source_commit": "9a6877546581301638a2bde7203db47896b4f8aa",
+  "reference_description": "Current Runtime model reference using unchanged PR14 100us input/feedback",
+  "model_version": "1.50",
+  "parameter_source": "D:\\Project\\AXU5EV\\simulation\\init_AXU5EV.m",
+  "first_s": 0,
+  "last_s": 0.0999,
+  "matlab": "26.2.0.3386108 (R2026b)",
+  "reference_source": "Current local Runtime and parameters; user edits are not PR14",
+  "parameters": {
+    "Host_Traj_Vmax": 20,
+    "Host_Traj_Amax": 200,
+    "Host_Traj_Jmax": 1000,
+    "Ts_ACR": 0.0001,
+    "v_ref_set_rate_up": 100,
+    "v_ref_set_rate_dn": 100,
+    "Ramp_Ticks": 10000,
+    "Hold_Ticks": 30000,
+    "Id_Release_Ramp_Ticks": 2000
+  },
+  "source_scenario": "current_motion",
+  "source_frames": 64536,
+  "source_range": [
+    0,
+    1000
+  ],
+  "source_directory": "D:\\Project\\AXU5EV\\.runtime\\ax02a\\replay\\current_motion",
+  "prefix_note": "New experiment initializes once at source frame 0; not a middle slice or full-scene validation"
+}

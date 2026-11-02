@@ -1,0 +1,170 @@
+{
+  "status": "OFFLINE_READY_FOR_REVIEW",
+  "workspace": ".runtime/ax02a/vitis_runtime_100us_r1",
+  "elf": ".runtime/ax02a/vitis_runtime_100us_r1/ax02a_replay/build/ax02a_replay.elf",
+  "candidate_id": "0x52313031",
+  "mapping_version": 1,
+  "rebuild": "NOT_RUN_NOT_NEEDED",
+  "startup_check": "OFFLINE_STARTUP_CHECK_PASS",
+  "actual_elf_main": "cmpls r4,#65536; calls ax02a_timing_prepare / ax02a_replay / ax02a_postprocess",
+  "sources": "existing workspace imported main.c/timing.c/postprocess.c, not freshly regenerated",
+  "scenes": [
+    {
+      "scenario": "current_motion",
+      "scenario_id": 2,
+      "frames": 64536,
+      "mode": 1,
+      "input": ".runtime/ax02a/replay/current_motion/input.bin",
+      "reference": ".runtime/ax02a/replay/current_motion/reference.bin",
+      "metadata": ".runtime/ax02a/replay/current_motion/metadata.json",
+      "descriptor": ".runtime/ax02a/full_scene_descriptors/current_motion/reference_descriptor.bin",
+      "descriptor_words": [
+        826688850,
+        1,
+        2,
+        64536,
+        41,
+        0,
+        21167808,
+        0
+      ],
+      "output_bytes": 21167808,
+      "timing_bytes": 4130304,
+      "report_bytes": 2400,
+      "measurement_seconds": 6.4536,
+      "wrap_budget_ticks": 645380000,
+      "ddr": [
+        {
+          "name": "input",
+          "start": "0x10000000",
+          "end_exclusive": "0x109d8f00",
+          "bytes": 10325760,
+          "limit": "0x11000000"
+        },
+        {
+          "name": "output",
+          "start": "0x11000000",
+          "end_exclusive": "0x1242fec0",
+          "bytes": 21167808,
+          "limit": "0x12f00000"
+        },
+        {
+          "name": "descriptor",
+          "start": "0x12f00000",
+          "end_exclusive": "0x12f00020",
+          "bytes": 32,
+          "limit": "0x13000000"
+        },
+        {
+          "name": "timing",
+          "start": "0x13000000",
+          "end_exclusive": "0x133f0600",
+          "bytes": 4130304,
+          "limit": "0x14000000"
+        },
+        {
+          "name": "reference",
+          "start": "0x14000000",
+          "end_exclusive": "0x1542fec0",
+          "bytes": 21167808,
+          "limit": "0x16000000"
+        },
+        {
+          "name": "report",
+          "start": "0x16000000",
+          "end_exclusive": "0x16000960",
+          "bytes": 2400,
+          "limit": "0x17000000"
+        }
+      ],
+      "read_chunks": {
+        "output": 323,
+        "timing": 64,
+        "report": 1
+      },
+      "board": "NOT_RUN",
+      "planned_capture": ".runtime/ax02a/board_manual/runtime_r1_motion_01",
+      "planned_pre_begin": ".runtime/ax02a/runtime_r1_motion_pre_begin_01.json"
+    },
+    {
+      "scenario": "current_alignment_reset",
+      "scenario_id": 3,
+      "frames": 43100,
+      "mode": 1,
+      "input": ".runtime/ax02a/replay/current_alignment_reset/input.bin",
+      "reference": ".runtime/ax02a/replay/current_alignment_reset/reference.bin",
+      "metadata": ".runtime/ax02a/replay/current_alignment_reset/metadata.json",
+      "descriptor": ".runtime/ax02a/full_scene_descriptors/current_alignment_reset/reference_descriptor.bin",
+      "descriptor_words": [
+        826688850,
+        1,
+        3,
+        43100,
+        41,
+        0,
+        14136800,
+        0
+      ],
+      "output_bytes": 14136800,
+      "timing_bytes": 2758400,
+      "report_bytes": 2400,
+      "measurement_seconds": 4.31,
+      "wrap_budget_ticks": 431020000,
+      "ddr": [
+        {
+          "name": "input",
+          "start": "0x10000000",
+          "end_exclusive": "0x10693980",
+          "bytes": 6896000,
+          "limit": "0x11000000"
+        },
+        {
+          "name": "output",
+          "start": "0x11000000",
+          "end_exclusive": "0x11d7b5e0",
+          "bytes": 14136800,
+          "limit": "0x12f00000"
+        },
+        {
+          "name": "descriptor",
+          "start": "0x12f00000",
+          "end_exclusive": "0x12f00020",
+          "bytes": 32,
+          "limit": "0x13000000"
+        },
+        {
+          "name": "timing",
+          "start": "0x13000000",
+          "end_exclusive": "0x132a1700",
+          "bytes": 2758400,
+          "limit": "0x14000000"
+        },
+        {
+          "name": "reference",
+          "start": "0x14000000",
+          "end_exclusive": "0x14d7b5e0",
+          "bytes": 14136800,
+          "limit": "0x16000000"
+        },
+        {
+          "name": "report",
+          "start": "0x16000000",
+          "end_exclusive": "0x16000960",
+          "bytes": 2400,
+          "limit": "0x17000000"
+        }
+      ],
+      "read_chunks": {
+        "output": 216,
+        "timing": 43,
+        "report": 1
+      },
+      "board": "NOT_RUN",
+      "planned_capture": ".runtime/ax02a/board_manual/runtime_r1_alignment_reset_01",
+      "planned_pre_begin": ".runtime/ax02a/runtime_r1_alignment_reset_pre_begin_01.json"
+    }
+  ],
+  "readback": "firmware/r5/ax02a/readback_short.tcl, final optional scenario parameter; per-chunk<=65536B; old P1000 entry unchanged",
+  "board_experiments": "NOT_RUN_USER_MANUAL",
+  "raw_binary_committed": false
+}
