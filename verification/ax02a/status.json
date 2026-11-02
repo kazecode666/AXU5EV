@@ -12,13 +12,15 @@
   "previous_user_launch": "Historical failure: R5 FSBL loaded on A53_0. Corrected A53 FSBL -> R5 app user boot PASS on 2026-10-28; PR16 issuecomment-6459108843.",
   "BOARD_BOOT": "PASS_USER_EVIDENCE_PR16_6459108843",
   "BOARD_MOTION_FIRST": "PASS_USER_BOARD_motion_03_64536x41",
-  "BOARD_REPLAY": "FULL_MODE1_BOTH_NUMERIC_PASS_REVIEW_A4_STAGE_INTERPRETATION",
+  "BOARD_REPLAY": "FULL_MODE1_BOTH_FUNCTIONAL_NUMERIC_ACCEPTED_REVIEW_5733339739; FINAL_R1_MODE0_ALIGNMENT_NOT_RUN",
   "P1000_PREPARATION": "COMPLETE; new capture analyzed, no substituted old output",
   "BOARD_PERIODIC_100US": "BOTH_FULL_SCENES_PASS_RECORDED_CONDITIONS_COLD_COVERAGE_UNCONFIRMED",
   "RTL_RERUN": "NOT_RUN",
   "blockers": [
-    "Physical device marking and PCB/core revision are not signed off; offline build uses the user-designated manual part",
-    "Remaining A4 second motion/alignment and full A5 require user board evidence; Codex must not operate hardware"
+    "Final R1 mode0 current_alignment_reset has not been separately board-tested; accepted mode1 scenes do not require rerun",
+    "A5.6 independent cold-start/cold-cache conditions and coverage are not proven",
+    "A1 physical full part number and PCB/core revision signoff remains open",
+    "Review 5733339739 accepted both R1 mode1 board results; pending this status/document correction recheck and user merge decision"
   ],
   "reference": "Current Runtime 1.50, local user edits; V20/A200/J1000/minRamp0.2/rate100. Historical PR14 input is reused without interpolation; current reference is Runtime-only, not a new plant closed loop.",
   "C1": "COMMITTED_64466414773038524dce40c120dd99434102e7e8",
@@ -38,7 +40,7 @@
   "report_protocol": "v2_2400B; v1 legacy mode1 period unavailable",
   "board_boot_workspace": ".runtime/ax02a/vitis_target_a53fsbl",
   "updated": "2026-11-02",
-  "current_task_comment": 6541052405,
+  "current_task_comment": 6572076245,
   "current_handoff": "coordination/HANDOFF.md",
   "workspace_guide": "docs/WORKSPACE_GUIDE_ZH.md",
   "TTC_ABA_BOARD": "COMPLETE_SCOPE_LIMITED_RAW_PLUS_ONE_COMPATIBLE_REPEATABLE",
@@ -55,13 +57,13 @@
   "runtime_r1_elf_review_fix": "NOT_REBUILT",
   "NEXT_BOARD_CAPTURES": [],
   "runtime_r1_p1000_evidence": "verification/ax02a/runtime_r1_p1000_01/evidence.json",
-  "FULL_SCENE_R1": "USER_BOARD_BOTH_PASS_PENDING_FINAL_REVIEW",
+  "FULL_SCENE_R1": "USER_BOARD_BOTH_PASS_REVIEWED_PENDING_CORRECTION_RECHECK_AND_USER_DECISION",
   "full_scene_preparation": "verification/ax02a/full_scene_r1/preparation.json",
   "full_board_report": "coordination/reports/ax02a_full_board_results_2026-11-02.md",
   "remaining_acceptance": [
-    "A5.6 cold-start conditions/coverage not explicitly evidenced",
-    "A4 mode0 vs full mode1 stage acceptance interpretation needs final Review",
-    "A1 physical part/PCB signoff remains open",
-    "Final ChatGPT Review and user decision pending"
+    "Final R1 mode0 current_alignment_reset has not been separately board-tested; accepted mode1 scenes do not require rerun",
+    "A5.6 independent cold-start/cold-cache conditions and coverage are not proven",
+    "A1 physical full part number and PCB/core revision signoff remains open",
+    "Review 5733339739 accepted both R1 mode1 board results; pending this status/document correction recheck and user merge decision"
   ]
 }

@@ -40,6 +40,8 @@ slack最坏取最小值，其他指标取最大值；P99为Python原ceil算法�
 | alignment_reset | command_event | 0 | N/A |
 | alignment_reset | alignment_transition | 9 | 0/0/40010/40010/40010 |
 
+分组口径：`alignment_transition` 无条件包含 `k=0`。因此 motion 的1个样本是初始帧（0次实际状态变化）；alignment/reset 的9个样本是初始帧加8次实际状态变化。不能把第0帧的耗时解释为一次状态跳变的耗时；原组名、样本数、极值和最坏帧保持不变。
+
 ## 数值、截止期和ISR相位
 
 - motion: 64536×41数值失败0，最大绝对差1.7763568394002505e-15；截止期/序号/时间顺序异常0，最小slack39.18µs；ISR样本64535，斜率-5.8365380197388388e-06tick/帧，阈值5.0397601494946961e-05，NO_TREND_DETECTED；板报与PC一致。
