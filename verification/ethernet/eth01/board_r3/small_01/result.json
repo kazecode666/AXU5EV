@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "ip": "192.168.50.10",
+  "port": 5001,
+  "stage": "small",
+  "evidence": "USER_BOARD_RUN",
+  "errors": [],
+  "build_id": 1160786179,
+  "negotiated_mbps": 1000,
+  "cache": 1,
+  "initial_model_count": 0,
+  "model_count": 4
+}

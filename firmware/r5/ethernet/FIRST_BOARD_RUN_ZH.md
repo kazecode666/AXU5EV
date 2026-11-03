@@ -1,6 +1,8 @@
 # ETH-01：Review后用户分步上板唯一入口
 
-按PR17评论6576959934，r2用户实板已读到ID=937c4032，但在伙伴广告位检查处报PHY_FAIL code=6。本轮r3改为读取JL21xx PHYSR bit3判断实际双工，并增加一次PHYSR日志；r2工程及原始输出保留。r3的PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER仍为 **NOT_RUN**，由用户依次重试PHY识别与链路、TCP小数据、Simulink模型往返、大文件读回。首次实验固定网线，启动协商成功后保持连接；发生连接异常时结束本次实验并重新启动应用后定位。失联/半帧回收、keepalive和PHY热插拔/重新协商恢复仍暂缓，不作为首次联网前置条件。功率级断开，不接完整电机Runtime。
+按[PR17评论6577441490](https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6577441490)，用户已在r3完成首次实板：build45303103、ID=937c4032、PHYSR=0x182e、1000Mbps全双工、TCP_READY；PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER均为 **用户实板PASS**。small模型计数0→4，64KiB/1MiB/32MiB完整性PASS；32MiB上传/下载0.990/1.412MiB/s，上传未达1MiB/s目标，本轮不优化。结果见[精简归档](../../../verification/ethernet/eth01/board_r3/README.md)。下列步骤保留为操作来源，四个01输出目录已占用，不要求重跑；PR17保持Draft待最终Review。r2故障工程、原始数据和r3候选均保留，本次未重建。
+
+首次实验固定网线，启动协商成功后保持连接；发生连接异常时结束本次实验并重新启动应用后定位。失联/半帧回收、keepalive和PHY热插拔/重新协商恢复仍暂缓，不作为首次联网前置条件。功率级断开，不接完整电机Runtime。
 
 ## 1. 先核对文件，不连接板卡
 

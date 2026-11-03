@@ -2,7 +2,9 @@
 
 2026-11-02，`kazecode666/AXU5EV`，任务来源 [PR16 评论6574356461](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6574356461)。基线 `origin/main=24d86097bfd83abef28047dafd2594ee89a707db`，PR16 已合并。实现分支 `codex/eth01-ps-ethernet`，协议为 **TCP**。
 
-最新修正按[PR17评论6576959934](https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6576959934)：r2用户实板读出ID=937c4032后报PHY_FAIL code=6。本轮只把reg5/reg10伙伴广告位检查改为page0xA43/reg0x1A的PHYSR bit3实际双工状态，打印PHYSR/速率/双工，半双工仍拒绝。新候选vitis_ethernet_r3、sw_repo_r3、build0x45303103、launch eth01_tcp_manual_r3已离线编译及原有启动检查通过；r3板测NOT_RUN。下文r2构建/16项Host/模型结果为此前归档，本轮未重跑测试或生成模型。当前入口以唯一上板指南为准。
+2026-11-03收尾按[PR17评论6577441490](https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6577441490)：用户r3实板PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER全部PASS。ID=937c4032、PHYSR=0x182e、1000Mbps全双工；small模型计数0→4，64KiB/1MiB/32MiB完整性均PASS。32MiB上传/下载0.990/1.412MiB/s，上传略低于1MiB/s目标，性能优化另行安排。四份现有JSON及读回长度已只读核对，[精简证据](../../verification/ethernet/eth01/board_r3/README.md)区分本地核对与评论中已有逐字节复核；大二进制留本地。本轮没有新增功能/测试、重建或板卡操作，PR17保持Draft待最终Review。
+
+此前按评论6576959934将r2误用的reg5/reg10伙伴广告位检查改为PHYSR bit3，并打印实际PHYSR/速率/双工，半双工仍拒绝。已验证候选vitis_ethernet_r3、sw_repo_r3、build0x45303103、launch eth01_tcp_manual_r3保持不变。下文Task1—5为此前离线阶段归档，其中r2构建/16项Host/模型结果及当时NOT_RUN不覆盖上述用户实板结论；本轮未重跑测试或生成模型。当前入口以唯一上板指南为准。
 
 ## Task1：本地板级证据
 
@@ -76,7 +78,7 @@ Host为可控有界队列与Dataset输入；目标是同一生成C及同一队�
 
 最终R5链接text/data/bss=92220/5100/37034480 bytes，部分BSP/FSBL生成源码有已记录warning（EMAC配置尾字段、废弃头、xtopology类型、遗留未用PHY函数、PS初始化宏重定义），本次原创Host源以-Wall -Wextra -Werror编译通过；不声称目标构建零warning。
 
-详细阶段结果、测试命令与限制以 `verification/ethernet/eth01/status.json` 为准。只有本次新增测试，未跑旧全库/RTL/电机Runtime；所有PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER为NOT_RUN。1MiB/s仅为用户板测目标，localhost吞吐不代表板上性能。
+详细阶段结果、测试命令与限制以 `verification/ethernet/eth01/status.json` 为准。上述离线阶段未跑旧全库/RTL/电机Runtime，当时PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER为NOT_RUN；目前四项已由用户r3实板PASS，吞吐实测见顶部归档，localhost吞吐不代表板上性能。
 
 ## 唯一用户上板入口
 

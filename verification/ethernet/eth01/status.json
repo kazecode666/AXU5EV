@@ -1,10 +1,10 @@
 {
   "repository": "kazecode666/AXU5EV",
-  "task": "PR17 issuecomment-6576959934 / JL2121 resolved duplex correction",
-  "date": "2026-11-02",
+  "task": "PR17 issuecomment-6577441490 / user board evidence closure",
+  "date": "2026-11-03",
   "base_main_merge": "24d86097bfd83abef28047dafd2594ee89a707db",
   "branch": "codex/eth01-ps-ethernet",
-  "state": "OFFLINE_READY_FOR_USER_RETRY",
+  "state": "USER_BOARD_PASS_PENDING_FINAL_REVIEW",
   "stages": {
     "DOC_CHECK": "PASS_OFFLINE_WITH_PHYSICAL_SIGNOFF_OPEN",
     "HOST_TEST": "NOT_RUN_THIS_FIX; R2 baseline retained",
@@ -12,13 +12,13 @@
     "CODEGEN": "REUSED_R2_NO_REGEN",
     "R5_BUILD": "PASS",
     "STARTUP_CHECK": "PASS",
-    "PHY_LINK": "NOT_RUN",
-    "TCP_IO": "NOT_RUN",
-    "MODEL_BOARD_IO": "NOT_RUN",
-    "BULK_TRANSFER": "NOT_RUN"
+    "PHY_LINK": "PASS_USER_BOARD",
+    "TCP_IO": "PASS_USER_BOARD",
+    "MODEL_BOARD_IO": "PASS_USER_BOARD",
+    "BULK_TRANSFER": "PASS_USER_BOARD"
   },
   "validation": {
-    "scope": "Host/model results below are archived R2; this fix ran only R3 build and existing startup check",
+    "scope": "Archived R2 host/model and R3 build/startup results; this closure only read existing user board results and readback file lengths, with no tests or rebuild",
     "host_command": "python -m unittest discover -s tests -p test_eth01_*.py -v",
     "host_tests": 16,
     "host_failures": 0,
@@ -40,7 +40,29 @@
     "arm_call_chain": "main -> NetService/EthNetService -> EthModelService -> ETH01_Target_step -> Eth01Rx / generated XOR and counter / Eth01Tx",
     "r5_text_data_bss_bytes": [92224, 5100, 37034480],
     "inherited_build_warnings": "BSP EMAC tail fields / deprecated xbasic_types / xtopology pointer conversion / unused legacy PHY helpers / FSBL PS init macro redefinition",
-    "review": "PHYSR bit3 duplex correction per comment6576959934; R3 board retry pending; no new tests"
+    "review": "R3 user board PASS per comment6577441490; pending final Review; no new tests"
+  },
+  "board_validation": {
+    "source": "https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6577441490",
+    "run_date": "2026-11-02",
+    "local_archive_date": "2026-11-03",
+    "evidence": "USER_BOARD_RUN",
+    "summary": "verification/ethernet/eth01/board_r3/README.md",
+    "result_directories": ["small_01", "bulk_64k_01", "bulk_1m_01", "bulk_32m_01"],
+    "uart_source": "User UART reported in source comment; not a newly captured local log",
+    "phy_address": 1,
+    "phy_id": "0x937c4032",
+    "physr": "0x182e",
+    "negotiated_mbps": 1000,
+    "duplex": "full",
+    "tcp_ready": "192.168.50.10:5001",
+    "cache": "I-cache ON / D-cache OFF (result cache=1)",
+    "small_lengths": [0, 1, 255, 256],
+    "model_count": [0, 4],
+    "local_readonly_review": "Four result.json report PASS/errors=[]/build_id=1160786179; three readback.bin lengths match 65536/1048576/33554432 bytes",
+    "full_content_review": "Prior ChatGPT board.zip review in source comment: all three readbacks fully checked byte by byte, lengths/content/reported CRC consistent; not rerun by this closure",
+    "throughput": "64 KiB upload/download 0.994/1.371 MiB/s; 1 MiB 1.019/1.455; 32 MiB 0.990/1.412 (32.33/22.67 seconds)",
+    "target_result": "1 MiB/s both-direction target not met for 64 KiB and 32 MiB uploads; integrity PASS remains separate; no optimization this PR"
   },
   "artifacts": {
     "xsa": "D:/Project/AXU5EV/.runtime/ethernet/eth01/ps_target/eth01_ps.xsa",
@@ -55,14 +77,15 @@
     "generated_target": "D:/Project/AXU5EV/.runtime/ethernet/eth01/model/codegen/ETH01_Target_ert_rtw",
     "reviewable_generated_source": "generated/ethernet/eth01/target",
     "host_data": "D:/Project/AXU5EV/.runtime/ethernet/eth01/host",
-    "board_data": "NOT_RUN; future .runtime/ethernet/eth01/board/<unique-run>",
+    "board_data": "D:/Project/AXU5EV/.runtime/ethernet/eth01/board/{small_01,bulk_64k_01,bulk_1m_01,bulk_32m_01}",
+    "board_evidence": "verification/ethernet/eth01/board_r3",
     "user_entry": "firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md"
   },
   "remaining": [
-    "PR17 stays Draft; user retry R3; no automatic merge",
-    "User physical PCB/SoC/PHY identity and reset/link validation",
+    "PR17 stays Draft pending final Review and user merge decision; no automatic merge",
+    "Physical PCB/complete SoC marking and electrical reset timing are not recorded by this board run",
     "Timeout/keepalive/PHY recovery deferred per comment6576502869",
-    "User TCP / generated model roundtrip / staged bulk integrity and throughput",
+    "Upload throughput below 1 MiB/s for 64 KiB and 32 MiB; optimization deferred",
     "Issue15 pre-existing uncovered conditions remain open",
     "Full motor Runtime integration and network/control concurrent timing are outside this PR"
   ],

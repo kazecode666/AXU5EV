@@ -1,12 +1,12 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-02。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`。PR16已合并到main：`24d86097bfd83abef28047dafd2594ee89a707db`。当前分支 `codex/eth01-ps-ethernet` 执行 [ETH-01任务6574356461](https://github.com/kazecode666/AXU5EV/pull/16#issuecomment-6574356461)；Issue15未覆盖项继续保留。下文AX-02A状态按历史阶段理解，不重跑已签收场景。
+更新：2026-11-03。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`。PR16已合并到main：`24d86097bfd83abef28047dafd2594ee89a707db`。当前分支 `codex/eth01-ps-ethernet`，按[PR17评论6577441490](https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6577441490)收尾ETH-01用户板测证据；Issue15未覆盖项继续保留。下文AX-02A状态按历史阶段理解，不重跑已签收场景。
 
-## 当前：ETH-01离线实现待Review
+## 当前：ETH-01用户实板PASS，待最终Review
 
-入口：[用户分步上板指南](../firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md)、[板级/SoC复用报告](reports/eth01_platform_and_soc_reuse.md)、[阶段状态](../verification/ethernet/eth01/status.json)。按PR17评论6576959934修正r2实板PHY_FAIL code=6：全双工改读PHYSR bit3并打印实际PHYSR/速率/双工。当前候选`.runtime/ethernet/eth01/vitis_ethernet_r3`，应用eth01_tcp、launch eth01_tcp_manual_r3、构建身份0x45303103；新局部overlay为sw_repo_r3。XSA仍复用`.runtime/ethernet/eth01/ps_target/eth01_ps.xsa`，r2及原始输出、旧R1和其他历史候选均保留。r3板测NOT_RUN，待用户重试。
+入口：[实板精简证据](../verification/ethernet/eth01/board_r3/README.md)、[用户分步上板指南](../firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md)、[板级/SoC复用报告](reports/eth01_platform_and_soc_reuse.md)、[阶段状态](../verification/ethernet/eth01/status.json)。用户已在`.runtime/ethernet/eth01/vitis_ethernet_r3`完成PS J6/JL2121板测，应用eth01_tcp、launch eth01_tcp_manual_r3、构建身份0x45303103不变。PHY ID=937c4032、PHYSR=0x182e、1000Mbps全双工、TCP_READY；PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER均为用户实板PASS。small的0/1/255/256字节生成模型往返通过，计数0→4；64KiB/1MiB/32MiB完整性均PASS，上传/下载分别0.994/1.371、1.019/1.455、0.990/1.412MiB/s。32MiB耗时32.33/22.67s，64KiB和32MiB上传未达1MiB/s目标，如实保留，本轮不优化。
 
-本机SoC消息模块保留为仿真探针；实际目标模型ETH01_Target使用C Caller有界字节接口，异或/计数来自生成代码，R5构建和纯文件启动检查有证据。用户Review前不运行客户端、不连接板卡；PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER全部NOT_RUN。不接完整Runtime、不换时基、不替R1重新背书、不合并。
+本轮只读核对四份本地result.json及三份readback.bin长度，精简归档四份JSON和文字摘要；逐字节内容/报告CRC一致的完整复核来自评论所载ChatGPT对board.zip的检查。本机SoC消息探针、实际C Caller目标模型、既有构建/启动检查证据保留，未重跑测试、生成模型或重新构建。原始大二进制留`.runtime/ethernet/eth01/board`，r2/旧R1及所有历史候选不动。PR17保持Draft待最终Review和用户决定合并；不操作板卡、不接完整Runtime、不替R1并发时序背书、不关闭Issue15。断链恢复和性能优化留待后续按实际需要安排。
 
 ## 当前入口
 

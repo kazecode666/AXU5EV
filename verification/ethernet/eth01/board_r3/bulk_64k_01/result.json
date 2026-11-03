@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "ip": "192.168.50.10",
+  "port": 5001,
+  "stage": "bulk",
+  "evidence": "USER_BOARD_RUN",
+  "errors": [],
+  "build_id": 1160786179,
+  "negotiated_mbps": 1000,
+  "cache": 1,
+  "initial_model_count": 4,
+  "bytes": 65536,
+  "crc32": 2199347083,
+  "upload_seconds": 0.06287609999708366,
+  "download_seconds": 0.045574499999929685,
+  "upload_MiBps": 0.9940183949529138,
+  "download_MiBps": 1.3713809257390959,
+  "throughput_target_MiBps": 1,
+  "throughput_target_met": false
+}
