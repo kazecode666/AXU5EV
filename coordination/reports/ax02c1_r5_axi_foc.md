@@ -2,7 +2,9 @@
 
 仓库`kazecode666/AXU5EV`，2026-11-03，依据[Issue21](https://github.com/kazecode666/AXU5EV/issues/21)，从包含已合并PR20的当前main建立`codex/ax02c1-r5-axi-foc`。用户原有四份模型/参数修改及两个未跟踪源文件保留，不纳入本次提交；R1、ETH01 r3、ETH02和所有实验数据不变。
 
-## 离线结果，待Draft PR Review
+已提交[kazecode666/AXU5EV Draft PR22](https://github.com/kazecode666/AXU5EV/pull/22)，停在待Review；板测仍NOT_RUN，不自动合并。
+
+## 离线结果，Draft PR22待Review
 
 | 项目 | 结果 |
 |---|---|

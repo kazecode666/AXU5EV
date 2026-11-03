@@ -4,6 +4,8 @@
 
 ## 当前：AX-02C1离线实现/短仿真/完整构建及启动检查PASS，待Review
 
+已推送[kazecode666/AXU5EV Draft PR22](https://github.com/kazecode666/AXU5EV/pull/22)，停在Review，不自动合并。
+
 [主报告](reports/ax02c1_r5_axi_foc.md)，[用户唯一指南](../firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md)。复用真实p3核和原帧封装；新增AXI-Lite暂存/整帧采用/三相来源快照与R5轮询。短仿真17帧/51个duty/85000clocks/283399检查PASS；真实M_AXI_HPM0_LPD地址0x80000000，单一名义50MHz PL时钟，工具回读49.9995MHz。新产物.runtime/ax02c，完整bit/XSA/FSBL/R5 ELF及启动文件检查已PASS；WNS+3.160ns/WHS+0.011ns，TNS/THS=0，时序失败端点均0。实际Workspace为.runtime/ax02c/vitis_ps_pl、Launch为ax02c_foc_manual；完整产物及顺序见唯一指南。板测NOT_RUN，由用户Review后手动加载、释放PS—PL隔离/复位并显式发送UART s开始；Codex不操作板卡。保留原workspace、ELF、用户修改及实验数据，不接完整Runtime、不自动合并或关闭Issue15。
 
 ## 已合并基线：AX-02B生成/位与帧合同、5EV OOC内部实现PASS

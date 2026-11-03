@@ -4,7 +4,7 @@
 
 ## 当前开发
 
-- AX-02C1实际结果、产物与待Review状态以本轮主报告为准；保留全部用户修改和旧工作区/数据。
+- AX-02C1已推送[kazecode666/AXU5EV Draft PR22](https://github.com/kazecode666/AXU5EV/pull/22)，停在待Review；实际结果与产物以本轮主报告为准；保留全部用户修改和旧工作区/数据。
 
 ### 已合并AX-02B记录
 
