@@ -1,8 +1,16 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-03。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`。PR16已合并到main：`24d86097bfd83abef28047dafd2594ee89a707db`。当前分支 `codex/eth01-ps-ethernet`，按[PR17评论6577441490](https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6577441490)收尾ETH-01用户板测证据；Issue15未覆盖项继续保留。下文AX-02A状态按历史阶段理解，不重跑已签收场景。
+更新：2026-11-03。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`。PR16/PR17均已合并。当前分支 `codex/eth02-runtime-ethernet`，执行[ETH-02任务6595084647](https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6595084647)；Issue15未覆盖项继续保留。下文ETH01/AX-02A状态按历史阶段理解，不重跑已签收场景。
 
-## 当前：ETH-01用户实板PASS，待最终Review
+## 当前：ETH-02离线构建及启动检查PASS，待新Draft PR Review
+
+[实现结果及用户实验唯一入口](../firmware/r5/ethernet_runtime/FIRST_EXPERIMENT_ZH.md)。真实输入/参考/描述符经以太网上传，START回执与连接收尾后停GEM收发/DMA/IRQ，原TTC0/Runtime回放与后处理完成后冻结结果、恢复网络并计划内重连下载，自动调用原分析工具。新固件身份0x45303201，原计时映射/数值与时序判据不改。新XSA同时启用GEM3与TTC0，复用JL2121 r3、原冻结生成代码及数据。
+
+实际Workspace为`D:/Project/AXU5EV/.runtime/ethernet/eth02/vitis_runtime_ethernet`，应用eth02_runtime，Launch **eth02_runtime_manual**。必要Vivado/Vitis构建与现有启动检查通过，Python语法与MATLAB Code Analyzer通过；[精简启动证据](../verification/ethernet/eth02/startup_check.json)。两次ETH02整合板测均NOT_RUN，不能用原R1/ETH01结果代签。
+
+Review后用户按指南先执行`RUN_ETH02("current_motion",Start=true,Conditions="first ETH02 launch; fixed cable; power stage disconnected")`，通过后同一应用执行current_alignment_reset，结果分别入新的`.runtime/ethernet/eth02/board/current_motion_01`及current_alignment_reset_01。不操作板卡、不新增测试套件或哈希清单、不重跑旧RTL；原R1、ETH01 r3及既有数据保留。停在Draft待Review，由用户板测及决定合并，不关闭Issue15。
+
+## 已合并基线：ETH-01用户实板PASS
 
 入口：[实板精简证据](../verification/ethernet/eth01/board_r3/README.md)、[用户分步上板指南](../firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md)、[板级/SoC复用报告](reports/eth01_platform_and_soc_reuse.md)、[阶段状态](../verification/ethernet/eth01/status.json)。用户已在`.runtime/ethernet/eth01/vitis_ethernet_r3`完成PS J6/JL2121板测，应用eth01_tcp、launch eth01_tcp_manual_r3、构建身份0x45303103不变。PHY ID=937c4032、PHYSR=0x182e、1000Mbps全双工、TCP_READY；PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER均为用户实板PASS。small的0/1/255/256字节生成模型往返通过，计数0→4；64KiB/1MiB/32MiB完整性均PASS，上传/下载分别0.994/1.371、1.019/1.455、0.990/1.412MiB/s。32MiB耗时32.33/22.67s，64KiB和32MiB上传未达1MiB/s目标，如实保留，本轮不优化。
 

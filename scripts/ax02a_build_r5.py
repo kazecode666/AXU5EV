@@ -38,12 +38,12 @@ def inspect_fsbl(elf):
                 byte_order='little',entry=h[4])
 
 
-def runtime_candidate(workspace):
+def runtime_candidate(workspace,application='ax02a_replay',candidate_id=0x52313031):
     """Read the actual initialized ELF constants, not a claimed filename."""
     from ax02a_build_ttc_characterize import symbols
-    elf=workspace/'ax02a_replay/build/ax02a_replay.elf'
+    elf=workspace/application/'build'/(application+'.elf')
     data=elf.read_bytes();syms=symbols(elf);h=struct.unpack_from('<16sHHIIIIIHHHHHH',data)
-    for name,expected in [('ax02a_timer_mapping_version',1),('ax02a_runtime_candidate_id',0x52313031)]:
+    for name,expected in [('ax02a_timer_mapping_version',1),('ax02a_runtime_candidate_id',candidate_id)]:
         if name not in syms or syms[name]['bytes']!=4:raise ValueError('missing runtime candidate ELF marker: '+name)
         address=syms[name]['address'];actual=None
         for i in range(h[10]):
@@ -51,23 +51,24 @@ def runtime_candidate(workspace):
             if kind==1 and va<=address and address+4<=va+filesz:actual=struct.unpack_from('<I',data,off+address-va)[0]
         if actual!=expected:raise ValueError('runtime candidate ELF marker mismatch: '+name)
     if 'AXU5EV_R5_Runtime_step' not in syms:raise ValueError('candidate does not link generated Runtime')
-    return dict(mapping_version=1,candidate_id=0x52313031,workspace=workspace.as_posix(),elf=elf.as_posix())
+    return dict(mapping_version=1,candidate_id=candidate_id,workspace=workspace.as_posix(),elf=elf.as_posix())
 
 
-def check_startup(workspace,runtime_mapping=0):
+def check_startup(workspace,runtime_mapping=0,platform_name='ax02a_platform',
+                  application='ax02a_replay',launch_name=FIRST_LAUNCH,candidate_id=0x52313031):
     """Read files only: no debugger imports, target discovery or hardware access."""
-    platform=workspace/'ax02a_platform'
+    platform=workspace/platform_name
     domains=json.loads((platform/'vitis-comp.json').read_text(encoding='utf-8'))['configuration']['domains']
     for name,cpu in [('zynqmp_fsbl','psu_cortexa53_0'),('r5_standalone','psu_cortexr5_0')]:
         matches=[d for d in domains if d['name']==name]
         if len(matches)!=1 or matches[0]['processor']!=cpu:
             raise ValueError(f'{name} must target {cpu}')
-    fsbl=platform/'export/ax02a_platform/sw/boot/fsbl.elf'
+    fsbl=platform/'export'/platform_name/'sw/boot/fsbl.elf'
     result=dict(fsbl=inspect_fsbl(fsbl))
-    launch=json.loads((workspace/'ax02a_replay/_ide/launch.json').read_text(encoding='utf-8'))
-    profiles=[c for c in launch['configurations'] if c['name']==FIRST_LAUNCH]
+    launch=json.loads((workspace/application/'_ide/launch.json').read_text(encoding='utf-8'))
+    profiles=[c for c in launch['configurations'] if c['name']==launch_name]
     if len(profiles)!=1:
-        raise ValueError(f'expected one {FIRST_LAUNCH} launch configuration')
+        raise ValueError(f'expected one {launch_name} launch configuration')
     c=profiles[0];s=c['targetSetup'];init=s['zuInitialization']
     if not (c['type']=='tcf-debug' and c['debugType']=='baremetal-zu' and c['request']=='launch'
             and s['resetSystem'] and s['enableRPUSplitMode'] and not s['programDevice']
@@ -82,16 +83,16 @@ def check_startup(workspace,runtime_mapping=0):
     apps=s['downloadElf']
     if len(apps)!=1 or apps[0]['core']!='psu_cortexr5_0' or not apps[0]['stopAtEntry'] or not apps[0]['resetProcessor']:
         raise ValueError('launch must load only the R5_0 application and stop at entry')
-    elf=workspace/'ax02a_replay/build/ax02a_replay.elf'
+    elf=workspace/application/'build'/(application+'.elf')
     if local_path(apps[0]['elfFile'])!=elf.resolve():
         raise ValueError('launch does not use this workspace R5 application')
     result['application']=inspect_elf(elf)
     result['application']['processor']='psu_cortexr5_0'
-    result['launch']=FIRST_LAUNCH
+    result['launch']=launch_name
     result['status']='OFFLINE_STARTUP_CHECK_PASS'
     if runtime_mapping or (workspace/'runtime_candidate.json').exists():
         if runtime_mapping not in (0,1):raise ValueError('unknown runtime mapping version')
-        expected=runtime_candidate(workspace)
+        expected=runtime_candidate(workspace,application,candidate_id)
         if json.loads((workspace/'runtime_candidate.json').read_text())!=expected:raise ValueError('runtime candidate record differs from actual ELF')
         result['runtime_candidate']=expected
     return result

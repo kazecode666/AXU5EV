@@ -17,4 +17,6 @@ typedef struct {
 extern volatile Ax02aTtcSnapshot ax02a_ttc_snapshot;
 /* SDT BSP only; two TTC channels selected from the generated config table. */
 int ax02a_timing_prepare(Ax02aClock *clock,Ax02aTimerInfo *info,uint32_t frames);
+/* Integration may return to its data service after a prepare failure. */
+void ax02a_timing_cancel(void);
 #endif

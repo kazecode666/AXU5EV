@@ -19,11 +19,11 @@ def validate_timer(t):
         if t['prescaler'] not in range(17) or t['interval']*divisor!=period:
             raise ValueError('legacy timer interval/prescaler/period mismatch')
     elif version==1:
-        if (t['candidate_id']!=0x52313031 or hz!=100000000 or period!=10000 or
+        if (t['candidate_id'] not in (0x52313031,0x45303201) or hz!=100000000 or period!=10000 or
             t['interval']!=9999 or t['prescaler']!=16 or
             t['periodic_base']!=0xff110000 or t['timestamp_base']!=0xff110004 or
             t['periodic_clock']!=0 or t['timestamp_clock']!=0):
-            raise ValueError('runtime R1 candidate/configuration mapping mismatch')
+            raise ValueError('runtime R1/ETH02 candidate/configuration mapping mismatch')
     else:raise ValueError('unknown timer mapping version')
     if not 0<=t['timestamp_read_min_ticks']<=t['timestamp_read_max_ticks'] or t['start_window_ticks']<0:
         raise ValueError('invalid counter-read/start-window measurement')

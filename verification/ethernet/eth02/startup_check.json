@@ -1,0 +1,67 @@
+{
+  "fsbl": {
+    "processor": "psu_cortexa53_0",
+    "machine": "AArch64",
+    "elf_class": 64,
+    "byte_order": "little",
+    "entry": 4294705152
+  },
+  "application": {
+    "machine": "ARM",
+    "elf_class": 32,
+    "byte_order": "little",
+    "entry": 60,
+    "flags": 83887104,
+    "segments": [
+      {
+        "address": 0,
+        "file_bytes": 2008,
+        "memory_bytes": 2008,
+        "flags": 7
+      },
+      {
+        "address": 1048576,
+        "file_bytes": 145628,
+        "memory_bytes": 145628,
+        "flags": 7
+      },
+      {
+        "address": 2097152,
+        "file_bytes": 0,
+        "memory_bytes": 3513152,
+        "flags": 6
+      }
+    ],
+    "processor": "psu_cortexr5_0"
+  },
+  "launch": "eth02_runtime_manual",
+  "status": "OFFLINE_STARTUP_CHECK_PASS",
+  "runtime_candidate": {
+    "mapping_version": 1,
+    "candidate_id": 1160786433,
+    "workspace": "D:/Project/AXU5EV/.runtime/ethernet/eth02/vitis_runtime_ethernet",
+    "elf": "D:/Project/AXU5EV/.runtime/ethernet/eth02/vitis_runtime_ethernet/eth02_runtime/build/eth02_runtime.elf"
+  },
+  "workspace": "D:/Project/AXU5EV/.runtime/ethernet/eth02/vitis_runtime_ethernet",
+  "elf": "D:/Project/AXU5EV/.runtime/ethernet/eth02/vitis_runtime_ethernet/eth02_runtime/build/eth02_runtime.elf",
+  "build_id": "0x45303201",
+  "symbols": {
+    "emac_bd_space": {
+      "address": 4194304,
+      "bytes": 1048576
+    },
+    "_heap": {
+      "address": 5276480,
+      "bytes": 0
+    },
+    "_stack": {
+      "address": 5604160,
+      "bytes": 0
+    },
+    "AXU5EV_R5_Runtime_step": {
+      "address": 1054448,
+      "bytes": 5888
+    }
+  },
+  "board": "NOT_RUN"
+}

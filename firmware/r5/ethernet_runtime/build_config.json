@@ -1,0 +1,7 @@
+{
+  "xsa": ".runtime/ethernet/eth02/ps_target/eth02_ps.xsa",
+  "generated": ".runtime/ax02a/target/codegen/AXU5EV_R5_Runtime_ert_rtw",
+  "output": ".runtime/ethernet/eth02",
+  "workspace": ".runtime/ethernet/eth02/vitis_runtime_ethernet",
+  "runtime_mapping": 1
+}
