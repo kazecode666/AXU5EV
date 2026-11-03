@@ -1,0 +1,19 @@
+{
+  "source": "baselines/pr53_p3/source/PMLSM_FOC_FixedPoint.slx",
+  "current_model": "simulation/PMLSM_FOC_FixedPoint.slx",
+  "byte_equal": false,
+  "changed_members": [
+    "metadata/coreProperties.xml",
+    "simulink/blockDiagram.json",
+    "simulink/graphicalInterface.json",
+    "simulink/systems/system_1.xml",
+    "simulink/systems/system_10.xml",
+    "simulink/systems/system_root.xml"
+  ],
+  "inspection": "Per-system block parameters and Src/Dst connectivity compared; presentation fields excluded; Vdc_V to Vdc rename normalized",
+  "block_parameter_differences": [],
+  "connectivity_differences": [],
+  "selection": "Frozen p3 source and its initialization/config only; current user parameters/models not mixed into historical golden",
+  "physical_part_signoff": "NOT_CONFIRMED",
+  "board": "NOT_RUN"
+}

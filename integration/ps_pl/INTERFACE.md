@@ -1,5 +1,7 @@
 # AX-01B R5F—PL控制边界
 
+> 2026-11-03 AX-02B沿用本页九字段/帧接口，生成与位/帧验证PASS，5EV OOC实现及内部STA PASS（理想时钟边界，真实时钟树/IO/复位/CDC未签核）；本文其他NOT_RUN为当时阶段记录。 详见[AX-02B主报告](../../coordination/reports/ax02b_pl_current_core.md)。下文旧阶段待Review/待上板文字按历史理解。
+
 目标AXU5EVB-E。本轮已有主机生成C＋p3 XSI仿真交换；尚未实现AXI寄存器/BRAM协议，也未分配新板IO。
 
 ## 算法与时序

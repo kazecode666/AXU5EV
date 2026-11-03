@@ -1,10 +1,16 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-03。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`。PR16/PR17均已合并。当前分支 `codex/eth02-runtime-ethernet`，执行[ETH-02任务6595084647](https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6595084647)；Issue15未覆盖项继续保留。下文ETH01/AX-02A状态按历史阶段理解，不重跑已签收场景。
+更新：2026-11-03。仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。PR18已合并，当前分支codex/ax02b-pl-current-core实施[Issue19 AX-02B](https://github.com/kazecode666/AXU5EV/issues/19)。下文ETH02/AX02A按历史阶段理解。
 
-## 当前：ETH-02两场景用户实板PASS，待PR18最终Review
+## 当前：AX-02B离线生成/位与帧合同PASS，5EV OOC实现及内部STA PASS，待Review
 
-[Draft PR18](https://github.com/kazecode666/AXU5EV/pull/18)，[实现结果及用户实验唯一入口](../firmware/r5/ethernet_runtime/FIRST_EXPERIMENT_ZH.md)。真实输入/参考/描述符经以太网上传，START回执与连接收尾后停GEM收发/DMA/IRQ，原TTC0/Runtime回放与后处理完成后冻结结果、恢复网络并计划内重连下载，自动调用原分析工具。新固件身份0x45303201，原计时映射/数值与时序判据不改。新XSA同时启用GEM3与TTC0，复用JL2121 r3、原冻结生成代码及数据。
+[唯一主报告](reports/ax02b_pl_current_core.md)。冻结p3源、配置及29份设计RTL已独立5EV生成并确认字节相同；原normal/reset/CE检查通过，新帧探针21帧/518436检查通过，核心314/捕获315、全5000拍保持、sticky valid和三类复位职责有证据。50MHz/100µs/50µs参考边界不改。候选.runtime/ax02b/candidate_01，验证checks_02及checks_03；实际实现.runtime/ax02b/implementation_01/routed.dcp；WNS+3.020ns、WHS+0.034ns、TNS/THS=0，setup/hold/pulse失败端点均0。资源69945 LUT/81057 FF/431 DSP，CLB占用85.25%。仅理想时钟OOC内部数据路径通过，HD.CLK_SRC/外部IO预算未指定，真实时钟树和整机时序未签核；详见主报告。
+
+目标器件xczu5ev-sfvc784-2-i已由本机get_parts确认，实物料号/PCB签核仍未完成。仅模块OOC，不做AXI/ADC/编码器/门极PWM、不连接板卡；原R1/ETH01 r3/ETH02及全部数据保留。等待Draft PR Review，不自动合并、不关闭Issue15。
+
+## 已合并基线：ETH-02两场景用户实板PASS
+
+[已合并PR18](https://github.com/kazecode666/AXU5EV/pull/18)，[实现结果及用户实验唯一入口](../firmware/r5/ethernet_runtime/FIRST_EXPERIMENT_ZH.md)。真实输入/参考/描述符经以太网上传，START回执与连接收尾后停GEM收发/DMA/IRQ，原TTC0/Runtime回放与后处理完成后冻结结果、恢复网络并计划内重连下载，自动调用原分析工具。新固件身份0x45303201，原计时映射/数值与时序判据不改。新XSA同时启用GEM3与TTC0，复用JL2121 r3、原冻结生成代码及数据。
 
 实际Workspace为`D:/Project/AXU5EV/.runtime/ethernet/eth02/vitis_runtime_ethernet`，应用eth02_runtime，Launch **eth02_runtime_manual**。必要Vivado/Vitis构建与现有启动检查通过，Python语法与MATLAB Code Analyzer通过；[精简启动证据](../verification/ethernet/eth02/startup_check.json)。两次ETH02整合板测现均用户实板PASS，见[精简归档](../verification/ethernet/eth02/board_results/README.md)及[当前状态](../verification/ethernet/eth02/status.json)。
 
