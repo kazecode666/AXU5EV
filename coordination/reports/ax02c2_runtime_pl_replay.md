@@ -2,7 +2,7 @@
 
 仓库`kazecode666/AXU5EV`，依据[Issue23](https://github.com/kazecode666/AXU5EV/issues/23)，2026-11-04从包含已合并PR22的`origin/main`建立`codex/ax02c2-runtime-pl-replay`。用户四份模型/参数修改及两个未跟踪源文件原样保留；没有stash/reset/clean、额外clone/worktree或数据搬移。
 
-离线实现、必要模型/C适配对照、原生R5构建及现有启动文件检查已PASS，准备提交Draft PR。C2新应用完整板测为NOT_RUN；C1已经验收的17帧/51duty实板结果直接继承，不再运行。任务书随实现保存于[AX-02C2](../tasks/AX-02C2.md)。
+离线实现、必要模型/C适配对照、原生R5构建及现有启动文件检查已PASS，已提交[kazecode666/AXU5EV Draft PR24](https://github.com/kazecode666/AXU5EV/pull/24)，待Review、不自动合并。C2新应用完整板测为NOT_RUN；C1已经验收的17帧/51duty实板结果直接继承，不再运行。任务书随实现保存于[AX-02C2](../tasks/AX-02C2.md)。
 
 ## 调度和数据索引
 
@@ -54,7 +54,7 @@
 | 已有被动启动检查 | PASS，ARM32 R5／AArch64 FSBL，身份及MMIO地址正确，未链接TTC调度；[结果](../../verification/ax02c2/startup_check.json) |
 | 实际linker/map与对象布局 | PASS，全部PT_LOAD、GEM、heap、stack低于0x10000000，与8个回放区不重叠；[布局](../../verification/ax02c2/memory_layout.json) |
 | Python及MATLAB入口 | Python AST解析通过，RUN_AX02C2 Code Analyzer无问题；入口检查没有发起网络连接 |
-| 新应用一次完整current_motion板测 | NOT_RUN，当前尚未加载或运行C2；网络连接信息待用户确认，OS未枚举CP210x UART |
+| 新应用一次完整current_motion板测 | NOT_RUN，按用户最新要求本轮仅离线交付，随后正常关机 |
 
 薄适配复制原`Alignment_Interface`、`Effective_PI_Reset`、`PWM_Disabled`及`Frame_Quantization`；Runtime实际Y14提供Vdc，实际Y1/Y2为id/iq，实际模式/偏置/PWM/复位与同索引记录一同进入原选择和Convergent/Saturate转换。反馈5为ia/ib/ic、原theta_true及原已量化的s40/24角速度；本场景Alignment_Enable始终0。Tau_e为60mm，原角度与位置圆周误差最大约1.13e-15rad，原速度与Runtime输入15逐样本相同；48V来源同时由原记录及当前Runtime参考核对。
 
@@ -80,4 +80,4 @@
 
 操作入口见[唯一指南](../../firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)。MATLAB的`RUN_AX02C2`调用薄Python入口，实际upload/download直接复用ETH02的Connection实现；该共享类只增加默认仍为旧身份的可选expected_build参数。新固件身份0x43324301，原FOC模块身份0x43314301不改。`runtime`计时不含输入复制；`adapter`统计包含Runtime输出复制；提交/读回/结果观察间隔均是本次PMU窗口，不是硬件测频、TTC IRQ相位或WCET。
 
-用户本次授权C2新镜像加载及一次完整`current_motion`，先完成离线实现并提交Draft PR，再实际加载/运行。功率级保持断开，不写启动介质；本次授权不扩展为无限实验轮次。原R1/ETH01/ETH02/C1工作区和数据保留，不自动合并、不关闭Issue15。
+用户本次原先授权C2新镜像加载及一次完整`current_motion`，并已说明会接回原ETH02直连网卡并设192.168.50.x；之后最新明确要求“完成离线实现后关闭计算机”。因此本轮停在离线实现与Draft PR交付，不连接、复位、加载或运行C2，板测留待后续继续。交接推送完成后正常关机，不强制关闭或代保存未保存窗口。功率级保持断开，不写启动介质；授权不扩展为无限实验轮次。原R1/ETH01/ETH02/C1工作区和数据保留，不自动合并、不关闭Issue15。

@@ -25,10 +25,10 @@
   "build_log": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_native64.log",
   "board": "NOT_RUN",
   "board_authorization": "User authorized new C2 loading and one full current_motion after offline implementation and Draft PR",
-  "connection_pending": "No CP210x UART enumerated; no 192.168.50.x host address; experiment network arrangement awaiting user reply",
+  "connection_pending": "User will reconnect original ETH02 direct NIC on 192.168.50.x; latest instruction requests shutdown after offline completion, so no C2 hardware action this turn",
   "C1_repeat": "NOT_RUN_NOT_REQUIRED_ALREADY_ACCEPTED",
   "RTL_or_Vivado_rebuild": "NOT_RUN_NOT_REQUIRED_HARDWARE02_REUSED",
   "old_ETH02_board_repeat": "NOT_RUN_NOT_REQUIRED",
-  "draft_pr": null,
+  "draft_pr": "https://github.com/kazecode666/AXU5EV/pull/24",
   "merge": "USER_DECISION_ONLY"
 }
