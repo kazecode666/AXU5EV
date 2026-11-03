@@ -6,7 +6,7 @@
 
 [唯一主报告](reports/ax02b_pl_current_core.md)。冻结p3源、配置及29份设计RTL已独立5EV生成并确认字节相同；原normal/reset/CE检查通过，新帧探针21帧/518436检查通过，核心314/捕获315、全5000拍保持、sticky valid和三类复位职责有证据。50MHz/100µs/50µs参考边界不改。候选.runtime/ax02b/candidate_01，验证checks_02及checks_03；实际实现.runtime/ax02b/implementation_01/routed.dcp；WNS+3.020ns、WHS+0.034ns、TNS/THS=0，setup/hold/pulse失败端点均0。资源69945 LUT/81057 FF/431 DSP，CLB占用85.25%。仅理想时钟OOC内部数据路径通过，HD.CLK_SRC/外部IO预算未指定，真实时钟树和整机时序未签核；详见主报告。
 
-目标器件xczu5ev-sfvc784-2-i已由本机get_parts确认，实物料号/PCB签核仍未完成。仅模块OOC，不做AXI/ADC/编码器/门极PWM、不连接板卡；原R1/ETH01 r3/ETH02及全部数据保留。等待Draft PR Review，不自动合并、不关闭Issue15。
+目标器件xczu5ev-sfvc784-2-i已由本机get_parts确认，实物料号/PCB签核仍未完成。仅模块OOC，不做AXI/ADC/编码器/门极PWM、不连接板卡；原R1/ETH01 r3/ETH02及全部数据保留。已推送[kazecode666/AXU5EV Draft PR20](https://github.com/kazecode666/AXU5EV/pull/20)，等待Review，不自动合并、不关闭Issue15。
 
 ## 已合并基线：ETH-02两场景用户实板PASS
 

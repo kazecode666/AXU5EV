@@ -4,7 +4,7 @@
 
 ## 当前开发
 
-- AX-02B当前结果与待Review状态以主报告为准；保留全部旧workspace/ELF、用户未提交SLX/参数和原始实验数据，不自动合并或关闭Issue15。
+- AX-02B已推送[kazecode666/AXU5EV Draft PR20](https://github.com/kazecode666/AXU5EV/pull/20)，停在待Review；当前结果以主报告为准；保留全部旧workspace/ELF、用户未提交SLX/参数和原始实验数据，不自动合并或关闭Issue15。
 
 ### 历史阶段记录
 

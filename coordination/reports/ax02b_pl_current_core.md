@@ -2,7 +2,7 @@
 
 2026-11-03，仓库kazecode666/AXU5EV，分支`codex/ax02b-pl-current-core`。依据[Issue19](https://github.com/kazecode666/AXU5EV/issues/19)，从包含已合并PR18的当前main开始。仅离线工作；所有旧workspace、ELF、用户SLX/参数修改和实验原始数据保留。
 
-**结果：B1来源核对、B2独立生成、B3定向功能/帧合同均PASS；B4为`5EV_MODULE_IMPLEMENTATION_PASS`，仅限下述理想时钟OOC边界；B5交Review。板上运行NOT_RUN，实物料号/PCB、真实时钟树、IO/复位/CDC及整机签核均未完成。**
+**结果：B1来源核对、B2独立生成、B3定向功能/帧合同均PASS；B4为`5EV_MODULE_IMPLEMENTATION_PASS`，仅限下述理想时钟OOC边界；B5已提交[Draft PR20](https://github.com/kazecode666/AXU5EV/pull/20)，等待Review。板上运行NOT_RUN，实物料号/PCB、真实时钟树、IO/复位/CDC及整机签核均未完成。**
 
 ## B1—B2：来源与生成
 

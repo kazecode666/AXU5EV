@@ -102,10 +102,10 @@ PR18的ETH-02已通过两个实板场景：current_motion 64536帧、current_ali
 
 ## 8. Task B5 — 交接、状态更新与Review
 
-- [ ] 在一份主报告中汇总B1—B4的真实结果及失败/未执行项；原始大文件留本地，仓库仅保留必要脚本、精简结果和路径。
-- [ ] 给AX-02C留下明确接口：九字段类型/单位、输入保持、输出相位、frame_id/result_valid语义、三个复位相关信号的职责，以及本轮时钟/边界限制。不在本轮写AXI寄存器实现。
-- [ ] 更新README/HANDOFF/AGENTS的“当前”摘要为PR18已合并、AX-02B当前状态；保留旧记录为历史，不把旧NOT_RUN或待Review段落继续当当前指令。
-- [ ] 任务书和说明随实现代码一起进入同一个Draft PR，按实际完成情况提交；不自动合并，不关闭Issue15，不因为等待硬件而添加无关任务。
+- [x] 在一份主报告中汇总B1—B4的真实结果及失败/未执行项；原始大文件留本地，仓库仅保留必要脚本、精简结果和路径。
+- [x] 给AX-02C留下明确接口：九字段类型/单位、输入保持、输出相位、frame_id/result_valid语义、三个复位相关信号的职责，以及本轮时钟/边界限制。不在本轮写AXI寄存器实现。
+- [x] 更新README/HANDOFF/AGENTS的“当前”摘要为PR18已合并、AX-02B当前状态；保留旧记录为历史，不把旧NOT_RUN或待Review段落继续当当前指令。
+- [x] 任务书和说明随实现代码一起进入同一个Draft PR，按实际完成情况提交；不自动合并，不关闭Issue15，不因为等待硬件而添加无关任务。
 
 **交接状态：** 功能、帧合同、综合、实现、内部时序分别给出PASS/FAIL/NOT_RUN；本轮板上运行固定为NOT_RUN。来源、实际part和边界未签核项必须可见。
 
@@ -123,4 +123,4 @@ AX-03再进行ADC、位置采集、电角度、真实PWM/互锁/快速禁止和�
 - AMD UG901《Setting a Bottom-Up, Out-of-Context Flow》及UG903《Out-of-Context Constraints》：OOC模块有独立时钟/约束边界。
 - AMD UG906《Check Timing Section》：时序检查必须审查缺失/不完整约束，不能只读取正的WNS。
 
-B1—B4已离线执行并通过所声明的OOC模块边界验收，B5随实现提交交Review；板上NOT_RUN。详细结果和未签核项以主报告为准。
+B1—B4已离线执行并通过所声明的OOC模块边界验收，B5已随实现提交[Draft PR20](https://github.com/kazecode666/AXU5EV/pull/20)，等待Review；板上NOT_RUN。详细结果和未签核项以主报告为准。
