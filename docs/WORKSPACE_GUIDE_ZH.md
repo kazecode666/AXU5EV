@@ -1,5 +1,7 @@
 # 工作区、上板工程与数据保存位置
 
+> 当前AX-02C1：AUX复位最小修复后的PS＋PL候选在`.runtime/ax02c/hardware_02`；原`.runtime/ax02c/hardware_01`保留，仅作故障历史。Vitis Workspace仍为`.runtime/ax02c/vitis_ps_pl`，Launch为`ax02c_foc_manual`，原R5 ELF/FSBL不重建；必须显式加载hardware_02 bit。新候选构建/现有启动检查PASS，用户授权的唯一一次17帧/51个duty实板PASS，R5结束后可正常暂停，XSDB已断开。实际UART原件`.runtime/ax02c/board/uart_17_aux_fixed_01.txt`，精简归档`verification/ax02c/board_aux_fixed_01/`。入口为[17帧指南](../firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md)与[实施报告](../coordination/reports/ax02c1_r5_axi_foc.md)；PR22待Review，旧工作区与数据保留，以下AX-02B/ETH02文字按历史理解。
+
 > 2026-11-03 当前AX-02B离线生成、定向功能/帧合同和5EV OOC内部实现PASS，实际DCP为.runtime/ax02b/implementation_01/routed.dcp；新产物在.runtime/ax02b；PR18已合并，原R1/ETH01/ETH02及数据保留。 详见[AX-02B主报告](../coordination/reports/ax02b_pl_current_core.md)。下文旧阶段待Review/待上板文字按历史理解。
 
 > 2026-11-03最新：PR18评论6596653379所述两场景现已用户实板PASS，待最终Review。精简证据：verification/ethernet/eth02/board_results，当前状态：verification/ethernet/eth02/status.json。两个01结果目录已占用，无需重跑；Workspace/Launch不变。本轮仅归档，不新增测试、构建或上板。下文NOT_RUN及待用户执行均为此前准备阶段记录。

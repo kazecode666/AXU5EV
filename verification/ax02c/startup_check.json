@@ -1,0 +1,53 @@
+{
+  "fsbl": {
+    "processor": "psu_cortexa53_0",
+    "machine": "AArch64",
+    "elf_class": 64,
+    "byte_order": "little",
+    "entry": 4294705152
+  },
+  "application": {
+    "machine": "ARM",
+    "elf_class": 32,
+    "byte_order": "little",
+    "entry": 60,
+    "flags": 83887104,
+    "segments": [
+      {
+        "address": 0,
+        "file_bytes": 2008,
+        "memory_bytes": 2008,
+        "flags": 7
+      },
+      {
+        "address": 1048576,
+        "file_bytes": 17716,
+        "memory_bytes": 106864,
+        "flags": 7
+      }
+    ],
+    "processor": "psu_cortexr5_0"
+  },
+  "launch": "ax02c_foc_manual",
+  "status": "OFFLINE_STARTUP_CHECK_PASS",
+  "workspace": "D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl",
+  "platform": "ax02c_platform",
+  "application_name": "ax02c_foc",
+  "xsa": "D:/Project/AXU5EV/.runtime/ax02c/hardware_01/ax02c_ps_pl.xsa",
+  "bitstream": "D:/Project/AXU5EV/.runtime/ax02c/hardware_01/ax02c_ps_pl.bit",
+  "xsa_bit_member": "ax02c_ps_pl.bit",
+  "elf": "D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl/ax02c_foc/build/ax02c_foc.elf",
+  "base_address": "0x80000000",
+  "base_macro": "XPAR_FOC_AXI_0_BASEADDR",
+  "psu_init": "D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl/ax02c_platform/hw/sdt/psu_init.tcl",
+  "postload_reset_data": "nonempty generated fabric reset sequence",
+  "memory_attribute": "BSP startup PL region 0x80000000..0xbfffffff Strongly Ordered",
+  "frames": 17,
+  "board": "NOT_RUN",
+  "manual_order": [
+    "launch A53 FSBL initialization; R5 stops at application entry (stopAtEntry)",
+    "user programs this bitstream without system reset",
+    "user sources matching psu_init.tcl; psu_ps_pl_isolation_removal; psu_ps_pl_reset_config",
+    "user continues R5; UART WAIT; send s once for first MMIO"
+  ]
+}

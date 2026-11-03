@@ -1,0 +1,206 @@
+{
+  "status": "PS_PL_BUILD_PASS_BOARD_NOT_RUN",
+  "tool": "Vivado 2026.1",
+  "part": "xczu5ev-sfvc784-2-i",
+  "top": "design_1_wrapper",
+  "build_exit_code": 0,
+  "build_success_marker": "AX02C_BUILD_PASS",
+  "board": "NOT_RUN",
+  "timing": {
+    "wns_ns": 3.16,
+    "tns_ns": 0.0,
+    "setup_failing_endpoints": 0,
+    "setup_total_endpoints": 179351,
+    "whs_ns": 0.011,
+    "ths_ns": 0.0,
+    "hold_failing_endpoints": 0,
+    "hold_total_endpoints": 179351,
+    "wpws_ns": 8.5,
+    "tpws_ns": 0.0,
+    "pulse_failing_endpoints": 0,
+    "pulse_total_endpoints": 86924
+  },
+  "check_timing": {
+    "no_clock": 0,
+    "constant_clock": 0,
+    "pulse_width_clock": 0,
+    "unconstrained_internal_endpoints": 0,
+    "no_input_delay": 0,
+    "no_output_delay": 0,
+    "multiple_clock": 0,
+    "generated_clocks": 0,
+    "loops": 0,
+    "partial_input_delay": 0,
+    "partial_output_delay": 0,
+    "latch_loops": 0
+  },
+  "resources": {
+    "lut": {
+      "used": 70902,
+      "available": 117120,
+      "percent": 60.54
+    },
+    "ff": {
+      "used": 82651,
+      "available": 234240,
+      "percent": 35.28
+    },
+    "clb": {
+      "used": 12462,
+      "available": 14640,
+      "percent": 85.12
+    },
+    "dsp": {
+      "used": 431,
+      "available": 1248,
+      "percent": 34.54
+    },
+    "bram": {
+      "used": 0,
+      "available": 144,
+      "percent": 0.0
+    },
+    "uram": {
+      "used": 0,
+      "available": 64,
+      "percent": 0.0
+    },
+    "bufg_ps": {
+      "used": 1,
+      "available": 96,
+      "percent": 1.04
+    },
+    "bufgce": {
+      "used": 2,
+      "available": 112,
+      "percent": 1.79
+    },
+    "mmcm": {
+      "used": 0,
+      "available": 4,
+      "percent": 0.0
+    },
+    "pll": {
+      "used": 0,
+      "available": 8,
+      "percent": 0.0
+    }
+  },
+  "route": {
+    "logical_nets": 563771,
+    "routable_nets": 135099,
+    "fully_routed_nets": 135099,
+    "routing_errors": 0,
+    "internally_routed_nets": 381918,
+    "loadless_nets": 46754
+  },
+  "drc": {
+    "errors": 0,
+    "critical_warnings": 0,
+    "warnings": 761,
+    "groups": {
+      "DPIP-2": {
+        "severity": "Warning",
+        "checks": 271
+      },
+      "DPOP-3": {
+        "severity": "Warning",
+        "checks": 199
+      },
+      "DPOP-4": {
+        "severity": "Warning",
+        "checks": 291
+      }
+    }
+  },
+  "worst_paths": {
+    "setup": {
+      "source": "design_1_i/foc_axi_0/inst/frame_core/theta_h_reg[8]/C",
+      "destination": "design_1_i/foc_axi_0/inst/frame_core/core/u_InversePark/If_Action_Subsystem_Out1_1_reg[24]/D",
+      "type": "Setup (Max at Slow Process Corner)",
+      "requirement": "10.000ns  (clk_pl_0 rise@20.000ns - clk_pl_0 fall@10.000ns)",
+      "slack": "3.160ns  (required time - arrival time)",
+      "source_clock_net_delay": "2.442ns (routing 1.293ns, distribution 1.149ns)",
+      "destination_clock_net_delay": "2.221ns (routing 1.172ns, distribution 1.049ns)"
+    },
+    "hold": {
+      "source": "design_1_i/foc_axi_0/inst/frame_core/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/d94_p_reg[50]/C",
+      "destination": "design_1_i/foc_axi_0/inst/frame_core/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/d95_p_reg[50]/D",
+      "type": "Hold (Min at Slow Process Corner)",
+      "requirement": "0.000ns  (clk_pl_0 rise@0.000ns - clk_pl_0 rise@0.000ns)",
+      "slack": "0.011ns  (arrival time - required time)",
+      "source_clock_net_delay": "2.198ns (routing 1.172ns, distribution 1.026ns)",
+      "destination_clock_net_delay": "2.455ns (routing 1.293ns, distribution 1.162ns)"
+    }
+  },
+  "clock": {
+    "functional_clock_count": 1,
+    "name": "clk_pl_0",
+    "period_ns": 20.0,
+    "waveform_ns": [
+      0.0,
+      10.0
+    ],
+    "ps_config_source": "IOPLL",
+    "ps_clock_pin_hz": 49999500,
+    "requested_mhz": 50,
+    "ps_reference_metadata_mhz": 33.333,
+    "readback_is_board_measurement": false,
+    "physical_clock_resource": {
+      "type": "BUFG_PS",
+      "site": "BUFG_PS_X0Y90",
+      "clock_loads": 86930,
+      "nonclock_loads": 0
+    },
+    "control_routing_resources": [
+      {
+        "type": "BUFGCE",
+        "site": "BUFGCE_X0Y24",
+        "net": "wstrb_reg[0]_BUFG",
+        "clock_loads": 0,
+        "nonclock_loads": 77521
+      },
+      {
+        "type": "BUFGCE",
+        "site": "BUFGCE_X0Y50",
+        "net": "running_i_1_n_0",
+        "clock_loads": 0,
+        "nonclock_loads": 1128
+      }
+    ],
+    "control_bufg_reason": "Native opt/place buffered high-fanout reset/set/enable control nets; these are not additional working clocks."
+  },
+  "axi": {
+    "master": "zynq_ultra_ps_e_0/M_AXI_HPM0_LPD",
+    "interconnect": "axi_foc (SmartConnect Ultralite 1x1, one clock)",
+    "slave": "foc_axi_0/s_axi/reg0",
+    "base_address": "0x80000000",
+    "range_bytes": 4096
+  },
+  "reset": {
+    "source": "zynq_ultra_ps_e_0/pl_resetn0",
+    "synchronizer": "rst_pl0 (proc_sys_reset)",
+    "polarity": "ACTIVE_LOW; C_EXT_RESET_HIGH=0 derived and checked",
+    "fabric_reset_outputs": 1
+  },
+  "artifacts": {
+    "project": "D:/Project/AXU5EV/.runtime/ax02c/hardware_01/project/ax02a_ps.xpr",
+    "bitstream": "D:/Project/AXU5EV/.runtime/ax02c/hardware_01/ax02c_ps_pl.bit",
+    "xsa": "D:/Project/AXU5EV/.runtime/ax02c/hardware_01/ax02c_ps_pl.xsa",
+    "prebit_xsa": "D:/Project/AXU5EV/.runtime/ax02c/hardware_01/ax02c_ps_pl_prebit.xsa",
+    "routed_dcp": "D:/Project/AXU5EV/.runtime/ax02c/hardware_01/project/ax02a_ps.runs/impl_1/design_1_wrapper_routed.dcp",
+    "reports": "D:/Project/AXU5EV/.runtime/ax02c/hardware_01/reports",
+    "build_log": "D:/Project/AXU5EV/.runtime/ax02c/build_01.log"
+  },
+  "artifact_bytes": {
+    "bitstream": 7797907,
+    "xsa": 2802035,
+    "routed_dcp": 64882198
+  },
+  "vendor_bd": "D:/Project/AXU5EV/资料/course_s2/01_ps_hello/vivado/ps_hello.srcs/sources_1/bd/design_1/design_1.bd",
+  "rtl_source": "D:/Project/AXU5EV/.runtime/ax02b/candidate_01/rtl/AX02B_P3_5EV",
+  "entry": "hardware/axu5ev/ax02c_ps_pl.tcl",
+  "constraints": "Generated PS XDC at PS8_i/PLCLK[0], nominal20ns; no PR20 idealOOC XDC imported",
+  "physical_part_pcb_signoff": "PENDING",
+  "earlier_attempt": "integrate_01 failed before saving BD: zero inherited fabric reset count/read-only reset polarity; corrected in integrate_02, logs retained"
+}

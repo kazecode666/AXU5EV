@@ -1,0 +1,128 @@
+{
+  "status": "PS_PL_AUX_RESET_BUILD_PASS_BOARD_NOT_RUN",
+  "tool": "Vivado 2026.1",
+  "part": "xczu5ev-sfvc784-2-i",
+  "build_exit_code": 0,
+  "elapsed_seconds": 1473,
+  "board": "NOT_RUN",
+  "fix": {
+    "original_aux_tie": 0,
+    "new_aux_tie": 1,
+    "C_AUX_RESET_HIGH": 0,
+    "mb_debug_sys_rst_tie": 0,
+    "FOC_RTL_changed": false,
+    "PS_configuration_changed": false,
+    "AXI_base": "0x80000000",
+    "pl_clock_pin_hz": 49999500
+  },
+  "timing": {
+    "wns_ns": 3.149,
+    "tns_ns": 0.0,
+    "setup_fail": 0,
+    "setup_endpoints": 179351,
+    "whs_ns": 0.011,
+    "ths_ns": 0.0,
+    "hold_fail": 0,
+    "hold_endpoints": 179351,
+    "wpws_ns": 8.5,
+    "tpws_ns": 0.0,
+    "pulse_fail": 0,
+    "pulse_endpoints": 86924
+  },
+  "check_timing": {
+    "no_clock": 0,
+    "constant_clock": 0,
+    "pulse_width_clock": 0,
+    "unconstrained_internal_endpoints": 0,
+    "no_input_delay": 0,
+    "no_output_delay": 0,
+    "multiple_clock": 0,
+    "generated_clocks": 0,
+    "loops": 0,
+    "partial_input_delay": 0,
+    "partial_output_delay": 0,
+    "latch_loops": 0
+  },
+  "resources": {
+    "lut": {
+      "used": 70902,
+      "available": 117120,
+      "percent": 60.54
+    },
+    "ff": {
+      "used": 82651,
+      "available": 234240,
+      "percent": 35.28
+    },
+    "clb": {
+      "used": 12462,
+      "available": 14640,
+      "percent": 85.12
+    },
+    "dsp": {
+      "used": 431,
+      "available": 1248,
+      "percent": 34.54
+    },
+    "bram": {
+      "used": 0,
+      "available": 144,
+      "percent": 0.0
+    },
+    "uram": {
+      "used": 0,
+      "available": 64,
+      "percent": 0.0
+    },
+    "bufg_ps": {
+      "used": 1,
+      "available": 96,
+      "percent": 1.04
+    },
+    "bufgce": {
+      "used": 2,
+      "available": 112,
+      "percent": 1.79
+    }
+  },
+  "route": {
+    "routable_nets": 135099,
+    "fully_routed_nets": 135099,
+    "routing_errors": 0
+  },
+  "drc_errors": 0,
+  "drc_critical_warnings": 0,
+  "drc_groups": {
+    "DPIP-2": {
+      "severity": "Warning",
+      "count": 271
+    },
+    "DPOP-3": {
+      "severity": "Warning",
+      "count": 199
+    },
+    "DPOP-4": {
+      "severity": "Warning",
+      "count": 291
+    }
+  },
+  "artifacts": {
+    "project": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/project/ax02a_ps.xpr",
+    "bit": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.bit",
+    "xsa": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.xsa",
+    "routed_dcp": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/project/ax02a_ps.runs/impl_aux_fixed/design_1_wrapper_routed.dcp",
+    "reports": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/reports"
+  },
+  "artifact_bytes": {
+    "bit": 7797907,
+    "xsa": 2802529
+  },
+  "xsa_embeds_selected_new_bit": true,
+  "software_reuse": {
+    "elf": "D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl/ax02c_foc/build/ax02c_foc.elf",
+    "fsbl": "D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl/ax02c_platform/export/ax02c_platform/sw/boot/fsbl.elf",
+    "reason": "Only PL auxiliary-reset constant connection changed; PS setup and AXI interface unchanged. Existing platform default bit remains original; load hardware_02 bit explicitly."
+  },
+  "drc_warnings": 761,
+  "source_evidence": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/hardware_summary.json"
+}

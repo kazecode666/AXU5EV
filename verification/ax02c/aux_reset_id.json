@@ -1,0 +1,10 @@
+{
+  "status": "AUX_RESET_ID_PASS",
+  "checks": 3,
+  "original_resetn": 0,
+  "fixed_resetn": 1,
+  "id": "0x43314301",
+  "native_reset_netlist": "D:\\Project\\AXU5EV\\.runtime\\ax02c\\hardware_01\\project\\ax02a_ps.gen\\sources_1\\bd\\design_1\\ip\\design_1_rst_pl0_0\\design_1_rst_pl0_0_sim_netlist.v",
+  "log": "D:\\Project\\AXU5EV\\.runtime\\ax02c\\aux_reset_id_01\\xsim.log",
+  "board": "NOT_RUN"
+}

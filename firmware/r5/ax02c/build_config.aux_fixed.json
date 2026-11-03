@@ -1,0 +1,5 @@
+{
+  "xsa": ".runtime/ax02c/hardware_02/ax02c_ps_pl.xsa",
+  "bitstream": ".runtime/ax02c/hardware_02/ax02c_ps_pl.bit",
+  "workspace": ".runtime/ax02c/vitis_ps_pl"
+}

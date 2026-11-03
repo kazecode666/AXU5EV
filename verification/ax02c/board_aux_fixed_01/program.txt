@@ -1,0 +1,44 @@
+2026-11-03 21:14:00 +0800
+COMMAND: targets -set 4
+RETURN_CODE: 0
+
+COMMAND: fpga -file D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.bit
+RETURN_CODE: 0
+
+COMMAND: targets -set 10
+RETURN_CODE: 0
+
+COMMAND: source D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl/ax02c_platform/hw/sdt/psu_init.tcl
+RETURN_CODE: 0
+
+COMMAND: psu_ps_pl_isolation_removal
+RETURN_CODE: 0
+
+COMMAND: psu_ps_pl_reset_config
+RETURN_CODE: 0
+
+COMMAND: targets -set 7
+RETURN_CODE: 0
+
+COMMAND: rrd pc
+RETURN_CODE: 0
+pc: 0000003c
+
+COMMAND: con
+RETURN_CODE: 0
+
+COMMAND: targets
+RETURN_CODE: 0
+  1  PS TAP
+     2  PMU
+        3  MicroBlaze PMU (Sleeping. No clock)
+     4  PL
+  5  PSU
+     6  RPU
+        7* Cortex-R5 #0 (Running)
+        8  Cortex-R5 #1 (Reset)
+     9  APU
+       10  Cortex-A53 #0 (Breakpoint, EL3(S)/A64)
+       11  Cortex-A53 #1 (Power On Reset)
+       12  Cortex-A53 #2 (Power On Reset)
+       13  Cortex-A53 #3 (Power On Reset)

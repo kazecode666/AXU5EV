@@ -1,0 +1,23 @@
+{
+  "status": "OFFLINE_STARTUP_CHECK_PASS",
+  "exit_code": 0,
+  "evidence_scope": "Concise record of the completed aux_fixed check; full stdout was not saved. No check was rerun for this archive.",
+  "command_powershell": "$env:AX02C_CONFIG='D:/Project/AXU5EV/firmware/r5/ax02c/build_config.aux_fixed.json'; python scripts/ax02c_build.py --check-startup",
+  "config": "firmware/r5/ax02c/build_config.aux_fixed.json",
+  "workspace": "D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl",
+  "launch": "ax02c_foc_manual",
+  "xsa": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.xsa",
+  "bitstream": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.bit",
+  "elf": "D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl/ax02c_foc/build/ax02c_foc.elf",
+  "fsbl": "D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl/ax02c_platform/export/ax02c_platform/sw/boot/fsbl.elf",
+  "application_processor": "psu_cortexr5_0",
+  "application_architecture": "ARM, ELF32, little endian",
+  "fsbl_processor": "psu_cortexa53_0",
+  "fsbl_architecture": "AArch64, ELF64, little endian",
+  "base_address": "0x80000000",
+  "launch_programDevice": false,
+  "launch_bitstreamFile": "",
+  "launch_backup": ".runtime/ax02c/online_diag_01/launch_manual_bitstreamFile_before_clear_20261103.json",
+  "software_rebuilt": false,
+  "board_scope": "Offline startup-file check only; current hardware result is in board_aux_fixed_01/evidence.json"
+}

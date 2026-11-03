@@ -1,10 +1,14 @@
 # AXU5EV 协作与工作区规则
 
-> 当前：PR18已合并，执行Issue19 AX-02B，分支codex/ax02b-pl-current-core。独立5EV候选生成、p3等价和定向位/帧检查已PASS，5EV OOC综合/布局布线及内部STA已PASS（理想时钟边界；WNS+3.020ns、WHS+0.034ns，TNS/THS=0）。目标xczu5ev-sfvc784-2-i、50MHz/100µs帧/50µs应用参考边界；实物料号/PCB待核。主报告coordination/reports/ax02b_pl_current_core.md，所有新产物.runtime/ax02b。只离线，不连接板卡、不做AXI/ADC/编码器/门极PWM，不改Runtime/TTC/ETH02，不重跑长时RTL/ETH02板测。以下PR18待Review等记录为已合并前历史，不作为当前指令。
+> 当前：PR22 AX-02C1原hardware_01的AUX reset低有效却接0，已最小改接1（debug仍0）。hardware_02 bit/XSA完整构建及aux_fixed启动检查PASS，时序WNS+3.149ns/WHS+0.011ns、TNS/THS=0。2026-11-03用户明确授权在线诊断，并另准一次复位/加载新bit及原FSBL/R5 ELF、一次17帧；新首读PC1031BC→1031C0实得ID43314301，同次实板17帧/51duty/完整17帧PASS、mismatch0。旧故障现场PC未取得，不能与新首读实测混同。当前证据verification/ax02c/board_aux_fixed_01/evidence.json，原始UART.runtime/ax02c/board/uart_17_aux_fixed_01.txt；hardware_aux_fixed.json的NOT_RUN仅为构建快照。沿用原Workspace/Launch/ELF/FSBL，当前bit用hardware_02，不自动加载旧平台镜像。最终R5已halt于0010333C WFI，DSCR03186003/HALTED1；自建XSDB31752已断开退出，3121仅hw_server30848监听/无Established，用户可单一Vitis会话接手。本次授权动作已完成，进一步复位/下载/破坏现场寄存器写入仍须说明并征得确认。保留原工程及全部数据，PR22待最终Review，不自动合并。
 
 ## 当前开发
 
-- AX-02B已推送[kazecode666/AXU5EV Draft PR20](https://github.com/kazecode666/AXU5EV/pull/20)，停在待Review；当前结果以主报告为准；保留全部旧workspace/ELF、用户未提交SLX/参数和原始实验数据，不自动合并或关闭Issue15。
+- AX-02C1已推送[kazecode666/AXU5EV Draft PR22](https://github.com/kazecode666/AXU5EV/pull/22)，停在待Review；实际结果与产物以本轮主报告为准；保留全部用户修改和旧工作区/数据。
+
+### 已合并AX-02B记录
+
+- AX-02B已通过并合并[kazecode666/AXU5EV PR20](https://github.com/kazecode666/AXU5EV/pull/20)；当时OOC结果以AX-02B主报告为准；保留全部旧workspace/ELF、用户未提交SLX/参数和原始实验数据，不自动合并或关闭Issue15。
 
 ### 历史阶段记录
 

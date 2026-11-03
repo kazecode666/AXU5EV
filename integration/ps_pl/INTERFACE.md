@@ -1,5 +1,7 @@
 # AX-01B R5F—PL控制边界
 
+> 当前AX-02C1：PR20已合并，新增[R5—AXI-Lite寄存器及连续帧合同](AXI_REGISTERS.md)，复用真实FOC和本页九字段；短仿真17帧PASS，PS＋PL完整构建/启动文件检查PASS，板测NOT_RUN。原AX-01B/AX-02B的“未实现AXI”等文字为此前阶段记录，当前结果见[AX-02C1报告](../../coordination/reports/ax02c1_r5_axi_foc.md)。
+
 > 2026-11-03 AX-02B沿用本页九字段/帧接口，生成与位/帧验证PASS，5EV OOC实现及内部STA PASS（理想时钟边界，真实时钟树/IO/复位/CDC未签核）；本文其他NOT_RUN为当时阶段记录。 详见[AX-02B主报告](../../coordination/reports/ax02b_pl_current_core.md)。下文旧阶段待Review/待上板文字按历史理解。
 
 目标AXU5EVB-E。本轮已有主机生成C＋p3 XSI仿真交换；尚未实现AXI寄存器/BRAM协议，也未分配新板IO。

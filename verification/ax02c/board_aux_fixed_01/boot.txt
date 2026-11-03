@@ -1,0 +1,77 @@
+2026-11-03 21:13:03 +0800
+COMMAND: source E:/AMDDesignTools/2026.1/Vitis/scripts/vitis/util/zynqmp_utils.tcl
+RETURN_CODE: 0
+
+COMMAND: targets -set 6
+RETURN_CODE: 0
+
+COMMAND: enable_split_mode
+RETURN_CODE: 0
+
+COMMAND: targets -set 5
+RETURN_CODE: 0
+
+COMMAND: disable_pmu_gate
+RETURN_CODE: 0
+
+COMMAND: targets -set 9
+RETURN_CODE: 0
+
+COMMAND: loadhw -hw D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.xsa -mem-ranges [list {0x80000000 0xbfffffff} {0x400000000 0x5ffffffff} {0x1000000000 0x7fffffffff}]
+RETURN_CODE: 0
+design_1_wrapper
+COMMAND: configparams force-mem-access 1
+RETURN_CODE: 0
+
+COMMAND: targets -set 10
+RETURN_CODE: 0
+
+COMMAND: rst -processor
+RETURN_CODE: 0
+
+COMMAND: dow D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl/ax02c_platform/export/ax02c_platform/sw/boot/fsbl.elf
+RETURN_CODE: 0
+
+COMMAND: bpadd -addr &XFsbl_Exit
+RETURN_CODE: 0
+0
+COMMAND: con -block -timeout 60
+RETURN_CODE: 0
+
+COMMAND: rrd pc
+RETURN_CODE: 0
+pc: 00000000fffc0c08
+
+COMMAND: bpremove $fsbl_bp
+RETURN_CODE: 0
+
+COMMAND: targets -set 7
+RETURN_CODE: 0
+
+COMMAND: rst -processor
+RETURN_CODE: 0
+
+COMMAND: dow D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl/ax02c_foc/build/ax02c_foc.elf
+RETURN_CODE: 0
+
+COMMAND: bpadd -addr 0x001031BC -type hw
+RETURN_CODE: 0
+1
+COMMAND: configparams force-mem-access 0
+RETURN_CODE: 0
+
+COMMAND: targets
+RETURN_CODE: 0
+  1  PS TAP
+     2  PMU
+        3  MicroBlaze PMU (Sleeping. No clock)
+     4  PL
+  5  PSU
+     6  RPU
+        7* Cortex-R5 #0 (Suspended)
+        8  Cortex-R5 #1 (Reset)
+     9  APU
+       10  Cortex-A53 #0 (Breakpoint, EL3(S)/A64)
+       11  Cortex-A53 #1 (Power On Reset)
+       12  Cortex-A53 #2 (Power On Reset)
+       13  Cortex-A53 #3 (Power On Reset)

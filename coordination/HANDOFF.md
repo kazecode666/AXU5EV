@@ -1,12 +1,28 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-03。仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。PR18已合并，当前分支codex/ax02b-pl-current-core实施[Issue19 AX-02B](https://github.com/kazecode666/AXU5EV/issues/19)。下文ETH02/AX02A按历史阶段理解。
+更新：2026-11-03，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。PR20已合并，当前分支codex/ax02c1-r5-axi-foc执行[Issue21](https://github.com/kazecode666/AXU5EV/issues/21)。
 
-## 当前：AX-02B离线生成/位与帧合同PASS，5EV OOC实现及内部STA PASS，待Review
+## 当前：AX-02C1 AUX复位修复及一次授权17帧实板PASS，待最终Review
+
+原hardware_01的AUX reset低有效却接零，导致SmartConnect/FOC持续复位；最小改接one/dout，debug reset仍为0。hardware_02完整构建/启动文件检查PASS，WNS+3.149ns、WHS+0.011ns、TNS/THS=0，时序失败端点均0；原Workspace/ELF/FSBL和全部数据保留。
+
+用户明确批准一次系统复位、加载新bit与原FSBL/R5 ELF及一次17帧。新实验首读实测：PC0x001031BC、r6=0x80000000，单步到0x001031C0返回r2=0x43314301；继续同一次实验，只发送一次s，最终PASS code0/fail_frame0/frames17/complete_frames17/compared51/mismatch0，elapsed_ticks13290、tick_hz7812421。原挂起现场没有取得PC；新首读实测不能倒记为旧现场PC。[当前实板证据](../verification/ax02c/board_aux_fixed_01/evidence.json)，原始UART`.runtime/ax02c/board/uart_17_aux_fixed_01.txt`；构建JSON中的BOARD_NOT_RUN仅为构建时快照。
+
+实际bit/XSA在`.runtime/ax02c/hardware_02`，沿用Workspace`.runtime/ax02c/vitis_ps_pl`、Launch`ax02c_foc_manual`、原R5 ELF及A53 FSBL。启动检查配置`firmware/r5/ax02c/build_config.aux_fixed.json`；manual入口programDevice=false、未启用bitstreamFile已备份并清空，必须显式选新bit，不能用默认app_hw_1自动加载旧镜像。唯一入口见[指南](../firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md)，详细经过见[主报告](reports/ax02c1_r5_axi_foc.md)。
+
+最终stop成功，R5_0停0x0010333C（末尾WFI），DSCR0x03186003/HALTED=1，无APB错误；A53_0仍停FSBL出口，R5_1 Reset，其余A53 PowerOnReset。Codex已disconnect并退出自建XSDB31752，3121仅hw_server30848监听、Established连接0，可由用户单一Vitis会话接手。本次在线操作完成，进一步系统复位/下载/破坏现场写入仍须另获确认。不重复本轮实验、不扩展完整Runtime/ADC/编码器/门极PWM或压力/优化项目。PR22保持Draft等待最终Review，不自动合并、不关闭Issue15。下文为历史阶段记录。
+
+## 原离线阶段：AX-02C1离线实现/短仿真/完整构建及启动检查PASS，待Review
+
+已推送[kazecode666/AXU5EV Draft PR22](https://github.com/kazecode666/AXU5EV/pull/22)，停在Review，不自动合并。
+
+[主报告](reports/ax02c1_r5_axi_foc.md)，[用户唯一指南](../firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md)。复用真实p3核和原帧封装；新增AXI-Lite暂存/整帧采用/三相来源快照与R5轮询。短仿真17帧/51个duty/85000clocks/283399检查PASS；真实M_AXI_HPM0_LPD地址0x80000000，单一名义50MHz PL时钟，工具回读49.9995MHz。新产物.runtime/ax02c，完整bit/XSA/FSBL/R5 ELF及启动文件检查已PASS；WNS+3.160ns/WHS+0.011ns，TNS/THS=0，时序失败端点均0。实际Workspace为.runtime/ax02c/vitis_ps_pl、Launch为ax02c_foc_manual；完整产物及顺序见唯一指南。板测NOT_RUN，由用户Review后手动加载、释放PS—PL隔离/复位并显式发送UART s开始；Codex不操作板卡。保留原workspace、ELF、用户修改及实验数据，不接完整Runtime、不自动合并或关闭Issue15。
+
+## 已合并基线：AX-02B生成/位与帧合同、5EV OOC内部实现PASS
 
 [唯一主报告](reports/ax02b_pl_current_core.md)。冻结p3源、配置及29份设计RTL已独立5EV生成并确认字节相同；原normal/reset/CE检查通过，新帧探针21帧/518436检查通过，核心314/捕获315、全5000拍保持、sticky valid和三类复位职责有证据。50MHz/100µs/50µs参考边界不改。候选.runtime/ax02b/candidate_01，验证checks_02及checks_03；实际实现.runtime/ax02b/implementation_01/routed.dcp；WNS+3.020ns、WHS+0.034ns、TNS/THS=0，setup/hold/pulse失败端点均0。资源69945 LUT/81057 FF/431 DSP，CLB占用85.25%。仅理想时钟OOC内部数据路径通过，HD.CLK_SRC/外部IO预算未指定，真实时钟树和整机时序未签核；详见主报告。
 
-目标器件xczu5ev-sfvc784-2-i已由本机get_parts确认，实物料号/PCB签核仍未完成。仅模块OOC，不做AXI/ADC/编码器/门极PWM、不连接板卡；原R1/ETH01 r3/ETH02及全部数据保留。已推送[kazecode666/AXU5EV Draft PR20](https://github.com/kazecode666/AXU5EV/pull/20)，等待Review，不自动合并、不关闭Issue15。
+目标器件xczu5ev-sfvc784-2-i已由本机get_parts确认，实物料号/PCB签核仍未完成。该阶段仅模块OOC，尚未接AXI/ADC/编码器/门极PWM；原R1/ETH01 r3/ETH02及全部数据保留。[kazecode666/AXU5EV PR20](https://github.com/kazecode666/AXU5EV/pull/20)现已合并；本轮AXI集成状态见本文首节，Issue15遗留项不自动关闭。
 
 ## 已合并基线：ETH-02两场景用户实板PASS
 

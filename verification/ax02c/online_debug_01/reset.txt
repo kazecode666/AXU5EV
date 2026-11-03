@@ -1,0 +1,20 @@
+2026-11-03 21:04:05 +0800
+COMMAND: targets -set 5
+RETURN_CODE: 0
+
+COMMAND: rst -system -stop
+RETURN_CODE: 0
+
+COMMAND: targets
+  1  PS TAP
+     2  PMU
+     4  PL
+  5* PSU
+     6  RPU (Reset)
+        7  Cortex-R5 #0 (RPU Reset)
+        8  Cortex-R5 #1 (RPU Reset)
+     9  APU (L2 Cache Reset)
+       10  Cortex-A53 #0 (APU Reset)
+       11  Cortex-A53 #1 (APU Reset)
+       12  Cortex-A53 #2 (APU Reset)
+       13  Cortex-A53 #3 (APU Reset)
