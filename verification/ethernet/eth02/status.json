@@ -1,0 +1,183 @@
+{
+  "repository": "kazecode666/AXU5EV",
+  "pr": 18,
+  "comment": "https://github.com/kazecode666/AXU5EV/pull/18#issuecomment-6596653379",
+  "date": "2026-11-03",
+  "state": "USER_BOARD_PASS_PENDING_FINAL_REVIEW",
+  "application": "ETH02",
+  "build_id": "0x45303201",
+  "scenes": [
+    {
+      "scenario": "current_motion",
+      "experiment": 1,
+      "frames": 64536,
+      "state": "PASS_USER_BOARD",
+      "transfer": "PASS",
+      "numeric_failures": 0,
+      "timing": "PASS",
+      "deadline_sequence": "PASS",
+      "phase": {
+        "status": "NO_TREND_DETECTED",
+        "samples": 64535,
+        "excluded_frame": 0,
+        "slope_ticks_per_frame": 4.426545994696639e-07,
+        "intercept_ticks": 264.1004913497178,
+        "residual_rms_ticks": 14.723105044962514,
+        "slope_standard_error": 3.111027082856848e-06,
+        "threshold_ticks_per_frame": 4.96575778750814e-05,
+        "mean_isr_interval_ticks": 9999.999984504293,
+        "limitation": "ISR latency/epoch included; detected trend does not identify hardware root cause"
+      },
+      "crosscheck_passed": true,
+      "crosscheck_consistent": true,
+      "report_numeric_errors": 0,
+      "metrics": [
+        {
+          "category": "all",
+          "metric": "runtime_us",
+          "samples": "64536",
+          "mean": "25.663601090864013",
+          "p99": "38.4",
+          "minimum": "19.75",
+          "maximum": "39.61",
+          "worst_frame": "29199"
+        },
+        {
+          "category": "all",
+          "metric": "task_us",
+          "samples": "64536",
+          "mean": "40.789160003718855",
+          "p99": "53.54",
+          "minimum": "34.63",
+          "maximum": "55.61",
+          "worst_frame": "28499"
+        },
+        {
+          "category": "all",
+          "metric": "response_us",
+          "samples": "64536",
+          "mean": "47.15210874550639",
+          "p99": "59.92",
+          "minimum": "40.79",
+          "maximum": "62.33",
+          "worst_frame": "29299"
+        },
+        {
+          "category": "all",
+          "metric": "jitter_us",
+          "samples": "64536",
+          "mean": "6.3629487417875294",
+          "p99": "6.99",
+          "minimum": "2.45",
+          "maximum": "7.52",
+          "worst_frame": "1"
+        },
+        {
+          "category": "all",
+          "metric": "slack_us",
+          "samples": "64536",
+          "mean": "52.84789125449361",
+          "p99": "58.24",
+          "minimum": "37.67",
+          "maximum": "59.21",
+          "worst_frame": "29299"
+        }
+      ],
+      "upload_seconds": 28.741602399999465,
+      "download_seconds": 22.1271428,
+      "local_binary_bytes": {
+        "output.bin": 21167808,
+        "report_v2.bin": 2400,
+        "timing.bin": 4130304
+      }
+    },
+    {
+      "scenario": "current_alignment_reset",
+      "experiment": 2,
+      "frames": 43100,
+      "state": "PASS_USER_BOARD",
+      "transfer": "PASS",
+      "numeric_failures": 0,
+      "timing": "PASS",
+      "deadline_sequence": "PASS",
+      "phase": {
+        "status": "NO_TREND_DETECTED",
+        "samples": 43099,
+        "excluded_frame": 0,
+        "slope_ticks_per_frame": 2.394276260403332e-06,
+        "intercept_ticks": 264.75981428419703,
+        "residual_rms_ticks": 15.214422866538598,
+        "slope_standard_error": 5.890543838218883e-06,
+        "threshold_ticks_per_frame": 8.174912873073796e-05,
+        "mean_isr_interval_ticks": 9999.998143765371,
+        "limitation": "ISR latency/epoch included; detected trend does not identify hardware root cause"
+      },
+      "crosscheck_passed": true,
+      "crosscheck_consistent": true,
+      "report_numeric_errors": 0,
+      "metrics": [
+        {
+          "category": "all",
+          "metric": "runtime_us",
+          "samples": "43100",
+          "mean": "13.174572389791182",
+          "p99": "14.54",
+          "minimum": "12.27",
+          "maximum": "17.34",
+          "worst_frame": "42299"
+        },
+        {
+          "category": "all",
+          "metric": "task_us",
+          "samples": "43100",
+          "mean": "28.240626914153133",
+          "p99": "30.17",
+          "minimum": "27.13",
+          "maximum": "32.9",
+          "worst_frame": "42099"
+        },
+        {
+          "category": "all",
+          "metric": "response_us",
+          "samples": "43100",
+          "mean": "34.5837494199536",
+          "p99": "36.52",
+          "minimum": "32.42",
+          "maximum": "39.17",
+          "worst_frame": "42099"
+        },
+        {
+          "category": "all",
+          "metric": "jitter_us",
+          "samples": "43100",
+          "mean": "6.343122505800465",
+          "p99": "7.01",
+          "minimum": "2.63",
+          "maximum": "7.29",
+          "worst_frame": "1"
+        },
+        {
+          "category": "all",
+          "metric": "slack_us",
+          "samples": "43100",
+          "mean": "65.4162505800464",
+          "p99": "66.35",
+          "minimum": "60.83",
+          "maximum": "67.58",
+          "worst_frame": "42099"
+        }
+      ],
+      "upload_seconds": 18.8669632000001,
+      "download_seconds": 13.70919110000068,
+      "local_binary_bytes": {
+        "output.bin": 14136800,
+        "report_v2.bin": 2400,
+        "timing.bin": 2758400
+      }
+    }
+  ],
+  "review_scope": "Read existing local JSON, timing CSV and binary file lengths only; complete binary/timing independent recomputation is the prior review recorded in comment6596653379",
+  "this_turn": "No tests, rebuild, board operations or hash manifest",
+  "raw_data": "D:/Project/AXU5EV/.runtime/ethernet/eth02/board",
+  "remaining": "Final Review and user merge decision; continuous telemetry and PL integration are later work"
+}

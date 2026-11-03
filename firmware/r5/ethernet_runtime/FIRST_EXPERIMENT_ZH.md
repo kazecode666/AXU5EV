@@ -1,5 +1,7 @@
 # ETH-02：实现结果及用户实验唯一入口
 
+> 2026-11-03最新：PR18评论6596653379所述两场景现已用户实板PASS，待最终Review。精简证据：verification/ethernet/eth02/board_results，当前状态：verification/ethernet/eth02/status.json。两个01结果目录已占用，无需重跑；Workspace/Launch不变。本轮仅归档，不新增测试、构建或上板。下文NOT_RUN及待用户执行均为此前准备阶段记录。
+
 2026-11-03，kazecode666/AXU5EV，分支`codex/eth02-runtime-ethernet`，依据[PR17评论6595084647](https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6595084647)。PR17已合并；ETH-02当前仅离线实现及构建通过，待Draft PR Review。下列两次整合板测均 **NOT_RUN**，由用户在Review通过后执行；旧R1与ETH01板测不代替新固件验收。
 
 ## 1. 已完成的整合与构建

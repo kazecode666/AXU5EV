@@ -2,13 +2,13 @@
 
 更新：2026-11-03。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`。PR16/PR17均已合并。当前分支 `codex/eth02-runtime-ethernet`，执行[ETH-02任务6595084647](https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6595084647)；Issue15未覆盖项继续保留。下文ETH01/AX-02A状态按历史阶段理解，不重跑已签收场景。
 
-## 当前：ETH-02离线构建及启动检查PASS，待Draft PR18 Review
+## 当前：ETH-02两场景用户实板PASS，待PR18最终Review
 
 [Draft PR18](https://github.com/kazecode666/AXU5EV/pull/18)，[实现结果及用户实验唯一入口](../firmware/r5/ethernet_runtime/FIRST_EXPERIMENT_ZH.md)。真实输入/参考/描述符经以太网上传，START回执与连接收尾后停GEM收发/DMA/IRQ，原TTC0/Runtime回放与后处理完成后冻结结果、恢复网络并计划内重连下载，自动调用原分析工具。新固件身份0x45303201，原计时映射/数值与时序判据不改。新XSA同时启用GEM3与TTC0，复用JL2121 r3、原冻结生成代码及数据。
 
-实际Workspace为`D:/Project/AXU5EV/.runtime/ethernet/eth02/vitis_runtime_ethernet`，应用eth02_runtime，Launch **eth02_runtime_manual**。必要Vivado/Vitis构建与现有启动检查通过，Python语法与MATLAB Code Analyzer通过；[精简启动证据](../verification/ethernet/eth02/startup_check.json)。两次ETH02整合板测均NOT_RUN，不能用原R1/ETH01结果代签。
+实际Workspace为`D:/Project/AXU5EV/.runtime/ethernet/eth02/vitis_runtime_ethernet`，应用eth02_runtime，Launch **eth02_runtime_manual**。必要Vivado/Vitis构建与现有启动检查通过，Python语法与MATLAB Code Analyzer通过；[精简启动证据](../verification/ethernet/eth02/startup_check.json)。两次ETH02整合板测现均用户实板PASS，见[精简归档](../verification/ethernet/eth02/board_results/README.md)及[当前状态](../verification/ethernet/eth02/status.json)。
 
-Review后用户按指南先执行`RUN_ETH02("current_motion",Start=true,Conditions="first ETH02 launch; fixed cable; power stage disconnected")`，通过后同一应用执行current_alignment_reset，结果分别入新的`.runtime/ethernet/eth02/board/current_motion_01`及current_alignment_reset_01。不操作板卡、不新增测试套件或哈希清单、不重跑旧RTL；原R1、ETH01 r3及既有数据保留。停在Draft待Review，由用户板测及决定合并，不关闭Issue15。
+按[评论6596653379](https://github.com/kazecode666/AXU5EV/pull/18#issuecomment-6596653379)，同一应用current_motion实验1/64536帧、current_alignment_reset实验2/43100帧均完整完成；41字段零失败、截止期/序号及相位PASS、板报crosscheck一致。最大/P99响应分别62.33/59.92与39.17/36.52µs，最小slack37.67/60.83µs；上传/下载28.74/22.13与18.87/13.71s。原始数据保留在.runtime/ethernet/eth02/board两个01目录，已占用且无需重跑。本轮仅精简归档和状态更新，不测试、不重建、不上板；原R1/ETH01 r3及全部数据保留。PR18保持Draft待最终Review及用户决定合并，Issue15保留，持续遥测/PL集成后续另行安排。
 
 ## 已合并基线：ETH-01用户实板PASS
 
