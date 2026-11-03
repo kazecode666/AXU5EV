@@ -2,9 +2,9 @@
 
 更新：2026-11-03。仓库 [kazecode666/AXU5EV](https://github.com/kazecode666/AXU5EV)，本地 `D:/Project/AXU5EV`。PR16/PR17均已合并。当前分支 `codex/eth02-runtime-ethernet`，执行[ETH-02任务6595084647](https://github.com/kazecode666/AXU5EV/pull/17#issuecomment-6595084647)；Issue15未覆盖项继续保留。下文ETH01/AX-02A状态按历史阶段理解，不重跑已签收场景。
 
-## 当前：ETH-02离线构建及启动检查PASS，待新Draft PR Review
+## 当前：ETH-02离线构建及启动检查PASS，待Draft PR18 Review
 
-[实现结果及用户实验唯一入口](../firmware/r5/ethernet_runtime/FIRST_EXPERIMENT_ZH.md)。真实输入/参考/描述符经以太网上传，START回执与连接收尾后停GEM收发/DMA/IRQ，原TTC0/Runtime回放与后处理完成后冻结结果、恢复网络并计划内重连下载，自动调用原分析工具。新固件身份0x45303201，原计时映射/数值与时序判据不改。新XSA同时启用GEM3与TTC0，复用JL2121 r3、原冻结生成代码及数据。
+[Draft PR18](https://github.com/kazecode666/AXU5EV/pull/18)，[实现结果及用户实验唯一入口](../firmware/r5/ethernet_runtime/FIRST_EXPERIMENT_ZH.md)。真实输入/参考/描述符经以太网上传，START回执与连接收尾后停GEM收发/DMA/IRQ，原TTC0/Runtime回放与后处理完成后冻结结果、恢复网络并计划内重连下载，自动调用原分析工具。新固件身份0x45303201，原计时映射/数值与时序判据不改。新XSA同时启用GEM3与TTC0，复用JL2121 r3、原冻结生成代码及数据。
 
 实际Workspace为`D:/Project/AXU5EV/.runtime/ethernet/eth02/vitis_runtime_ethernet`，应用eth02_runtime，Launch **eth02_runtime_manual**。必要Vivado/Vitis构建与现有启动检查通过，Python语法与MATLAB Code Analyzer通过；[精简启动证据](../verification/ethernet/eth02/startup_check.json)。两次ETH02整合板测均NOT_RUN，不能用原R1/ETH01结果代签。
 

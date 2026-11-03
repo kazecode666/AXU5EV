@@ -2,6 +2,8 @@
 
 ## 当前开发
 
+- ETH-02当前实现已推送[kazecode666/AXU5EV Draft PR18](https://github.com/kazecode666/AXU5EV/pull/18)，停在待Review；未执行两次新应用板测，不自动合并。
+
 - 2026-11-03 ETH-02：PR17已合并，从当前main建立codex/eth02-runtime-ethernet，执行评论6595084647。新产物.runtime/ethernet/eth02，新Workspace vitis_runtime_ethernet、应用eth02_runtime、Launch eth02_runtime_manual、build0x45303201；GEM3+TTC0平台/真实文件传输/停网回放恢复/原分析与RUN_ETH02入口已离线实现、构建及现有启动检查PASS，两次整合板测NOT_RUN。唯一指南firmware/r5/ethernet_runtime/FIRST_EXPERIMENT_ZH.md，待新Draft PR Review后用户先current_motion再同应用current_alignment_reset。保留R1、ETH01 r3及所有实验数据，不操作板卡、不新增测试套件/额外功能/哈希清单、不重跑旧RTL、不自动合并、不关闭Issue15。下条ETH01待Review等状态按历史理解，PR17已合并。
 
 - 2026-11-03 ETH-01：按PR17评论6577441490精简归档用户r3实板结果。当前workspace为.runtime/ethernet/eth01/vitis_ethernet_r3、launch eth01_tcp_manual_r3、build0x45303103；JL2121 ID=937c4032、PHYSR=182e、1000Mbps全双工。PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER均用户实板PASS；small计数0→4，64KiB/1MiB/32MiB完整性PASS，32MiB上传/下载0.990/1.412MiB/s，上传未达1MiB/s目标，本轮不优化。精简证据verification/ethernet/eth01/board_r3，原始数据仍在.runtime/ethernet/eth01/board，r2/旧R1均保留。PR17保持Draft待最终Review和用户决定合并；不重建、不加功能/测试、不操作板卡、不接完整电机Runtime、不合并、不关闭Issue15。阶段状态status.json，唯一上板入口firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md。下列PR16待合并等记录按历史阶段理解。
