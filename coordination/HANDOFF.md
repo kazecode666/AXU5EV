@@ -2,7 +2,17 @@
 
 更新：2026-11-03，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。PR20已合并，当前分支codex/ax02c1-r5-axi-foc执行[Issue21](https://github.com/kazecode666/AXU5EV/issues/21)。
 
-## 当前：AX-02C1离线实现/短仿真/完整构建及启动检查PASS，待Review
+## 当前：AX-02C1 AUX复位修复及一次授权17帧实板PASS，待最终Review
+
+原hardware_01的AUX reset低有效却接零，导致SmartConnect/FOC持续复位；最小改接one/dout，debug reset仍为0。hardware_02完整构建/启动文件检查PASS，WNS+3.149ns、WHS+0.011ns、TNS/THS=0，时序失败端点均0；原Workspace/ELF/FSBL和全部数据保留。
+
+用户明确批准一次系统复位、加载新bit与原FSBL/R5 ELF及一次17帧。新实验首读实测：PC0x001031BC、r6=0x80000000，单步到0x001031C0返回r2=0x43314301；继续同一次实验，只发送一次s，最终PASS code0/fail_frame0/frames17/complete_frames17/compared51/mismatch0，elapsed_ticks13290、tick_hz7812421。原挂起现场没有取得PC；新首读实测不能倒记为旧现场PC。[当前实板证据](../verification/ax02c/board_aux_fixed_01/evidence.json)，原始UART`.runtime/ax02c/board/uart_17_aux_fixed_01.txt`；构建JSON中的BOARD_NOT_RUN仅为构建时快照。
+
+实际bit/XSA在`.runtime/ax02c/hardware_02`，沿用Workspace`.runtime/ax02c/vitis_ps_pl`、Launch`ax02c_foc_manual`、原R5 ELF及A53 FSBL。启动检查配置`firmware/r5/ax02c/build_config.aux_fixed.json`；manual入口programDevice=false、未启用bitstreamFile已备份并清空，必须显式选新bit，不能用默认app_hw_1自动加载旧镜像。唯一入口见[指南](../firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md)，详细经过见[主报告](reports/ax02c1_r5_axi_foc.md)。
+
+最终stop成功，R5_0停0x0010333C（末尾WFI），DSCR0x03186003/HALTED=1，无APB错误；A53_0仍停FSBL出口，R5_1 Reset，其余A53 PowerOnReset。Codex已disconnect并退出自建XSDB31752，3121仅hw_server30848监听、Established连接0，可由用户单一Vitis会话接手。本次在线操作完成，进一步系统复位/下载/破坏现场写入仍须另获确认。不重复本轮实验、不扩展完整Runtime/ADC/编码器/门极PWM或压力/优化项目。PR22保持Draft等待最终Review，不自动合并、不关闭Issue15。下文为历史阶段记录。
+
+## 原离线阶段：AX-02C1离线实现/短仿真/完整构建及启动检查PASS，待Review
 
 已推送[kazecode666/AXU5EV Draft PR22](https://github.com/kazecode666/AXU5EV/pull/22)，停在Review，不自动合并。
 

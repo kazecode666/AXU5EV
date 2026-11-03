@@ -2,18 +2,63 @@
 
 仓库`kazecode666/AXU5EV`，2026-11-03，依据[Issue21](https://github.com/kazecode666/AXU5EV/issues/21)，从包含已合并PR20的当前main建立`codex/ax02c1-r5-axi-foc`。用户原有四份模型/参数修改及两个未跟踪源文件保留，不纳入本次提交；R1、ETH01 r3、ETH02和所有实验数据不变。
 
-已提交[kazecode666/AXU5EV Draft PR22](https://github.com/kazecode666/AXU5EV/pull/22)，停在待Review；板测仍NOT_RUN，不自动合并。
+## 当前：AUX复位最小修复及一次授权实板17帧PASS，PR22待Review
 
-## 离线结果，Draft PR22待Review
+2026-11-03，按[PR22评论6603516201](https://github.com/kazecode666/AXU5EV/pull/22#issuecomment-6603516201)接管在线只读诊断；用户随后分别明确批准DRCR取消访存，以及一次系统复位、加载新bit/原FSBL与R5 ELF并运行一次17帧。确定问题为原生reset IP的AUX低有效却接常量0，导致SmartConnect与FOC持续复位。最小修复只把AUX接现有one/dout、debug reset保持0，实际C_AUX_RESET_HIGH=0；没有修改FOC/AXI RTL、算法、寄存器或R5软件。
+
+| 本次结果 | 实际证据 |
+|---|---|
+| 原生reset IP＋首个ID关联短验证 | AUX=0时保持reset、AUX=1时释放、ID=0x43314301，3项PASS |
+| 独立hardware_02完整构建 | bit/XSA实际生成，退出0；WNS+3.149ns、WHS+0.011ns，TNS/THS=0，setup/hold/pulse失败端点均0 |
+| 现有启动文件检查 | aux_fixed配置指向hardware_02并复用原Workspace/ELF/FSBL，OFFLINE_STARTUP_CHECK_PASS |
+| 新候选首次R5 MMIO实测 | 断点0x001031BC时r6=0x80000000；stpi到0x001031C0，r2=0x43314301 |
+| 同一次17帧实板运行 | code=0、fail_frame=0、frames=17、complete_frames=17、compared=51、mismatch=0 |
+| 实验结束暂停 | stop成功，PC=0x0010333C（main末尾WFI）；DSCR=0x03186003，HALTED=1，无APB错误 |
+
+新候选实测使用独占hw_server PID30848／XSDB PID31752，原A53 FSBL停在0xFFFC0C08，加载hardware_02 bit及原R5 ELF，并执行原平台PS—PL隔离解除/复位两个过程。只发送唯一一次`s`，在上述首个ID读取前断住并单步取得实际返回值，再con继续**同一次实验**；不是再次发送s或重复一轮17帧。UART原始日志为`.runtime/ax02c/board/uart_17_aux_fixed_01.txt`，末行：
+
+```text
+AX02C1 PASS code=0 fail_frame=0 frames=17 complete_frames=17 compared=51 mismatch=0 elapsed_ticks=13290 tick_hz=7812421
+```
+
+51个实际duty位串及frame/seq/adopted对应关系通过，完整结束帧数为17。elapsed_ticks是本次交换/等待记录，不是WCET或50µs端到端时限验收。[当前实板证据](../../verification/ax02c/board_aux_fixed_01/evidence.json)与原始日志分开保存；[hardware_aux_fixed.json](../../verification/ax02c/hardware_aux_fixed.json)是**构建阶段**快照，其中BOARD_NOT_RUN不代表本节当前实测状态。
+
+当前硬件为`.runtime/ax02c/hardware_02/ax02c_ps_pl.bit`，匹配XSA同目录；原hardware_01、R1、ETH01 r3、ETH02及所有实验数据保留。新工程的当前运行是synth_aux_fixed/impl_aux_fixed；复用原FOC/PS/reset DCP，没有重跑FOC生成/历史回归或加入调试IP、压力测试、恢复框架及性能优化。实际资源70902 LUT／82651 FF／431 DSP，CLB85.12%；DRC无Error/Critical Warning，仅761条既有DSP流水建议。新XSA内嵌的是本次新bit。
+
+唯一指南见[手动17帧指南](../../firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md)。Workspace仍为`.runtime/ax02c/vitis_ps_pl`、Launch为`ax02c_foc_manual`；该入口programDevice=false，未启用bitstreamFile现已清空并先行备份，避免误用旧平台镜像。aux_fixed启动配置为`firmware/r5/ax02c/build_config.aux_fixed.json`。本轮没有新建/重建软件Workspace。
+
+本次现有启动检查的[精简归档](../../verification/ax02c/startup_check_aux_fixed.json)记录实际新bit/XSA与原软件组合及exit0；Workspace中原`startup_validation.json`仍是hardware_01的历史构建文件，未覆盖或冒充新检查结果。
+
+结束时A53_0仍停FSBL出口、R5_1为Reset，其余A53为PowerOnReset，R5_0已可靠暂停在WFI。Codex已disconnect并退出自建XSDB31752；3121仅hw_server30848监听、Established连接为0，可由用户的单一Vitis会话接手。本次授权操作已完成，后续复位/重新下载及可能破坏现场的寄存器写入仍须先说明并征得确认。PR22保持Draft等待最终Review，不自动合并、不关闭Issue15。
+
+## 历史取证：hardware_01原始挂起现场与修复定位
+
+2026-11-03，执行PR22授权评论6603516201。用户原hardware_01已实际加载，UART WAIT正常、发送s后只有START，普通stop不能halt。Codex本轮复用原Vitis XSDB PID46172实接当前JTAG现场；后续通过TCF8324转发至同一解释器，3121上仍只有原两条Vitis连接，无新增硬件客户端。没有反复stop，也没有用XSDB再次读取0x80000000。
+
+线上PS控制读回与用户此前相同；另实读RST_LPD_TOP=0x00000FC2、AFI_FM6=0，R5 DSCR=0x02104006、AUTHSTATUS=0xF0，表明尚未暂停且调试许可存在。PS时钟/隔离/外部复位控制正常，不证明PL内部辅助复位已解除。[实际命令/返回值摘要](../../verification/ax02c/online_debug_01/evidence.json)，全部原始日志留`.runtime/ax02c/online_diag_01`。
+
+**确定的构建错误：** 原BD把rst_pl0/aux_reset_in接zero/dout；实际XCI及生成VHDL的C_AUX_RESET_HIGH=0。原生proc_sys_reset低有效AUX支路执行反相，因此辅助复位持续有效，SmartConnect和FOC不能释放复位。这是本次集成接线错误。依据为hardware_01的`design_1/synth/design_1.v:168`、reset IP synth VHDL的generic和ipshared/9438的原生实现，以及[AMD PG164](https://docs.amd.com/v/u/en-US/pg164-proc-sys-reset)。原17帧测试直接驱动s_axi_aresetn，没有包含这条BD/原生复位IP通路，故未覆盖该错误。
+
+最小修复只把AUX改接现有one/dout，debug reset保持接零；FOC算法、AXI握手、寄存器和R5软件不变。新增唯一关联短验证使用实际生成的reset-IP功能网表：AUX=0时bus/peripheral resetn均0；AUX=1时均1，首个AXI ID读取返回0x43314301，3项检查PASS。[结果](../../verification/ax02c/aux_reset_id.json)。未重跑历史17帧/长时RTL或ETH02。
+
+**获准取消访存后的现场：** 用户另行明确授权一次DRCR操作。原故障现场20:28:55向R5_0 DRCR 0xFEBF0090先写0x1再写0x10，两次返回0；后续DSCR/PSU读出现APB/AXI AP transaction error、DAP status0x30000021。该原故障现场未取得PC，不能声称已可靠暂停；在该取证阶段没有继续运行、系统复位或重下载。[UG1087 DRCR](https://docs.amd.com/r/en-US/ug1087-zynq-ultrascale-registers/DRCR-R5_DBG_0-Register)说明取消会放弃挂起访存且结果不可预测，当前应用不能当作可继续的正常运行。后续只读DPR=0x30000001，无待清sticky error，因此没有盲目清错；AP0/1 IDR=0x34770004/0x44770002、CSW=0x30806042/0x800000C2，直接AP1 R5调试别名仍失败。停止进一步现场写入。
+
+ELF离线定位START之后首个PL访问为0x001031bc的ldr r2,[r6]（r6=0x80000000），在软件轮询超时之前。该定位与永久复位解释一致；**它不是在线PC实测**，随后获准的新候选实验已经完成首读和17帧实测，见本文当前结果；不能用新实验的PC倒推原现场已取得PC。
+
+上述为重新获准加载前的历史记录。之后用户已明确批准一次系统复位、hardware_02加载、原FSBL/R5 ELF启动及一次17帧运行，并完成本文首节的PASS；原hardware_01、原Workspace/ELF/FSBL及全部实验数据仍保留。
+
+PR22保持Draft待Review，不自动合并。原挂起现场和后续修复实测分开归档，不把它们合并为同一次现场。
+
+## 历史：PR22初版hardware_01离线实现与构建结果
 
 | 项目 | 结果 |
 |---|---|
 | 新AXI寄存器及连续17帧短仿真 | PASS，51个duty位串、85000个运行时钟、283399次检查 |
 | PS＋PL完整综合/实现/bitstream/XSA | PASS，实际bit与include-bit XSA已生成，构建退出0 |
 | 匹配R5 standalone/FSBL/启动文件检查 | PASS，Vitis原生构建退出0，OFFLINE_STARTUP_CHECK_PASS |
-| 用户一次新集成板测 | NOT_RUN |
+| 初版发布时用户新集成板测 | 当时NOT_RUN；后续原候选挂起及hardware_02修复实测见本文首节 |
 
-唯一用户入口为[手动17帧指南](../../firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md)，寄存器和帧语义见[AXI_REGISTERS](../../integration/ps_pl/AXI_REGISTERS.md)。本轮没有板卡发现、连接、复位、下载或运行；没有AXI DMA、中断调度、完整Runtime、真实ADC/编码器、门极PWM或电机闭环。
+唯一用户入口为[手动17帧指南](../../firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md)，寄存器和帧语义见[AXI_REGISTERS](../../integration/ps_pl/AXI_REGISTERS.md)。以下为初版离线阶段记录，当时没有板卡发现、连接、复位、下载或运行；本轮在线授权及实际操作见本文首节。没有AXI DMA、中断调度、完整Runtime、真实ADC/编码器、门极PWM或电机闭环。
 
 ## Task 1：薄AXI封装及帧合同
 
@@ -107,4 +152,4 @@ Set-Location D:/Project/AXU5EV/.runtime/ax02c
 
 Vitis入口为`scripts/ax02c_build.py`；重新构建须用新的配置副本，将workspace/xsa/bitstream指向新目录，通过AX02C_CONFIG指定，设置任务内XILINX_VITIS_DATA_DIR后用本机`vitis.bat -s`执行。已有确认候选不覆盖；`--resume`只继续本轮尚未完成的Workspace。用户只运行已有候选时不需要重新构建，按唯一指南的只读启动文件检查即可。
 
-本轮验收是正常记录向量经R5—AXI驱动真实PL FOC的最小通路。名义50MHz/100µs帧及50µs应用参考不变，但不是整机闭环、真实传感器或同帧50µs端到端时限验收。C2才接入既有Runtime并依据实测时间确定固定帧关系/数据年龄；不预先优化、增加一拍或宣称零耗时。本轮离线结果不能写为BOARD_PASS，最终Draft PR等待Review，不自动合并，不关闭Issue15。
+本轮验收是正常记录向量经R5—AXI驱动真实PL FOC的最小通路。名义50MHz/100µs帧及50µs应用参考不变，但不是整机闭环、真实传感器或同帧50µs端到端时限验收。C2才接入既有Runtime并依据实测时间确定固定帧关系/数据年龄；不预先优化、增加一拍或宣称零耗时。这些历史离线结果本身不能写为BOARD_PASS；当前hardware_02已完成一次授权实板PASS，见本文首节。最终Draft PR仍等待Review，不自动合并，不关闭Issue15。

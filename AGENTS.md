@@ -1,6 +1,6 @@
 # AXU5EV 协作与工作区规则
 
-> 当前：PR20已合并，执行Issue21 AX-02C1，分支codex/ax02c1-r5-axi-foc。新增薄AXI-Lite封装和R5轮询17帧；九字段、真实p3 FOC及原帧封装复用，50MHz名义/5000拍帧。短仿真17帧/51duty/85000clocks PASS，PS+PL bit/XSA/FSBL/R5 ELF及现有启动文件检查PASS；仅离线，板测NOT_RUN。新产物.runtime/ax02c；唯一指南firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md，主报告coordination/reports/ax02c1_r5_axi_foc.md。不接完整Runtime/ADC/编码器/门极PWM，不操作板卡、不重跑旧回归/板测、不自动合并。以下AX-02B及旧阶段限制按历史理解，不阻止本轮已授权AXI集成。
+> 当前：PR22 AX-02C1原hardware_01的AUX reset低有效却接0，已最小改接1（debug仍0）。hardware_02 bit/XSA完整构建及aux_fixed启动检查PASS，时序WNS+3.149ns/WHS+0.011ns、TNS/THS=0。2026-11-03用户明确授权在线诊断，并另准一次复位/加载新bit及原FSBL/R5 ELF、一次17帧；新首读PC1031BC→1031C0实得ID43314301，同次实板17帧/51duty/完整17帧PASS、mismatch0。旧故障现场PC未取得，不能与新首读实测混同。当前证据verification/ax02c/board_aux_fixed_01/evidence.json，原始UART.runtime/ax02c/board/uart_17_aux_fixed_01.txt；hardware_aux_fixed.json的NOT_RUN仅为构建快照。沿用原Workspace/Launch/ELF/FSBL，当前bit用hardware_02，不自动加载旧平台镜像。最终R5已halt于0010333C WFI，DSCR03186003/HALTED1；自建XSDB31752已断开退出，3121仅hw_server30848监听/无Established，用户可单一Vitis会话接手。本次授权动作已完成，进一步复位/下载/破坏现场寄存器写入仍须说明并征得确认。保留原工程及全部数据，PR22待最终Review，不自动合并。
 
 ## 当前开发
 

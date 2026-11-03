@@ -1,0 +1,50 @@
+{
+  "status": "BOARD_PASS",
+  "date": "2026-11-03",
+  "authorization": "User explicitly approved repaired bit + original FSBL/ELF + first-MMIO breakpoint and one 17-frame UART run",
+  "bit": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.bit",
+  "xsa": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.xsa",
+  "workspace": "D:/Project/AXU5EV/.runtime/ax02c/vitis_ps_pl",
+  "launch": "ax02c_foc_manual",
+  "elf_rebuilt": false,
+  "fsbl_rebuilt": false,
+  "power_stage": "disconnected; no motor IO or boot-media writes",
+  "startup": "A53 FSBL stopped at XFsbl_Exit=0xfffc0c08; R5 ELF downloaded; new bit programmed; original generated PS-PL isolation/reset procedures executed",
+  "first_mmio": {
+    "before_pc": "0x001031bc",
+    "r6": "0x80000000",
+    "instruction": "ldr r2,[r6]",
+    "after_one_stpi_pc": "0x001031c0",
+    "after_r2": "0x43314301",
+    "return_code": 0
+  },
+  "uart_start_count": 1,
+  "frames": 17,
+  "complete_frames": 17,
+  "compared": 51,
+  "mismatch": 0,
+  "sequence_and_adopted": "all 1..17, no gaps or repeats",
+  "independent_reference": "verification/m3_foc/directed_probe_source_hex.csv",
+  "reference_recheck": "17 received actual triples matched original CSV using integer comparisons; board expected/xor/summary agreed",
+  "summary": "AX02C1 PASS code=0 fail_frame=0 frames=17 complete_frames=17 compared=51 mismatch=0 elapsed_ticks=13290 tick_hz=7812421",
+  "raw_uart": "D:\\Project\\AXU5EV\\.runtime\\ax02c\\board\\uart_17_aux_fixed_01.txt",
+  "archived_uart": "verification/ax02c/board_aux_fixed_01/uart.txt",
+  "elapsed_ticks": 13290,
+  "tick_hz": 7812421,
+  "timing_scope": "PMU reference only; no WCET or end-to-end 50 us acceptance",
+  "final_stop": {
+    "return_code": 0,
+    "pc": "0x0010333c",
+    "source": "main.c final WFI loop",
+    "DSCR": "0x03186003",
+    "HALTED": 1,
+    "APB_error": false
+  },
+  "final_other_cores": {
+    "R5_1": "Reset",
+    "A53_0": "Breakpoint at FSBL exit",
+    "A53_1_to_3": "Power On Reset"
+  },
+  "handoff": "Owned XSDB disconnected and exited after stop; hw_server listening on 3121 with zero established clients; old Vitis tree may be stale",
+  "raw_xsdb": "D:/Project/AXU5EV/.runtime/ax02c/online_diag_01"
+}

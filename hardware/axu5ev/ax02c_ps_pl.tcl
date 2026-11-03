@@ -48,14 +48,17 @@ proc ax02c_integrate {root out rtl} {
     connect_bd_net [get_bd_pins $ps/pl_clk0] [get_bd_pins $ps/maxihpm0_lpd_aclk] \
         [get_bd_pins axi_foc/aclk] [get_bd_pins foc_axi_0/s_axi_aclk] [get_bd_pins rst_pl0/slowest_sync_clk]
     connect_bd_net [get_bd_pins $ps/pl_resetn0] [get_bd_pins rst_pl0/ext_reset_in]
-    connect_bd_net [get_bd_pins zero/dout] [get_bd_pins rst_pl0/aux_reset_in] [get_bd_pins rst_pl0/mb_debug_sys_rst]
-    connect_bd_net [get_bd_pins one/dout] [get_bd_pins rst_pl0/dcm_locked]
+    # Auxiliary reset is active-low in this IP configuration; tie it inactive.
+    # The debug reset is always active-high (PG164), so it remains tied low.
+    connect_bd_net [get_bd_pins zero/dout] [get_bd_pins rst_pl0/mb_debug_sys_rst]
+    connect_bd_net [get_bd_pins one/dout] [get_bd_pins rst_pl0/dcm_locked] [get_bd_pins rst_pl0/aux_reset_in]
     connect_bd_net [get_bd_pins rst_pl0/interconnect_aresetn] [get_bd_pins axi_foc/aresetn]
     connect_bd_net [get_bd_pins rst_pl0/peripheral_aresetn] [get_bd_pins foc_axi_0/s_axi_aresetn]
     assign_bd_address
     validate_bd_design
     # Reset polarity is derived by IPI from the active-low PS driver.
     if {[get_property CONFIG.C_EXT_RESET_HIGH [get_bd_cells rst_pl0]] != 0} {error "PS reset polarity mismatch"}
+    if {[get_property CONFIG.C_AUX_RESET_HIGH [get_bd_cells rst_pl0]] != 0} {error "AUX reset tie-high requires active-low polarity"}
     save_bd_design
     set f [open $out/integration_settings.txt w]
     puts $f "part=[get_property PART [current_project]]\nVivado=[version -short]"
@@ -67,6 +70,7 @@ proc ax02c_integrate {root out rtl} {
         puts $f "$key=[get_property $key $ps]"
     }
     puts $f "pl_clock_pin_hz=[get_property CONFIG.FREQ_HZ [get_bd_pins $ps/pl_clk0]]"
+    puts $f "C_AUX_RESET_HIGH=[get_property CONFIG.C_AUX_RESET_HIGH [get_bd_cells rst_pl0]];aux_reset_in=constant1;mb_debug_sys_rst=constant0"
     foreach seg [get_bd_addr_segs -of_objects [get_bd_addr_spaces $ps/Data]] {
         puts $f "segment=$seg offset=[get_property OFFSET $seg] range=[get_property RANGE $seg]"
     }

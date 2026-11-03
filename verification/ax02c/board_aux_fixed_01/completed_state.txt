@@ -1,0 +1,33 @@
+2026-11-03 21:17:24 +0800
+COMMAND: targets -set 7
+RETURN_CODE: 0
+
+COMMAND: stop
+RETURN_CODE: 0
+
+COMMAND: rrd pc
+RETURN_CODE: 0
+pc: 0010333c
+
+COMMAND: targets -set 5
+RETURN_CODE: 0
+
+COMMAND: mrd 0xFEBF0088
+RETURN_CODE: 0
+FEBF0088:   03186003
+
+COMMAND: targets
+RETURN_CODE: 0
+  1  PS TAP
+     2  PMU
+        3  MicroBlaze PMU (Sleeping. No clock)
+     4  PL
+  5* PSU
+     6  RPU
+        7  Cortex-R5 #0 (Suspended)
+        8  Cortex-R5 #1 (Reset)
+     9  APU
+       10  Cortex-A53 #0 (Breakpoint, EL3(S)/A64)
+       11  Cortex-A53 #1 (Power On Reset)
+       12  Cortex-A53 #2 (Power On Reset)
+       13  Cortex-A53 #3 (Power On Reset)

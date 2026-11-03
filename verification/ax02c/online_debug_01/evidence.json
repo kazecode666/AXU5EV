@@ -1,0 +1,104 @@
+{
+  "status": "ORIGINAL_BOARD_HANG_DIAGNOSED_AND_AUX_FIXED_BOARD_PASS",
+  "date": "2026-11-03",
+  "authorization_comment": "https://github.com/kazecode666/AXU5EV/pull/22#issuecomment-6603516201",
+  "existing_interpreter_pid": 46172,
+  "hw_server_pid": 39576,
+  "hw_server_port": 3121,
+  "relay_port": 8324,
+  "same_interpreter_relay_result": "{} {46172 1}",
+  "additional_hw_server_connections": 0,
+  "pre_cancel_registers": {
+    "0xFF5E00C0": "0x01011400",
+    "0xFFD80604": "0x00000000",
+    "0xFFD80310": "0x00000000",
+    "0xFF0A0054": "0x80000000",
+    "0xFF0A0344": "0x80000000",
+    "0xFF0A0348": "0x80000000",
+    "0xFF5E023C": "0x00000FC2",
+    "0xFF419000": "0x00000000",
+    "0xFEBF0088": "0x02104006",
+    "0xFEBF0FB8": "0x000000F0",
+    "0xFF9A0100": "0x00000001"
+  },
+  "approved_destructive_step": {
+    "user_approval": "\u6388\u6743\u53d6\u6d88\u6302\u8d77\u8bbf\u5b58\u5e76\u4fdd\u6301 R5 \u6682\u505c",
+    "commands": [
+      "targets -set 4",
+      "mwr 0xFEBF0090 0x1",
+      "mwr 0xFEBF0090 0x10"
+    ],
+    "write_return_codes": [
+      0,
+      0
+    ],
+    "post_dscr": "APB AP transaction error, DAP status 0x30000021",
+    "pc_obtained": false,
+    "halt_confirmed": false,
+    "resume_reset_download_executed": false
+  },
+  "later_read_only_dap": {
+    "DPR_CTRL_STAT": "0x30000001",
+    "AP0_IDR": "0x34770004",
+    "AP1_IDR": "0x44770002",
+    "AP0_CSW": "0x30806042",
+    "AP1_CSW": "0x800000C2",
+    "AP1_R5_DSCR_alias": "0x803F0088: APB AP transaction error, DAP status 0x30000021"
+  },
+  "confirmed_defect": {
+    "original_candidate": ".runtime/ax02c/hardware_01",
+    "C_AUX_RESET_HIGH": 0,
+    "aux_reset_in": "constant0 (asserted)",
+    "mb_debug_sys_rst": "constant0 (inactive)",
+    "fix": "aux_reset_in -> one/dout only"
+  },
+  "elf_first_pl_read": {
+    "address": "0x001031bc",
+    "instruction": "ldr r2,[r6]",
+    "r6_constant": "0x80000000",
+    "source": "offline ELF disassembly, NOT online PC sample"
+  },
+  "raw_capture_directory": "D:/Project/AXU5EV/.runtime/ax02c/online_diag_01",
+  "raw_logs": [
+    "read_01.txt",
+    "read_02.txt",
+    "cancel_01.txt",
+    "read_03.txt",
+    "read_04.txt",
+    "read_05.txt",
+    "relay_probe.txt",
+    "relay_read_04.txt",
+    "relay_read_05.txt",
+    "reset_01.txt",
+    "reset_dap_target_01.txt",
+    "reset_dap_id_01.txt",
+    "recovered_01.txt",
+    "boot_fixed_01.txt",
+    "program_fixed_01.txt",
+    "first_mmio_before_01.txt",
+    "first_mmio_after_01.txt",
+    "completed_state_01.txt"
+  ],
+  "board_fixed_candidate": "PASS, one run, 17 frames / 51 duty values / zero mismatches",
+  "future_reset_download_run_permission": "Specific one-run authorization fully executed; no further run scheduled",
+  "approved_system_reset": {
+    "authorization": "\u6388\u6743\u73b0\u5728\u590d\u4f4d\u6062\u590d DAP\uff0cR5 \u4fdd\u6301\u4e0d\u8fd0\u884c",
+    "command": "rst -system -stop",
+    "return_code": 0,
+    "after": "RPU/APU reset states restored; PS register reads recovered",
+    "raw_log": "reset_dap_id_01.txt"
+  },
+  "approved_fixed_image_run": {
+    "authorization": "\u6388\u6743\u52a0\u8f7d\u4fee\u590d\u955c\u50cf\u5e76\u9a8c\u8bc1\u4e00\u6b2117\u5e27",
+    "result": "BOARD_PASS",
+    "evidence": "verification/ax02c/board_aux_fixed_01/evidence.json"
+  },
+  "final_state": {
+    "return_code": 0,
+    "pc": "0x0010333c",
+    "source": "main.c final WFI loop",
+    "DSCR": "0x03186003",
+    "HALTED": 1,
+    "APB_error": false
+  }
+}

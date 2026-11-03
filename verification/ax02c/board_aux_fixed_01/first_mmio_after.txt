@@ -1,0 +1,30 @@
+2026-11-03 21:15:17 +0800
+COMMAND: bpremove $first_mmio_bp
+RETURN_CODE: 0
+
+COMMAND: stpi
+RETURN_CODE: 0
+
+COMMAND: rrd pc
+RETURN_CODE: 0
+pc: 001031c0
+
+COMMAND: rrd r2
+RETURN_CODE: 0
+r2: 43314301
+
+COMMAND: targets
+RETURN_CODE: 0
+  1  PS TAP
+     2  PMU
+        3  MicroBlaze PMU (Sleeping. No clock)
+     4  PL
+  5  PSU
+     6  RPU
+        7* Cortex-R5 #0 (Step)
+        8  Cortex-R5 #1 (Reset)
+     9  APU
+       10  Cortex-A53 #0 (Breakpoint, EL3(S)/A64)
+       11  Cortex-A53 #1 (Power On Reset)
+       12  Cortex-A53 #2 (Power On Reset)
+       13  Cortex-A53 #3 (Power On Reset)
