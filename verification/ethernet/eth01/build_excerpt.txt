@@ -1,0 +1,3 @@
+Platform Build Finished successfully.
+  92220	   5100	37034480	37131800	2369618	eth01_tcp.elf
+Build Finished successfully

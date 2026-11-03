@@ -2,6 +2,8 @@
 
 ## 当前开发
 
+- 2026-11-03 ETH-01：按PR17评论6577441490精简归档用户r3实板结果。当前workspace为.runtime/ethernet/eth01/vitis_ethernet_r3、launch eth01_tcp_manual_r3、build0x45303103；JL2121 ID=937c4032、PHYSR=182e、1000Mbps全双工。PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER均用户实板PASS；small计数0→4，64KiB/1MiB/32MiB完整性PASS，32MiB上传/下载0.990/1.412MiB/s，上传未达1MiB/s目标，本轮不优化。精简证据verification/ethernet/eth01/board_r3，原始数据仍在.runtime/ethernet/eth01/board，r2/旧R1均保留。PR17保持Draft待最终Review和用户决定合并；不重建、不加功能/测试、不操作板卡、不接完整电机Runtime、不合并、不关闭Issue15。阶段状态status.json，唯一上板入口firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md。下列PR16待合并等记录按历史阶段理解。
+
 - 2026-11-02最新：R1 motion64536帧与alignment_reset43100帧真实mode1均数值/时序/板报交叉PASS，精简证据分别在verification/ax02a/runtime_r1_motion_01和runtime_r1_alignment_reset_01。alignment本次两CLI均exit0，motion既有结果只读归档。详见coordination/reports/ax02a_full_board_results_2026-11-02.md的Issue15逐条审计：A5冷启动条件未明确、A4严格mode0分阶段口径待Review，不能自动全签。PR16保持Draft、Issue15开放，待最终Review/用户决定；不重跑实验、不改模型参数/TTC、不操作板卡。以下NOT_RUN按历史阶段理解。
 
 - 最新R1 P1000用户实测已复算PASS：1000×41/数值零失败、deadline/sequence PASS、相位无趋势、PC/板报一致，证据 `verification/ax02a/runtime_r1_p1000_01/`。本轮完整场景准备已离线完成：现有R1 ELF不重建，描述符在 `.runtime/ax02a/full_scene_descriptors/`，readback_short.tcl末尾显式场景支持current_motion64536/current_alignment_reset43100。下一步指南第14节及FULL_SCENE_RUN_ZH.md，用户Review后手动逐次执行；两次完整板验NOT_RUN，73/73离线回归不代替ARM实测。保留全部workspace/原始数据，不重复ABA/不清理/不改算法参数。

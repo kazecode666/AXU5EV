@@ -1,5 +1,7 @@
 # 工作区、上板工程与数据保存位置
 
+**2026-11-03 ETH-01当前入口：分支codex/eth01-ps-ethernet，workspace仍为`.runtime/ethernet/eth01/vitis_ethernet_r3`、launch `eth01_tcp_manual_r3`。PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER均用户实板PASS，原始结果在`.runtime/ethernet/eth01/board/{small_01,bulk_64k_01,bulk_1m_01,bulk_32m_01}`，四个01目录已占用，不重复执行。见[精简板测证据](../verification/ethernet/eth01/board_r3/README.md)、[阶段状态](../verification/ethernet/eth01/status.json)和[ETH-01指南](../firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md)。PR17保持Draft待最终Review和用户决定合并；本轮不重建，r2/原始输出及原R1全部保留。下文AX-02A操作按历史理解，不再重跑已通过场景。**
+
 **2026-11-02实际状态：motion与alignment/reset两个完整R1 mode1场景均已实测并离线分析PASS；原01读回目录均已占用，不重复执行以下历史操作。最终结论及尚缺验收项以coordination/HANDOFF.md和ax02a_full_board_results_2026-11-02.md为准。**
 
 更新：2026-10-31。仓库 `kazecode666/AXU5EV`，本地根目录 `D:/Project/AXU5EV`，分支 `codex/ax02a-r5-target`、草稿 [PR #16](https://github.com/kazecode666/AXU5EV/pull/16)。本文统一目录入口；当前操作以[完整场景指南](../firmware/r5/ax02a/FULL_SCENE_RUN_ZH.md)为准，第13节P1000已实测PASS。

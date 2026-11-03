@@ -1,0 +1,115 @@
+/*
+ * Academic License - for use in teaching, academic research, and meeting
+ * course requirements at degree granting institutions only.  Not for
+ * government, commercial, or other organizational use.
+ *
+ * File: ETH01_Target.h
+ *
+ * Code generated for Simulink model 'ETH01_Target'.
+ *
+ * Model version                  : 1.2
+ * Simulink Coder version         : 26.2 (R2026b) 22-May-2026
+ * C/C++ source code generated on : Mon Nov  2 18:54:16 2026
+ *
+ * Target selection: ert.tlc
+ * Embedded hardware selection: ARM Compatible->ARM Cortex-R
+ * Code generation objectives: Unspecified
+ * Validation result: Not run
+ */
+
+#ifndef ETH01_Target_h_
+#define ETH01_Target_h_
+#ifndef ETH01_Target_COMMON_INCLUDES_
+#define ETH01_Target_COMMON_INCLUDES_
+#include <stdbool.h>
+#include <stdint.h>
+#include "complex_types.h"
+#include "math.h"
+#endif                                 /* ETH01_Target_COMMON_INCLUDES_ */
+
+#include "ETH01_Target_types.h"
+
+/* Macros for accessing real-time model data structure */
+#ifndef rtmGetErrorStatus
+#define rtmGetErrorStatus(rtm)         ((rtm)->errorStatus)
+#endif
+
+#ifndef rtmSetErrorStatus
+#define rtmSetErrorStatus(rtm, val)    ((rtm)->errorStatus = (val))
+#endif
+
+/* user code (top of header file) */
+#include "eth_caller.h"
+
+/* Block signals and states (default storage) for system '<Root>' */
+typedef struct {
+  uint32_t RxTryPop_o4;                /* '<Root>/RxTryPop' */
+  uint32_t savedSeq;                   /* '<Root>/Process' */
+  uint32_t handled;                    /* '<Root>/Process' */
+  uint16_t RxTryPop_o2;                /* '<Root>/RxTryPop' */
+  uint16_t savedLen;                   /* '<Root>/Process' */
+  uint8_t RxTryPop_o1[256];            /* '<Root>/RxTryPop' */
+  uint8_t saved[256];                  /* '<Root>/Process' */
+  uint8_t RxTryPop_o3;                 /* '<Root>/RxTryPop' */
+  uint8_t RxTryPop_o5;                 /* '<Root>/RxTryPop' */
+  bool pending;                        /* '<Root>/Process' */
+} DW_ETH01_Target_T;
+
+/* External inputs (root inport signals with default storage) */
+typedef struct {
+  uint8_t TxReady;                     /* '<Root>/TxReady' */
+} ExtU_ETH01_Target_T;
+
+/* External outputs (root outports fed by signals with default storage) */
+typedef struct {
+  uint32_t Count;                      /* '<Root>/Count' */
+  uint8_t Status;                      /* '<Root>/Status' */
+  uint8_t TxStatus;                    /* '<Root>/TxStatus' */
+} ExtY_ETH01_Target_T;
+
+/* Real-time Model Data Structure */
+struct tag_RTM_ETH01_Target_T {
+  const char * volatile errorStatus;
+};
+
+/* Block signals and states (default storage) */
+extern DW_ETH01_Target_T ETH01_Target_DW;
+
+/* External inputs (root inport signals with default storage) */
+extern ExtU_ETH01_Target_T ETH01_Target_U;
+
+/* External outputs (root outports fed by signals with default storage) */
+extern ExtY_ETH01_Target_T ETH01_Target_Y;
+
+/* Model entry point functions */
+extern void ETH01_Target_initialize(void);
+extern void ETH01_Target_step(void);
+extern void ETH01_Target_terminate(void);
+
+/* Real-time Model object */
+extern RT_MODEL_ETH01_Target_T *const ETH01_Target_M;
+
+/*-
+ * The generated code includes comments that allow you to trace directly
+ * back to the appropriate location in the model.  The basic format
+ * is <system>/block_name, where system is the system number (uniquely
+ * assigned by Simulink) and block_name is the name of the block.
+ *
+ * Use the MATLAB hilite_system command to trace the generated code back
+ * to the model.  For example,
+ *
+ * hilite_system('<S3>')    - opens system 3
+ * hilite_system('<S3>/Kp') - opens and selects block Kp which resides in S3
+ *
+ * Here is the system hierarchy for this model
+ *
+ * '<Root>' : 'ETH01_Target'
+ * '<S1>'   : 'ETH01_Target/Process'
+ */
+#endif                                 /* ETH01_Target_h_ */
+
+/*
+ * File trailer for generated code.
+ *
+ * [EOF]
+ */

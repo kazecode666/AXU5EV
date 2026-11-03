@@ -1,0 +1,14 @@
+{
+  "status": "FAIL",
+  "ip": "127.0.0.1",
+  "port": 2580,
+  "stage": "bulk",
+  "evidence": "HOST_LOOPBACK",
+  "errors": [
+    "stream closed before complete frame"
+  ],
+  "build_id": 1160786177,
+  "negotiated_mbps": 1000,
+  "cache": 1,
+  "initial_model_count": 0
+}

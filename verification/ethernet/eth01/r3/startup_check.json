@@ -1,0 +1,63 @@
+{
+  "status": "STARTUP_CHECK_PASS",
+  "workspace": "D:\\Project\\AXU5EV\\.runtime\\ethernet\\eth01\\vitis_ethernet_r3",
+  "elf": "D:\\Project\\AXU5EV\\.runtime\\ethernet\\eth01\\vitis_ethernet_r3\\eth01_tcp\\build\\eth01_tcp.elf",
+  "fsbl": "D:\\Project\\AXU5EV\\.runtime\\ethernet\\eth01\\vitis_ethernet_r3\\eth01_platform\\export\\eth01_platform\\sw\\boot\\fsbl.elf",
+  "launch": "eth01_tcp_manual_r3",
+  "r5": {
+    "machine": "ARM",
+    "elf_class": 32,
+    "entry": 60,
+    "segments": [
+      {
+        "address": 0,
+        "file_bytes": 2008,
+        "memory_bytes": 2008
+      },
+      {
+        "address": 1048576,
+        "file_bytes": 95324,
+        "memory_bytes": 95324
+      },
+      {
+        "address": 2097152,
+        "file_bytes": 0,
+        "memory_bytes": 3480048
+      },
+      {
+        "address": 268435456,
+        "file_bytes": 0,
+        "memory_bytes": 33554432
+      }
+    ]
+  },
+  "a53_fsbl": {
+    "processor": "psu_cortexa53_0",
+    "machine": "AArch64",
+    "elf_class": 64,
+    "byte_order": "little",
+    "entry": 4294705152
+  },
+  "symbols": {
+    "test_ddr": {
+      "address": 268435456,
+      "bytes": 33554432
+    },
+    "_heap": {
+      "address": 5243376,
+      "bytes": 0
+    },
+    "_stack": {
+      "address": 5571056,
+      "bytes": 0
+    },
+    "ETH01_Target_step": {
+      "address": 1048656,
+      "bytes": 320
+    }
+  },
+  "arm_call_chain": "\nD:\\Project\\AXU5EV\\.runtime\\ethernet\\eth01\\vitis_ethernet_r3\\eth01_tcp\\build\\eth01_tcp.elf:     file format elf32-littlearm\n\n\nDisassembly of section .vectors:\n\nDisassembly of section .text:\n\n001001b8 <EthModelService>:\n  1001b8:\te92d4010 \tpush\t{r4, lr}\n  1001bc:\te1a04000 \tmov\tr4, r0\n  1001c0:\teb000025 \tbl\t10025c <EthModelGetStatus>\n  1001c4:\te3500004 \tcmp\tr0, #4\n  1001c8:\t08bd8010 \tpopeq\t{r4, pc}\n  1001cc:\te3003230 \tmovw\tr3, #560\t; 0x230\n  1001d0:\te2540000 \tsubs\tr0, r4, #0\n  1001d4:\t13a00001 \tmovne\tr0, #1\n  1001d8:\te3403020 \tmovt\tr3, #32\n  1001dc:\te5c30000 \tstrb\tr0, [r3]\n  1001e0:\te8bd4010 \tpop\t{r4, lr}\n  1001e4:\teaffff99 \tb\t100050 <ETH01_Target_step>\n\nDisassembly of section .init:\n\nDisassembly of section .fini:\n",
+  "generated_call_chain": "\nD:\\Project\\AXU5EV\\.runtime\\ethernet\\eth01\\vitis_ethernet_r3\\eth01_tcp\\build\\eth01_tcp.elf:     file format elf32-littlearm\n\n\nDisassembly of section .vectors:\n\nDisassembly of section .text:\n\n00100050 <ETH01_Target_step>:\n  100050:\te92d40f0 \tpush\t{r4, r5, r6, r7, lr}\n  100054:\te300401c \tmovw\tr4, #28\n  100058:\te24ddf43 \tsub\tsp, sp, #268\t; 0x10c\n  10005c:\te59f3124 \tldr\tr3, [pc, #292]\t; 100188 <ETH01_Target_step+0x138>\n  100060:\te3404020 \tmovt\tr4, #32\n  100064:\te58d3004 \tstr\tr3, [sp, #4]\n  100068:\te284200c \tadd\tr2, r4, #12\n  10006c:\te2843e21 \tadd\tr3, r4, #528\t; 0x210\n  100070:\te58d4000 \tstr\tr4, [sp]\n  100074:\te2841010 \tadd\tr1, r4, #16\n  100078:\te5d40214 \tldrb\tr0, [r4, #532]\t; 0x214\n  10007c:\teb000111 \tbl\t1004c8 <Eth01Rx>\n  100080:\te2841e11 \tadd\tr1, r4, #272\t; 0x110\n  100084:\te3a02c01 \tmov\tr2, #256\t; 0x100\n  100088:\te28d0008 \tadd\tr0, sp, #8\n  10008c:\te5d46210 \tldrb\tr6, [r4, #528]\t; 0x210\n  100090:\te5d45211 \tldrb\tr5, [r4, #529]\t; 0x211\n  100094:\tfa0046ea \tblx\t111c44 <memcpy>\n  100098:\te3a03000 \tmov\tr3, #0\n  10009c:\te1d410be \tldrh\tr1, [r4, #14]\n  1000a0:\te5c4321c \tstrb\tr3, [r4, #540]\t; 0x21c\n  1000a4:\te5d43212 \tldrb\tr3, [r4, #530]\t; 0x212\n  1000a8:\te3530000 \tcmp\tr3, #0\n  1000ac:\te5943004 \tldr\tr3, [r4, #4]\n  1000b0:\t0a00000e \tbeq\t1000f0 <ETH01_Target_step+0xa0>\n  1000b4:\te5946008 \tldr\tr6, [r4, #8]\n  1000b8:\te16f2f15 \tclz\tr2, r5\n  1000bc:\te1a022a2 \tlsr\tr2, r2, #5\n  1000c0:\te5c42212 \tstrb\tr2, [r4, #530]\t; 0x212\n  1000c4:\te3a02002 \tmov\tr2, #2\n  1000c8:\te5c4221c \tstrb\tr2, [r4, #540]\t; 0x21c\n  1000cc:\te3a02001 \tmov\tr2, #1\n  1000d0:\te58d5004 \tstr\tr5, [sp, #4]\n  1000d4:\te28d0008 \tadd\tr0, sp, #8\n  1000d8:\te58d6000 \tstr\tr6, [sp]\n  1000dc:\te5846218 \tstr\tr6, [r4, #536]\t; 0x218\n  1000e0:\teb000131 \tbl\t1005ac <Eth01Tx>\n  1000e4:\te5c4021d \tstrb\tr0, [r4, #541]\t; 0x21d\n  1000e8:\te28ddf43 \tadd\tsp, sp, #268\t; 0x10c\n  1000ec:\te8bd80f0 \tpop\t{r4, r5, r6, r7, pc}\n  1000f0:\te3560000 \tcmp\tr6, #0\n  1000f4:\te5946008 \tldr\tr6, [r4, #8]\n  1000f8:\t0a000020 \tbeq\t100180 <ETH01_Target_step+0x130>\n  1000fc:\te1d4e0bc \tldrh\tlr, [r4, #12]\n  100100:\te35e0c01 \tcmp\tlr, #256\t; 0x100\n  100104:\t8a00001b \tbhi\t100178 <ETH01_Target_step+0x128>\n  100108:\te59f107c \tldr\tr1, [pc, #124]\t; 10018c <ETH01_Target_step+0x13c>\n  10010c:\te3760001 \tcmn\tr6, #1\n  100110:\te3a02001 \tmov\tr2, #1\n  100114:\t12866001 \taddne\tr6, r6, #1\n  100118:\te28dc007 \tadd\tip, sp, #7\n  10011c:\te5943000 \tldr\tr3, [r4]\n  100120:\te2817c01 \tadd\tr7, r1, #256\t; 0x100\n  100124:\te1c4e0be \tstrh\tlr, [r4, #14]\n  100128:\te5843004 \tstr\tr3, [r4, #4]\n  10012c:\te5846008 \tstr\tr6, [r4, #8]\n  100130:\te5c42212 \tstrb\tr2, [r4, #530]\t; 0x212\n  100134:\te1a02001 \tmov\tr2, r1\n  100138:\te5f10001 \tldrb\tr0, [r1, #1]!\n  10013c:\te242200f \tsub\tr2, r2, #15\n  100140:\te0422004 \tsub\tr2, r2, r4\n  100144:\te15e0002 \tcmp\tlr, r2\n  100148:\tc220005a \teorgt\tr0, r0, #90\t; 0x5a\n  10014c:\te1510007 \tcmp\tr1, r7\n  100150:\te5c10100 \tstrb\tr0, [r1, #256]\t; 0x100\n  100154:\te5ec0001 \tstrb\tr0, [ip, #1]!\n  100158:\t1afffff5 \tbne\t100134 <ETH01_Target_step+0xe4>\n  10015c:\te1a0100e \tmov\tr1, lr\n  100160:\te16f2f15 \tclz\tr2, r5\n  100164:\te1a022a2 \tlsr\tr2, r2, #5\n  100168:\te5c42212 \tstrb\tr2, [r4, #530]\t; 0x212\n  10016c:\te3a02001 \tmov\tr2, #1\n  100170:\te5c4221c \tstrb\tr2, [r4, #540]\t; 0x21c\n  100174:\teaffffd5 \tb\t1000d0 <ETH01_Target_step+0x80>\n  100178:\te3a02003 \tmov\tr2, #3\n  10017c:\te5c4221c \tstrb\tr2, [r4, #540]\t; 0x21c\n  100180:\te3a02000 \tmov\tr2, #0\n  100184:\teaffffd1 \tb\t1000d0 <ETH01_Target_step+0x80>\n  100188:\t0020022d \t.word\t0x0020022d\n  10018c:\t0020002b \t.word\t0x0020002b\n\nDisassembly of section .init:\n\nDisassembly of section .fini:\n",
+  "attributes": "ELF Header:\n  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 \n  Class:                             ELF32\n  Data:                              2's complement, little endian\n  Version:                           1 (current)\n  OS/ABI:                            UNIX - System V\n  ABI Version:                       0\n  Type:                              EXEC (Executable file)\n  Machine:                           ARM\n  Version:                           0x1\n  Entry point address:               0x3c\n  Start of program headers:          52 (bytes into file)\n  Start of section headers:          834524 (bytes into file)\n  Flags:                             0x5000400, Version5 EABI, hard-float ABI\n  Size of this header:               52 (bytes)\n  Size of program headers:           32 (bytes)\n  Number of program headers:         6\n  Size of section headers:           40 (bytes)\n  Number of section headers:         33\n  Section header string table index: 32\n\nProgram Headers:\n  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align\n  EXIDX          0x018794 0x00116794 0x00116794 0x00008 0x00008 R   0x4\n  LOAD           0x001000 0x00000000 0x00000000 0x007d8 0x007d8 RWE 0x1000\n  LOAD           0x002000 0x00100000 0x00100000 0x1745c 0x1745c RWE 0x1000\n  LOAD           0x000000 0x00200000 0x00200000 0x00000 0x3519f0 RW  0x100000\n  LOAD           0x000000 0x10000000 0x10000000 0x00000 0x2000000 RW  0x1000\n  NOTE           0x017100 0x00115100 0x00115100 0x00024 0x00024 R   0x4\n\n Section to Segment mapping:\n  Segment Sections...\n   00     .ARM.exidx \n   01     .vectors .bootdata \n   02     .text .note.gnu.build-id .init .fini .rodata .data .eh_frame .ARM.exidx .init_array .fini_array .drvcfg_sec \n   03     .bss .heap .stack \n   04     .eth_bulk \n   05     .note.gnu.build-id \nAttribute Section: aeabi\nFile Attributes\n  Tag_CPU_name: \"7\"\n  Tag_CPU_arch: v7\n  Tag_CPU_arch_profile: Realtime\n  Tag_ARM_ISA_use: Yes\n  Tag_THUMB_ISA_use: Thumb-2\n  Tag_FP_arch: VFPv3-D16\n  Tag_ABI_PCS_wchar_t: 4\n  Tag_ABI_FP_denormal: Needed\n  Tag_ABI_FP_exceptions: Needed\n  Tag_ABI_FP_number_model: IEEE 754\n  Tag_ABI_align_needed: 8-byte\n  Tag_ABI_enum_size: small\n  Tag_ABI_VFP_args: VFP registers\n  Tag_CPU_unaligned_access: v6\n  Tag_DIV_use: Allowed in v7-A with integer division extension\n",
+  "board": "NOT_RUN"
+}

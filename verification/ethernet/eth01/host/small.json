@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "ip": "127.0.0.1",
+  "port": 2582,
+  "stage": "small",
+  "evidence": "HOST_LOOPBACK",
+  "errors": [],
+  "build_id": 1160786177,
+  "negotiated_mbps": 1000,
+  "cache": 1,
+  "initial_model_count": 0,
+  "model_count": 4
+}
