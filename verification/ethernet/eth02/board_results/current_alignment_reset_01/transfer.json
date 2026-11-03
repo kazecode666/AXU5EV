@@ -1,0 +1,78 @@
+{
+  "status": "PASS",
+  "application": "ETH02",
+  "ip": "192.168.50.10",
+  "port": 5001,
+  "scenario": "current_alignment_reset",
+  "evidence": "USER_BOARD_RUN",
+  "source": "D:\\Project\\AXU5EV\\.runtime\\ax02a\\replay\\current_alignment_reset",
+  "uploads": {
+    "input.bin": {
+      "bytes": 6896000,
+      "seconds": 6.075119700000869
+    },
+    "reference.bin": {
+      "bytes": 14136800,
+      "seconds": 12.786199899999701
+    },
+    "reference_descriptor.bin": {
+      "bytes": 32,
+      "seconds": 0.004638400001567788
+    }
+  },
+  "downloads": {
+    "run.json": {
+      "bytes": 1349,
+      "seconds": 0.004570999999486958
+    },
+    "pre_begin.json": {
+      "bytes": 267,
+      "seconds": 0.003789899999901536
+    },
+    "output.bin": {
+      "bytes": 14136800,
+      "seconds": 11.465887999998813
+    },
+    "timing.bin": {
+      "bytes": 2758400,
+      "seconds": 2.229428499998903
+    },
+    "report_v2.bin": {
+      "bytes": 2400,
+      "seconds": 0.005345199999283068
+    }
+  },
+  "errors": [],
+  "initial_status": {
+    "build_id": 1160786433,
+    "phase": 5,
+    "experiment": 1,
+    "scenario": 2,
+    "frames": 64536,
+    "uploaded": 7,
+    "status": 0,
+    "completed_frames": 64536,
+    "failed_frame": 0,
+    "negotiated_mbps": 1000,
+    "cache": 1,
+    "mapping_version": 1
+  },
+  "upload_seconds": 18.8669632000001,
+  "experiment": 2,
+  "final_status": {
+    "build_id": 1160786433,
+    "phase": 5,
+    "experiment": 2,
+    "scenario": 3,
+    "frames": 43100,
+    "uploaded": 7,
+    "status": 0,
+    "completed_frames": 43100,
+    "failed_frame": 0,
+    "negotiated_mbps": 1000,
+    "cache": 1,
+    "mapping_version": 1
+  },
+  "planned_reconnect_seconds": 3.0213191000002553,
+  "download_seconds": 13.70919110000068
+}

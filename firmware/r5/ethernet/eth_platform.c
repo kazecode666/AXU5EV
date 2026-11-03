@@ -10,6 +10,15 @@
 #include "xiltimer.h"
 #include "xparameters.h"
 #include <string.h>
+#ifdef ETH02_RUNTIME
+#include "eth02_runtime.h"
+#include "netif/xemacpsif.h"
+#include "lwip/priv/tcp_priv.h"
+#include "xinterrupt_wrap.h"
+#define ETH_LABEL "ETH02"
+#else
+#define ETH_LABEL "ETH01"
+#endif
 #ifndef ETH_BUILD_ID
 #define ETH_BUILD_ID 0x45303101U
 #endif
@@ -23,7 +32,12 @@ extern volatile unsigned eth_phy_error,eth_phy_speed,eth_phy_id;
 static struct netif net;
 static struct tcp_pcb *peer;
 static int read_closed;
+#ifdef ETH02_RUNTIME
+static int start_connection_closed;
+#endif
+#ifndef ETH02_RUNTIME
 static uint8_t test_ddr[ETH_BULK] __attribute__((section(".eth_bulk"),aligned(64)));
+#endif
 static uint8_t packet[8192];
 /* PMU free-running counter, no IRQ, no TTC ownership. Extend wrap in frequent
  * foreground calls; CP15 PMCR.D is set by BSP startup (CPU/64).
@@ -34,7 +48,11 @@ u32_t sys_now(void){
  return (u32_t)(ticks*1000U/(COUNTS_PER_SECOND));
 }
 void eth01_fail_stop(void){for(;;){__asm__ volatile("wfi");}}
-static void disconnected(void *arg,err_t error){(void)arg;(void)error;peer=0;read_closed=0;EthSessionReset();}
+static void disconnected(void *arg,err_t error){(void)arg;(void)error;peer=0;read_closed=0;
+#ifdef ETH02_RUNTIME
+ start_connection_closed=0;
+#endif
+ EthSessionReset();}
 static err_t received(void *arg,struct tcp_pcb *pcb,struct pbuf *p,err_t error){
  (void)arg;(void)error;
  if(!p){read_closed=1;return ERR_OK;} /* FIN is a half-close; drain accepted replies. */
@@ -48,8 +66,16 @@ static err_t received(void *arg,struct tcp_pcb *pcb,struct pbuf *p,err_t error){
 }
 static err_t accepted(void *arg,struct tcp_pcb *pcb,err_t error){
  (void)arg;(void)error;
- if(peer){tcp_abort(pcb);return ERR_ABRT;}
- EthSessionReset();peer=pcb;read_closed=0;tcp_recv(pcb,received);tcp_err(pcb,disconnected);tcp_nagle_disable(pcb);return ERR_OK;
+ if(peer
+#ifdef ETH02_RUNTIME
+    || Eth02Pending()
+#endif
+ ){tcp_abort(pcb);return ERR_ABRT;}
+ EthSessionReset();peer=pcb;read_closed=0;
+#ifdef ETH02_RUNTIME
+ start_connection_closed=0;
+#endif
+ tcp_recv(pcb,received);tcp_err(pcb,disconnected);tcp_nagle_disable(pcb);return ERR_OK;
 }
 static void NetService(void){
  xemacif_input(&net);sys_check_timeouts();
@@ -70,19 +96,57 @@ static void NetService(void){
  }
  if(peer && read_closed){
   (void)EthTxPeek(&length);
-  if(!length && !progress){
+  if(!length && !progress
+#ifdef ETH02_RUNTIME
+     && !peer->unsent && !peer->unacked
+#endif
+  ){
    if(EthRxBuffered()){struct tcp_pcb *p=peer;peer=0;tcp_abort(p);EthSessionReset();return;}
    tcp_err(peer,0);
-   if(tcp_close(peer)==ERR_OK){peer=0;EthSessionReset();}
+   if(tcp_close(peer)==ERR_OK){
+#ifdef ETH02_RUNTIME
+    if(Eth02Pending())start_connection_closed=1;
+#endif
+    peer=0;EthSessionReset();}
    else tcp_err(peer,disconnected);
   }
  }
 }
+#ifdef ETH02_RUNTIME
+/* All TCP data and the passive FIN handshake have completed before this call.
+ * AMD's multicast-update path uses the same Stop -> reset_dma -> Start flow.
+ * Only the GEM interrupt is masked; TTC uses the same BSP GIC wrapper instance.
+ */
+static void RunExperiment(void){
+ struct xemac_s *adapter=(struct xemac_s *)net.state;
+ xemacpsif_s *mac=(xemacpsif_s *)adapter->state;
+ if(!start_connection_closed || peer || tcp_active_pcbs || XEmacPs_GetTxRing(&mac->emacps).HwCnt)return;
+ XDisableIntrId(mac->emacps.Config.IntrId,mac->emacps.Config.IntrParent);
+ XEmacPs_Stop(&mac->emacps);
+ __asm__ volatile("dsb sy" ::: "memory");
+ Eth02NetworkStopped(XEmacPs_ReadReg(mac->emacps.Config.BaseAddress,XEMACPS_NWCTRL_OFFSET),
+                     XEmacPs_ReadReg(mac->emacps.Config.BaseAddress,XEMACPS_IMR_OFFSET));
+ Eth02Execute();
+ reset_dma(adapter);
+ XEmacPs_Start(&mac->emacps);
+ XEnableIntrId(mac->emacps.Config.IntrId,mac->emacps.Config.IntrParent);
+ /* Resume the foreground time service after the deliberate measurement gap,
+  * without replaying a burst of expired lwIP maintenance callbacks. */
+ sys_restart_timeouts();
+ Eth02ResultReady();
+}
+#endif
 int main(void){
  ip_addr_t ip,mask,gw;struct tcp_pcb *listener;
  unsigned char mac[]={0x02,0x45,0x30,0x31,0x00,0x10};
  Xil_DCacheDisable();Xil_ICacheEnable();
- xil_printf("ETH01 R5_0 standalone build=%08x I-cache=ON D-cache=OFF GEM3=ff0e0000 PMU/64 no TTC\r\n",ETH_BUILD_ID);
+ xil_printf(ETH_LABEL " R5_0 standalone build=%08x I-cache=ON D-cache=OFF GEM3=ff0e0000 PMU/64"
+#ifdef ETH02_RUNTIME
+            " Runtime=TTC0\r\n",
+#else
+            " no TTC\r\n",
+#endif
+            ETH_BUILD_ID);
  lwip_init();IP4_ADDR(&ip,192,168,50,ETH_IP_LAST);IP4_ADDR(&mask,255,255,255,0);IP4_ADDR(&gw,0,0,0,0);
  if(!xemac_add(&net,&ip,&mask,&gw,mac,0xff0e0000U) || eth_phy_error || !eth_phy_speed){
   xil_printf("ETH01 INIT_FAIL phy=%u id=%08x STOP\r\n",eth_phy_error,eth_phy_id);eth01_fail_stop();
@@ -91,10 +155,23 @@ int main(void){
   * No second XScuGic_DeviceInitialize or TTC/example platform_setup_timer.
   */
  netif_set_default(&net);netif_set_up(&net);netif_set_link_up(&net);Xil_ExceptionEnable();
+#ifdef ETH02_RUNTIME
+ EthSessionInit(NULL,ETH_BUILD_ID,eth_phy_speed);
+#else
  EthSessionInit(test_ddr,ETH_BUILD_ID,eth_phy_speed);
+#endif
  listener=tcp_new_ip_type(IPADDR_TYPE_V4);
  if(!listener || tcp_bind(listener,IP_ADDR_ANY,ETH_TCP_PORT)!=ERR_OK){xil_printf("ETH01 BIND_FAIL STOP\r\n");eth01_fail_stop();}
  listener=tcp_listen(listener);if(!listener)eth01_fail_stop();tcp_accept(listener,accepted);
- xil_printf("ETH01 TCP_READY 192.168.50.%u:%u MAC=02:45:30:31:00:10 DDR=10000000..11ffffff\r\n",ETH_IP_LAST,ETH_TCP_PORT);
- for(;;)NetService();
+ xil_printf(ETH_LABEL " TCP_READY 192.168.50.%u:%u MAC=02:45:30:31:00:10"
+#ifndef ETH02_RUNTIME
+            " DDR=10000000..11ffffff"
+#endif
+            "\r\n",ETH_IP_LAST,ETH_TCP_PORT);
+ for(;;){
+  NetService();
+#ifdef ETH02_RUNTIME
+  if(Eth02Pending())RunExperiment();
+#endif
+ }
 }

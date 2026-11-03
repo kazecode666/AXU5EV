@@ -1,5 +1,8 @@
 #include "eth_service.h"
 #include "eth_model_if.h"
+#ifdef ETH02_RUNTIME
+#include "eth02_runtime.h"
+#endif
 #include <string.h>
 static uint8_t rx[8192],tx[ETH_HEADER+ETH_PAYLOAD],reply[ETH_PAYLOAD];
 static size_t used,txsize,txsent,credit;
@@ -8,10 +11,20 @@ static uint32_t build_id,link_speed,transfer,lastseq,total,written,bulk_tid;
 static int session,sealed;
 void EthSessionReset(void){
  used=txsize=txsent=credit=0;transfer=lastseq=total=written=bulk_tid=0;session=sealed=0;
+#ifdef ETH02_RUNTIME
+ Eth02TransferReset();
+#else
  EthModelDisconnect();
+#endif
 }
 void EthSessionInit(uint8_t *data,uint32_t build,uint32_t speed){
- bulk=data;build_id=build;link_speed=speed;EthModelInit();EthSessionReset();
+ bulk=data;build_id=build;link_speed=speed;
+#ifdef ETH02_RUNTIME
+ Eth02Init(build,speed);
+#else
+ EthModelInit();
+#endif
+ EthSessionReset();
 }
 int EthRxTryPush(const uint8_t *p,size_t len){
  if(len>sizeof(rx)-used)return ETH_FULL;
@@ -22,15 +35,23 @@ void EthTxConsume(size_t n){if(n<=txsize-txsent){txsent+=n;if(txsent==txsize)txs
 size_t EthRxTakeCredit(void){size_t n=credit;credit=0;return n;}
 size_t EthRxBuffered(void){return used;}
 int EthNetService(void){
- EthFrame f;int rc;uint32_t count,seq;uint16_t n;uint8_t b[256];
+ EthFrame f;int rc;
+#ifndef ETH02_RUNTIME
+ uint32_t count,seq;uint16_t n;uint8_t b[256];
+#endif
  if(txsize)return 0;
  rc=EthDecode(rx,used,&f);if(rc<=0)return rc;
  if(!f.transfer || !f.seq || (session && (f.transfer!=transfer || f.seq<=lastseq)))return -1;
+#ifndef ETH02_RUNTIME
  if(!session)EthModelConnect();
+#endif
  session=1;transfer=f.transfer;lastseq=f.seq;
  const uint8_t *payload=rx+ETH_HEADER;
  uint8_t kind=f.kind;
  uint32_t length=0,error=0;
+#ifdef ETH02_RUNTIME
+ error=Eth02Request(&f,payload,reply,&length);
+#else
  if((kind==1 || kind==2 || kind==7) && (f.total || f.offset))return -1;
  switch(kind){
  case 1:
@@ -63,6 +84,7 @@ int EthNetService(void){
   EthPut32(reply+12,EthModelGetCount());length=16;break;
  default:error=10;
  }
+#endif
  if(error){f.kind=255;EthPut32(reply,error);length=4;}
  else f.kind=kind|128;
  credit+=ETH_HEADER+f.len;

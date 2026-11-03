@@ -1,0 +1,1 @@
+{"stage":"pre_begin","registers":{"periodic_clock":0,"timestamp_clock":0,"hardware_interval":9999,"timestamp_interval":0,"periodic_ier":1,"timestamp_ier":0,"ttc_apb_select":0,"lpd_lsbus_ctrl":16779778,"iopll_ctrl":80896,"periodic_control":35,"timestamp_control":33}}

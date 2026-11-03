@@ -2,7 +2,9 @@
 #define AX02A_TIMER_MAPPING_H
 #include <stdint.h>
 #define AX02A_TIMER_MAPPING_VERSION 1U
+#ifndef AX02A_RUNTIME_CANDIDATE_ID
 #define AX02A_RUNTIME_CANDIDATE_ID 0x52313031U
+#endif
 /* Board ABA evidence: task6541052405 / verification/ax02a/ttc_aba_01.
    Unsupported configurations fail closed; this is not a generic TTC rule. */
 static inline int ax02a_timer_map(uint32_t periodic_base,uint32_t timestamp_base,

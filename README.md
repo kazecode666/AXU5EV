@@ -1,6 +1,10 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
-**当前：ETH-01用户实板PASS，PR17待最终Review。** r3已完成JL2121千兆全双工链路、TCP小数据、生成模型往返及64KiB/1MiB/32MiB完整性板测；32MiB上传/下载0.990/1.412MiB/s，上传未达1MiB/s目标，本轮不优化。见[实板精简证据](verification/ethernet/eth01/board_r3/README.md)、[复用与实现报告](coordination/reports/eth01_platform_and_soc_reuse.md)、[阶段状态](verification/ethernet/eth01/status.json)和[用户上板唯一入口](firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md)。原始大文件与R1均保留；不接完整Runtime、不自动合并。以下AX-02A记录按历史阶段理解，不重复既有板测。
+> 2026-11-03最新：PR18评论6596653379所述两场景现已用户实板PASS，待最终Review。精简证据：verification/ethernet/eth02/board_results，当前状态：verification/ethernet/eth02/status.json。两个01结果目录已占用，无需重跑；Workspace/Launch不变。本轮仅归档，不新增测试、构建或上板。下文NOT_RUN及待用户执行均为此前准备阶段记录。
+
+**当前：ETH-02离线实现/构建及现有启动检查通过，待新Draft PR Review。** PR17已合并，新应用整合真实文件上传、停网执行原100µs Runtime、恢复网络下载与原分析器，提供MATLAB `RUN_ETH02`入口。新Workspace/Launch及用户两次实验见[唯一指南](firmware/r5/ethernet_runtime/FIRST_EXPERIMENT_ZH.md)；两次整合板测NOT_RUN。原R1、ETH01 r3和全部既有数据保留，下条待Review状态按历史阶段理解。
+
+**已合并基线：ETH-01用户实板PASS。** r3已完成JL2121千兆全双工链路、TCP小数据、生成模型往返及64KiB/1MiB/32MiB完整性板测；32MiB上传/下载0.990/1.412MiB/s，上传未达1MiB/s目标，未做优化。见[实板精简证据](verification/ethernet/eth01/board_r3/README.md)、[复用与实现报告](coordination/reports/eth01_platform_and_soc_reuse.md)、[阶段状态](verification/ethernet/eth01/status.json)和[用户上板唯一入口](firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md)。原始大文件与R1均保留；其余限制按原PR阶段理解。以下AX-02A记录按历史阶段理解，不重复既有板测。
 
 **2026-11-02：两个完整R1场景真实数值/100µs时序/板报交叉已PASS。** [统计与A4/A5逐条审计](coordination/reports/ax02a_full_board_results_2026-11-02.md)。仍有冷启动条件及分阶段验收口径待Review，不等同整项验收完成；以下操作准备状态按原阶段理解。
 

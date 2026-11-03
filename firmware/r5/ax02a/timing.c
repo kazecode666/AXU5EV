@@ -78,6 +78,17 @@ static void end(void *unused)
     (void)XTtcPs_Release(&periodic);(void)XTtcPs_Release(&counter);
 }
 
+void ax02a_timing_cancel(void)
+{
+    if(periodic.IsReady==XIL_COMPONENT_IS_READY) {
+        XTtcPs_Stop(&periodic);XTtcPs_DisableInterrupts(&periodic,XTTCPS_IXR_ALL_MASK);
+        (void)XTtcPs_Release(&periodic);
+    }
+    if(counter.IsReady==XIL_COMPONENT_IS_READY) {
+        XTtcPs_Stop(&counter);(void)XTtcPs_Release(&counter);
+    }
+}
+
 int ax02a_timing_prepare(Ax02aClock *clock,Ax02aTimerInfo *info,uint32_t frames)
 {
     XTtcPs_Config *a=&XTtcPs_ConfigTable[0],*b=&XTtcPs_ConfigTable[1];
