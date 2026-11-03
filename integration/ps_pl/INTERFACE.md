@@ -1,5 +1,7 @@
 # AX-01B R5F—PL控制边界
 
+> 当前AX-02C2：PR22已合并，C1成功实板直接继承、不复现。真实R5 Runtime输出经原共享模型生成薄适配，在已知记录回放中组装九字段，通过现有AXI轮询驱动PL；帧表、同源参考和PMU计时见[C2报告](../../coordination/reports/ax02c2_runtime_pl_replay.md)。本轮不实现真实传感器或PL位置接口，不把记录回放中的薄适配当作未来实时采样架构。C2离线构建/适配对照PASS，板测NOT_RUN；下列旧阶段限制和未实现状态按历史理解。
+
 > 当前AX-02C1：PR20已合并，新增[R5—AXI-Lite寄存器及连续帧合同](AXI_REGISTERS.md)，复用真实FOC和本页九字段；短仿真17帧PASS，PS＋PL完整构建/启动文件检查PASS，板测NOT_RUN。原AX-01B/AX-02B的“未实现AXI”等文字为此前阶段记录，当前结果见[AX-02C1报告](../../coordination/reports/ax02c1_r5_axi_foc.md)。
 
 > 2026-11-03 AX-02B沿用本页九字段/帧接口，生成与位/帧验证PASS，5EV OOC实现及内部STA PASS（理想时钟边界，真实时钟树/IO/复位/CDC未签核）；本文其他NOT_RUN为当时阶段记录。 详见[AX-02B主报告](../../coordination/reports/ax02b_pl_current_core.md)。下文旧阶段待Review/待上板文字按历史理解。

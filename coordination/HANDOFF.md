@@ -1,8 +1,16 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-03，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。PR20已合并，当前分支codex/ax02c1-r5-axi-foc执行[Issue21](https://github.com/kazecode666/AXU5EV/issues/21)。
+更新：2026-11-04，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。PR22已合并，从当前主线建立codex/ax02c2-runtime-pl-replay，执行[Issue23](https://github.com/kazecode666/AXU5EV/issues/23)。
 
-## 当前：AX-02C1 AUX复位修复及一次授权17帧实板PASS，待最终Review
+## 当前：AX-02C2离线实现及必要验证/目标构建PASS，板测NOT_RUN
+
+真实Runtime每逻辑100µs一次，输出41字段送原模型生成薄适配，经现有AXI-Lite提交真实PL FOC。PL完整5000拍帧调度，记录0先计算后START，当前结果后预装下一记录，最后完整STOP；不启用独立TTC IRQ。同源current_motion64536条、20输入/41参考、feedback5及新model_fixed duty参考已备好；最终生成C709896+88word零差。复用原ETH02上传/停GEM/执行/冻结/恢复下载，只增加feedback9/PLresult10和C2身份。
+
+原生Vitis最终build PASS，应用0warning，ELF1015452B、A53FSBL341352B，现有启动检查和实际map/对象区核对PASS。唯一Workspace`.runtime/ax02c2/vitis_runtime_pl_native64`，Launch`ax02c2_runtime_manual`，build0x43324301；复用原`.runtime/ax02c/hardware_02` bit/XSA，没有Vivado/旧RTL/C1/ETH02板测重跑。数据`.runtime/ax02c2/prepared_04/data/current_motion`，最终适配源`.runtime/ax02c2/adapter_native_01`。
+
+见[主报告](reports/ax02c2_runtime_pl_replay.md)、[唯一指南](../firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)、[精简证据](../verification/ax02c2/)。用户本次已授权新C2加载和一次完整current_motion，但本机当前未枚举CP210x UART、没有192.168.50.x地址；已询问实验网卡安排，未改OS网络设置。先提交Draft PR，连接可用后执行授权的新实验；C2 BOARD_NOT_RUN，不能引用C1成功替代。保留全部旧Workspace/SLX/参数/数据，不自动合并或关闭Issue15。下文为历史阶段记录。
+
+## 历史：AX-02C1 AUX复位修复及一次授权17帧实板PASS，PR22现已合并
 
 原hardware_01的AUX reset低有效却接零，导致SmartConnect/FOC持续复位；最小改接one/dout，debug reset仍为0。hardware_02完整构建/启动文件检查PASS，WNS+3.149ns、WHS+0.011ns、TNS/THS=0，时序失败端点均0；原Workspace/ELF/FSBL和全部数据保留。
 

@@ -1,0 +1,26 @@
+{
+  "status": "ADAPTER_MODEL_C_PASS",
+  "current_motion_frames": 64536,
+  "current_motion_word_checks": 709896,
+  "semantic_frames": 8,
+  "semantic_word_checks": 88,
+  "mismatches": 0,
+  "comparison": "exact uint32 words; generated C vs copied shared Alignment_Interface + Frame_Quantization",
+  "modes": [
+    "bypass",
+    "active_alignment",
+    "runtime_offset",
+    "PWM_disabled",
+    "PI_Reset",
+    "travel_fault",
+    "Init_Reset",
+    "Convergent_Saturate"
+  ],
+  "prepared": "D:/Project/AXU5EV/.runtime/ax02c2/prepared_04",
+  "application_adapter_generated": "D:\\Project\\AXU5EV\\.runtime\\ax02c2\\adapter_native_01\\adapter_01\\codegen\\AX02C2_Adapter_ert_rtw",
+  "mex": "D:\\Project\\AXU5EV\\.runtime\\ax02c2\\prepared_04\\adapter_check_native_01\\ax02c2_adapter_probe.mexw64",
+  "board": "NOT_RUN",
+  "source_result": "D:/Project/AXU5EV/.runtime/ax02c2/prepared_04/adapter_check_native_01/result.json",
+  "ProdLongLongMode": "on",
+  "native64_generation": "D:/Project/AXU5EV/.runtime/ax02c2/adapter_native_01/generation.json"
+}

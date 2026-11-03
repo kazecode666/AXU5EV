@@ -1,5 +1,7 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
+> 当前AX-02C2：[PR22](https://github.com/kazecode666/AXU5EV/pull/22)已合并并签收C1一次实板结果，不再复现。Issue23的真实R5 Runtime＋原模型薄适配＋AXI/PL连续回放已离线实现，64536条同源记录及必要适配对照、原生构建/启动检查PASS；复用hardware_02，不重跑RTL/ETH02。新Workspace`.runtime/ax02c2/vitis_runtime_pl_native64`，Launch`ax02c2_runtime_manual`，新板测NOT_RUN，先Draft PR待Review。见[主报告](coordination/reports/ax02c2_runtime_pl_replay.md)及[唯一指南](firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)。以下旧阶段“当前/待Review”等按历史理解。
+
 > 当前AX-02C1：原hardware_01的低有效AUX复位接零导致START后挂起，已最小修复并独立构建hardware_02。经用户授权在线验证，首个MMIO返回正确ID，唯一一次17帧/51个duty逐位一致、完整帧数17，BOARD_PASS；结束后R5可正常暂停，XSDB已断开。[Draft PR22](https://github.com/kazecode666/AXU5EV/pull/22)等待Review。原Workspace/ELF/FSBL及旧工程保留；使用新bit，见[主报告](coordination/reports/ax02c1_r5_axi_foc.md)、[实板证据](verification/ax02c/board_aux_fixed_01/evidence.json)与[用户唯一指南](firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md)。以下AX-02B/ETH02待Review等文字均为历史记录。
 
 > 2026-11-03 当前：PR18已合并，AX-02B独立5EV生成及必要位/帧检查PASS，OOC综合/布局布线及内部STA PASS（理想时钟边界，WNS+3.020ns、WHS+0.034ns）。 已提交[Draft PR20](https://github.com/kazecode666/AXU5EV/pull/20)待Review；详见[AX-02B主报告](coordination/reports/ax02b_pl_current_core.md)。下文旧阶段待Review/待上板文字按历史理解。

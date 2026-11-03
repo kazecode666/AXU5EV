@@ -1,0 +1,112 @@
+{
+  "status": "PASS",
+  "scope": "Actual ELF PT_LOAD/map symbols against C2 replay object windows; no runtime memory manager",
+  "workspace": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_native64",
+  "elf": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_native64/ax02c2_runtime/build/ax02c2_runtime.elf",
+  "map": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_native64/ax02c2_runtime/build/ax02c2_runtime.map",
+  "elf_segments": [
+    {
+      "address": 0,
+      "file_bytes": 2008,
+      "memory_bytes": 2008,
+      "flags": 7
+    },
+    {
+      "address": 1048576,
+      "file_bytes": 145060,
+      "memory_bytes": 145060,
+      "flags": 7
+    },
+    {
+      "address": 2097152,
+      "file_bytes": 0,
+      "memory_bytes": 3513120,
+      "flags": 6
+    }
+  ],
+  "objects": [
+    {
+      "object": "Runtime input",
+      "address": "0x10000000",
+      "bytes": 10325760,
+      "end_exclusive": "0x109d8f00"
+    },
+    {
+      "object": "Runtime output",
+      "address": "0x11000000",
+      "bytes": 21167808,
+      "end_exclusive": "0x1242fec0"
+    },
+    {
+      "object": "Reference descriptor",
+      "address": "0x12f00000",
+      "bytes": 32,
+      "end_exclusive": "0x12f00020"
+    },
+    {
+      "object": "C2 PMU timing",
+      "address": "0x13000000",
+      "bytes": 4130304,
+      "end_exclusive": "0x133f0600"
+    },
+    {
+      "object": "Runtime reference",
+      "address": "0x14000000",
+      "bytes": 21167808,
+      "end_exclusive": "0x1542fec0"
+    },
+    {
+      "object": "Numeric report",
+      "address": "0x16000000",
+      "bytes": 2400,
+      "end_exclusive": "0x16000960"
+    },
+    {
+      "object": "Recorded feedback",
+      "address": "0x17000000",
+      "bytes": 2581440,
+      "end_exclusive": "0x172763c0"
+    },
+    {
+      "object": "PL result",
+      "address": "0x18000000",
+      "bytes": 2065152,
+      "end_exclusive": "0x181f8300"
+    }
+  ],
+  "linker_ddr_end_exclusive": "0x10000000",
+  "symbols": {
+    "emac_bd_space": {
+      "address": "0x00400000",
+      "bytes": 1048576
+    },
+    "_heap": {
+      "address": "0x00508320",
+      "bytes": 0
+    },
+    "_heap_end": {
+      "address": "0x00548320",
+      "bytes": 0
+    },
+    "_stack": {
+      "address": "0x00558320",
+      "bytes": 0
+    },
+    "_stack_end": {
+      "address": "0x00548320",
+      "bytes": 0
+    }
+  },
+  "application_compile_warnings": 0,
+  "board": "NOT_RUN",
+  "heap_range": {
+    "address": "0x508320",
+    "end_exclusive": "0x548320",
+    "bytes": 262144
+  },
+  "stack_range": {
+    "address": "0x548320",
+    "end_exclusive": "0x558320",
+    "bytes": 65536
+  }
+}

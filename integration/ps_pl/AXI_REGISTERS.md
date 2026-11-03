@@ -1,5 +1,7 @@
 # AX-02C1：R5—AXI-Lite—真实 FOC
 
+> AX-02C2复用本文寄存器与硬件原样，不改变AXI/FOC RTL或5000拍合同。序列长度由应用扩展为同源current_motion的64536条，记录k对应命令/PL帧k+1，真实Runtime输出经模型薄适配提交；C1的17帧为已验收历史证据，不重跑。新应用/计时/实验入口见[C2指南](../../firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)。
+
 本接口复用PR20实际生成的p3核和原`axu5ev_foc_frame_top`。总线PL侧、寄存器和FOC共用PS导出的同一名义50MHz时钟；R5通过PS的M_AXI_HPM0_LPD及AMD SmartConnect访问。R5处理器时钟不同，其跨域由PS/标准AXI设施处理，本封装不另造CDC。
 
 实际外设基址由BD分配、匹配XSA/BSP导出，R5构建读取本次`xparameters.h`中的FOC BASEADDR。以下为**字节偏移**，软件使用对齐的32位MMIO，端序沿用R5 standalone小端。AXI AW与W独立握手，每次只有一个未完成响应；写暂存字段支持WSTRB。保留偏移读0、写忽略，不定义队列、自动恢复或通用协议。

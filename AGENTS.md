@@ -1,5 +1,7 @@
 # AXU5EV 协作与工作区规则
 
+> 当前：PR22已合并，从当前origin/main实施Issue23 AX-02C2，分支codex/ax02c2-runtime-pl-replay。真实R5 Runtime→原模型生成薄适配→原AXI轮询→真实PL FOC连续记录回放已离线实现；同源current_motion64536条，最终adapter709896+88words零差，原生构建及现有启动检查PASS。唯一Workspace.runtime/ax02c2/vitis_runtime_pl_native64，Launch ax02c2_runtime_manual，build43324301；复用hardware_02 bit/XSA，不重跑C1/RTL/ETH02。数据prepared_04/data/current_motion，最终adapter_native_01；主报告coordination/reports/ax02c2_runtime_pl_replay.md，唯一指南firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md。C2板测NOT_RUN：本机尚未枚举CP210x UART，ETH02直连子网未配置，网络连接待用户回复。本次用户已授权新C2加载和一次完整current_motion，先提交Draft PR，接线可用后执行；不扩展为无限操作，不接功率级、不写启动介质、不自动合并。保留所有旧Workspace/用户模型参数/数据。下述PR22待Review及旧PID/暂停状态均为当时历史，PR22已合并，C1成功已验收不复现。
+
 > 当前：PR22 AX-02C1原hardware_01的AUX reset低有效却接0，已最小改接1（debug仍0）。hardware_02 bit/XSA完整构建及aux_fixed启动检查PASS，时序WNS+3.149ns/WHS+0.011ns、TNS/THS=0。2026-11-03用户明确授权在线诊断，并另准一次复位/加载新bit及原FSBL/R5 ELF、一次17帧；新首读PC1031BC→1031C0实得ID43314301，同次实板17帧/51duty/完整17帧PASS、mismatch0。旧故障现场PC未取得，不能与新首读实测混同。当前证据verification/ax02c/board_aux_fixed_01/evidence.json，原始UART.runtime/ax02c/board/uart_17_aux_fixed_01.txt；hardware_aux_fixed.json的NOT_RUN仅为构建快照。沿用原Workspace/Launch/ELF/FSBL，当前bit用hardware_02，不自动加载旧平台镜像。最终R5已halt于0010333C WFI，DSCR03186003/HALTED1；自建XSDB31752已断开退出，3121仅hw_server30848监听/无Established，用户可单一Vitis会话接手。本次授权动作已完成，进一步复位/下载/破坏现场寄存器写入仍须说明并征得确认。保留原工程及全部数据，PR22待最终Review，不自动合并。
 
 ## 当前开发
