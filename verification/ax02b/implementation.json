@@ -1,0 +1,108 @@
+{
+  "status": "5EV_MODULE_IMPLEMENTATION_PASS",
+  "scope": "OOC data-path placement/routing and internal STA; abstract input clock without HD.CLK_SRC, no physical clock-tree or external IO signoff",
+  "part": "xczu5ev-sfvc784-2-i",
+  "tool": "Vivado 2026.1",
+  "top": "axu5ev_foc_frame_top",
+  "exit_code": 0,
+  "clock_mhz": 50,
+  "frame_clocks": 5000,
+  "apply_reference_clocks": 2500,
+  "timing": {
+    "wns_ns": 3.02,
+    "tns_ns": 0.0,
+    "setup_failing_endpoints": 0,
+    "setup_total_endpoints": 96328,
+    "whs_ns": 0.034,
+    "ths_ns": 0.0,
+    "hold_failing_endpoints": 0,
+    "hold_total_endpoints": 96328,
+    "wpws_ns": 9.468,
+    "tpws_ns": 0.0,
+    "pulse_failing_endpoints": 0,
+    "pulse_total_endpoints": 85328
+  },
+  "check_timing": {
+    "no_clock": 0,
+    "constant_clock": 0,
+    "pulse_width_clock": 0,
+    "unconstrained_internal_endpoints": 0,
+    "no_input_delay": 275,
+    "no_output_delay": 136,
+    "multiple_clock": 0,
+    "generated_clocks": 0,
+    "loops": 0,
+    "partial_input_delay": 0,
+    "partial_output_delay": 0,
+    "latch_loops": 0
+  },
+  "timing_exceptions": 0,
+  "worst_paths": {
+    "setup": {
+      "slack": "3.020ns  (required time - arrival time)",
+      "source": "theta_h_reg[9]/C",
+      "destination": "core/u_Park/Sum_out1_last_value_reg[39]/D",
+      "requirement": "10.000ns  (clk rise@20.000ns - clk fall@10.000ns)",
+      "type": "Setup (Max at Slow Process Corner)"
+    },
+    "hold": {
+      "slack": "0.034ns  (arrival time - required time)",
+      "source": "core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/d23_p_reg[17]/C",
+      "destination": "core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/d24_p_reg[17]/D",
+      "requirement": "0.000ns  (clk rise@0.000ns - clk rise@0.000ns)",
+      "type": "Hold (Min at Fast Process Corner)"
+    },
+    "negedge_to_core": {
+      "slack": "3.020ns  (required time - arrival time)",
+      "source": "theta_h_reg[9]/C",
+      "destination": "core/u_Park/Sum_out1_last_value_reg[39]/D",
+      "requirement": "10.000ns  (clk rise@20.000ns - clk fall@10.000ns)",
+      "type": "Setup (Max at Slow Process Corner)"
+    },
+    "to_negedge": {
+      "slack": "6.201ns  (required time - arrival time)",
+      "source": "phase_reg[0]/C",
+      "destination": "vdc_h_reg[7]/CE",
+      "requirement": "10.000ns  (clk fall@10.000ns - clk rise@0.000ns)",
+      "type": "Setup (Max at Slow Process Corner)"
+    }
+  },
+  "route": {
+    "logical_nets": 561099,
+    "routable_nets": 134102,
+    "fully_routed_nets": 134102,
+    "routing_errors": 0,
+    "implicitly_routed_ports": 373,
+    "loadless_nets": 46754
+  },
+  "resources": {
+    "lut": 69945,
+    "lut_percent": 59.72,
+    "ff": 81057,
+    "ff_percent": 34.6,
+    "dsp48e2": 431,
+    "dsp_percent": 34.54,
+    "bram": 0,
+    "uram": 0,
+    "clb": 12480,
+    "clb_percent": 85.25,
+    "bufg": 0,
+    "mmcm": 0,
+    "pll": 0
+  },
+  "drc": {
+    "errors": 0,
+    "critical_warnings": 0,
+    "DPIP_2": 271,
+    "DPOP_3": 199,
+    "DPOP_4": 291,
+    "RTSTAT_10": 1,
+    "rtstat_loadless_output_nets": 97,
+    "full_connectivity_checks": "NOT_RUN in OOC"
+  },
+  "reports_dir": "D:/Project/AXU5EV/.runtime/ax02b/implementation_01",
+  "routed_dcp": "D:/Project/AXU5EV/.runtime/ax02b/implementation_01/routed.dcp",
+  "board": "NOT_RUN",
+  "physical_part_pcb_signoff": "PENDING",
+  "clock_tree_io_reset_cdc_system_signoff": "NOT_RUN"
+}

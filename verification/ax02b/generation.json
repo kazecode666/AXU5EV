@@ -1,0 +1,11 @@
+{
+  "status": "GENERATE_PASS",
+  "source": "baselines/pr53_p3/source",
+  "model": "AX02B_P3_5EV",
+  "run_dir": "D:/Project/AXU5EV/.runtime/ax02b/candidate_01",
+  "matlab": "26.2.0.3433840 (R2026b) Update 1",
+  "supported_device_list": "D:\\Program Files\\MATLAB\\R2026b\\toolbox\\hdlcoder\\downstreamtools\\vivado\\+downstreamtools\\+XilinxVivado_2025_1\\device_list.xml",
+  "part": "xczu5ev-sfvc784-2-i",
+  "frame_cycles": 5000,
+  "clock_mhz": 50
+}

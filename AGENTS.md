@@ -1,8 +1,12 @@
 # AXU5EV 协作与工作区规则
 
-> 2026-11-03最新：PR18评论6596653379所述两场景现已用户实板PASS，待最终Review。精简证据：verification/ethernet/eth02/board_results，当前状态：verification/ethernet/eth02/status.json。两个01结果目录已占用，无需重跑；Workspace/Launch不变。本轮仅归档，不新增测试、构建或上板。下文NOT_RUN及待用户执行均为此前准备阶段记录。
+> 当前：PR18已合并，执行Issue19 AX-02B，分支codex/ax02b-pl-current-core。独立5EV候选生成、p3等价和定向位/帧检查已PASS，5EV OOC综合/布局布线及内部STA已PASS（理想时钟边界；WNS+3.020ns、WHS+0.034ns，TNS/THS=0）。目标xczu5ev-sfvc784-2-i、50MHz/100µs帧/50µs应用参考边界；实物料号/PCB待核。主报告coordination/reports/ax02b_pl_current_core.md，所有新产物.runtime/ax02b。只离线，不连接板卡、不做AXI/ADC/编码器/门极PWM，不改Runtime/TTC/ETH02，不重跑长时RTL/ETH02板测。以下PR18待Review等记录为已合并前历史，不作为当前指令。
 
 ## 当前开发
+
+- AX-02B已推送[kazecode666/AXU5EV Draft PR20](https://github.com/kazecode666/AXU5EV/pull/20)，停在待Review；当前结果以主报告为准；保留全部旧workspace/ELF、用户未提交SLX/参数和原始实验数据，不自动合并或关闭Issue15。
+
+### 历史阶段记录
 
 - ETH-02当前实现已推送[kazecode666/AXU5EV Draft PR18](https://github.com/kazecode666/AXU5EV/pull/18)，停在待Review；未执行两次新应用板测，不自动合并。
 
