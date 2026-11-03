@@ -1,5 +1,7 @@
 # 工作区、上板工程与数据保存位置
 
+> 当前AX-02C1：新PS＋PL候选在`.runtime/ax02c/hardware_01`，新Vitis Workspace为`.runtime/ax02c/vitis_ps_pl`、Launch为`ax02c_foc_manual`（bit/XSA/FSBL/R5 ELF及启动检查PASS，板测NOT_RUN）。本轮唯一操作入口为[17帧指南](../firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md)，[实施报告](../coordination/reports/ax02c1_r5_axi_foc.md)；旧工作区与数据保留，以下AX-02B/ETH02文字按历史理解。
+
 > 2026-11-03 当前AX-02B离线生成、定向功能/帧合同和5EV OOC内部实现PASS，实际DCP为.runtime/ax02b/implementation_01/routed.dcp；新产物在.runtime/ax02b；PR18已合并，原R1/ETH01/ETH02及数据保留。 详见[AX-02B主报告](../coordination/reports/ax02b_pl_current_core.md)。下文旧阶段待Review/待上板文字按历史理解。
 
 > 2026-11-03最新：PR18评论6596653379所述两场景现已用户实板PASS，待最终Review。精简证据：verification/ethernet/eth02/board_results，当前状态：verification/ethernet/eth02/status.json。两个01结果目录已占用，无需重跑；Workspace/Launch不变。本轮仅归档，不新增测试、构建或上板。下文NOT_RUN及待用户执行均为此前准备阶段记录。

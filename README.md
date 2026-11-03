@@ -1,5 +1,7 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
+> 当前AX-02C1：PR20已合并，R5经AXI-Lite调用真实p3 FOC，新增17帧短仿真PASS，PS＋PL bit/XSA/FSBL/R5 ELF及启动检查PASS，等待Draft PR Review，板测NOT_RUN。见[主报告](coordination/reports/ax02c1_r5_axi_foc.md)与[用户唯一指南](firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md)。以下AX-02B/ETH02待Review等文字均为已合并前历史记录。
+
 > 2026-11-03 当前：PR18已合并，AX-02B独立5EV生成及必要位/帧检查PASS，OOC综合/布局布线及内部STA PASS（理想时钟边界，WNS+3.020ns、WHS+0.034ns）。 已提交[Draft PR20](https://github.com/kazecode666/AXU5EV/pull/20)待Review；详见[AX-02B主报告](coordination/reports/ax02b_pl_current_core.md)。下文旧阶段待Review/待上板文字按历史理解。
 
 > 2026-11-03最新：PR18评论6596653379所述两场景现已用户实板PASS，待最终Review。精简证据：verification/ethernet/eth02/board_results，当前状态：verification/ethernet/eth02/status.json。两个01结果目录已占用，无需重跑；Workspace/Launch不变。本轮仅归档，不新增测试、构建或上板。下文NOT_RUN及待用户执行均为此前准备阶段记录。

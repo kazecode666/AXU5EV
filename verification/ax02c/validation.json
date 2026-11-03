@@ -1,0 +1,10 @@
+{
+  "status": "AXI_SEQUENCE_PASS",
+  "frames": 17,
+  "duty_checks": 51,
+  "run_clocks": 85000,
+  "checks": 283399,
+  "rtl_dir": "D:\\Project\\AXU5EV\\.runtime\\ax02b\\candidate_01\\rtl\\AX02B_P3_5EV",
+  "log": "D:\\Project\\AXU5EV\\.runtime\\ax02c\\axi_sequence_01\\xsim.log",
+  "board": "NOT_RUN"
+}

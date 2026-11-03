@@ -1,10 +1,14 @@
 # AXU5EV 协作与工作区规则
 
-> 当前：PR18已合并，执行Issue19 AX-02B，分支codex/ax02b-pl-current-core。独立5EV候选生成、p3等价和定向位/帧检查已PASS，5EV OOC综合/布局布线及内部STA已PASS（理想时钟边界；WNS+3.020ns、WHS+0.034ns，TNS/THS=0）。目标xczu5ev-sfvc784-2-i、50MHz/100µs帧/50µs应用参考边界；实物料号/PCB待核。主报告coordination/reports/ax02b_pl_current_core.md，所有新产物.runtime/ax02b。只离线，不连接板卡、不做AXI/ADC/编码器/门极PWM，不改Runtime/TTC/ETH02，不重跑长时RTL/ETH02板测。以下PR18待Review等记录为已合并前历史，不作为当前指令。
+> 当前：PR20已合并，执行Issue21 AX-02C1，分支codex/ax02c1-r5-axi-foc。新增薄AXI-Lite封装和R5轮询17帧；九字段、真实p3 FOC及原帧封装复用，50MHz名义/5000拍帧。短仿真17帧/51duty/85000clocks PASS，PS+PL bit/XSA/FSBL/R5 ELF及现有启动文件检查PASS；仅离线，板测NOT_RUN。新产物.runtime/ax02c；唯一指南firmware/r5/ax02c/FIRST_BOARD_RUN_ZH.md，主报告coordination/reports/ax02c1_r5_axi_foc.md。不接完整Runtime/ADC/编码器/门极PWM，不操作板卡、不重跑旧回归/板测、不自动合并。以下AX-02B及旧阶段限制按历史理解，不阻止本轮已授权AXI集成。
 
 ## 当前开发
 
-- AX-02B已推送[kazecode666/AXU5EV Draft PR20](https://github.com/kazecode666/AXU5EV/pull/20)，停在待Review；当前结果以主报告为准；保留全部旧workspace/ELF、用户未提交SLX/参数和原始实验数据，不自动合并或关闭Issue15。
+- AX-02C1实际结果、产物与待Review状态以本轮主报告为准；保留全部用户修改和旧工作区/数据。
+
+### 已合并AX-02B记录
+
+- AX-02B已通过并合并[kazecode666/AXU5EV PR20](https://github.com/kazecode666/AXU5EV/pull/20)；当时OOC结果以AX-02B主报告为准；保留全部旧workspace/ELF、用户未提交SLX/参数和原始实验数据，不自动合并或关闭Issue15。
 
 ### 历史阶段记录
 
