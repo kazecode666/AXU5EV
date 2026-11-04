@@ -1,8 +1,28 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-03，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。PR20已合并，当前分支codex/ax02c1-r5-axi-foc执行[Issue21](https://github.com/kazecode666/AXU5EV/issues/21)。
+更新：2026-11-04，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。PR22已合并，从当前主线建立codex/ax02c2-runtime-pl-replay，执行[Issue23](https://github.com/kazecode666/AXU5EV/issues/23)。
 
-## 当前：AX-02C1 AUX复位修复及一次授权17帧实板PASS，待最终Review
+## 当前：PR24 perf_r1完整实板PASS，待用户最终Review
+
+2026-11-04，按PR24评论6622743887归档用户已完成的perf_r1单次current_motion实板：身份0x43324302，64536条完整处理、2645976个Runtime值原判据零失败、193608个duty位串零差，帧/命令/采用及完整停止PASS。PMU7812421Hz：Runtime均值/最大25.025/39.040us，上一read_begin到下一commit_end均值/P99/最大70.204/83.457/86.017us；COMMIT后328B日志及返回开销均值/最大9.245/10.880us，计入日志的完整窗口均值/P99/最大79.449/92.929/95.617us。后者204条超名义93.68us但提交在先、实际采用均正确，不能宣称全部软件工作在93.68us内完成或WCET。原失败k1200提交95.873us，新同记录75.009us，含日志窗口96.257→84.481us。
+
+本机只读复核全量output/PL/PMU及原有摘要，结果一致。回放计时6.453738s；上传/下载29.616512/22.052247s，1000Mbps，UART确认RESULT_READY status0/completed64536。Runtime相对参考最大差1.7763568394002505e-15（原容差通过），不误称ARM/PC逐位相同。旧TTC timing NOT_RUN为不适用；板报二进制保留其原未验证标识。
+
+实际Workspace`.runtime/ax02c2/vitis_runtime_pl_perf_r1`、Launch`ax02c2_runtime_manual`不变，仍复用native64平台/BSP/FSBL及hardware_02。原始实板数据`board/current_motion_perf_r1_01`已占用；[本次精简证据](../verification/ax02c2/board_perf_r1_01/README.md)及[主报告](reports/ax02c2_runtime_pl_replay.md)记录完整分布和原失败对照。[唯一指南](../firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)保留已执行步骤，当前不要求再次加载/START。
+
+本轮只读取已保存数据归档；未连接/操作板卡，没有新的构建或测试。保留current_motion_01、current_motion_01_fail1200_backup及全部Workspace/用户模型/数据；PR24未合并，交用户最终Review，不关闭Issue15、不因旧指令再次关机。以下候选NOT_RUN、待上板和关机交接均为历史。
+
+## 历史：AX-02C2初版离线交付，板测当时NOT_RUN
+
+已正常提交并推送[kazecode666/AXU5EV Draft PR24](https://github.com/kazecode666/AXU5EV/pull/24)。用户已说明会接回原ETH02直连网络，随后最新指令为完成离线实现后关闭计算机；本轮据此不执行C2加载或实板实验，板测留待后续继续。完成交接推送后正常关机，不强制关闭或代保存未保存窗口。保留已有模型修改和所有产物，PR待Review、不自动合并。
+
+真实Runtime每逻辑100µs一次，输出41字段送原模型生成薄适配，经现有AXI-Lite提交真实PL FOC。PL完整5000拍帧调度，记录0先计算后START，当前结果后预装下一记录，最后完整STOP；不启用独立TTC IRQ。同源current_motion64536条、20输入/41参考、feedback5及新model_fixed duty参考已备好；最终生成C709896+88word零差。复用原ETH02上传/停GEM/执行/冻结/恢复下载，只增加feedback9/PLresult10和C2身份。
+
+原生Vitis最终build PASS，应用0warning，ELF1015452B、A53FSBL341352B，现有启动检查和实际map/对象区核对PASS。唯一Workspace`.runtime/ax02c2/vitis_runtime_pl_native64`，Launch`ax02c2_runtime_manual`，build0x43324301；复用原`.runtime/ax02c/hardware_02` bit/XSA，没有Vivado/旧RTL/C1/ETH02板测重跑。数据`.runtime/ax02c2/prepared_04/data/current_motion`，最终适配源`.runtime/ax02c2/adapter_native_01`。
+
+见[主报告](reports/ax02c2_runtime_pl_replay.md)、[唯一指南](../firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)、[精简证据](../verification/ax02c2/)。用户已说明将接回原ETH02直连网卡并设192.168.50.x；按其最新离线交付后关机指令，本轮不加载或运行C2，未改OS网络设置；C2 BOARD_NOT_RUN，不能引用C1成功替代。保留全部旧Workspace/SLX/参数/数据，不自动合并或关闭Issue15。下文为历史阶段记录。
+
+## 历史：AX-02C1 AUX复位修复及一次授权17帧实板PASS，PR22现已合并
 
 原hardware_01的AUX reset低有效却接零，导致SmartConnect/FOC持续复位；最小改接one/dout，debug reset仍为0。hardware_02完整构建/启动文件检查PASS，WNS+3.149ns、WHS+0.011ns、TNS/THS=0，时序失败端点均0；原Workspace/ELF/FSBL和全部数据保留。
 

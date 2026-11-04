@@ -1,5 +1,11 @@
 # AXU5EV 协作与工作区规则
 
+> 当前签收：2026-11-04，按PR24评论6622743887归档用户已完成的perf_r1单次current_motion实板：身份0x43324302，64536条完整处理、2645976个Runtime值原判据零失败、193608个duty位串零差，帧/命令/采用及完整停止PASS。PMU7812421Hz：Runtime均值/最大25.025/39.040us，上一read_begin到下一commit_end均值/P99/最大70.204/83.457/86.017us；COMMIT后328B日志及返回开销均值/最大9.245/10.880us，计入日志的完整窗口均值/P99/最大79.449/92.929/95.617us。后者204条超名义93.68us但提交在先、实际采用均正确，不能宣称全部软件工作在93.68us内完成或WCET。原失败k1200提交95.873us，新同记录75.009us，含日志窗口96.257→84.481us。Workspace.runtime/ax02c2/vitis_runtime_pl_perf_r1，Launch ax02c2_runtime_manual；原native64平台/FSBL与hardware_02不变。精简证据verification/ax02c2/board_perf_r1_01，主报告及唯一指南已更新。原失败目录/备份及全部Workspace/数据保留。本轮仅离线读文件归档，不连接/操作板卡、不构建/回归；PR24待用户最终Review，不自动合并。以下性能候选BOARD_NOT_RUN、旧关机等记录均为历史，不作为当前动作。
+
+> 最新交付：AX-02C2离线实现及必要适配/构建/启动检查PASS，已推送kazecode666/AXU5EV Draft PR24（https://github.com/kazecode666/AXU5EV/pull/24）。用户已回复将接回原ETH02直连网卡，随后最新要求离线完成后关机；本轮不再执行C2加载/运行，BOARD_NOT_RUN，留待后续继续。交接推送完成后正常关机，不强制关闭或自动保存未保存窗口。C1实板不复现，原模型参数和所有工作区/数据保留，PR24待Review，不自动合并。
+
+> 当前：PR22已合并，从当前origin/main实施Issue23 AX-02C2，分支codex/ax02c2-runtime-pl-replay。真实R5 Runtime→原模型生成薄适配→原AXI轮询→真实PL FOC连续记录回放已离线实现；同源current_motion64536条，最终adapter709896+88words零差，原生构建及现有启动检查PASS。唯一Workspace.runtime/ax02c2/vitis_runtime_pl_native64，Launch ax02c2_runtime_manual，build43324301；复用hardware_02 bit/XSA，不重跑C1/RTL/ETH02。数据prepared_04/data/current_motion，最终adapter_native_01；主报告coordination/reports/ax02c2_runtime_pl_replay.md，唯一指南firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md。C2板测NOT_RUN；用户已说明将接回原ETH02直连网卡，最新要求离线完成后关机，本轮不执行C2加载或实验，后续从Draft PR24继续；不扩展为无限操作，不接功率级、不写启动介质、不自动合并。保留所有旧Workspace/用户模型参数/数据。下述PR22待Review及旧PID/暂停状态均为当时历史，PR22已合并，C1成功已验收不复现。
+
 > 当前：PR22 AX-02C1原hardware_01的AUX reset低有效却接0，已最小改接1（debug仍0）。hardware_02 bit/XSA完整构建及aux_fixed启动检查PASS，时序WNS+3.149ns/WHS+0.011ns、TNS/THS=0。2026-11-03用户明确授权在线诊断，并另准一次复位/加载新bit及原FSBL/R5 ELF、一次17帧；新首读PC1031BC→1031C0实得ID43314301，同次实板17帧/51duty/完整17帧PASS、mismatch0。旧故障现场PC未取得，不能与新首读实测混同。当前证据verification/ax02c/board_aux_fixed_01/evidence.json，原始UART.runtime/ax02c/board/uart_17_aux_fixed_01.txt；hardware_aux_fixed.json的NOT_RUN仅为构建快照。沿用原Workspace/Launch/ELF/FSBL，当前bit用hardware_02，不自动加载旧平台镜像。最终R5已halt于0010333C WFI，DSCR03186003/HALTED1；自建XSDB31752已断开退出，3121仅hw_server30848监听/无Established，用户可单一Vitis会话接手。本次授权动作已完成，进一步复位/下载/破坏现场寄存器写入仍须说明并征得确认。保留原工程及全部数据，PR22待最终Review，不自动合并。
 
 ## 当前开发

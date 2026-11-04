@@ -1,0 +1,98 @@
+{
+  "status": "R5_SOFTWARE_CANDIDATE_BUILD_PASS",
+  "tool": "Vitis 2026.1",
+  "build_exit_code": 0,
+  "build_id": "0x43324302",
+  "workspace": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_perf_r1",
+  "launch": "ax02c2_runtime_manual",
+  "elf": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_perf_r1/ax02c2_runtime/build/ax02c2_runtime.elf",
+  "elf_bytes": 1015744,
+  "map": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_perf_r1/ax02c2_runtime/build/ax02c2_runtime.map",
+  "platform_workspace": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_native64",
+  "platform_rebuilt": false,
+  "bsp_rebuilt": false,
+  "fsbl_rebuilt": false,
+  "fsbl": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_native64/ax02c2_platform/export/ax02c2_platform/sw/boot/fsbl.elf",
+  "bitstream": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.bit",
+  "xsa": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.xsa",
+  "application_compile_warnings": 0,
+  "source_codegen_changed": false,
+  "runtime_compile_flags": "-O2 -fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard",
+  "text_bytes": 141695,
+  "data_bytes": 5516,
+  "bss_bytes": 3513120,
+  "build_log": "D:/Project/AXU5EV/.runtime/ax02c2/perf_r1/build_01.log",
+  "startup_check": "OFFLINE_STARTUP_CHECK_PASS",
+  "elf_pt_load": [
+    {
+      "address": 0,
+      "file_bytes": 2008,
+      "memory_bytes": 2008,
+      "flags": 7
+    },
+    {
+      "address": 1048576,
+      "file_bytes": 145212,
+      "memory_bytes": 145212,
+      "flags": 7
+    },
+    {
+      "address": 2097152,
+      "file_bytes": 0,
+      "memory_bytes": 3513120,
+      "flags": 6
+    }
+  ],
+  "symbols": {
+    "emac_bd_space": {
+      "address": "0x00400000",
+      "bytes": 1048576
+    },
+    "_heap": {
+      "address": "0x00508320",
+      "bytes": 0
+    },
+    "_heap_end": {
+      "address": "0x00548320",
+      "bytes": 0
+    },
+    "_stack": {
+      "address": "0x00558320",
+      "bytes": 0
+    },
+    "_stack_end": {
+      "address": "0x00548320",
+      "bytes": 0
+    },
+    "_STACK_SIZE": {
+      "address": "0x00010000",
+      "bytes": 0
+    },
+    "_HEAP_SIZE": {
+      "address": "0x00040000",
+      "bytes": 0
+    },
+    "AXU5EV_R5_Runtime_step": {
+      "address": "0x001001a0",
+      "bytes": 5888
+    },
+    "ax02c2_replay": {
+      "address": "0x00103854",
+      "bytes": 1012
+    }
+  },
+  "replay_object_layout": "Same eight fixed windows as verification/ax02c2/memory_layout.json; all pairwise disjoint and no new ELF segment overlap",
+  "heap_range": {
+    "address": "0x00508320",
+    "end_exclusive": "0x00548320",
+    "bytes": 262144
+  },
+  "stack_range": {
+    "address": "0x00548320",
+    "end_exclusive": "0x00558320",
+    "bytes": 65536
+  },
+  "platform_reference": "Existing built xpfm registered via add_platform_repos; no platform copy or p.build call",
+  "board": "NOT_RUN",
+  "old_workspace_preserved": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_native64"
+}

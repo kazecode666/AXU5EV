@@ -1,0 +1,36 @@
+{
+  "status": "DATA_SOURCE_PASS",
+  "frames": 64536,
+  "Ts": 0.0001,
+  "input_fields": 20,
+  "runtime_output_fields": 41,
+  "feedback_fields": 5,
+  "feedback_names": [
+    "ia_A",
+    "ib_A",
+    "ic_A",
+    "theta_ideal_rad",
+    "omega_ideal_radps"
+  ],
+  "feedback_source": "D:\\Project\\AXU5EV\\.runtime\\ax01c\\c_fixed_continuous.mat",
+  "omega_source": "Original foc_frame field5, s40/24 physical angular feedback; current_motion Alignment_Enable=0 throughout.",
+  "runtime_input_source": "D:/Project/AXU5EV/.runtime/ax02a/replay/current_motion/input.bin",
+  "runtime_reference_source": "D:/Project/AXU5EV/.runtime/ax02a/replay/current_motion/reference.bin",
+  "data_directory": "D:/Project/AXU5EV/.runtime/ax02c2/prepared_04/data/current_motion",
+  "foc_reference_format": "LE uint32 frame-major duty_u,duty_v,duty_w",
+  "foc_reference_fields": 3,
+  "original_same_record_quantized_field_checks": 580824,
+  "original_same_record_quantized_field_mismatches": 0,
+  "application_adapter_generated": "D:\\Project\\AXU5EV\\.runtime\\ax02c2\\adapter_native_01\\adapter_01\\codegen\\AX02C2_Adapter_ert_rtw",
+  "adapter_check": "D:/Project/AXU5EV/.runtime/ax02c2/prepared_04/adapter_check_native_01/result.json",
+  "physical_parameters": {
+    "Tau_e_mm": 60,
+    "theta_align_const_rad": 0,
+    "Theta_Offset_Fine_rad": 0
+  },
+  "vdc_source": "Actual R5 Runtime output field14; frozen current_motion reference field14 and original MAT foc_frame field9 are both 48V for all64536 records.",
+  "frame_mapping": "record_index k = Runtime logical step k; command/adopted/PL frame k+1; prepare record0 beforeSTART, prepare k+1 after result k, stop only after finalfull5000clockframe.",
+  "original_theta_period_check_max_circular_error_rad": 1.133107779529596e-15,
+  "historical_runtime_result": "Original ETH02/current_motion reference and target generatedRuntime reused; this new Runtime+PL application BOARD_NOT_RUN",
+  "board": "NOT_RUN"
+}

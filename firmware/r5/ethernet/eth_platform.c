@@ -15,7 +15,13 @@
 #include "netif/xemacpsif.h"
 #include "lwip/priv/tcp_priv.h"
 #include "xinterrupt_wrap.h"
+#ifdef AX02C2_RUNTIME
+#include "replay.h"
+extern const volatile uint32_t ax02c2_application_id,ax02c2_mmio_base;
+#define ETH_LABEL "AX02C2"
+#else
 #define ETH_LABEL "ETH02"
+#endif
 #else
 #define ETH_LABEL "ETH01"
 #endif
@@ -141,12 +147,18 @@ int main(void){
  unsigned char mac[]={0x02,0x45,0x30,0x31,0x00,0x10};
  Xil_DCacheDisable();Xil_ICacheEnable();
  xil_printf(ETH_LABEL " R5_0 standalone build=%08x I-cache=ON D-cache=OFF GEM3=ff0e0000 PMU/64"
-#ifdef ETH02_RUNTIME
+#if defined(AX02C2_RUNTIME)
+            " Runtime=PL_polling base=%08lx\r\n",
+#elif defined(ETH02_RUNTIME)
             " Runtime=TTC0\r\n",
 #else
             " no TTC\r\n",
 #endif
+#ifdef AX02C2_RUNTIME
+            ax02c2_application_id,(unsigned long)ax02c2_mmio_base);
+#else
             ETH_BUILD_ID);
+#endif
  lwip_init();IP4_ADDR(&ip,192,168,50,ETH_IP_LAST);IP4_ADDR(&mask,255,255,255,0);IP4_ADDR(&gw,0,0,0,0);
  if(!xemac_add(&net,&ip,&mask,&gw,mac,0xff0e0000U) || eth_phy_error || !eth_phy_speed){
   xil_printf("ETH01 INIT_FAIL phy=%u id=%08x STOP\r\n",eth_phy_error,eth_phy_id);eth01_fail_stop();

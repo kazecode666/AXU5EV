@@ -1,0 +1,655 @@
+{
+  "status": "BOARD_PASS",
+  "date": "2026-11-04",
+  "repository": "kazecode666/AXU5EV",
+  "pr": 24,
+  "comment": "https://github.com/kazecode666/AXU5EV/pull/24#issuecomment-6622743887",
+  "tested_source_commit": "480a6cbe4a762e7a01504275706a4cdef6e64e07",
+  "build_id": "0x43324302",
+  "board_root": "D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_perf_r1_01",
+  "source_root": "D:/Project/AXU5EV/.runtime/ax02c2/prepared_04/data/current_motion",
+  "original_failure_root": "D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_01",
+  "original_backup_root": "D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_01_fail1200_backup",
+  "original_backup_exists": true,
+  "raw_paths": {
+    "output.bin": "D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_perf_r1_01/output.bin",
+    "timing.bin": "D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_perf_r1_01/timing.bin",
+    "pl_result.bin": "D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_perf_r1_01/pl_result.bin",
+    "report_v2.bin": "D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_perf_r1_01/report_v2.bin",
+    "UART.txt": "D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_perf_r1_01/UART.txt"
+  },
+  "raw_bytes": {
+    "output_bin": 21167808,
+    "timing_bin": 4130304,
+    "pl_result_bin": 2065152
+  },
+  "independent_saved_file_check": {
+    "runtime_values": 2645976,
+    "numerical_failures": 0,
+    "maximum_runtime_absolute_difference": 1.7763568394002505e-15,
+    "nonzero_difference_fields": [
+      {
+        "field": 13,
+        "name": "x_ref_mm",
+        "comparison": "abs_rel_1e-9",
+        "max_abs": 1.7763568394002505e-15,
+        "rms": 1.899723037113801e-17,
+        "max_frame": 3644,
+        "first_mismatch_frame": "",
+        "first_mismatch_s": "",
+        "failures": 0
+      }
+    ],
+    "duty_comparisons": 193608,
+    "duty_bit_failures": 0,
+    "relationship_failures": 0,
+    "pmu_identity_failures": 0,
+    "capture_or_status_failures": 0,
+    "complete_frame_stop": true,
+    "archived_client_summaries_agree": true,
+    "downloaded_lengths_agree": true
+  },
+  "timebase": {
+    "name": "PMU CPU/64",
+    "clock_hz": 7812421,
+    "pl_hz_metadata": 49999500,
+    "frame_clocks": 5000,
+    "result_publish_edge": 316,
+    "nominal_publish_to_boundary_us": 93.67999999999999,
+    "metadata_publish_to_boundary_us": 93.68093680936809,
+    "percentile": "nearest rank ceil(0.99*n); maxima list all tied zero-based record indices",
+    "initial_record": "Record0 prepared before START; excluded from cross-record windows and post-commit/log summaries"
+  },
+  "elapsed": {
+    "ticks": 50419315,
+    "seconds": 6.453737580194411,
+    "nominal_scene_seconds": 6.453600000000001
+  },
+  "transport": {
+    "upload_seconds": 29.616511600001104,
+    "download_seconds": 22.05224679999992,
+    "planned_reconnect_seconds": 3.0213602000003448,
+    "mbps": 1000
+  },
+  "statistics": {
+    "all": {
+      "input_copy": {
+        "samples": 64536,
+        "min_us": 3.968040124821742,
+        "mean_us": 4.36759988600803,
+        "p99_us": 4.99205047961445,
+        "max_us": 5.248053068312627,
+        "max_records": [
+          31993,
+          38125,
+          46325
+        ]
+      },
+      "runtime": {
+        "samples": 64536,
+        "min_us": 18.944191563665093,
+        "mean_us": 25.02535582074664,
+        "p99_us": 37.760381832981096,
+        "max_us": 39.04039477647198,
+        "max_records": [
+          28699
+        ]
+      },
+      "adapter_excluding_log": {
+        "samples": 64536,
+        "min_us": 13.18413331795611,
+        "mean_us": 28.926866451699045,
+        "p99_us": 30.464308055083052,
+        "max_us": 30.976313232479406,
+        "max_records": [
+          27039,
+          54979,
+          55126,
+          55184,
+          55249,
+          55334,
+          55504,
+          55549,
+          55740,
+          55769,
+          55816,
+          55834,
+          55903
+        ]
+      },
+      "axi_write_commit": {
+        "samples": 64536,
+        "min_us": 6.528066011803511,
+        "mean_us": 6.828014997534241,
+        "p99_us": 7.168072483548953,
+        "max_us": 7.296073777898042,
+        "max_records": [
+          13044,
+          21036,
+          22172,
+          22198,
+          23226,
+          24198,
+          25106,
+          25112,
+          27055,
+          27226,
+          28298,
+          29206,
+          29288,
+          29378,
+          31244,
+          31422,
+          53842
+        ]
+      },
+      "prepare_commit": {
+        "samples": 64536,
+        "min_us": 43.52044007869008,
+        "mean_us": 65.14783715598796,
+        "p99_us": 78.46479343599123,
+        "max_us": 81.02481932297299,
+        "max_records": [
+          55599
+        ]
+      },
+      "post_commit_log_and_bookkeeping": {
+        "samples": 64535,
+        "min_us": 8.832089310087104,
+        "mean_us": 9.244716214421294,
+        "p99_us": 10.496106136625254,
+        "max_us": 10.88011001967252,
+        "max_records": [
+          2239
+        ]
+      },
+      "prepare_through_log": {
+        "samples": 64535,
+        "min_us": 52.48053068312627,
+        "mean_us": 74.39271197088775,
+        "p99_us": 87.80888792347469,
+        "max_us": 90.62491639915463,
+        "max_records": [
+          25999,
+          55549,
+          55789,
+          56189
+        ]
+      },
+      "poll_wait": {
+        "samples": 64536,
+        "min_us": 4.352044007869008,
+        "mean_us": 20.55200254107617,
+        "p99_us": 27.008273107657665,
+        "max_us": 42.624431018246455,
+        "max_records": [
+          278,
+          347,
+          383,
+          386
+        ]
+      },
+      "result_read": {
+        "samples": 64536,
+        "min_us": 3.712037536123565,
+        "mean_us": 3.8479149482961974,
+        "p99_us": 3.968040124821742,
+        "max_us": 4.352044007869008,
+        "max_records": [
+          52383
+        ]
+      },
+      "previous_read_begin_to_commit": {
+        "samples": 64535,
+        "min_us": 48.51249055830453,
+        "mean_us": 70.2040736596942,
+        "p99_us": 83.45684391560567,
+        "max_us": 86.01686980258745,
+        "max_records": [
+          55599
+        ]
+      },
+      "previous_read_end_to_commit": {
+        "samples": 64535,
+        "min_us": 44.67245172783187,
+        "mean_us": 66.35615858935385,
+        "p99_us": 79.61680508513302,
+        "max_us": 82.17683097211479,
+        "max_records": [
+          55599
+        ]
+      },
+      "previous_read_begin_through_log": {
+        "samples": 64535,
+        "min_us": 57.47258116274072,
+        "mean_us": 79.44878987411549,
+        "p99_us": 92.92893969743822,
+        "max_us": 95.61696687876908,
+        "max_records": [
+          25999,
+          55389,
+          55549,
+          55789,
+          56189
+        ]
+      },
+      "result_observation_interval": {
+        "samples": 64535,
+        "min_us": 99.07300182619447,
+        "mean_us": 100.00101567296514,
+        "p99_us": 100.60901735838353,
+        "max_us": 100.8650199470817,
+        "max_records": [
+          8809,
+          28373
+        ]
+      }
+    },
+    "ordinary": {
+      "runtime": {
+        "samples": 58083,
+        "min_us": 18.944191563665093,
+        "mean_us": 24.823378745011496,
+        "p99_us": 36.352367595141125,
+        "max_us": 36.86437277253748,
+        "max_records": [
+          21016
+        ]
+      },
+      "adapter_excluding_log": {
+        "samples": 58083,
+        "min_us": 13.18413331795611,
+        "mean_us": 28.92248560158122,
+        "p99_us": 30.464308055083052,
+        "max_us": 30.976313232479406,
+        "max_records": [
+          55126,
+          55184,
+          55334,
+          55504,
+          55740,
+          55816,
+          55834,
+          55903
+        ]
+      },
+      "post_commit_log_and_bookkeeping": {
+        "samples": 58082,
+        "min_us": 8.832089310087104,
+        "mean_us": 9.244667704730565,
+        "p99_us": 10.496106136625254,
+        "max_us": 10.752108725323431,
+        "max_records": [
+          1622,
+          1647,
+          3037,
+          3615,
+          4815,
+          5430,
+          7398,
+          8230,
+          31590
+        ]
+      },
+      "previous_read_begin_to_commit": {
+        "samples": 58082,
+        "min_us": 48.51249055830453,
+        "mean_us": 69.99799110882904,
+        "p99_us": 82.68883614951115,
+        "max_us": 83.71284650430385,
+        "max_records": [
+          55345
+        ]
+      },
+      "previous_read_begin_through_log": {
+        "samples": 58082,
+        "min_us": 57.47258116274072,
+        "mean_us": 79.24265881355959,
+        "p99_us": 92.0329306369946,
+        "max_us": 93.82494875788184,
+        "max_records": [
+          55357,
+          55384
+        ]
+      }
+    },
+    "speed_1ms_due": {
+      "runtime": {
+        "samples": 5808,
+        "min_us": 21.120213567599595,
+        "mean_us": 26.725823970540258,
+        "p99_us": 38.14438571602836,
+        "max_us": 38.27238701037745,
+        "max_records": [
+          26059,
+          26129,
+          26639,
+          26679,
+          26819,
+          27189,
+          27659,
+          27759,
+          27909,
+          27989,
+          28309,
+          28609,
+          28909,
+          55409,
+          55439,
+          55449,
+          55519,
+          55849,
+          56129,
+          56279,
+          56809,
+          57369
+        ]
+      },
+      "adapter_excluding_log": {
+        "samples": 5808,
+        "min_us": 13.18413331795611,
+        "mean_us": 28.96547196221336,
+        "p99_us": 30.592309349432142,
+        "max_us": 30.976313232479406,
+        "max_records": [
+          27039,
+          54979,
+          55249,
+          55549,
+          55769
+        ]
+      },
+      "post_commit_log_and_bookkeeping": {
+        "samples": 5808,
+        "min_us": 8.832089310087104,
+        "mean_us": 9.231983160976256,
+        "p99_us": 10.496106136625254,
+        "max_us": 10.88011001967252,
+        "max_records": [
+          2239
+        ]
+      },
+      "previous_read_begin_to_commit": {
+        "samples": 5808,
+        "min_us": 50.688512562239026,
+        "mean_us": 71.94677711258701,
+        "p99_us": 84.60885556474747,
+        "max_us": 85.50486462519109,
+        "max_records": [
+          27039,
+          55329,
+          55389,
+          55549,
+          55729,
+          55769
+        ]
+      },
+      "previous_read_begin_through_log": {
+        "samples": 5808,
+        "min_us": 59.64860316667522,
+        "mean_us": 81.17876027356328,
+        "p99_us": 94.08095134658002,
+        "max_us": 95.61696687876908,
+        "max_records": [
+          55389,
+          55549,
+          55789,
+          56189
+        ]
+      }
+    },
+    "position_10ms_due": {
+      "runtime": {
+        "samples": 645,
+        "min_us": 21.888221333694126,
+        "mean_us": 27.901503845433243,
+        "p99_us": 38.784392187773804,
+        "max_us": 39.04039477647198,
+        "max_records": [
+          28699
+        ]
+      },
+      "adapter_excluding_log": {
+        "samples": 645,
+        "min_us": 13.312134612305199,
+        "mean_us": 28.973737943678397,
+        "p99_us": 30.464308055083052,
+        "max_us": 30.84831193813032,
+        "max_records": [
+          55799
+        ]
+      },
+      "post_commit_log_and_bookkeeping": {
+        "samples": 645,
+        "min_us": 8.832089310087104,
+        "mean_us": 9.363741197778898,
+        "p99_us": 10.624107430974343,
+        "max_us": 10.752108725323431,
+        "max_records": [
+          21999
+        ]
+      },
+      "previous_read_begin_to_commit": {
+        "samples": 645,
+        "min_us": 51.712522917031734,
+        "mean_us": 73.06929081465321,
+        "p99_us": 85.12086074214382,
+        "max_us": 86.01686980258745,
+        "max_records": [
+          55599
+        ]
+      },
+      "previous_read_begin_through_log": {
+        "samples": 645,
+        "min_us": 60.67261352146793,
+        "mean_us": 82.43303201243212,
+        "p99_us": 94.59295652397637,
+        "max_us": 95.61696687876908,
+        "max_records": [
+          25999
+        ]
+      }
+    }
+  },
+  "nominal_window_comparison": {
+    "previous_read_begin_to_commit": {
+      "max_us": 86.01686980258745,
+      "nominal_remaining_us": 7.663130197412542,
+      "samples_above_nominal": 0
+    },
+    "previous_read_begin_through_log": {
+      "max_us": 95.61696687876908,
+      "nominal_remaining_us": -1.9369668787690841,
+      "samples_above_nominal": 204
+    }
+  },
+  "baseline_comparison": {
+    "old_build_id": "0x43324301",
+    "old_completed": 1200,
+    "old_failure_record": 1200,
+    "old_failure": {
+      "record": 1200,
+      "phase": "ordinary",
+      "pmu_hex": [
+        "000004b0",
+        "000004b1",
+        "000004b1",
+        "000004b0",
+        "620ed38b",
+        "620ed3aa",
+        "620ed4be",
+        "620ed617",
+        "620ed64c",
+        "620ed64f",
+        "620ed66b",
+        "620ed686",
+        "000004b0",
+        "0000013b",
+        "0000000b",
+        "00000000"
+      ],
+      "durations_us": {
+        "input_copy": 3.968040124821742,
+        "runtime": 35.32835724034842,
+        "axi_write_commit": 6.784068600501688,
+        "prepare_commit": 90.24091251610736,
+        "poll_wait": 3.5840362417744767,
+        "result_read": 3.456034947425388,
+        "previous_read_begin_to_commit": 95.87296946746726,
+        "output_log_and_adapter": 44.160446550435516,
+        "post_commit_bookkeeping_without_log": 0.38400388304726535,
+        "previous_read_begin_to_wait_begin": 96.25697335051451,
+        "prepare_to_wait_begin": 90.62491639915463
+      },
+      "pl_words_hex": [
+        "000004b0",
+        "000004b0",
+        "000004b1",
+        "000004b0",
+        "000004b0",
+        "1ffffffa",
+        "2000873f",
+        "1fff78b5"
+      ]
+    },
+    "new_same_records": [
+      {
+        "record": 1199,
+        "phase": "position_10ms_due",
+        "pmu_hex": [
+          "000004af",
+          "000004b0",
+          "000004b0",
+          "000004b0",
+          "18f6ad4f",
+          "18f6ad72",
+          "18f6ae9a",
+          "18f6af16",
+          "18f6af4a",
+          "18f6af9a",
+          "18f6b033",
+          "18f6b051",
+          "000004b0",
+          "0000013b",
+          "00000000",
+          "00000000"
+        ],
+        "durations_us": {
+          "input_copy": 4.480045302218096,
+          "runtime": 37.88838312733019,
+          "adapter_excluding_log": 15.872160499286968,
+          "axi_write_commit": 6.6560673061525994,
+          "prepare_commit": 64.89665623498784,
+          "post_commit_log_and_bookkeeping": 10.240103547927077,
+          "prepare_through_log": 75.13675978291492,
+          "poll_wait": 19.584198035410534,
+          "result_read": 3.8400388304726536,
+          "previous_read_begin_to_commit": 69.88870671460229,
+          "previous_read_begin_through_log": 80.12881026252937
+        }
+      },
+      {
+        "record": 1200,
+        "phase": "ordinary",
+        "pmu_hex": [
+          "000004b0",
+          "000004b1",
+          "000004b1",
+          "000004b1",
+          "18f6b05a",
+          "18f6b07d",
+          "18f6b18e",
+          "18f6b248",
+          "18f6b27d",
+          "18f6b2c7",
+          "18f6b342",
+          "18f6b360",
+          "000004b1",
+          "0000013b",
+          "00000000",
+          "00000000"
+        ],
+        "durations_us": {
+          "input_copy": 4.480045302218096,
+          "runtime": 34.944353357301146,
+          "adapter_excluding_log": 23.80824074893045,
+          "axi_write_commit": 6.784068600501688,
+          "prepare_commit": 70.01670800895138,
+          "post_commit_log_and_bookkeeping": 9.472095781832547,
+          "prepare_through_log": 79.48880379078393,
+          "poll_wait": 15.74415920493788,
+          "result_read": 3.8400388304726536,
+          "previous_read_begin_to_commit": 75.00875848856583,
+          "previous_read_begin_through_log": 84.48085427039838
+        }
+      },
+      {
+        "record": 1201,
+        "phase": "ordinary",
+        "pmu_hex": [
+          "000004b1",
+          "000004b2",
+          "000004b2",
+          "000004b2",
+          "18f6b369",
+          "18f6b389",
+          "18f6b49f",
+          "18f6b562",
+          "18f6b598",
+          "18f6b5e5",
+          "18f6b650",
+          "18f6b66e",
+          "000004b2",
+          "0000013b",
+          "00000000",
+          "00000000"
+        ],
+        "durations_us": {
+          "input_copy": 4.096041419170831,
+          "runtime": 35.58435982904659,
+          "adapter_excluding_log": 24.96025239807225,
+          "axi_write_commit": 6.912069894850776,
+          "prepare_commit": 71.55272354114045,
+          "post_commit_log_and_bookkeeping": 9.856099664879812,
+          "prepare_through_log": 81.40882320602026,
+          "poll_wait": 13.696138495352464,
+          "result_read": 3.8400388304726536,
+          "previous_read_begin_to_commit": 76.5447740207549,
+          "previous_read_begin_through_log": 86.4008736856347
+        }
+      }
+    ],
+    "same_successful_prefix_read_begin_to_commit": {
+      "old": {
+        "samples": 1199,
+        "min_us": 69.24870024285686,
+        "mean_us": 79.44716867418998,
+        "p99_us": 88.57689568956921,
+        "max_us": 91.13692157655098,
+        "max_records": [
+          1199
+        ]
+      },
+      "new": {
+        "samples": 1199,
+        "min_us": 48.51249055830453,
+        "mean_us": 58.64669145069007,
+        "p99_us": 67.20067953327144,
+        "max_us": 69.88870671460229,
+        "max_records": [
+          1199
+        ]
+      }
+    }
+  },
+  "limitations": [
+    "Only this recorded-feedback current_motion run; no WCET, real ADC/QEP/gate-PWM closed loop or same-frame50us signoff.",
+    "post_commit_log_and_bookkeeping includes the 328B copy plus function/loop bookkeeping; copy alone has no timestamp.",
+    "previous_read_begin_through_log includes the prior result read, next prepare/commit and its post-commit log, excluding polling idle.",
+    "Nominal remaining time is a descriptive software-window comparison, not exact AXI acceptance slack; publication-to-observation latency is not measured.",
+    "Configured PMU/PL frequency conversion is not independent physical clock measurement.",
+    "Old adapter contains log copy; new adapter excludes it. No isolated per-function cycle savings inferred.",
+    "Existing report_v2.bin retained without claiming a new board-report crosscheck; original TTC timing is not applicable.",
+    "This archive reads saved local files only; no board operation, new experiment, build or regression run."
+  ]
+}

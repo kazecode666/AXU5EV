@@ -1,0 +1,74 @@
+{
+  "fsbl": {
+    "processor": "psu_cortexa53_0",
+    "machine": "AArch64",
+    "elf_class": 64,
+    "byte_order": "little",
+    "entry": 4294705152
+  },
+  "application": {
+    "machine": "ARM",
+    "elf_class": 32,
+    "byte_order": "little",
+    "entry": 60,
+    "flags": 83887104,
+    "segments": [
+      {
+        "address": 0,
+        "file_bytes": 2008,
+        "memory_bytes": 2008,
+        "flags": 7
+      },
+      {
+        "address": 1048576,
+        "file_bytes": 145060,
+        "memory_bytes": 145060,
+        "flags": 7
+      },
+      {
+        "address": 2097152,
+        "file_bytes": 0,
+        "memory_bytes": 3513120,
+        "flags": 6
+      }
+    ],
+    "processor": "psu_cortexr5_0"
+  },
+  "launch": "ax02c2_runtime_manual",
+  "status": "OFFLINE_STARTUP_CHECK_PASS",
+  "workspace": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_native64",
+  "platform": "ax02c2_platform",
+  "application_name": "ax02c2_runtime",
+  "build_id": "0x43324301",
+  "xsa": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.xsa",
+  "bitstream": "D:/Project/AXU5EV/.runtime/ax02c/hardware_02/ax02c_ps_pl.bit",
+  "elf": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_native64/ax02c2_runtime/build/ax02c2_runtime.elf",
+  "base_address": "0x80000000",
+  "base_macro": "XPAR_FOC_AXI_0_BASEADDR",
+  "symbols": {
+    "emac_bd_space": {
+      "address": 4194304,
+      "bytes": 1048576
+    },
+    "_heap": {
+      "address": 5276448,
+      "bytes": 0
+    },
+    "_stack": {
+      "address": 5604128,
+      "bytes": 0
+    },
+    "AXU5EV_R5_Runtime_step": {
+      "address": 1048992,
+      "bytes": 5888
+    },
+    "ax02c2_replay": {
+      "address": 1062972,
+      "bytes": 1012
+    }
+  },
+  "runtime_scheduler": "PL complete5000-clock frames / R5 polling; no TTC IRQ",
+  "timestamp": "BSP PMU CPU/64; actual COUNTS_PER_SECOND exported in run.json",
+  "memory_attribute": "BSP PL region 0x80000000..0xbfffffff Strongly Ordered",
+  "board": "NOT_RUN"
+}

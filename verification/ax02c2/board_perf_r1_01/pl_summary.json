@@ -1,0 +1,73 @@
+{
+  "status": "PASS",
+  "records": 64536,
+  "duty_comparisons": 193608,
+  "duty_bit_failures": 0,
+  "relationship_failures": 0,
+  "capture_failures": 0,
+  "complete_frame_stop": true,
+  "first_duty_mismatch": null,
+  "timebase": "PMU CPU/64",
+  "clock_hz": 7812421,
+  "ttc_irq_timing": "NOT_RUN_NOT_APPLICABLE",
+  "statistics": {
+    "runtime": {
+      "samples": 64536,
+      "mean_us": 25.02535582074664,
+      "min_us": 18.944191563665093,
+      "p99_us": 37.760381832981096,
+      "max_us": 39.04039477647198
+    },
+    "adapter": {
+      "samples": 64536,
+      "mean_us": 28.926866451699045,
+      "min_us": 13.18413331795611,
+      "p99_us": 30.464308055083052,
+      "max_us": 30.976313232479406
+    },
+    "write_commit": {
+      "samples": 64536,
+      "mean_us": 6.82801499753424,
+      "min_us": 6.528066011803511,
+      "p99_us": 7.168072483548953,
+      "max_us": 7.296073777898042
+    },
+    "prepare_commit": {
+      "samples": 64536,
+      "mean_us": 65.14783715598794,
+      "min_us": 43.52044007869008,
+      "p99_us": 78.46479343599123,
+      "max_us": 81.02481932297299
+    },
+    "poll_wait": {
+      "samples": 64536,
+      "mean_us": 20.552002541076174,
+      "min_us": 4.352044007869008,
+      "p99_us": 27.008273107657665,
+      "max_us": 42.624431018246455
+    },
+    "read_result": {
+      "samples": 64536,
+      "mean_us": 3.847914948296198,
+      "min_us": 3.712037536123565,
+      "p99_us": 3.968040124821742,
+      "max_us": 4.352044007869008
+    },
+    "next_record_prepare_commit": {
+      "samples": 64535,
+      "mean_us": 66.35615858935385,
+      "min_us": 44.67245172783187,
+      "p99_us": 79.61680508513302,
+      "max_us": 82.17683097211479
+    },
+    "result_interval": {
+      "samples": 64535,
+      "mean_us": 100.00101567296515,
+      "min_us": 99.07300182619447,
+      "p99_us": 100.60901735838353,
+      "max_us": 100.8650199470817
+    }
+  },
+  "interpretation": "Recorded-feedback pipeline replay; no same-frame50us or WCET signoff",
+  "output_log_placement": "after commit_end and before wait_begin; adapter excludes the Runtime41 log copy"
+}

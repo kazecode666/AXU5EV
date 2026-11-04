@@ -1,0 +1,488 @@
+{
+  "status": "ORIGINAL_BOARD_FAILURE_ANALYZED",
+  "board_status": "FAIL_SEQUENCE_AT_RECORD_1200",
+  "experiment": 1,
+  "planned_frames": 64536,
+  "completed_frames": 1200,
+  "failure_record": 1200,
+  "data_root": "D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_01",
+  "backup_root": "D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_01_fail1200_backup",
+  "backup_exists": true,
+  "original_file_bytes": {
+    "failure_frame_1200_xsdb.txt": 956,
+    "metadata.json": 2538,
+    "output.bin": 393600,
+    "pl_result.bin": 38400,
+    "pre_begin.json": 139,
+    "report_v2.bin": 2400,
+    "run.json": 1270,
+    "timing.bin": 76800,
+    "transfer.json": 2140,
+    "uart_log.txt": 626
+  },
+  "backup_file_bytes": {
+    "failure_frame_1200_xsdb.txt": 956,
+    "metadata.json": 2538,
+    "output.bin": 393600,
+    "pl_result.bin": 38400,
+    "pre_begin.json": 139,
+    "report_v2.bin": 2400,
+    "run.json": 1270,
+    "timing.bin": 76800,
+    "transfer.json": 2140,
+    "uart_log.txt": 626
+  },
+  "source": "D:/Project/AXU5EV/.runtime/ax02c2/prepared_04/data/current_motion",
+  "source_build_id": "0x43324301",
+  "network_mbps": 1000,
+  "transport": {
+    "upload_seconds": 29.910636799999793,
+    "download_seconds": 0.44007490000012695,
+    "reconnect_seconds": 0.0033957000000555126,
+    "objects_downloaded": [
+      "run.json",
+      "pre_begin.json",
+      "output.bin",
+      "timing.bin",
+      "report_v2.bin",
+      "pl_result.bin"
+    ]
+  },
+  "timebase": {
+    "name": "PMU CPU/64",
+    "clock_hz": 7812421,
+    "nominal_pl_hz": 50000000,
+    "clock_hz_metadata": 49999500,
+    "frame_clocks": 5000,
+    "axi_publish_edge": 316,
+    "nominal_publish_to_boundary_us": 93.68
+  },
+  "prefix_check": {
+    "records": 1200,
+    "runtime_values": 49200,
+    "runtime_numeric_failures": 0,
+    "max_runtime_abs": 4.336808689942018e-19,
+    "runtime_difference_fields": [
+      {
+        "field": 13,
+        "name": "x_ref_mm",
+        "comparison": "abs_rel_1e-9",
+        "max_abs": 4.336808689942018e-19,
+        "rms": 1.271941556826916e-20,
+        "max_frame": 893,
+        "first_mismatch_frame": "",
+        "first_mismatch_s": "",
+        "failures": 0
+      }
+    ],
+    "duty_values": 3600,
+    "duty_bit_failures": 0,
+    "relationship_failures": 0,
+    "timing_identity_failures": 0,
+    "interpretation": "Only the valid 1200-record prefix; not a complete64536-frame pass"
+  },
+  "timing_groups": {
+    "all": {
+      "input_copy": {
+        "samples": 1200,
+        "min_us": 3.968040124821742,
+        "mean_us": 4.349803985217899,
+        "p99_us": 4.99205047961445,
+        "max_us": 5.120051773963539,
+        "max_record": 909
+      },
+      "runtime": {
+        "samples": 1200,
+        "min_us": 19.07219285801418,
+        "mean_us": 28.922745800138866,
+        "p99_us": 37.37637794993383,
+        "max_us": 38.01638442167927,
+        "max_record": 699
+      },
+      "output_copy_and_adapter": {
+        "samples": 1200,
+        "min_us": 33.536339119461175,
+        "mean_us": 34.34840066436085,
+        "p99_us": 35.58435982904659,
+        "max_us": 38.52838959907562,
+        "max_record": 0
+      },
+      "axi_write_commit": {
+        "samples": 1200,
+        "min_us": 6.6560673061525994,
+        "mean_us": 6.7963353912101425,
+        "p99_us": 7.040071189199865,
+        "max_us": 7.168072483548953,
+        "max_record": 1135
+      },
+      "prepare_commit": {
+        "samples": 1200,
+        "min_us": 64.00064717454423,
+        "mean_us": 74.41728584092776,
+        "p99_us": 83.58484520995476,
+        "max_us": 86.14487109693653,
+        "max_record": 1199
+      },
+      "poll_wait": {
+        "samples": 1200,
+        "min_us": 6.4000647174544225,
+        "mean_us": 20.152310446829905,
+        "p99_us": 30.464308055083052,
+        "max_us": 30.592309349432142,
+        "max_record": 392
+      },
+      "result_read": {
+        "samples": 1200,
+        "min_us": 3.8400388304726536,
+        "mean_us": 3.8690524571917804,
+        "p99_us": 4.096041419170831,
+        "max_us": 4.352044007869008,
+        "max_record": 0
+      }
+    },
+    "ordinary": {
+      "input_copy": {
+        "samples": 1080,
+        "min_us": 3.968040124821742,
+        "mean_us": 4.3502662121141595,
+        "p99_us": 4.99205047961445,
+        "max_us": 5.120051773963539,
+        "max_record": 885
+      },
+      "runtime": {
+        "samples": 1080,
+        "min_us": 19.07219285801418,
+        "mean_us": 28.72384601108642,
+        "p99_us": 35.71236112339568,
+        "max_us": 35.84036241774477,
+        "max_record": 1001
+      },
+      "output_copy_and_adapter": {
+        "samples": 1080,
+        "min_us": 33.536339119461175,
+        "mean_us": 34.343813951313344,
+        "p99_us": 35.58435982904659,
+        "max_us": 38.52838959907562,
+        "max_record": 0
+      },
+      "axi_write_commit": {
+        "samples": 1080,
+        "min_us": 6.6560673061525994,
+        "mean_us": 6.797698367955526,
+        "p99_us": 7.040071189199865,
+        "max_us": 7.168072483548953,
+        "max_record": 1135
+      },
+      "prepare_commit": {
+        "samples": 1080,
+        "min_us": 64.00064717454423,
+        "mean_us": 74.21562454246944,
+        "p99_us": 82.0488296777657,
+        "max_us": 82.56083485516206,
+        "max_record": 1114
+      },
+      "poll_wait": {
+        "samples": 1080,
+        "min_us": 6.4000647174544225,
+        "mean_us": 20.351139124052157,
+        "p99_us": 30.464308055083052,
+        "max_us": 30.592309349432142,
+        "max_record": 392
+      },
+      "result_read": {
+        "samples": 1080,
+        "min_us": 3.8400388304726536,
+        "mean_us": 3.868246523116249,
+        "p99_us": 4.096041419170831,
+        "max_us": 4.352044007869008,
+        "max_record": 0
+      }
+    },
+    "speed_1ms_due": {
+      "input_copy": {
+        "samples": 108,
+        "min_us": 3.968040124821742,
+        "mean_us": 4.34967361352921,
+        "p99_us": 4.99205047961445,
+        "max_us": 5.120051773963539,
+        "max_record": 909
+      },
+      "runtime": {
+        "samples": 108,
+        "min_us": 20.99221227325051,
+        "mean_us": 30.66105078528628,
+        "p99_us": 37.504379244282916,
+        "max_us": 37.504379244282916,
+        "max_record": 1039
+      },
+      "output_copy_and_adapter": {
+        "samples": 108,
+        "min_us": 33.664340413810265,
+        "mean_us": 34.37190312423995,
+        "p99_us": 35.58435982904659,
+        "max_us": 35.58435982904659,
+        "max_record": 239
+      },
+      "axi_write_commit": {
+        "samples": 108,
+        "min_us": 6.6560673061525994,
+        "mean_us": 6.788809389181284,
+        "p99_us": 7.040071189199865,
+        "max_us": 7.040071189199865,
+        "max_record": 1129
+      },
+      "prepare_commit": {
+        "samples": 108,
+        "min_us": 66.17666917847873,
+        "mean_us": 76.17143691223673,
+        "p99_us": 83.71284650430385,
+        "max_us": 84.09685038735111,
+        "max_record": 829
+      },
+      "poll_wait": {
+        "samples": 108,
+        "min_us": 10.624107430974343,
+        "mean_us": 18.41914921739985,
+        "p99_us": 28.416287345497636,
+        "max_us": 28.416287345497636,
+        "max_record": 329
+      },
+      "result_read": {
+        "samples": 108,
+        "min_us": 3.8400388304726536,
+        "mean_us": 3.8767799427395215,
+        "p99_us": 4.096041419170831,
+        "max_us": 4.2240427135199194,
+        "max_record": 639
+      }
+    },
+    "position_10ms_due": {
+      "input_copy": {
+        "samples": 12,
+        "min_us": 3.968040124821742,
+        "mean_us": 4.309376909752645,
+        "p99_us": 4.608046596567185,
+        "max_us": 4.608046596567185,
+        "max_record": 99
+      },
+      "runtime": {
+        "samples": 12,
+        "min_us": 21.63221874499595,
+        "mean_us": 31.17898194853213,
+        "p99_us": 38.01638442167927,
+        "max_us": 38.01638442167927,
+        "max_record": 699
+      },
+      "output_copy_and_adapter": {
+        "samples": 12,
+        "min_us": 33.664340413810265,
+        "mean_us": 34.5496826997248,
+        "p99_us": 37.24837665558474,
+        "max_us": 37.24837665558474,
+        "max_record": 1199
+      },
+      "axi_write_commit": {
+        "samples": 12,
+        "min_us": 6.6560673061525994,
+        "mean_us": 6.741401502385325,
+        "p99_us": 6.912069894850776,
+        "max_us": 6.912069894850776,
+        "max_record": 1199
+      },
+      "prepare_commit": {
+        "samples": 12,
+        "min_us": 66.94467694457326,
+        "mean_us": 76.7794430603949,
+        "p99_us": 86.14487109693653,
+        "max_us": 86.14487109693653,
+        "max_record": 1199
+      },
+      "poll_wait": {
+        "samples": 12,
+        "min_us": 8.576086721388927,
+        "mean_us": 17.85618056169784,
+        "p99_us": 27.776280873752196,
+        "max_us": 27.776280873752196,
+        "max_record": 399
+      },
+      "result_read": {
+        "samples": 12,
+        "min_us": 3.8400388304726536,
+        "mean_us": 3.8720391540599257,
+        "p99_us": 3.968040124821742,
+        "max_us": 3.968040124821742,
+        "max_record": 1199
+      }
+    }
+  },
+  "timing_scope": "Per-record groups include record0 preparation before START; next-frame window samples exclude record0 and cover successful records1..1199. Failure record1200 is separately read from the saved XSDB snapshot.",
+  "previous_read_begin_to_next_commit": {
+    "samples": 1199,
+    "min_us": 69.24870024285686,
+    "mean_us": 79.44716867418998,
+    "p99_us": 88.57689568956921,
+    "max_us": 91.13692157655098,
+    "max_record": 1199,
+    "above_nominal_window": 0,
+    "smallest_nominal_margin_us": 2.543078423449032
+  },
+  "failure": {
+    "pl": {
+      "record_index": 1200,
+      "runtime_step": 1200,
+      "pl_frame": 1201,
+      "command_seq": 1200,
+      "adopted_seq": 1200,
+      "duty_u": 536870906,
+      "duty_v": 536905535,
+      "duty_w": 536836277
+    },
+    "pmu": {
+      "record_index": 1200,
+      "command_seq": 1201,
+      "pl_frame": 1201,
+      "result_seq": 1200,
+      "prepare_begin": 1645138827,
+      "step_begin": 1645138858,
+      "step_end": 1645139134,
+      "adapt_end": 1645139479,
+      "commit_end": 1645139532,
+      "wait_begin": 1645139535,
+      "read_begin": 1645139563,
+      "read_end": 1645139590,
+      "adopted_seq": 1200,
+      "capture_edge": 315,
+      "status": 11,
+      "reserved": 0
+    },
+    "pmu_hex": [
+      "000004b0",
+      "000004b1",
+      "000004b1",
+      "000004b0",
+      "620ed38b",
+      "620ed3aa",
+      "620ed4be",
+      "620ed617",
+      "620ed64c",
+      "620ed64f",
+      "620ed66b",
+      "620ed686",
+      "000004b0",
+      "0000013b",
+      "0000000b",
+      "00000000"
+    ],
+    "previous_pmu": {
+      "record_index": 1199,
+      "command_seq": 1200,
+      "pl_frame": 1200,
+      "result_seq": 1200,
+      "prepare_begin": 1645138040,
+      "step_begin": 1645138072,
+      "step_end": 1645138368,
+      "adapt_end": 1645138659,
+      "commit_end": 1645138713,
+      "wait_begin": 1645138716,
+      "read_begin": 1645138783,
+      "read_end": 1645138814,
+      "adopted_seq": 1200,
+      "capture_edge": 315,
+      "status": 0,
+      "reserved": 0
+    },
+    "phase": "ordinary",
+    "previous_phase": "position_10ms_due",
+    "durations_ticks": {
+      "input_copy": 31,
+      "runtime": 276,
+      "output_copy_and_adapter": 345,
+      "axi_write_commit": 53,
+      "prepare_commit": 705,
+      "poll_wait": 28,
+      "result_read": 27
+    },
+    "durations_us": {
+      "input_copy": 3.968040124821742,
+      "runtime": 35.32835724034842,
+      "output_copy_and_adapter": 44.160446550435516,
+      "axi_write_commit": 6.784068600501688,
+      "prepare_commit": 90.24091251610736,
+      "poll_wait": 3.5840362417744767,
+      "result_read": 3.456034947425388
+    },
+    "previous_read_begin_to_commit_ticks": 749,
+    "previous_read_begin_to_commit_us": 95.87296946746726,
+    "exceeds_nominal_window_us": 2.1929694674672504,
+    "deadline_evidence": "Previous read_begin cannot precede previous AXI publication; commit_end is after the COMMIT write and barrier. Its budget excess is approximate; exact AXI acceptance time is not sampled. The observed old adopted_seq directly proves the boundary was missed.",
+    "stopped_complete_frames": 1201,
+    "hold_error": 0,
+    "stop_status": 0
+  },
+  "data_dependent_transition": {
+    "first_nonzero_feedback_records": {
+      "ia_A": 1200,
+      "ib_A": 1200,
+      "ic_A": 1200,
+      "theta_rad": 1200,
+      "omega_radps": 1200
+    },
+    "first_nonzero_runtime_reference_records": {
+      "id_ref_A": null,
+      "iq_ref_A": 1199,
+      "v_ref_mmps": 1199
+    },
+    "local_events": [
+      {
+        "record": 1198,
+        "phase": "ordinary",
+        "feedback": [
+          0.0,
+          0.0,
+          -0.0,
+          0.0,
+          0.0
+        ],
+        "runtime_reference_iq": 0.0,
+        "runtime_reference_v_ref": 0.0,
+        "inferred_rounding_remainder_calls": 1
+      },
+      {
+        "record": 1199,
+        "phase": "position_10ms_due",
+        "feedback": [
+          0.0,
+          0.0,
+          -0.0,
+          0.0,
+          0.0
+        ],
+        "runtime_reference_iq": 0.00018033474852681124,
+        "runtime_reference_v_ref": 0.01,
+        "inferred_rounding_remainder_calls": 2
+      },
+      {
+        "record": 1200,
+        "phase": "ordinary",
+        "feedback": [
+          -8.261277392486228e-09,
+          1.8892836788754544e-05,
+          -1.8884575511362058e-05,
+          2.222609077762537e-11,
+          1.3709068298339844e-06
+        ],
+        "runtime_reference_iq": 0.00018033474852681124,
+        "runtime_reference_v_ref": 0.02,
+        "inferred_rounding_remainder_calls": 5
+      }
+    ],
+    "inference": "k1199 first nonzero iq_ref/v_ref and 10ms branch; k1200 is ordinary but first nonzero physicalfeedback. Generated rounding activates additional remainder/math branches, matching the measured adapter jump. PMU does not isolate each function or identify cache/DDR contributions."
+  },
+  "conclusion": "R5 serial result-read + prepare + commit misses next PL adopt boundary; no evidence of AUX/network/FOC numeric failure in valid prefix",
+  "limitations": [
+    "No board connection or rerun performed",
+    "Configured clock conversion is approximate, not independently measured hardware frequency",
+    "read_begin-to-commit excludes publication-to-poll observation latency and commit_end is a software timestamp",
+    "No complete-scene or future-load WCET/timing signoff; candidate still needs separately authorized board validation"
+  ]
+}

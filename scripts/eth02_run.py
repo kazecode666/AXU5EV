@@ -25,8 +25,9 @@ SCENE,BEGIN,WRITE,SEAL,START,QUERY,INFO,READ=range(0x10,0x18)
 
 
 class Connection:
-    def __init__(self,sock):
+    def __init__(self,sock,expected_build=BUILD):
         self.sock=sock;self.transfer=secrets.randbelow(0xffffffff)+1;self.seq=0
+        self.expected_build=expected_build
 
     def call(self,kind,total=0,offset=0,payload=b''):
         self.seq+=1
@@ -36,7 +37,8 @@ class Connection:
         fields=struct.unpack('!12I',self.call(QUERY))
         result=dict(zip(('build_id','phase','experiment','scenario','frames','uploaded',
             'status','completed_frames','failed_frame','negotiated_mbps','cache','mapping_version'),fields))
-        if result['build_id']!=BUILD:raise ValueError('expected ETH02 build 45303201; select the new workspace/launch')
+        if result['build_id']!=self.expected_build:
+            raise ValueError(f'expected application build {self.expected_build:08x}; select the matching workspace/launch')
         return result
 
     def upload(self,object_id,path):

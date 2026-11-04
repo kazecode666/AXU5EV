@@ -1,0 +1,11 @@
+Zynq MP First Stage Boot Loader 
+Release 2026.1   Nov  4 2026  -  00:39:52
+PMU-FW is not running, certain applications may not be supported.
+AX02C2 R5_0 standalone build=43324302 I-cache=ON D-cache=OFF GEM3=ff0e0000 PMU/64 Runtime=PL_polling base=80000000
+ETH01 PHY addr=1 id=937C4032
+ETH01 PHYSR=0x182E speed=1000 Mbps duplex=full
+Using default Speed from design
+ETH01 LINK 1000 Mbps full duplex (PHYSR validated)
+AX02C2 TCP_READY 192.168.50.10:5001 MAC=02:45:30:31:00:10
+AX02C2 RUNNING experiment=1 frames=64536 PL=polling network=STOPPED
+AX02C2 RESULT_READY experiment=1 status=0 completed=64536 network=RUNNING
