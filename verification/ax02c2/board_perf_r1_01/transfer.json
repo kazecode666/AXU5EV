@@ -1,0 +1,86 @@
+{
+  "status": "PASS",
+  "application": "AX02C2",
+  "ip": "192.168.50.10",
+  "port": 5001,
+  "scenario": "current_motion",
+  "evidence": "USER_BOARD_RUN",
+  "source": "D:/Project/AXU5EV/.runtime/ax02c2/prepared_04/data/current_motion",
+  "uploads": {
+    "input.bin": {
+      "bytes": 10325760,
+      "seconds": 8.848263300000326
+    },
+    "reference.bin": {
+      "bytes": 21167808,
+      "seconds": 18.323623899999802
+    },
+    "reference_descriptor.bin": {
+      "bytes": 32,
+      "seconds": 0.004179600000497885
+    },
+    "feedback.bin": {
+      "bytes": 2581440,
+      "seconds": 2.439488900001379
+    }
+  },
+  "downloads": {
+    "run.json": {
+      "bytes": 1332,
+      "seconds": 0.005361199999242672
+    },
+    "pre_begin.json": {
+      "bytes": 139,
+      "seconds": 0.003815099998973892
+    },
+    "output.bin": {
+      "bytes": 21167808,
+      "seconds": 17.052113399999143
+    },
+    "timing.bin": {
+      "bytes": 4130304,
+      "seconds": 3.3223151000001963
+    },
+    "report_v2.bin": {
+      "bytes": 2400,
+      "seconds": 0.005711399999199784
+    },
+    "pl_result.bin": {
+      "bytes": 2065152,
+      "seconds": 1.6627435000009427
+    }
+  },
+  "errors": [],
+  "initial_status": {
+    "build_id": 1127367426,
+    "phase": 0,
+    "experiment": 0,
+    "scenario": 0,
+    "frames": 0,
+    "uploaded": 0,
+    "status": 0,
+    "completed_frames": 0,
+    "failed_frame": 0,
+    "negotiated_mbps": 1000,
+    "cache": 1,
+    "mapping_version": 0
+  },
+  "upload_seconds": 29.616511600001104,
+  "experiment": 1,
+  "final_status": {
+    "build_id": 1127367426,
+    "phase": 5,
+    "experiment": 1,
+    "scenario": 2,
+    "frames": 64536,
+    "uploaded": 263,
+    "status": 0,
+    "completed_frames": 64536,
+    "failed_frame": 0,
+    "negotiated_mbps": 1000,
+    "cache": 1,
+    "mapping_version": 0
+  },
+  "planned_reconnect_seconds": 3.0213602000003448,
+  "download_seconds": 22.05224679999992
+}

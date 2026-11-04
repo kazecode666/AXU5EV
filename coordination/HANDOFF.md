@@ -2,17 +2,17 @@
 
 更新：2026-11-04，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。PR22已合并，从当前主线建立codex/ax02c2-runtime-pl-replay，执行[Issue23](https://github.com/kazecode666/AXU5EV/issues/23)。
 
-## 当前：PR24评论6620575361性能修复候选，离线PASS，待Review
+## 当前：PR24 perf_r1完整实板PASS，待用户最终Review
 
-原native64应用实际完成1200条，随后k1200（第1201帧）PL=1201但命令/采用序号=1200。原1200条49200 Runtime值原判据通过、3600三相位串零差，原实验与备份均保留。k1199为10ms/1ms重步；k1200普通步却是五反馈首次非零，量化路径激活，输出复制＋适配44.16us。原软件完成窗口95.873us超过名义发布到边界93.68us；精确AXI接受时刻未采样，旧采用序号直接证明漏边界。
+2026-11-04，按PR24评论6622743887归档用户已完成的perf_r1单次current_motion实板：身份0x43324302，64536条完整处理、2645976个Runtime值原判据零失败、193608个duty位串零差，帧/命令/采用及完整停止PASS。PMU7812421Hz：Runtime均值/最大25.025/39.040us，上一read_begin到下一commit_end均值/P99/最大70.204/83.457/86.017us；COMMIT后328B日志及返回开销均值/最大9.245/10.880us，计入日志的完整窗口均值/P99/最大79.449/92.929/95.617us。后者204条超名义93.68us但提交在先、实际采用均正确，不能宣称全部软件工作在93.68us内完成或WCET。原失败k1200提交95.873us，新同记录75.009us，含日志窗口96.257→84.481us。
 
-仅修改bridge与日志顺序：U4/Y8/feedback5替代66 doubles全复制，每拍真正减少49 doubles/392B复制；41输出328B日志移到COMMIT及时间戳后、下一step前。关键路径合计少或后移720B复制；生成Runtime/薄适配算法、32/40位及Convergent/Saturate、浮点选项、AXI/PL帧合同不变。709896＋88字模型对照零差；两个主机MEX各64536步，2645976 Runtime位模式和709896寄存器字全同，原数值判据零失败。
+本机只读复核全量output/PL/PMU及原有摘要，结果一致。回放计时6.453738s；上传/下载29.616512/22.052247s，1000Mbps，UART确认RESULT_READY status0/completed64536。Runtime相对参考最大差1.7763568394002505e-15（原容差通过），不误称ARM/PC逐位相同。旧TTC timing NOT_RUN为不适用；板报二进制保留其原未验证标识。
 
-新Workspace`.runtime/ax02c2/vitis_runtime_pl_perf_r1`，Launch`ax02c2_runtime_manual`，ID0x43324302，ELF1015744B；实际原生build退出0、应用0warning，现有启动及实际内存布局检查PASS。只创建新应用，复用native64已构建platform/BSP/A53 FSBL，不复制/重建原平台；仍使用hardware_02。配置`firmware/r5/ax02c2/build_config.perf_r1.json`，FSBL/psu_init绝对路径仍在旧native64目录。
+实际Workspace`.runtime/ax02c2/vitis_runtime_pl_perf_r1`、Launch`ax02c2_runtime_manual`不变，仍复用native64平台/BSP/FSBL及hardware_02。原始实板数据`board/current_motion_perf_r1_01`已占用；[本次精简证据](../verification/ax02c2/board_perf_r1_01/README.md)及[主报告](reports/ax02c2_runtime_pl_replay.md)记录完整分布和原失败对照。[唯一指南](../firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)保留已执行步骤，当前不要求再次加载/START。
 
-新候选BOARD_NOT_RUN，没有连接/发现/操作板卡。实际缩短S及正余量未实测，名义软件完成余量约S−2.193us；不能当作WCET或完整场景时限PASS。待ChatGPT Review和用户另行授权后，仅使用新的`board/current_motion_perf_r1_01`运行一次，不覆盖原失败目录/备份。证据`verification/ax02c2/perf_fix_01`，主报告和唯一指南沿用。不自动合并，不因旧关机交接再次关机。下文原NOT_RUN/关机记录为历史阶段。
+本轮只读取已保存数据归档；未连接/操作板卡，没有新的构建或测试。保留current_motion_01、current_motion_01_fail1200_backup及全部Workspace/用户模型/数据；PR24未合并，交用户最终Review，不关闭Issue15、不因旧指令再次关机。以下候选NOT_RUN、待上板和关机交接均为历史。
 
-## 当前：AX-02C2离线实现及必要验证/目标构建PASS，板测NOT_RUN
+## 历史：AX-02C2初版离线交付，板测当时NOT_RUN
 
 已正常提交并推送[kazecode666/AXU5EV Draft PR24](https://github.com/kazecode666/AXU5EV/pull/24)。用户已说明会接回原ETH02直连网络，随后最新指令为完成离线实现后关闭计算机；本轮据此不执行C2加载或实板实验，板测留待后续继续。完成交接推送后正常关机，不强制关闭或代保存未保存窗口。保留已有模型修改和所有产物，PR待Review、不自动合并。
 

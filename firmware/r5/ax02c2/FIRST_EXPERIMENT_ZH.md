@@ -1,6 +1,6 @@
 # AX-02C2：连续协同回放唯一入口
 
-本页更新为PR24评论6620575361的性能修复候选perf_r1。原native64候选已实板运行，1200条成功后第1201帧命令落后一帧，原数据及备份保留。新软件仅减少桥接复制、将日志放在COMMIT后，原生构建及启动检查PASS；必要等价验证见[主报告](../../../coordination/reports/ax02c2_runtime_pl_replay.md)。**新候选板测NOT_RUN，本轮未授权加载或运行；以下单次步骤仅供Review及用户之后授权使用。** C1成功不复现。
+本页按[PR24评论6622743887](https://github.com/kazecode666/AXU5EV/pull/24#issuecomment-6622743887)更新签收：用户已完成perf_r1单次64536条完整实板，Runtime数值、193608个duty位串、帧/序号及完整停止均PASS，实际身份0x43324302。原native64第1201帧失败数据及备份保留；[主报告](../../../coordination/reports/ax02c2_runtime_pl_replay.md)记录实际耗时和对照，[精简证据](../../../verification/ax02c2/board_perf_r1_01/README.md)已归档。**本轮只读归档，不加载或运行；下列步骤保留本次已执行操作来源，不要求再次实验。** C1成功不复现。
 
 | 项目 | 本轮安排 |
 |---|---|
@@ -16,11 +16,11 @@
 | 场景 | `current_motion`，64536条记录 |
 | 同源输入/参考/物理反馈/FOC参考 | `D:/Project/AXU5EV/.runtime/ax02c2/prepared_04/data/current_motion` |
 | 应用身份 / PL模块身份 | **0x43324302** / 原`0x43314301` |
-| 新输出目录（未运行） | `D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_perf_r1_01` |
+| 本次实板结果目录（已完成、已占用） | `D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_perf_r1_01` |
 
 硬件继承已验证的AUX接1、debug reset接0；旧hardware_01、C1 app_hw_1及其默认旧bit不可用于本轮。原C1 ELF/FSBL及所有旧工作区、实验数据保留。
 
-修复继续提交到[PR24](https://github.com/kazecode666/AXU5EV/pull/24)，等待ChatGPT Review及用户新的单次板验授权。原`current_motion_01`、`current_motion_01_fail1200_backup`、native64 Workspace/ELF及其FSBL保留。C1、RTL及ETH02旧板测不重跑；保持功率级断开，不写启动介质。
+修复与本次实板证据继续提交到[PR24](https://github.com/kazecode666/AXU5EV/pull/24)，等待用户最终Review，不自动合并。原`current_motion_01`、`current_motion_01_fail1200_backup`、native64 Workspace/ELF及其FSBL保留。C1、RTL及ETH02旧板测不重跑；本轮不连接板卡，未授权新的JTAG操作。
 
 ## 1. 文件检查与打开Workspace
 
@@ -55,9 +55,9 @@ python scripts/ax02c2_build.py --check-startup
 
 本应用不会因Continue就开始控制回放；须下一节显式上传和START。此处不在UART发送`s`，那是旧C1程序入口。若初始化、编程或网络就绪失败，保留原始输出，不盲目重复复位/START。
 
-## 3. 单一实验入口
+## 3. 本次已执行的单一实验入口（留档，不再运行）
 
-在MATLAB添加入口目录，随后仅调用一次：
+用户本次在MATLAB添加入口目录后仅调用一次。以下命令留档，输出目录已经占用，不要再次执行或覆盖；若后续另有实验，需另行授权并选择新目录。
 
 ```matlab
 addpath('D:/Project/AXU5EV/simulation/ethernet');
@@ -74,8 +74,8 @@ python scripts/ax02c2_run.py --ip 192.168.50.10 --start --conditions "power stag
 
 ## 4. 结果与解释
 
-新结果目录`D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_perf_r1_01`尚未占用时才能执行；已存在则保留，另定新编号，不覆盖。产物为`output.bin`（R5真实41输出）、`pl_result.bin`（真实AXI三相duty与record/step/PL帧/命令对应）、`timing.bin`（独立PMU16计时）、`run.json`、配置、原数值报告及下载/分析摘要。
+本次结果目录`D:/Project/AXU5EV/.runtime/ax02c2/board/current_motion_perf_r1_01`已完整保存，保留原件，不覆盖。产物为`output.bin`（R5真实41输出）、`pl_result.bin`（真实AXI三相duty与record/step/PL帧/命令对应）、`timing.bin`（独立PMU16计时）、`run.json`、配置、原数值报告、`UART.txt`及下载/分析摘要。
 
-完整通过须64536条均处理完、原Runtime数值比较通过、193608个三相duty位串零差，record/step=0..64535、PL帧/命令/采用序号=1..64536不丢不重，`complete_frames=64536`且停止/hold无错误。当前板测仍为NOT_RUN，不能凭文件检查或主机对照宣称实板通过。
+实际64536条均处理完、原Runtime数值比较零失败、193608个三相duty位串零差，record/step=0..64535、PL帧/命令/采用序号=1..64536不丢不重，`complete_frames=64536`且停止/hold无错误。本轮离线读取原始全量文件，独立复核与已有摘要一致，签收BOARD_PASS。
 
-PMU时基由实际`COUNTS_PER_SECOND`写入run.json，只用于计算、适配、提交、读回窗口统计；没有TTC IRQ，旧TTC phase/deadline判据标明不适用。**旧adapter段含Runtime日志复制，新段不含；新日志复制位于commit_end与wait_begin之间。** 后续应比较上一结果观察到下一commit的实际窗口、全部非零反馈及重外环拍，不能仅比较adapter一列就宣称通过。提交前减少了49个double重复复制，另41字段日志移后，总CPU仍消耗该日志复制。首记录先计算再START，帧关系不变；同帧50µs与WCET仍未签核。结束后保存原始数据交Review，不自动合并。
+PMU时基由实际`COUNTS_PER_SECOND`写入run.json，本次7812421Hz；没有TTC IRQ，旧TTC phase/deadline判据不适用。**旧adapter段含Runtime日志复制，新段不含；新日志复制位于commit_end与wait_begin之间，本次统计已计入。** 上一结果read_begin到下一commit_end均值/P99/最大70.204/83.457/86.017µs；再计入后移日志及返回开销到wait_begin为79.449/92.929/95.617µs，后者204条超过名义93.68µs。命令已先提交，实际帧采用均正确；这些完整工作窗口不等于提交迟到，也不能声称全部CPU工作均在93.68µs内结束。日志及返回开销单段均值/最大9.245/10.880µs，未单独隔离memcpy周期。Runtime最大39.040µs；总回放6.453738s。完整分组、最坏索引、与原失败点的同口径对照见主报告。同帧50µs与WCET仍未签核；当前交用户最终Review，不自动合并。

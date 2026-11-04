@@ -1,6 +1,6 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
-> 当前PR24定向性能修复：原C2第1201帧错过命令采用边界，已按评论6620575361减去重复bridge复制并将41输出日志移到COMMIT后。完整主机等价对照、原生新软件构建及启动检查PASS；新候选Workspace`.runtime/ax02c2/vitis_runtime_pl_perf_r1`、Launch`ax02c2_runtime_manual`、ID43324302，复用原平台/FSBL及hardware_02。原失败数据/备份全部保留，新候选板测NOT_RUN，待Review与用户另授上板，不自动合并。见[主报告](coordination/reports/ax02c2_runtime_pl_replay.md)、[唯一指南](firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)、[本次证据](verification/ax02c2/perf_fix_01)。下列旧交接均按历史理解。
+> 当前PR24：perf_r1已由用户单次完整实板PASS，64536条Runtime数值、193608个duty位串、帧/序号及完整停止通过，身份0x43324302。实际提交窗口最大86.017us，计入COMMIT后328B日志的完整软件窗口最大95.617us；不宣称WCET或同帧50us签核。[实板证据](verification/ax02c2/board_perf_r1_01/README.md)、[耗时及原失败对照](coordination/reports/ax02c2_runtime_pl_replay.md)、[唯一指南](firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)已更新。原数据/Workspace保留，本轮只归档，无构建或板卡操作；等待用户最终Review，不自动合并。以下候选NOT_RUN与关机交接均为历史。
 
 > 最新交付：[AX-02C2 Draft PR24](https://github.com/kazecode666/AXU5EV/pull/24)已提交推送，必要离线验证与目标构建PASS。按用户最新“完成离线实现后关闭计算机”要求，本轮不执行新板测，BOARD_NOT_RUN，交接后正常关机；后续从[唯一指南](firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)继续，等待Review、不自动合并。
 
