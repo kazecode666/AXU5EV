@@ -1,0 +1,69 @@
+{
+  "status": "TARGET_PATH_STATIC_CHECK_PASS",
+  "scope": "Read-only disassembly of the actual R5 ELF; not a cycle measurement or board test",
+  "baseline_elf": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_native64/ax02c2_runtime/build/ax02c2_runtime.elf",
+  "candidate_elf": "D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_perf_r1/ax02c2_runtime/build/ax02c2_runtime.elf",
+  "candidate_elf_bytes": 1015744,
+  "raw_disassembly": "D:/Project/AXU5EV/.runtime/ax02c2/perf_r1/target_path.objdump.txt",
+  "wrapper": {
+    "baseline_address": "0x00103c64",
+    "candidate_address": "0x00103c7c",
+    "baseline_memcpy_call_sites": 2,
+    "baseline_whole_vector_memcpy_bytes": [160, 328],
+    "candidate_memcpy_call_sites": 0,
+    "candidate_selected_runtime_u_fields": [15, 17, 18, 19],
+    "candidate_selected_runtime_y_fields": [0, 1, 3, 6, 7, 13, 17, 22],
+    "candidate_feedback_fields": 5,
+    "candidate_feedback_copy": "40 bytes, compiler-inlined loop",
+    "baseline_adapter_input_copy_payload_bytes": 528,
+    "candidate_adapter_input_copy_payload_bytes": 136,
+    "per_step_copy_payload_removed_bytes": 392,
+    "baseline_static_instruction_lines": 85,
+    "candidate_static_instruction_lines": 101,
+    "instruction_count_note": "Static wrapper size is not executed memcpy-loop work or elapsed time"
+  },
+  "successful_prepare_order": [
+    {"pc": "0x001037a0", "operation": "AXU5EV_R5_Runtime_step"},
+    {"pc": "0x001037b0", "operation": "load actual Runtime_Y address 0x00200228 as adapter input"},
+    {"pc": "0x001037c8", "operation": "ax02c2_adapter_pack"},
+    {"pc": "0x00103810", "operation": "store command sequence to MMIO 0x80000008 COMMIT"},
+    {"pc": "0x00103814", "operation": "dmb sy"},
+    {"pc": "0x0010381c", "operation": "XTime_GetTime"},
+    {"pc": "0x00103824", "operation": "store tick.commit_end"},
+    {"pc": "0x0010382c", "operation": "ax01b_runtime_output copies the same step's 41 doubles"}
+  ],
+  "logging": {
+    "copy_payload_bytes": 328,
+    "new_position": "after successful COMMIT and commit_end, before prepare returns and before the next Runtime step",
+    "pending_failure_path": "still copies the current Runtime output before returning failure",
+    "critical_copy_payload_removed_or_deferred_bytes": 720,
+    "payload_interpretation": "392 bytes removed per step plus 328 bytes moved after COMMIT; input160 and AXI11-word writes unchanged"
+  },
+  "generated_functions": {
+    "AXU5EV_R5_Runtime_step": {
+      "static_instruction_lines_baseline": 1463,
+      "static_instruction_lines_candidate": 1463,
+      "result": "same arithmetic/control instruction sequence and call targets; external-call relocation and four rtNaN address-load immediates differ",
+      "rtNaN_baseline": "0x00122288",
+      "rtNaN_candidate": "0x00122320"
+    },
+    "AX02C2_Adapter_step": {
+      "static_instruction_lines_baseline": 560,
+      "static_instruction_lines_candidate": 560,
+      "result": "instruction mnemonics/operands match after branch-address relocation normalization; same generated selection and quantization code"
+    }
+  },
+  "passive_startup_api": {
+    "new_argument": "optional final platform_workspace=None",
+    "legacy_default": "None selects workspace/platform_name exactly as before; existing positional parameters unchanged",
+    "c2_default": "PWS defaults to C[workspace] when platform_workspace is absent",
+    "performance_candidate": "application in perf_r1 workspace, original native64 platform/FSBL read by explicit PWS",
+    "hardware_access": false
+  },
+  "remaining_limits": [
+    "No R5 cycle timing was measured in this offline revision",
+    "Post-COMMIT logging still consumes CPU time and can delay observation if it extends past a subsequent result publication",
+    "Generated nonzero-input quantization and Runtime heavier branches remain; complete new current_motion needs later user-authorized board validation"
+  ],
+  "board": "NOT_RUN"
+}

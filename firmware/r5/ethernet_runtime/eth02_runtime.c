@@ -181,7 +181,7 @@ static void freeze_run(void)
         "\"measurement\":{\"network\":\"GEM DMA and GEM IRQ stopped; fixed cable\","
         "\"gem_stopped_nwctrl\":%" PRIu32 ",\"gem_stopped_imr\":%" PRIu32 ",\"cache\":\"I ON / D OFF\","
         "\"network_timebase\":\"PMU CPU/64\",\"runtime_timebase\":\"PL polling; PMU CPU/64 timestamps\","
-        "\"timing_schema\":\"AX02C2_PMU16_V1\",\"ttc_irq\":false}}\n",
+        "\"timing_schema\":\"AX02C2_PMU16_V1\",\"output_log_placement\":\"after commit_end; before wait_begin\",\"ttc_irq\":false}}\n",
         (uint32_t)(result.status?4:3),frames,experiment,experiment-1,conditions,build_id,build_id,
         result.status,result.completed_frames,result.failed_frame,pl_summary.tick_hz,build_id,captured,
         pl_summary.module_id,pl_summary.complete_frames,pl_summary.last_frame,pl_summary.last_seq,

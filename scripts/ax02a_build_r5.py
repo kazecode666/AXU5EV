@@ -55,9 +55,10 @@ def runtime_candidate(workspace,application='ax02a_replay',candidate_id=0x523130
 
 
 def check_startup(workspace,runtime_mapping=0,platform_name='ax02a_platform',
-                  application='ax02a_replay',launch_name=FIRST_LAUNCH,candidate_id=0x52313031):
+                  application='ax02a_replay',launch_name=FIRST_LAUNCH,candidate_id=0x52313031,
+                  platform_workspace=None):
     """Read files only: no debugger imports, target discovery or hardware access."""
-    platform=workspace/platform_name
+    platform=(platform_workspace if platform_workspace is not None else workspace)/platform_name
     domains=json.loads((platform/'vitis-comp.json').read_text(encoding='utf-8'))['configuration']['domains']
     for name,cpu in [('zynqmp_fsbl','psu_cortexa53_0'),('r5_standalone','psu_cortexr5_0')]:
         matches=[d for d in domains if d['name']==name]

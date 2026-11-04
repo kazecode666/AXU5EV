@@ -13,12 +13,14 @@ from eth01_lwip_overlay import prepare
 ROOT=Path(__file__).resolve().parents[1]
 C=json.loads(Path(os.environ.get('AX02C2_CONFIG',ROOT/'firmware/r5/ax02c2/build_config.json')).read_text(encoding='utf-8-sig'))
 OUT=(ROOT/C['output']).resolve();WS=(ROOT/C['workspace']).resolve()
+PWS=(ROOT/C.get('platform_workspace',C['workspace'])).resolve()
 XSA=(ROOT/C['xsa']).resolve();BIT=(ROOT/C['bitstream']).resolve()
-APP='ax02c2_runtime';PLATFORM='ax02c2_platform';LAUNCH='ax02c2_runtime_manual';BUILD=0x43324301
+APP='ax02c2_runtime';PLATFORM='ax02c2_platform';LAUNCH='ax02c2_runtime_manual'
+BUILD=int(C.get('build_id','0x43324301'),0)
 
 
 def bsp_base():
-    include=WS/PLATFORM/'export'/PLATFORM/'sw/r5_standalone/include'
+    include=PWS/PLATFORM/'export'/PLATFORM/'sw/r5_standalone/include'
     params=(include/'xparameters.h').read_text(encoding='utf-8')
     bases=re.findall(r'^#define\s+(XPAR_\w*FOC\w*_BASEADDR)\s+(0x[0-9a-fA-F]+)',params,re.M)
     values={int(v,16) for _,v in bases}
@@ -28,8 +30,8 @@ def bsp_base():
 
 
 def check_startup():
-    result=passive_startup(WS,0,PLATFORM,APP,LAUNCH)
-    if 'export=SUCCESS' not in (WS/PLATFORM/'export/.buildstatus').read_text():
+    result=passive_startup(WS,0,PLATFORM,APP,LAUNCH,platform_workspace=PWS)
+    if 'export=SUCCESS' not in (PWS/PLATFORM/'export/.buildstatus').read_text():
         raise ValueError('platform export is not built')
     elf=WS/APP/'build'/(APP+'.elf');base,macro=bsp_base();syms=symbols(elf)
     if initialized_word(elf,'ax02c2_application_id')!=BUILD or initialized_word(elf,'ax02c2_mmio_base')!=base:
@@ -40,13 +42,13 @@ def check_startup():
         raise ValueError('C2 must not link the independent TTC replay scheduler')
     for name in ['emac_bd_space','_heap','_stack']:
         if syms[name]['address']+syms[name]['bytes']>=0x10000000:raise ValueError('ELF data overlaps replay DDR')
-    include=WS/PLATFORM/'export'/PLATFORM/'sw/r5_standalone/include'
+    include=PWS/PLATFORM/'export'/PLATFORM/'sw/r5_standalone/include'
     params=(include/'xparameters.h').read_text();timer=(include/'xtimer_config.h').read_text()
     if '#define XPAR_XEMACPS_0_BASEADDR 0xff0e0000' not in params:raise ValueError('matching GEM3 missing')
     if not all(x in timer for x in ['XTIMER_NO_TICK_TIMER','XTIMER_IS_DEFAULT_TIMER','XPAR_CPU_CORE_CLOCK_FREQ_HZ/64']):
         raise ValueError('expected BSP no-IRQ PMU CPU/64 timestamp timer')
     if 'LENGTH = 0xFF00000' not in (WS/APP/'src/lscript.ld').read_text():raise ValueError('ELF DDR boundary changed')
-    result.update(workspace=WS.as_posix(),platform=PLATFORM,application_name=APP,build_id=hex(BUILD),
+    result.update(workspace=WS.as_posix(),platform_workspace=PWS.as_posix(),platform=PLATFORM,application_name=APP,build_id=hex(BUILD),
         xsa=XSA.as_posix(),bitstream=BIT.as_posix(),elf=elf.as_posix(),base_address=hex(base),base_macro=macro,
         symbols={n:syms[n] for n in ['emac_bd_space','_heap','_stack','AXU5EV_R5_Runtime_step','ax02c2_replay']},
         runtime_scheduler='PL complete5000-clock frames / R5 polling; no TTC IRQ',
@@ -58,20 +60,26 @@ def check_startup():
 def build(resume=False,platform_only=False):
     if (WS/'startup_validation.json').exists():raise ValueError('verified workspace preserved; choose a new workspace')
     if WS.exists() and not resume:raise ValueError('existing workspace preserved; resume only this unfinished build')
-    repo=prepare(ROOT,OUT)
+    reuse_platform=PWS!=WS
+    repo=None if reuse_platform else prepare(ROOT,OUT)
     import vitis
     client=vitis.create_client()
     try:
-        client.set_workspace(str(WS));client.add_embedded_sw_repo(level='LOCAL',path=str(repo))
-        if resume:p=client.get_component(name=PLATFORM)
-        else:p=client.create_platform_component(name=PLATFORM,hw_design=str(XSA),cpu='psu_cortexr5_0',
-            os='standalone',domain_name='r5_standalone',no_boot_bsp=False,fsbl_target='psu_cortexa53_0',generate_dtb=False,compiler='gcc')
-        marker=WS/PLATFORM/'export/.buildstatus'
-        if not marker.exists() or 'export=SUCCESS' not in marker.read_text():
-            d=p.get_domain('r5_standalone');d.set_lib('lwip220')
-            d.set_config(option='lib',param='lwip220_tcp_wnd',value='8192',lib_name='lwip220')
-            d.set_config(option='lib',param='lwip220_no_sys_no_timers',value='false',lib_name='lwip220')
-            if p.build()!=0:raise RuntimeError('platform build failed')
+        client.set_workspace(str(WS))
+        marker=PWS/PLATFORM/'export/.buildstatus'
+        if reuse_platform:
+            if 'export=SUCCESS' not in marker.read_text():raise ValueError('reused platform is not built')
+            client.add_platform_repos(str(PWS/PLATFORM/'export'))
+        else:
+            client.add_embedded_sw_repo(level='LOCAL',path=str(repo))
+            if resume:p=client.get_component(name=PLATFORM)
+            else:p=client.create_platform_component(name=PLATFORM,hw_design=str(XSA),cpu='psu_cortexr5_0',
+                os='standalone',domain_name='r5_standalone',no_boot_bsp=False,fsbl_target='psu_cortexa53_0',generate_dtb=False,compiler='gcc')
+            if not marker.exists() or 'export=SUCCESS' not in marker.read_text():
+                d=p.get_domain('r5_standalone');d.set_lib('lwip220')
+                d.set_config(option='lib',param='lwip220_tcp_wnd',value='8192',lib_name='lwip220')
+                d.set_config(option='lib',param='lwip220_no_sys_no_timers',value='false',lib_name='lwip220')
+                if p.build()!=0:raise RuntimeError('platform build failed')
         if platform_only:
             print('AX02C2_PLATFORM_BUILD_COMPLETE');return
         generated=(ROOT/C['generated']).resolve()
@@ -87,7 +95,7 @@ def build(resume=False,platform_only=False):
         header=inputs/'ax02c_hw.h';header.write_text('#include "xparameters.h"\n#define AX02C_FOC_BASEADDR '+macro+'\n',encoding='utf-8')
         files.append(header)
         if (WS/APP).exists():app=client.get_component(name=APP)
-        else:app=client.create_app_component(name=APP,platform=str(WS/PLATFORM/'export'/PLATFORM/(PLATFORM+'.xpfm')),
+        else:app=client.create_app_component(name=APP,platform=str(PWS/PLATFORM/'export'/PLATFORM/(PLATFORM+'.xpfm')),
                 domain='r5_standalone',template='empty_application')
         for source in files:app.import_files(from_loc=str(source.parent),files=[source.name])
         # Keep the two generated models' headers in separate source directories.
@@ -104,7 +112,8 @@ def build(resume=False,platform_only=False):
         ordinary_c=[(WS/APP/f.name).as_posix() for f in files if f.suffix=='.c']
         app.set_app_config(key='USER_COMPILE_SOURCES',values=ordinary_c+adapter_c)
         app.set_app_config(key='USER_COMPILE_OPTIMIZATION_LEVEL',values='-O2')
-        app.set_app_config(key='USER_COMPILE_OTHER_FLAGS',values='-fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard -DETH02_RUNTIME -DAX02C2_RUNTIME -DETH_BUILD_ID=0x43324301U')
+        app.set_app_config(key='USER_COMPILE_OTHER_FLAGS',values='-fno-fast-math -ffp-contract=off -mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard -DETH02_RUNTIME -DAX02C2_RUNTIME '+
+            f'-DETH_BUILD_ID=0x{BUILD:08x}U -DAX02C2_BUILD_ID=0x{BUILD:08x}U')
         app.set_app_config(key='USER_LINK_LIBRARIES',values=['m'])
         app.set_app_config(key='USER_LINK_OTHER_FLAGS',values='-Wl,-Map=ax02c2_runtime.map')
         ld=app.get_ld_script();ld.set_stack_size('0x10000');ld.set_heap_size('0x40000')
@@ -116,7 +125,7 @@ def build(resume=False,platform_only=False):
         launch_path=WS/APP/'_ide/launch.json';launch=json.loads(launch_path.read_text())
         profile=json.loads((ROOT/'firmware/r5/ax02a/launch_first_wait.json').read_text())['configurations'][0]
         profile['name']=LAUNCH
-        profile['targetSetup']['zuInitialization']['usingFSBL']['fsblFile']='${workspaceFolder}/'+PLATFORM+'/export/'+PLATFORM+'/sw/boot/fsbl.elf'
+        profile['targetSetup']['zuInitialization']['usingFSBL']['fsblFile']=(PWS/PLATFORM/'export'/PLATFORM/'sw/boot/fsbl.elf').as_posix() if reuse_platform else '${workspaceFolder}/'+PLATFORM+'/export/'+PLATFORM+'/sw/boot/fsbl.elf'
         profile['targetSetup']['downloadElf'][0]['elfFile']='${workspaceFolder}/'+APP+'/build/'+APP+'.elf'
         launch['configurations']=[x for x in launch['configurations'] if x['name']!=LAUNCH]+[profile]
         launch_path.write_text(json.dumps(launch,indent=2)+'\n',encoding='utf-8')

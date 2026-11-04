@@ -1,5 +1,69 @@
 # AX-02C2：真实R5 Runtime与PL帧同步回放
 
+## 当前：PR24评论6620575361定向性能修复
+
+2026-11-04，接续现有PR24分支，依据[最新评论](https://github.com/kazecode666/AXU5EV/pull/24#issuecomment-6620575361)执行离线诊断、最小软件修改及必要验证/构建。本轮不连接或操作板卡；新候选待ChatGPT Review及用户另行授权单次上板。原实验及`current_motion_01_fail1200_backup`均实际存在，未覆盖；原1200帧失败是有效性能证据。下文旧BOARD_NOT_RUN指最初离线交付阶段，不覆盖此次原候选实板失败。
+
+### 故障证据与时间窗口
+
+独立解析`.runtime/ax02c2/board/current_motion_01`的run/transfer、1200条PMU/PL结果及已保存的失败DDR记录。前1200条的49200个Runtime值按原判据零失败（最大差4.3368e-19），3600个duty位串零差，记录/命令/帧对应正确。失败记录k1200即第1201帧，PL已到1201而命令/采用序号仍1200；完整停止1201帧，hold与stop无错，网络上传/恢复下载成功。[精简原始证据及复算](../../verification/ax02c2/perf_fix_01/failure_analysis.json)，复算入口`scripts/ax02c2_analyze_failure.py`只读已有数据。
+
+| 原现场阶段 | PMU ticks | 约µs（7812421Hz） |
+|---|---:|---:|
+| k1200输入复制 | 31 | 3.968 |
+| k1200真实Runtime | 276 | 35.328 |
+| k1200输出日志复制＋薄适配 | 345 | 44.160 |
+| k1200适配末至COMMIT完成 | 53 | 6.784 |
+| 上一结果read_begin至k1200 commit_end | 749 | 95.873 |
+| 此前1199个同类窗口最大值（k1199） | 712 | 91.137 |
+
+名义edge316发布到5000拍边界为93.68µs；此前最大窗口的名义剩余仅约2.54µs。失败的软件完成窗口比该配置窗口长约2.193µs，但commit_end在COMMIT与屏障之后，未采样确切AXI接受时刻，不能把2.193µs写为精确的AXI迟到量。旧采用序号直接证明该次命令错过采用边界。
+
+不是失败步触发更重外环：k1199才是1ms/10ms共同到期，Runtime296ticks；k1200是普通步，Runtime反而少20ticks。实际数据表明五项物理反馈首次非零均恰为k1200；iq/vref在k1199首次非零。生成Convergent代码的非零舍入路径包含余数、floor/ceil等调用，适配时间从k1199的37.248µs增至44.160µs，与数据相关计算激活相符。源路径推断的余数调用次数为k1198/1199/1200的1/2/5次，不是硬件函数跟踪；未单独隔离cache/DDR贡献，不将其猜测为确定根因。
+
+### 最小软件修改及性能边界
+
+生成Runtime、生成薄适配C、FOC/AXI RTL、浮点编译选项及5000拍/314—316相位都不变。修改仅限桥接和日志顺序：
+
+1. 直接将本次`AXU5EV_R5_Runtime_Y.runtime_y`传给薄适配，避免先写DDR日志再从日志读回。
+2. 包装层只复制原模型输入端口需要的4个Runtime输入、8个Runtime输出及5个反馈；保留Init_Reset/Init_Done端口，虽然当前生成C已将这两个路径折叠。原选择、Convergent/Saturate和32/40位量化仍在同一份生成C中执行。
+3. 完成COMMIT及commit_end时间戳后，再复制全部41个Runtime输出到原日志地址；下一次Runtime step前已复制完成。同一记录、所有41字段及失败前缀关联保持不变，既有pending失败分支也仍保存当步输出。没有放宽序号、跳帧或插延迟。
+
+| 复制工作 | 原候选 | 新候选 |
+|---|---:|---:|
+| wrapper Runtime U/Y/feedback | 66 doubles | 17 doubles |
+| 每拍真正减少 | — | 49 doubles＝392B复制 |
+| 41输出日志复制 | COMMIT前 | COMMIT后、wait_begin前 |
+| 提交关键路径减少或移后 | — | 合计90 doubles＝720B复制（1440B源读＋目的写流量） |
+
+日志移动只重排截止前的工作，不减少这328B日志的总CPU工作量；后续结果观察仍要承担它。旧adapter计时包含输出复制，新adapter计时不含，日志位于commit_end和wait_begin之间；run.json和客户端说明已更新，PMU16字段与时基不变。
+
+对原失败点，若关键路径实际缩短Sµs，则按同一名义窗口估计的软件完成余量约为S−2.193µs。本轮没有新目标实测，不能为S填入伪造值或保证正余量；已减少的复制量由源代码及ARM指令核对，不等于全负载周期数或WCET。新的非零量化计算仍存在，最终是否满足全部64536帧，只由后续另行授权的单次实验确认。
+
+### 候选验证与构建
+
+必要验证及新软件构建已完成，结果如下。所有等价对照是主机执行；没有连接板卡或测得新R5耗时。
+
+| 本次检查 | 实际结果 |
+|---|---|
+| 原模型/C定点合同 | 候选API的709896个整场字＋88个必要语义字零差；[证据](../../verification/ax02c2/perf_fix_01/adapter_equivalence.json) |
+| 冻结Runtime的旧／新桥接顺序 | 两个独立MEX各64536步，2645976个Runtime double位模式相同，709896个AXI字相同；[证据](../../verification/ax02c2/perf_fix_01/runtime_bridge_equivalence.json) |
+| 原Runtime数值判据 | 对同源41字段参考零失败，HOST；未运行旧TTC计时判据 |
+| 原生新软件构建 | Vitis2026.1退出0，AX02C2_BUILD_PASS，应用0 warning；[构建及实际内存核对](../../verification/ax02c2/perf_fix_01/build.json) |
+| 既有被动启动检查 | PASS，新ELF身份0x43324302、基址0x80000000，ARM32/R5、原AArch64 FSBL、manual启动标志正确；[证据](../../verification/ax02c2/perf_fix_01/startup_check.json) |
+| 实际目标关键路径 | ARM反汇编确认无原160/328B memcpy调用、COMMIT/屏障/commit_end后才日志复制，生成Runtime/量化运算序列保持；[证据](../../verification/ax02c2/perf_fix_01/target_path.json) |
+| 新候选完整板测及实际余量 | NOT_RUN，待Review及用户之后授权 |
+
+新Workspace为`D:/Project/AXU5EV/.runtime/ax02c2/vitis_runtime_pl_perf_r1`，Launch仍为`ax02c2_runtime_manual`；新ELF为`ax02c2_runtime/build/ax02c2_runtime.elf`，1015744字节，text/data/bss为141695/5516/3513120。实际GEM/heap/stack仍分别位于0x00400000..0x00500000、0x00508320..0x00548320、0x00548320..0x00558320，与原8个回放对象不重叠。
+
+使用本机原生Vitis注册原native64的已构建xpfm，只创建新应用；没有复制或重建平台/BSP/FSBL。A53 FSBL及PS后配置仍指向`.runtime/ax02c2/vitis_runtime_pl_native64/ax02c2_platform`。构建配置为`firmware/r5/ax02c2/build_config.perf_r1.json`，`AX02C2_CONFIG`显式选择；共享被动检查仅增加可选platform_workspace末参数，默认仍为原Workspace路径。Runtime和Adapter仍使用原生成C、`-O2 -fno-fast-math -ffp-contract=off`及相同R5浮点ABI。原失败目录、备份、native64 ELF和所有旧Workspace均保留。
+
+实际成功日志为`.runtime/ax02c2/perf_r1/build_01.log`，原始选定函数反汇编为同目录`target_path.objdump.txt`；主机对照日志`.runtime/ax02c2/perf_fix_01/equivalence_02.log`、输出`.runtime/ax02c2/perf_fix_01/runtime_bridge_02/candidate_output.bin`。首次MEX runner因混用SimStruct与生成复杂类型未编译，已按既有bridge方式隔离翻译单元；该次未执行Runtime算法，不重复已通过的模型字比较。没有另跑FOC golden、旧RTL、C1或ETH02板测。
+
+新单次实验输出预定`.runtime/ax02c2/board/current_motion_perf_r1_01`，不复用失败目录。本轮不运行该入口，待Review后由用户另行授权；唯一操作指南仍为[同一份指南](../../firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)。
+
+## 历史：初版离线交付
+
 仓库`kazecode666/AXU5EV`，依据[Issue23](https://github.com/kazecode666/AXU5EV/issues/23)，2026-11-04从包含已合并PR22的`origin/main`建立`codex/ax02c2-runtime-pl-replay`。用户四份模型/参数修改及两个未跟踪源文件原样保留；没有stash/reset/clean、额外clone/worktree或数据搬移。
 
 离线实现、必要模型/C适配对照、原生R5构建及现有启动文件检查已PASS，已提交[kazecode666/AXU5EV Draft PR24](https://github.com/kazecode666/AXU5EV/pull/24)，待Review、不自动合并。C2新应用完整板测为NOT_RUN；C1已经验收的17帧/51duty实板结果直接继承，不再运行。任务书随实现保存于[AX-02C2](../tasks/AX-02C2.md)。

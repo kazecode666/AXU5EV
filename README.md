@@ -1,5 +1,7 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
+> 当前PR24定向性能修复：原C2第1201帧错过命令采用边界，已按评论6620575361减去重复bridge复制并将41输出日志移到COMMIT后。完整主机等价对照、原生新软件构建及启动检查PASS；新候选Workspace`.runtime/ax02c2/vitis_runtime_pl_perf_r1`、Launch`ax02c2_runtime_manual`、ID43324302，复用原平台/FSBL及hardware_02。原失败数据/备份全部保留，新候选板测NOT_RUN，待Review与用户另授上板，不自动合并。见[主报告](coordination/reports/ax02c2_runtime_pl_replay.md)、[唯一指南](firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)、[本次证据](verification/ax02c2/perf_fix_01)。下列旧交接均按历史理解。
+
 > 最新交付：[AX-02C2 Draft PR24](https://github.com/kazecode666/AXU5EV/pull/24)已提交推送，必要离线验证与目标构建PASS。按用户最新“完成离线实现后关闭计算机”要求，本轮不执行新板测，BOARD_NOT_RUN，交接后正常关机；后续从[唯一指南](firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)继续，等待Review、不自动合并。
 
 > 当前AX-02C2：[PR22](https://github.com/kazecode666/AXU5EV/pull/22)已合并并签收C1一次实板结果，不再复现。Issue23的真实R5 Runtime＋原模型薄适配＋AXI/PL连续回放已离线实现，64536条同源记录及必要适配对照、原生构建/启动检查PASS；复用hardware_02，不重跑RTL/ETH02。新Workspace`.runtime/ax02c2/vitis_runtime_pl_native64`，Launch`ax02c2_runtime_manual`，新板测NOT_RUN，先Draft PR待Review。见[主报告](coordination/reports/ax02c2_runtime_pl_replay.md)及[唯一指南](firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)。以下旧阶段“当前/待Review”等按历史理解。

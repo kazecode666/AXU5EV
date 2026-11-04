@@ -16,7 +16,7 @@ if strlength(options.Conditions)==0
 end
 root=fileparts(fileparts(fileparts(mfilename('fullpath'))));
 if strlength(options.Output)==0
-    options.Output=string(fullfile(root,'.runtime','ax02c2','board',scenario+"_01"));
+    options.Output=string(fullfile(root,'.runtime','ax02c2','board',scenario+"_perf_r1_01"));
 end
 parts=["python",quote(fullfile(root,'scripts','ax02c2_run.py')), ...
     "--ip",quote(options.IP),"--scenario",quote(scenario),"--start", ...

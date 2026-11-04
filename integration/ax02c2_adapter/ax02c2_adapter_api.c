@@ -14,8 +14,23 @@ void ax02c2_adapter_pack(const double input20[20],const double runtime41[41],
 {
     uint64_t theta,omega;
     const double *q=AX02C2_Adapter_Y.frame_q;
-    memcpy(AX02C2_Adapter_U.runtime_u,input20,20*sizeof(double));
-    memcpy(AX02C2_Adapter_U.runtime_y,runtime41,41*sizeof(double));
+    /* Copy the source model's control ports, not the unrelated command and
+     * diagnostic fields. Keep Init_Reset/Init_Done even though the current
+     * generated step folds them away. Selection and quantization stay in
+     * the unchanged generated model C.
+     */
+    AX02C2_Adapter_U.runtime_u[15]=input20[15]; /* Alignment_Enable */
+    AX02C2_Adapter_U.runtime_u[17]=input20[17]; /* Init_Reset */
+    AX02C2_Adapter_U.runtime_u[18]=input20[18]; /* travel_fault_latch */
+    AX02C2_Adapter_U.runtime_u[19]=input20[19]; /* x_mm */
+    AX02C2_Adapter_U.runtime_y[0]=runtime41[0]; /* id_ref */
+    AX02C2_Adapter_U.runtime_y[1]=runtime41[1]; /* iq_ref */
+    AX02C2_Adapter_U.runtime_y[3]=runtime41[3]; /* Init_Done */
+    AX02C2_Adapter_U.runtime_y[6]=runtime41[6]; /* Angle_Init_EN */
+    AX02C2_Adapter_U.runtime_y[7]=runtime41[7]; /* Theta_Offset_auto */
+    AX02C2_Adapter_U.runtime_y[13]=runtime41[13]; /* Vdc */
+    AX02C2_Adapter_U.runtime_y[17]=runtime41[17]; /* PWM request */
+    AX02C2_Adapter_U.runtime_y[22]=runtime41[22]; /* PI_Reset request */
     memcpy(AX02C2_Adapter_U.feedback,feedback5,5*sizeof(double));
     AX02C2_Adapter_step();
     /* q already passed the copied Convergent/Saturate model conversions.

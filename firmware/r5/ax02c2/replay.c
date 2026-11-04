@@ -28,16 +28,23 @@ static uint32_t prepare(const double *input,const double *feedback,double *outpu
     tick->step_begin=now();
     AXU5EV_R5_Runtime_step();
     tick->step_end=now();
-    ax01b_runtime_output(output);
     /* The generated adapter consumes THIS R5 step's actual 41-field output,
      * never a PC reference row. All fixed-point conversion is generated.
      */
-    ax02c2_adapter_pack(input,output,feedback,words);
+    ax02c2_adapter_pack(input,AXU5EV_R5_Runtime_Y.runtime_y,feedback,words);
     tick->adapt_end=now();
-    if(rd(FOC_STATUS)&FOC_PENDING)return AX02C2_PENDING;
+    if(rd(FOC_STATUS)&FOC_PENDING) {
+        ax01b_runtime_output(output);
+        return AX02C2_PENDING;
+    }
     for(uint32_t word=0;word<11;word++)wr(FOC_INPUT_FIRST+4U*word,words[word]);
     dmb();wr(FOC_COMMIT,record+1);dmb();
     tick->commit_end=now();
+    /* Log this same Runtime step after the deadline-critical COMMIT. The
+     * next step cannot run until this function returns and its PL result
+     * is read, so all 41 values retain the original record association.
+     */
+    ax01b_runtime_output(output);
     return 0;
 }
 

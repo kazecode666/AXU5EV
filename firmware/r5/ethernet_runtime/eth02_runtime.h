@@ -2,7 +2,11 @@
 #define ETH02_RUNTIME_H
 #include "eth_protocol.h"
 #ifdef AX02C2_RUNTIME
+#ifdef ETH_BUILD_ID
+#define ETH02_BUILD_ID ETH_BUILD_ID
+#else
 #define ETH02_BUILD_ID 0x43324301U
+#endif
 #else
 #define ETH02_BUILD_ID 0x45303201U
 #endif

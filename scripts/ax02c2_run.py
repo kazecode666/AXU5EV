@@ -13,7 +13,7 @@ import time
 from eth02_run import Connection,SCENE,START
 
 ROOT=Path(__file__).resolve().parents[1]
-BUILD=0x43324301
+BUILD=0x43324302
 FRAMES=64536
 SOURCE=ROOT/'.runtime/ax02c2/prepared_04/data/current_motion'
 
@@ -59,7 +59,8 @@ def analyze(out,source,run):
         duty_bit_failures=duty_failures,relationship_failures=relationship_failures,capture_failures=capture_failures,
         complete_frame_stop=end_ok,first_duty_mismatch=first,timebase='PMU CPU/64',clock_hz=hz,
         ttc_irq_timing='NOT_RUN_NOT_APPLICABLE',statistics=stats,
-        interpretation='Recorded-feedback pipeline replay; no same-frame50us or WCET signoff')
+        interpretation='Recorded-feedback pipeline replay; no same-frame50us or WCET signoff',
+        output_log_placement='after commit_end and before wait_begin; adapter excludes the Runtime41 log copy')
     (out/'pl_summary.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
     print(f"Runtime数值 {'PASS' if numeric.returncode==0 else 'FAIL'}；PL duty位串 {'PASS' if not duty_failures else 'FAIL'}；"
           f"帧/序号 {'PASS' if not relationship_failures and not capture_failures and end_ok else 'FAIL'}",flush=True)
