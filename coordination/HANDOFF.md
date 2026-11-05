@@ -2,7 +2,15 @@
 
 更新：2026-11-05，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
-## 当前：AX-03B1离线无功率反馈观测链完成，待Review
+## 当前：AX-03B2 J15最小ADC工程离线完成，待Review
+
+按用户启动的[kazecode666/AXU5EV Issue30](https://github.com/kazecode666/AXU5EV/issues/30)，从含已合并PR29的`origin/main 33f8237ad0d3fa08b9eac4b9fa5c97f0cf241e8d`建立`codex/ax03b2-adc-j15`。新采集RTL、J15逐针表/XDC、B1快照复用和最小R5 UART应用已实现；新增接口9482项短仿真通过。独立Vivado bit/ltx/含bit XSA与最小R5 ELF均已实际构建通过；WNS +1.826ns/WHS +0.014ns、TNS/THS=0，ADC输入setup/hold +1.826/+5.516ns。应用0警告/0错误、既有启动检查PASS，唯一Workspace `.runtime/ax03b2/vitis_adc_01`、Launch `ax03b2_adc_manual`，BSP实际地址0x80000000。保留的IOB/debug hub DRC及26项TIMING-18 methodology警告已按实际pad时钟合同说明；实际结果以[本轮报告](reports/ax03b2_adc_j15.md)为准。
+
+唯一现场入口为[首次板测指南](../firmware/r5/ax03b2/FIRST_BOARD_RUN_ZH.md)。本轮只离线完成、提交Draft PR后停止：板卡操作NOT_RUN，无真实输入结果；不接驱动板/电机/真实ABZ/功率级，不改参数/PI/FOC/Runtime，不重跑PR24/B1全量、不重生数值HDL、不保存用户SLX。保留5个已修改文件（含B1观测SLX）、2个原未跟踪文件及全部旧Workspace/实验数据。
+
+PR29已合并。以下为当时交付/Review历史，原停止点及未授权措辞不替代本轮Issue30明确授权；不据此重复旧实验或硬件动作。
+
+## 历史：AX-03B1离线无功率反馈观测链完成，待Review
 
 PR29 Review P2（[discussion_r4478150575](https://github.com/kazecode666/AXU5EV/pull/29#discussion_r4478150575)）已在原分支修正：ABZ理想参考首次输入建立AB/Z基准，无虚假位移/非法/Z事件，正确RTL不改。MATLAB定向矩阵32用例/896检查、原名义4帧及非零初相/Z高模型两次各5帧通过，数值42项同次复跑通过。[独立修正证据](../verification/ax03b1/abz_startup_results.json)保留原始结果，详情见主报告新增小节。未修改/保存当前已变更的观测SLX，未改电流数值源/生成SV/RTL，HDL生成和RTL回归本次NOT_RUN；所有用户修改和数据保留。修正提交仍交PR29复审，B1停止边界不变。
 
