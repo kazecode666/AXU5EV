@@ -8,6 +8,8 @@
 
 42项MATLAB参考检查、新模型4条20字段一致观测、数值HDL生成及结构检查通过；新增RTL的ADC/ABZ1341项、32/40字快照81/89项、生成数值25项、整链508项/最小间隔580项通过。实际RTL测试发现并从模型源修复生成的有符号下界比较差异，未手改SV；原失败日志仍留本地。两份生成SV输出同组1拍，整链保留采样时刻的位置/Z历史。运行入口及具体PASS/NOT_RUN口径见报告。
 
+已发布[kazecode666/AXU5EV Draft PR29](https://github.com/kazecode666/AXU5EV/pull/29)，关联Issue28，当前停止等待Review。本机Git HTTPS连续连接失败，使用已连接GitHub服务发布：远端实现提交`d3835aeed0d680a94f841b0f9a1c3ee2bdf33e22`与本地原实现提交`bc35d03b9b2fb90af980dddb1213a85a603eeea0`的Git树一致。本地提交历史未改写，用户文件不受影响；后续网络恢复时正常fetch/merge远端分支保留双方历史，不强推或reset。交接链接另有文档提交。
+
 双独立offset binary、七转换事件、候选时钟与滤波均SIM_ASSUMPTION；物理link_verified保持0，PWM六路/ENCON/RELCON/F_Reset/run_permission固定禁止。无板卡发现/连接/复位/下载/运行，无真实标定、板级XDC/STA/物理CDC签核、综合/布线或新Vitis工程；未重跑PR24，不改AQM/AUM参数、PI、已接受FOC、旧模型或数据。原4个修改文件和2个未跟踪文件仍保留且未纳入。完成本轮Draft PR后停止，等待ChatGPT Review；G1—G8未解除，不自动合并/关闭Issue或进入AX-03B2/C。
 
 PR24和PR27现均已合并；以下“PR24待Review”等为当时归档原文，只作历史，不要求重新板测或执行旧关机指令。
