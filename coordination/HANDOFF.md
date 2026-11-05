@@ -1,8 +1,10 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-05，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
+更新：2026-11-06，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
 ## 当前：AX-03B2 J15最小ADC工程离线完成，待Review
+
+已提交[kazecode666/AXU5EV Draft PR31](https://github.com/kazecode666/AXU5EV/pull/31)，关联Issue30，实现提交`95678fac7184923dca4b293118dfcba13d608f17`。实现提交已通过普通Git完成；最后交接链接补丁因Git HTTPS及连接器文件写入失败改由GitHub API发布，本地历史保留。后续正常fetch/merge保留双方历史，不强推或reset。旧B1连接器映射保留作历史；当前停止等待Review，不自动合并或操作板卡。
 
 按用户启动的[kazecode666/AXU5EV Issue30](https://github.com/kazecode666/AXU5EV/issues/30)，从含已合并PR29的`origin/main 33f8237ad0d3fa08b9eac4b9fa5c97f0cf241e8d`建立`codex/ax03b2-adc-j15`。新采集RTL、J15逐针表/XDC、B1快照复用和最小R5 UART应用已实现；新增接口9482项短仿真通过。独立Vivado bit/ltx/含bit XSA与最小R5 ELF均已实际构建通过；WNS +1.826ns/WHS +0.014ns、TNS/THS=0，ADC输入setup/hold +1.826/+5.516ns。应用0警告/0错误、既有启动检查PASS，唯一Workspace `.runtime/ax03b2/vitis_adc_01`、Launch `ax03b2_adc_manual`，BSP实际地址0x80000000。保留的IOB/debug hub DRC及26项TIMING-18 methodology警告已按实际pad时钟合同说明；实际结果以[本轮报告](reports/ax03b2_adc_j15.md)为准。
 
