@@ -1,8 +1,22 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-04，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。PR22已合并，从当前主线建立codex/ax02c2-runtime-pl-replay，执行[Issue23](https://github.com/kazecode666/AXU5EV/issues/23)。
+更新：2026-11-05，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
-## 当前：PR24 perf_r1完整实板PASS，待用户最终Review
+## 当前：AX-03B1离线无功率反馈观测链完成，待Review
+
+PR29 Review P2（[discussion_r4478150575](https://github.com/kazecode666/AXU5EV/pull/29#discussion_r4478150575)）已在原分支修正：ABZ理想参考首次输入建立AB/Z基准，无虚假位移/非法/Z事件，正确RTL不改。MATLAB定向矩阵32用例/896检查、原名义4帧及非零初相/Z高模型两次各5帧通过，数值42项同次复跑通过。[独立修正证据](../verification/ax03b1/abz_startup_results.json)保留原始结果，详情见主报告新增小节。未修改/保存当前已变更的观测SLX，未改电流数值源/生成SV/RTL，HDL生成和RTL回归本次NOT_RUN；所有用户修改和数据保留。修正提交仍交PR29复审，B1停止边界不变。
+
+按用户明确启动的[Issue28](https://github.com/kazecode666/AXU5EV/issues/28)，从包含已合并PR27的`origin/main d3a10cf627b55984c16fc58a5e6d56b991ea27a5`建立`codex/ax03b1-feedback-observer`。独立`simulation/AXU5EV_RealIO_NoPower.slx`、模型生成两相电流预处理、薄RTL双ADC/ABZ和原子只读快照已实现，未接完整控制Runtime或FOC。见[实施报告](reports/ax03b1_feedback_observer.md)、[执行记录](tasks/ax03b1_feedback_observer.md)和[精简证据](../verification/ax03b1/results.json)。
+
+42项MATLAB参考检查、新模型4条20字段一致观测、数值HDL生成及结构检查通过；新增RTL的ADC/ABZ1341项、32/40字快照81/89项、生成数值25项、整链508项/最小间隔580项通过。实际RTL测试发现并从模型源修复生成的有符号下界比较差异，未手改SV；原失败日志仍留本地。两份生成SV输出同组1拍，整链保留采样时刻的位置/Z历史。运行入口及具体PASS/NOT_RUN口径见报告。
+
+已发布[kazecode666/AXU5EV Draft PR29](https://github.com/kazecode666/AXU5EV/pull/29)，关联Issue28，当前停止等待Review。本机Git HTTPS连续连接失败，使用已连接GitHub服务发布：远端实现提交`d3835aeed0d680a94f841b0f9a1c3ee2bdf33e22`与本地原实现提交`bc35d03b9b2fb90af980dddb1213a85a603eeea0`的Git树一致。本地提交历史未改写，用户文件不受影响；后续网络恢复时正常fetch/merge远端分支保留双方历史，不强推或reset。交接链接另有文档提交。
+
+双独立offset binary、七转换事件、候选时钟与滤波均SIM_ASSUMPTION；物理link_verified保持0，PWM六路/ENCON/RELCON/F_Reset/run_permission固定禁止。无板卡发现/连接/复位/下载/运行，无真实标定、板级XDC/STA/物理CDC签核、综合/布线或新Vitis工程；未重跑PR24，不改AQM/AUM参数、PI、已接受FOC、旧模型或数据。原4个修改文件和2个未跟踪文件仍保留且未纳入。完成本轮Draft PR后停止，等待ChatGPT Review；G1—G8未解除，不自动合并/关闭Issue或进入AX-03B2/C。
+
+PR24和PR27现均已合并；以下“PR24待Review”等为当时归档原文，只作历史，不要求重新板测或执行旧关机指令。
+
+## 历史：2026-11-04 PR24 perf_r1完整实板签收
 
 2026-11-04，按PR24评论6622743887归档用户已完成的perf_r1单次current_motion实板：身份0x43324302，64536条完整处理、2645976个Runtime值原判据零失败、193608个duty位串零差，帧/命令/采用及完整停止PASS。PMU7812421Hz：Runtime均值/最大25.025/39.040us，上一read_begin到下一commit_end均值/P99/最大70.204/83.457/86.017us；COMMIT后328B日志及返回开销均值/最大9.245/10.880us，计入日志的完整窗口均值/P99/最大79.449/92.929/95.617us。后者204条超名义93.68us但提交在先、实际采用均正确，不能宣称全部软件工作在93.68us内完成或WCET。原失败k1200提交95.873us，新同记录75.009us，含日志窗口96.257→84.481us。
 

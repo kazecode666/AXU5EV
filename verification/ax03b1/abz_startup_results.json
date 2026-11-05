@@ -1,0 +1,98 @@
+{
+  "scope": "PR29 ABZ ideal reference startup only; RTL unchanged",
+  "reference": {
+    "status": "PASS",
+    "initial_ab_states": 4,
+    "initial_z_levels": 2,
+    "directions_per_start": 2,
+    "independent_repetitions": 2,
+    "cases": 32,
+    "checks": 896,
+    "static_hold_calls": 20,
+    "reset": "clear persistent function"
+  },
+  "numeric": {
+    "status": "PASS",
+    "checks": 42,
+    "clip_cases": 2,
+    "calibration_N_sim": 4,
+    "calibration_N_nominal": 1024,
+    "arithmetic": "int64 Q40 product; convergent Q24; wide Q24 c before int32 saturation",
+    "physical_calibration": "NOT_RUN",
+    "board": "NOT_RUN"
+  },
+  "nominal": {
+    "status": "SIM_PASS",
+    "unique_frames": 4,
+    "observation_columns": 20,
+    "sampled_count": [
+      0,
+      1250,
+      2500,
+      3750
+    ]
+  },
+  "startup_model": {
+    "status": "SIM_PASS",
+    "runs": 2,
+    "unique_frames_per_run": 5,
+    "observation_columns": 20,
+    "initial_ab": 3,
+    "initial_z": true,
+    "sample_id": [
+      0,
+      500,
+      1000,
+      1500,
+      2000
+    ],
+    "sampled_count": [
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    "sampled_z_seen": [
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "sampled_illegal": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "stimulus_fixture": "verification/ax03b1/fixtures/abz_startup/ax03b1_stimulus.m",
+    "model_modified_or_saved": false,
+    "synchronizer_filter_latency": "NOT_MODELED"
+  },
+  "status": "PASS",
+  "hdl_generation": "NOT_RUN",
+  "rtl": "NOT_RUN",
+  "board": "NOT_RUN",
+  "output_dir": "D:/Project/AXU5EV/.runtime/ax03b1/review_abz_01",
+  "review_url": "https://github.com/kazecode666/AXU5EV/pull/29#discussion_r4478150575",
+  "pre_fix_matlab_reproduction": [
+    {
+      "ab": 1,
+      "z": false,
+      "count": 1,
+      "z_seen": false,
+      "illegal": 0
+    },
+    {
+      "ab": 3,
+      "z": true,
+      "count": 0,
+      "z_seen": true,
+      "illegal": 1
+    }
+  ],
+  "pre_fix_note": "Observed with MATLAB MCP before editing the reference; these are failing baseline observations.",
+  "tool": "MATLAB R2026b Update1 via MCP"
+}

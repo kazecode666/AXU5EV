@@ -1,0 +1,48 @@
+{
+  "scope": "AX-03B1 standalone atomic read-only observation snapshot",
+  "date": "2026-11-05",
+  "tool": "Vivado Simulator 2026.1 SW Build 6511674",
+  "rtl": "integration/rtl/ax03b1/ax03b1_snapshot_axi.sv",
+  "testbench": "verification/ax03b1/snapshot_tb.sv",
+  "runs": [
+    {
+      "payload_words": 32,
+      "checks": 81,
+      "finish_ns": 2220,
+      "marker": "SNAPSHOT_PASS checks=81 words=32",
+      "log": ".runtime/ax03b1/snapshot_run_02/xsim.log",
+      "result": "PASS"
+    },
+    {
+      "payload_words": 40,
+      "checks": 89,
+      "finish_ns": 2460,
+      "marker": "SNAPSHOT_PASS checks=89 words=40",
+      "log": ".runtime/ax03b1/snapshot_run_40/xsim.log",
+      "result": "PASS"
+    }
+  ],
+  "covered": [
+    "no-publication BEGIN and no-session reads return SLVERR",
+    "complete frozen payload and epoch across publications",
+    "duplicate and out-of-order words; explicit re-BEGIN",
+    "misaligned and out-of-range reads preserve session",
+    "R data/response stability and blocked AR under backpressure",
+    "held concurrent AR accepted only after preceding R response",
+    "terminal response handshake releases bank; early terminal is explicit release",
+    "simultaneous BEGIN/publication returns prior complete frame",
+    "uint32 sequence wrap and sticky wrap flag",
+    "invalid-quality observation still transports opaque payload",
+    "reset cancels stalled response and invalidates both banks",
+    "external new epoch distinguishes reused sequence after reset"
+  ],
+  "limitations": [
+    "single clock and single globally serialized reader session",
+    "no board base address or write/control channels",
+    "epoch label is caller-supplied, not a persistent hardware boot counter",
+    "header availability is not ADC/calibration/physical validity or power permission"
+  ],
+  "synthesis": "NOT_RUN",
+  "implementation_sta_cdc": "NOT_RUN",
+  "board_operation": "NOT_RUN"
+}
