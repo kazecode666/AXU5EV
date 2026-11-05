@@ -71,5 +71,16 @@
   "physical_calibration": "NOT_RUN",
   "board": "NOT_RUN",
   "old_pr24_replay": "NOT_RUN",
-  "power_permission": "constant disabled; tested every integration clock"
+  "power_permission": "constant disabled; tested every integration clock",
+  "review_abz_startup": {
+    "status": "PASS",
+    "evidence": "abz_startup_results.json",
+    "reference_cases": 32,
+    "reference_checks": 896,
+    "nominal_model_frames": 4,
+    "startup_model_runs": 2,
+    "startup_model_frames_per_run": 5,
+    "numeric_checks_rerun": 42,
+    "rtl_and_current_hdl": "unchanged; not rerun or regenerated for this reference-only correction"
+  }
 }

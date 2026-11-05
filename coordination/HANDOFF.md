@@ -4,6 +4,8 @@
 
 ## 当前：AX-03B1离线无功率反馈观测链完成，待Review
 
+PR29 Review P2（[discussion_r4478150575](https://github.com/kazecode666/AXU5EV/pull/29#discussion_r4478150575)）已在原分支修正：ABZ理想参考首次输入建立AB/Z基准，无虚假位移/非法/Z事件，正确RTL不改。MATLAB定向矩阵32用例/896检查、原名义4帧及非零初相/Z高模型两次各5帧通过，数值42项同次复跑通过。[独立修正证据](../verification/ax03b1/abz_startup_results.json)保留原始结果，详情见主报告新增小节。未修改/保存当前已变更的观测SLX，未改电流数值源/生成SV/RTL，HDL生成和RTL回归本次NOT_RUN；所有用户修改和数据保留。修正提交仍交PR29复审，B1停止边界不变。
+
 按用户明确启动的[Issue28](https://github.com/kazecode666/AXU5EV/issues/28)，从包含已合并PR27的`origin/main d3a10cf627b55984c16fc58a5e6d56b991ea27a5`建立`codex/ax03b1-feedback-observer`。独立`simulation/AXU5EV_RealIO_NoPower.slx`、模型生成两相电流预处理、薄RTL双ADC/ABZ和原子只读快照已实现，未接完整控制Runtime或FOC。见[实施报告](reports/ax03b1_feedback_observer.md)、[执行记录](tasks/ax03b1_feedback_observer.md)和[精简证据](../verification/ax03b1/results.json)。
 
 42项MATLAB参考检查、新模型4条20字段一致观测、数值HDL生成及结构检查通过；新增RTL的ADC/ABZ1341项、32/40字快照81/89项、生成数值25项、整链508项/最小间隔580项通过。实际RTL测试发现并从模型源修复生成的有符号下界比较差异，未手改SV；原失败日志仍留本地。两份生成SV输出同组1拍，整链保留采样时刻的位置/Z历史。运行入口及具体PASS/NOT_RUN口径见报告。

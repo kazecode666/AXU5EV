@@ -27,3 +27,7 @@ G1实际模块模式/修订/针1/39–40/供电/SMA映射，G2带载校准/精�
 按Issue28覆盖ADC位序/流水线/启动/单路故障，电流独立系数与校准/极值，ABZ正反/Z/非法/毛刺/回绕，同拍采样关联，以及快照多字读跨更新/背压/复位。保留小型可复用用例与精简结果；日志/中间产物隔离在`.runtime/ax03b1/`，不重跑完整PR24。
 
 完成当前范围后提交关联Issue28的Draft PR，更新`coordination/HANDOFF.md`与必要当前规则；停在Review，不自动合并、不关闭Issue、不进入AX-03B2/C或有功率工作。未执行的生成/综合/布线/板测逐项明确NOT_RUN。
+
+## PR29启动问题修正
+
+按用户要求在原分支处理[Review P2](https://github.com/kazecode666/AXU5EV/pull/29#discussion_r4478150575)：理想ABZ参考首次输入只建立AB/Z基准，避免非零初相误计位移/非法跳变和初始Z高误报事件；正确的RTL启动语义不改。新增32用例/896状态检查、原名义4帧复验及非零初相/Z高的两次5帧模型观测均通过；数值42项同次通过。未改/保存SLX，未改数值DUT/生成SV/RTL，本次不重新生成HDL或重跑无关RTL/PR24。[报告](../reports/ax03b1_feedback_observer.md)和[新增证据](../../verification/ax03b1/abz_startup_results.json)说明实际运行边界。原始证据和新增本地SLX修改均保留；提交后继续等待复审，不进入B2/C。

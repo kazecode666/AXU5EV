@@ -24,6 +24,8 @@
 
 元数据在模拟采样事件保存，并随七转换事件传递；不是数字码到达后再读取最新位置。模型中的ABZ行为参考接收理想已同步信号，不以该理想参考代替薄RTL同步/滤波测试。未实施位置mm换算和PL速度状态；AQM30 mm/1 μm目标保持，最终物理mm/count需已知位移验证，原100 μs历史50点=5 ms的后续R5速度语义不改。
 
+PR29 Review指出并已修正理想参考的启动差异：首个AB/Z输入只建立历史基准，输出count=0、illegal=0、z_seen=false；不会把硬编码00/Z低当成已观测的历史。之后的合法正反边沿、双位非法跳变和Z低→高仍正常处理，Z不清位置。此处只对齐事件语义，不引入RTL同步/滤波延迟，也没有修改正确的RTL启动实现。
+
 ## 3. 两路预处理和校准合同
 
 每相输入原始uint16码（有效范围0..4095），offset为signed int32中的code-Q16，gain为signed int32中的A/count-Q24。参数由显式config_apply原子锁存，独立手动seed有效位只用于明确来源的配置；不是实测标定已完成声明。名义带载约0.0613680753 A/count与零流2659.0669可作测试配置，运行还验证不同offset/gain和反向符号，不写回任何AQM/AUM初始化参数。
@@ -86,7 +88,21 @@ invalid帧保留raw/OTR/元数据，数值置0且valid=0；clip帧输出饱和�
 | 生成数值RTL独立向量 | PASS，25项 | RTL与独立精确Q24期望一致；包括正常值、正负ties、INT32极值/c扩位、1024样本/最大累加值、自动校准/版本及config/restart碰撞；恒码不误判掉线 |
 | 接收→数值→总线整链 | PASS，508项/13次发布；最小间隔580项/25次发布 | 两路不同系数/反向符号、原码/采样位置/Z时间/ID与数值一致，各含2次invalid发布，冻结读取跨多个新发布，所有拍输出许可固定禁止 |
 
-上述25/508/580项由统一RTL入口的`current`、`observer`、`observer_min`套件执行；输入/快照套件也可分别选择`inputs`/`snapshot`。[精简综合证据](../../verification/ax03b1/results.json)记录实际PASS marker与日志位置，[模型最后一次运行](../../verification/ax03b1/model_results.json)为20字段扩充后的model-only运行，因此其hdl=NOT_RUN不覆盖此前已完成的数值生成；两阶段在综合证据中明确区分。完整编译/仿真日志留`.runtime/ax03b1/`。
+上述25/508/580项由统一RTL入口的`current`、`observer`、`observer_min`套件执行；输入/快照套件也可分别选择`inputs`/`snapshot`。[精简综合证据](../../verification/ax03b1/results.json)记录实际PASS marker与日志位置，[原交付模型运行](../../verification/ax03b1/model_results.json)为20字段扩充后的model-only运行，因此其hdl=NOT_RUN不覆盖此前已完成的数值生成；两阶段在综合证据中明确区分。完整编译/仿真日志留`.runtime/ax03b1/`。
+
+### PR29启动语义修正与定向复验
+
+针对[Review 5781833879 / P2](https://github.com/kazecode666/AXU5EV/pull/29#discussion_r4478150575)，先在本机MATLAB复现修正前AB=01/Z低误计+1，以及AB=11/Z高误报illegal=1、z_seen=true，再修正`ax03b1_abz_reference.m`的首次输入分支。[新增精简证据](../../verification/ax03b1/abz_startup_results.json)独立于原始模型/RTL结果保存。
+
+| 本次复验 | 实际结果 | 覆盖范围 |
+|---|---|---|
+| ABZ理想参考启动矩阵 | PASS，32用例/896次三字段状态检查 | 4种AB初相×2种Z电平×正反两个方向×两次独立clear重启；每次静止保持20拍，真实正/负一步及返回、Z低→高/保持、真实双位非法跳变 |
+| 原名义场景 | SIM_PASS，4帧/20字段 | ID0/500/1000/1500；位置0/1250/2500/3750，Z为0/1/1/1，illegal全0；数值42项同次复跑通过 |
+| 非零初相/Z高模型场景 | SIM_PASS，独立仿真两次，各5帧/20字段 | AB=11/Z高静止启动；ID0/500/1000/1500/2000的采样位置0/0/1/0/0、Z为0/0/0/0/1、illegal全0；真实11→10→11和Z先低后高进入后续快照 |
+
+入口为`ax03b1_validate_abz_startup(output_dir)`，要求新的输出目录并在MATLAB MCP中执行。用例只在受控测试路径中替换同签名的SIM外设刺激函数，检查实际解析路径，通过`Simulink.SimulationInput`覆盖有限StopTime；所有接收/数值/快照连接仍使用当前观测SLX。退出时恢复路径和缓存配置，不修改或保存SLX。测试fixture位于`verification/ax03b1/fixtures/abz_startup/`，不能作为部署刺激或加入日常路径。原始结果保留，新日志/CSV在`.runtime/ax03b1/review_abz_01/`。
+
+本次只改参考初始化及相应用例/说明；电流数值源、生成SV和全部RTL未改，HDL生成及RTL回归本次NOT_RUN，前表RTL的PASS仍属于原交付证据，没有把它们记作本次重跑。原有4个用户修改文件、2个未跟踪文件及本次开始时已修改的观测SLX均未纳入修正提交；没有保存用户模型或触碰旧实验数据。
 
 **生成差异已闭环：** 首次正常小电流RTL测试揭露HDL Coder将`int64(-2147483648)`下界折叠成64位比较中的负32位常量，导致误饱和；第一次改写常量仍被折叠。最终在MATLAB源用精确等价的`bitshift(x,-31)<int64(-1)`检测低于int32下界，重新生成后为安全64位移位/比较。原失败日志保留于`.runtime/ax03b1/current_final_03/current/`，最终同一向量及极值测试通过于`current_final_04`；入口加入针对该已知错误生成形式的拒绝检查。没有手改SV、修改Q格式或放宽判据。模型仿真/生成成功单独不足以证明RTL数值等价，这次实际RTL检查已覆盖该差异。
 

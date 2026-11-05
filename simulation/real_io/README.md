@@ -19,6 +19,20 @@ current preprocessing, ideal already-synchronized ABZ logic reference,
 sample snapshot and observation output. It contains no motor plant, FOC,
 speed estimator, duty, ENCON or RELCON path. The ABZ function does not model
 the physical synchronizer/filter latency; thin RTL verifies that separately.
+Its first AB/Z observation establishes the initial phase and level with
+count=0, illegal=0 and z_seen=false, including nonzero AB or initial Z high.
+Only later transitions can create count, illegal or Z events.
+
+For the PR29 startup regression, open the reviewed observer model and run
+`ax03b1_validate_abz_startup(output_dir)` through MATLAB MCP, using a fresh
+output directory under `.runtime/ax03b1/`. It covers all 8 AB/Z initial
+combinations, both real directions and two independent resets (32 cases,
+896 state checks), then the nominal model and two nonzero-AB/initial-high-Z
+model runs. A scoped test-only path substitutes the SIM stimulus fixture;
+the receive/numeric/snapshot model is neither edited nor saved. The path
+and cache settings are restored on exit. Do not add the fixture directory
+to the daily MATLAB path. This regression does not regenerate current HDL
+or rerun unchanged RTL. Compact results: `verification/ax03b1/abz_startup_results.json`.
 
 SIM_ASSUMPTION: 50 MHz logic, 5 MHz conversion clock, two independent
 offset-binary buses and seven conversion-clock pipeline stages. Every 500th
