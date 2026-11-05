@@ -1,5 +1,7 @@
 # AXU5EV 协作与工作区规则
 
+> 当前开发：2026-11-05，用户已启动Issue28 AX-03B1；从含已合并PR27的main d3a10cf建立codex/ax03b1-feedback-observer，独立无功率观测模型/新数值生成/ADC与ABZ薄RTL/只读原子快照已离线实现并通过新增验证。当前交接以coordination/HANDOFF.md首节与coordination/reports/ax03b1_feedback_observer.md为准。只读观测无功率许可，所有硬件未知保留SIM_ASSUMPTION/PENDING；未改电机/PI/旧模型/FOC/Runtime，未重跑PR24、未操作板卡。提交本轮Draft PR后停在Review，不自动合并/关闭Issue、不进入B2/C。PR24、PR27均已合并，以下待Review/旧关机措辞为历史；保留全部Workspace、用户修改和实验数据。
+
 > 当前签收：2026-11-04，按PR24评论6622743887归档用户已完成的perf_r1单次current_motion实板：身份0x43324302，64536条完整处理、2645976个Runtime值原判据零失败、193608个duty位串零差，帧/命令/采用及完整停止PASS。PMU7812421Hz：Runtime均值/最大25.025/39.040us，上一read_begin到下一commit_end均值/P99/最大70.204/83.457/86.017us；COMMIT后328B日志及返回开销均值/最大9.245/10.880us，计入日志的完整窗口均值/P99/最大79.449/92.929/95.617us。后者204条超名义93.68us但提交在先、实际采用均正确，不能宣称全部软件工作在93.68us内完成或WCET。原失败k1200提交95.873us，新同记录75.009us，含日志窗口96.257→84.481us。Workspace.runtime/ax02c2/vitis_runtime_pl_perf_r1，Launch ax02c2_runtime_manual；原native64平台/FSBL与hardware_02不变。精简证据verification/ax02c2/board_perf_r1_01，主报告及唯一指南已更新。原失败目录/备份及全部Workspace/数据保留。本轮仅离线读文件归档，不连接/操作板卡、不构建/回归；PR24待用户最终Review，不自动合并。以下性能候选BOARD_NOT_RUN、旧关机等记录均为历史，不作为当前动作。
 
 > 最新交付：AX-02C2离线实现及必要适配/构建/启动检查PASS，已推送kazecode666/AXU5EV Draft PR24（https://github.com/kazecode666/AXU5EV/pull/24）。用户已回复将接回原ETH02直连网卡，随后最新要求离线完成后关机；本轮不再执行C2加载/运行，BOARD_NOT_RUN，留待后续继续。交接推送完成后正常关机，不强制关闭或自动保存未保存窗口。C1实板不复现，原模型参数和所有工作区/数据保留，PR24待Review，不自动合并。

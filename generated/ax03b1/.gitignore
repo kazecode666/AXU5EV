@@ -1,0 +1,7 @@
+# Keep HDL design sources; auxiliary tool reports/models stay local.
+*
+!*/
+!*.sv
+!.gitignore
+!.gitattributes
+!README.md

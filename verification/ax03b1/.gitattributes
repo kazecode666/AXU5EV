@@ -1,0 +1,2 @@
+# Evidence JSON is kept with its native Windows line endings.
+*.json whitespace=cr-at-eol

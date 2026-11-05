@@ -1,0 +1,29 @@
+{
+  "numeric": {
+    "status": "PASS",
+    "checks": 42,
+    "clip_cases": 2,
+    "calibration_N_sim": 4,
+    "calibration_N_nominal": 1024,
+    "arithmetic": "int64 Q40 product; convergent Q24; wide Q24 c before int32 saturation",
+    "physical_calibration": "NOT_RUN",
+    "board": "NOT_RUN"
+  },
+  "model": {
+    "status": "SIM_PASS",
+    "unique_frames": 4,
+    "observation_columns": 20,
+    "sampled_Z_first": 0,
+    "sampled_Z_subsequent": 1,
+    "illegal_legal_stimulus": 0,
+    "logic_clock_hz": 50000000.0,
+    "conversion_clock_hz": 5000000.0,
+    "pipeline_conversion_cycles": 7,
+    "observe_ticks": 5000,
+    "board": "NOT_RUN",
+    "ABZ_reference": "ideal already-synchronized; RTL filter verified separately"
+  },
+  "hdl": {
+    "status": "NOT_RUN"
+  }
+}

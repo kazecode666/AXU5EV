@@ -1,0 +1,75 @@
+{
+  "scope": "AX-03B1 new no-power observer only",
+  "date": "2026-11-05",
+  "status": "PASS",
+  "model": "model_results.json",
+  "model_structure": "healthy (MATLAB MCP model_check all)",
+  "hdl_generation": {
+    "status": "HDL_GENERATION_PASS",
+    "tool": {
+      "Name": "HDL Coder",
+      "Version": "26.2",
+      "Release": "(R2026b)",
+      "Date": "22-May-2026"
+    },
+    "files": [
+      "Numeric_Algorithm.sv",
+      "Current_Preprocess.sv"
+    ],
+    "registered_output_latency_clocks": 1,
+    "note": "Numeric DUT generated and RTL-verified; the later 20-field model-only rerun deliberately did not regenerate unchanged numeric HDL."
+  },
+  "rtl_tool": "Vivado Simulator 2026.1 SW Build 6511674",
+  "rtl_results": [
+    {
+      "suite": "inputs",
+      "status": "PASS",
+      "marker": "TEST_PASS AX03B1_INPUT checks=1341 returns=38",
+      "log": ".runtime/ax03b1/final_rtl_01/inputs/xsim.console.log"
+    },
+    {
+      "suite": "snapshot32",
+      "status": "PASS",
+      "marker": "SNAPSHOT_PASS checks=81 words=32",
+      "log": ".runtime/ax03b1/final_rtl_01/snapshot/xsim.console.log"
+    },
+    {
+      "suite": "snapshot40",
+      "status": "PASS",
+      "marker": "SNAPSHOT_PASS checks=89 words=40",
+      "log": ".runtime/ax03b1/snapshot_run_40/xsim.log"
+    },
+    {
+      "suite": "generated_current",
+      "status": "PASS",
+      "marker": "AX03B1_CURRENT_PASS checks=25",
+      "log": ".runtime/ax03b1/current_final_05/current/xsim.console.log"
+    },
+    {
+      "suite": "observer",
+      "status": "PASS",
+      "marker": "AX03B1_OBSERVER_PASS checks=508 publications=13 invalid=2",
+      "log": ".runtime/ax03b1/observer_final_01/observer/xsim.console.log"
+    },
+    {
+      "suite": "observer_min",
+      "status": "PASS",
+      "marker": "AX03B1_OBSERVER_PASS checks=580 publications=25 invalid=2",
+      "log": ".runtime/ax03b1/observer_min_final_01/observer_min/xsim.console.log"
+    }
+  ],
+  "resolved_issue": {
+    "kind": "generated signed lower-bound literal context",
+    "failure_log": ".runtime/ax03b1/current_final_03/current/xsim.console.log",
+    "fix": "MATLAB arithmetic-shift predicate, then makehdl; never edited generated SV",
+    "final_test": "generated_current"
+  },
+  "assumptions": "dual independent offset-binary; seven conversion events; logical timing only",
+  "synthesis": "NOT_RUN",
+  "implementation_sta": "NOT_RUN",
+  "physical_cdc_timing": "NOT_RUN",
+  "physical_calibration": "NOT_RUN",
+  "board": "NOT_RUN",
+  "old_pr24_replay": "NOT_RUN",
+  "power_permission": "constant disabled; tested every integration clock"
+}
