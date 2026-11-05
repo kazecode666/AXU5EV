@@ -1,0 +1,290 @@
+AX-03B2 implementation evidence excerpts. Full reports: .runtime/ax03b2/hardware_01/reports/.
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+[ timing_summary.rpt / design summary ]
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------
+      1.826        0.000                      0                 7960        0.014        0.000                      0                 7944        8.500        0.000                       0                  3975
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+
+[ check_timing.rpt / coverage counts ]
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (0)
+6. checking no_output_delay (2)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+
+
+[ clocks.rpt / generated clocks ]
+Generated Clock     : an9238_clk_a
+Master Source       : design_1_i/adc_observer_0/s_axi_aclk
+Master Clock        : clk_pl_0
+Divide By           : 10
+Generated Sources   : {adc_clk_a_o}
+
+Generated Clock     : an9238_clk_b
+Master Source       : design_1_i/adc_observer_0/s_axi_aclk
+Master Clock        : clk_pl_0
+Divide By           : 10
+Generated Sources   : {adc_clk_b_o}
+
+
+
+====================================================
+
+[ adc_setup.rpt / first a path ]
+Slack (MET) :             2.125ns  (required time - arrival time)
+  Source:                 adc_data_a_i[11]
+                            (input port clocked by an9238_clk_a  {rise@0.000ns fall@100.000ns period=200.000ns})
+  Destination:            design_1_i/adc_observer_0/inst/captured_a_reg[11]/D
+                            (rising edge-triggered cell FDRE clocked by clk_pl_0  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk_pl_0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk_pl_0 rise@20.000ns - an9238_clk_a rise@0.000ns)
+  Data Path Delay:        2.948ns  (logic 1.230ns (41.712%)  route 1.718ns (58.288%))
+  Logic Levels:           2  (IBUFCTRL=1 INBUF=1)
+  Input Delay:            10.000ns
+  Clock Path Skew:        -4.743ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    1.929ns = ( 21.929 - 20.000 )
+    Source Clock Delay      (SCD):    6.855ns
+    Clock Pessimism Removal (CPR):    0.183ns
+  Clock Uncertainty:      0.209ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.412ns
+    Phase Error              (PE):    0.000ns
+  Clock Net Delay (Destination): 1.769ns (routing 0.828ns, distribution 0.941ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock an9238_clk_a rise edge)
+                                                      0.000     0.000 r  <hidden>
+    PS8_X0Y0             PS8                          0.000     0.000 r  design_1_i/zynq_ultra_ps_e_0/inst/PS8_i/PLCLK[0]
+                         net (fo=1, routed)           0.171     0.171    design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0
+    BUFG_PS_X0Y90        BUFG_PS (Prop_BUFG_PS_I_O)
+                                                      0.028     0.199 r  design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0_BUFG_inst/O
+                         net (fo=3496, routed)        1.998     2.197    design_1_i/adc_observer_0/inst/s_axi_aclk
+    SLICE_X9Y167         FDRE (Prop_DFF2_SLICEL_C_Q)
+                                                      0.081     2.278 r  design_1_i/adc_observer_0/inst/adc_clk_a_o_reg/Q
+                         net (fo=2, routed)           1.550     3.828    adc_clk_a_o_OBUF
+    AD10                 OBUF (Prop_OUTBUF_HDIOB_S_I_O)
+                                                      3.027     6.855 r  adc_clk_a_o_OBUF_inst/O
+                         net (fo=0)                   0.000     6.855    adc_clk_a_o
+  -------------------------------------------------------------------    -------------------
+                         input delay                 10.000    16.855    <hidden>
+    AC11                                              0.000    16.855 r  adc_data_a_i[11]
+                         net (fo=0)                   0.000    16.855    adc_data_a_i_IBUF[11]_inst/I
+    AC11                 INBUF (Prop_INBUF_HDIOB_S_PAD_O)
+                                                      1.230    18.085 r  adc_data_a_i_IBUF[11]_inst/INBUF_INST/O
+                         net (fo=1, routed)           0.000    18.085    adc_data_a_i_IBUF[11]_inst/OUT
+    AC11                 IBUFCTRL (Prop_IBUFCTRL_HDIOB_S_I_O)
+                                                      0.000    18.085 r  adc_data_a_i_IBUF[11]_inst/IBUFCTRL_INST/O
+                         net (fo=2, routed)           1.718    19.803    design_1_i/adc_observer_0/inst/adc_data_a_i[11]
+    SLICE_X6Y162         FDRE                                         r  design_1_i/adc_observer_0/inst/captured_a_reg[11]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk_pl_0 rise edge)
+                                                     20.000    20.000 r  <hidden>
+    PS8_X0Y0             PS8                          0.000    20.000 r  design_1_i/zynq_ultra_ps_e_0/inst/PS8_i/PLCLK[0]
+                         net (fo=1, routed)           0.135    20.135    design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0
+    BUFG_PS_X0Y90        BUFG_PS (Prop_BUFG_PS_I_O)
+                                                      0.025    20.160 r  design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0_BUFG_inst/O
+    X0Y1 (CLOCK_ROOT)    net (fo=3496, routed)        1.769    21.929    design_1_i/adc_observer_0/inst/s_axi_aclk
+    SLICE_X6Y162         FDRE                                         r  design_1_i/adc_observer_0/inst/captured_a_reg[11]/C
+                         clock pessimism              0.183    22.112    <hidden>
+                         clock uncertainty           -0.209    21.903    <hidden>
+    SLICE_X6Y162         FDRE (Setup_EFF2_SLICEL_C_D)
+                                                      0.025    21.928    design_1_i/adc_observer_0/inst/captured_a_reg[11]
+  -------------------------------------------------------------------
+                         required time                         21.928    <hidden>
+                         arrival time                         -19.803    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  2.125    <hidden>
+
+[ adc_setup.rpt / first b path ]
+Slack (MET) :             1.826ns  (required time - arrival time)
+  Source:                 adc_data_b_i[0]
+                            (input port clocked by an9238_clk_b  {rise@0.000ns fall@100.000ns period=200.000ns})
+  Destination:            design_1_i/adc_observer_0/inst/captured_b_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by clk_pl_0  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk_pl_0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk_pl_0 rise@20.000ns - an9238_clk_b rise@0.000ns)
+  Data Path Delay:        3.090ns  (logic 1.242ns (40.182%)  route 1.849ns (59.818%))
+  Logic Levels:           2  (IBUFCTRL=1 INBUF=1)
+  Input Delay:            10.000ns
+  Clock Path Skew:        -4.900ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    1.929ns = ( 21.929 - 20.000 )
+    Source Clock Delay      (SCD):    7.012ns
+    Clock Pessimism Removal (CPR):    0.183ns
+  Clock Uncertainty:      0.209ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.412ns
+    Phase Error              (PE):    0.000ns
+  Clock Net Delay (Destination): 1.769ns (routing 0.828ns, distribution 0.941ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock an9238_clk_b rise edge)
+                                                      0.000     0.000 r  <hidden>
+    PS8_X0Y0             PS8                          0.000     0.000 r  design_1_i/zynq_ultra_ps_e_0/inst/PS8_i/PLCLK[0]
+                         net (fo=1, routed)           0.171     0.171    design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0
+    BUFG_PS_X0Y90        BUFG_PS (Prop_BUFG_PS_I_O)
+                                                      0.028     0.199 r  design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0_BUFG_inst/O
+                         net (fo=3496, routed)        1.998     2.197    design_1_i/adc_observer_0/inst/s_axi_aclk
+    SLICE_X9Y167         FDRE (Prop_CFF_SLICEL_C_Q)
+                                                      0.079     2.276 r  design_1_i/adc_observer_0/inst/adc_clk_b_o_reg/Q
+                         net (fo=2, routed)           1.716     3.992    adc_clk_b_o_OBUF
+    AG11                 OBUF (Prop_OUTBUF_HDIOB_S_I_O)
+                                                      3.020     7.012 r  adc_clk_b_o_OBUF_inst/O
+                         net (fo=0)                   0.000     7.012    adc_clk_b_o
+  -------------------------------------------------------------------    -------------------
+                         input delay                 10.000    17.012    <hidden>
+    AF11                                              0.000    17.012 r  adc_data_b_i[0]
+                         net (fo=0)                   0.000    17.012    adc_data_b_i_IBUF[0]_inst/I
+    AF11                 INBUF (Prop_INBUF_HDIOB_M_PAD_O)
+                                                      1.242    18.254 r  adc_data_b_i_IBUF[0]_inst/INBUF_INST/O
+                         net (fo=1, routed)           0.000    18.254    adc_data_b_i_IBUF[0]_inst/OUT
+    AF11                 IBUFCTRL (Prop_IBUFCTRL_HDIOB_M_I_O)
+                                                      0.000    18.254 r  adc_data_b_i_IBUF[0]_inst/IBUFCTRL_INST/O
+                         net (fo=2, routed)           1.849    20.103    design_1_i/adc_observer_0/inst/adc_data_b_i[0]
+    SLICE_X6Y162         FDRE                                         r  design_1_i/adc_observer_0/inst/captured_b_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk_pl_0 rise edge)
+                                                     20.000    20.000 r  <hidden>
+    PS8_X0Y0             PS8                          0.000    20.000 r  design_1_i/zynq_ultra_ps_e_0/inst/PS8_i/PLCLK[0]
+                         net (fo=1, routed)           0.135    20.135    design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0
+    BUFG_PS_X0Y90        BUFG_PS (Prop_BUFG_PS_I_O)
+                                                      0.025    20.160 r  design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0_BUFG_inst/O
+    X0Y1 (CLOCK_ROOT)    net (fo=3496, routed)        1.769    21.929    design_1_i/adc_observer_0/inst/s_axi_aclk
+    SLICE_X6Y162         FDRE                                         r  design_1_i/adc_observer_0/inst/captured_b_reg[0]/C
+                         clock pessimism              0.183    22.112    <hidden>
+                         clock uncertainty           -0.209    21.903    <hidden>
+    SLICE_X6Y162         FDRE (Setup_FFF_SLICEL_C_D)
+                                                      0.025    21.928    design_1_i/adc_observer_0/inst/captured_b_reg[0]
+  -------------------------------------------------------------------
+                         required time                         21.928    <hidden>
+                         arrival time                         -20.103    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.826    <hidden>
+
+[ adc_hold.rpt / worst path ]
+Slack (MET) :             5.516ns  (arrival time - required time)
+  Source:                 adc_data_a_i[6]
+                            (input port clocked by an9238_clk_a  {rise@0.000ns fall@100.000ns period=200.000ns})
+  Destination:            design_1_i/adc_observer_0/inst/receiver/pair_a_reg[6]/D
+                            (rising edge-triggered cell FDRE clocked by clk_pl_0  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk_pl_0
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk_pl_0 rise@0.000ns - an9238_clk_a rise@0.000ns)
+  Data Path Delay:        1.226ns  (logic 0.799ns (65.163%)  route 0.427ns (34.837%))
+  Logic Levels:           2  (IBUFCTRL=1 INBUF=1)
+  Input Delay:            2.000ns
+  Clock Path Skew:        -2.337ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    1.372ns
+    Source Clock Delay      (SCD):    3.586ns
+    Clock Pessimism Removal (CPR):    0.124ns
+  Clock Net Delay (Destination): 1.234ns (routing 0.565ns, distribution 0.669ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock an9238_clk_a rise edge)
+                                                      0.000     0.000 r  <hidden>
+    PS8_X0Y0             PS8                          0.000     0.000 r  design_1_i/zynq_ultra_ps_e_0/inst/PS8_i/PLCLK[0]
+                         net (fo=1, routed)           0.094     0.094    design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0
+    BUFG_PS_X0Y90        BUFG_PS (Prop_BUFG_PS_I_O)
+                                                      0.017     0.111 r  design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0_BUFG_inst/O
+                         net (fo=3496, routed)        1.092     1.203    design_1_i/adc_observer_0/inst/s_axi_aclk
+    SLICE_X9Y167         FDRE (Prop_DFF2_SLICEL_C_Q)
+                                                      0.041     1.244 r  design_1_i/adc_observer_0/inst/adc_clk_a_o_reg/Q
+                         net (fo=2, routed)           0.768     2.012    adc_clk_a_o_OBUF
+    AD10                 OBUF (Prop_OUTBUF_HDIOB_S_I_O)
+                                                      1.574     3.586 r  adc_clk_a_o_OBUF_inst/O
+                         net (fo=0)                   0.000     3.586    adc_clk_a_o
+  -------------------------------------------------------------------    -------------------
+                         input delay                  2.000     5.586    <hidden>
+    Y14                                               0.000     5.586 r  adc_data_a_i[6]
+                         net (fo=0)                   0.000     5.586    adc_data_a_i_IBUF[6]_inst/I
+    Y14                  INBUF (Prop_INBUF_HDIOB_M_PAD_O)
+                                                      0.799     6.384 r  adc_data_a_i_IBUF[6]_inst/INBUF_INST/O
+                         net (fo=1, routed)           0.000     6.384    adc_data_a_i_IBUF[6]_inst/OUT
+    Y14                  IBUFCTRL (Prop_IBUFCTRL_HDIOB_M_I_O)
+                                                      0.000     6.384 r  adc_data_a_i_IBUF[6]_inst/IBUFCTRL_INST/O
+                         net (fo=2, routed)           0.427     6.812    design_1_i/adc_observer_0/inst/receiver/adc_data_a_i[6]
+    SLICE_X8Y142         FDRE                                         r  design_1_i/adc_observer_0/inst/receiver/pair_a_reg[6]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk_pl_0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    PS8_X0Y0             PS8                          0.000     0.000 r  design_1_i/zynq_ultra_ps_e_0/inst/PS8_i/PLCLK[0]
+                         net (fo=1, routed)           0.120     0.120    design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0
+    BUFG_PS_X0Y90        BUFG_PS (Prop_BUFG_PS_I_O)
+                                                      0.018     0.138 r  design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0_BUFG_inst/O
+    X0Y1 (CLOCK_ROOT)    net (fo=3496, routed)        1.234     1.372    design_1_i/adc_observer_0/inst/receiver/s_axi_aclk
+    SLICE_X8Y142         FDRE                                         r  design_1_i/adc_observer_0/inst/receiver/pair_a_reg[6]/C
+                         clock pessimism             -0.124     1.248    <hidden>
+    SLICE_X8Y142         FDRE (Hold_HFF2_SLICEM_C_D)
+                                                      0.047     1.295    design_1_i/adc_observer_0/inst/receiver/pair_a_reg[6]
+  -------------------------------------------------------------------
+                         required time                         -1.295    <hidden>
+                         arrival time                           6.812    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  5.516    <hidden>
+
+[ drc.rpt / summary ]
+1. REPORT SUMMARY
+-----------------
+            Netlist: netlist
+          Floorplan: impl_1
+      Design limits: <entire design considered>
+           Ruledeck: default
+             Max checks: <unlimited>
+             Checks found: 6
++-----------+----------+-------------------------+--------+
+| Rule      | Severity | Description             | Checks |
++-----------+----------+-------------------------+--------+
+| PDCN-1569 | Warning  | LUT equation term check | 3      |
+| REQP-1617 | Warning  | use_IOB_register        | 2      |
+| RTSTAT-10 | Warning  | No routable loads       | 1      |
++-----------+----------+-------------------------+--------+
+
+[ methodology.rpt / summary ]
+1. REPORT SUMMARY
+-----------------
+            Netlist: netlist
+          Floorplan: impl_1
+      Design limits: <entire design considered>
+             Max checks: <unlimited>
+             Checks found: 35
++-----------+----------+---------------------------------------------+--------+
+| Rule      | Severity | Description                                 | Checks |
++-----------+----------+---------------------------------------------+--------+
+| LUTAR-1   | Warning  | LUT drives async reset alert                | 5      |
+| TIMING-18 | Warning  | Missing input or output delay               | 26     |
+| XDCB-5    | Warning  | Runtime inefficient way to find pin objects | 4      |
++-----------+----------+---------------------------------------------+--------+
+
+[ methodology.rpt / representative current warning ]
+TIMING-18#1 Warning
+Missing input or output delay
+An input delay is missing on adc_data_a_i[0] relative to the rising and/or falling clock edge(s) of clk_pl_0.
+Related violations: <none>
