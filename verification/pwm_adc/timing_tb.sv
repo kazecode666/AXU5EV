@@ -1,5 +1,6 @@
 `timescale 1ns/1ps
-// Full routed candidate with matching process-corner SDF.
+// Routed candidate PL boundary with matching process-corner SDF.
+// ILA/debug hub are unsupported-IP black boxes; full-design STA retains them.
 // Only PS clock/reset and AXI transaction sources are substituted below.
 module timing_tb;
  reg clk=0;always #10 clk=~clk;
@@ -53,6 +54,7 @@ module timing_tb;
   wait(kill_lock);force dut.design_1_i.pwm_clock.inst.mmcme4_adv_inst.LOCKED=0;
   wait(!kill_lock);release dut.design_1_i.pwm_clock.inst.mmcme4_adv_inst.LOCKED;
  end
+ integer writes=0;
  integer checks=0,conversion=0,sample_checks=0,edge_checks=0,periods=0;
  realtime off_h[3],off_l[3],min_gap=1.0e9,max_gap=0,last_zero=0;
  realtime last_peak=0,sample_at=0,phase_delta,min_phase_delta=1.0e9,max_phase_delta=-1.0e9;
@@ -108,17 +110,27 @@ module timing_tb;
   conversion++;
  end
  task pwrite(input [11:0] a,input [31:0] d);begin
-  @(negedge clk);pa=40'h0080001000+a;pd=d;pav=1;
-  @(posedge clk);while(!par)@(posedge clk);
-  @(negedge clk);pav=0;pwv=1;
-  @(posedge clk);while(!pwr)@(posedge clk);
-  @(negedge clk);pwv=0;wait(pbv);@(negedge clk);check(pbr==0,"SDF AXI write response");
+  writes++;if(writes<=5)$display("SDF_WRITE_BEGIN off=%h data=%h t=%0t",a,d,$time);
+  // AW/W requests are independent. SmartConnect may wait for WVALID before
+  // accepting AW; the master must not wait for AWREADY to offer write data.
+  @(negedge clk);pa=40'h0080001000+a;pd=d;pav=1;pwv=1;
+  fork
+   begin
+    @(posedge clk);while(!par)@(posedge clk);
+    @(negedge clk);pav=0;if(writes<=5)$display("SDF_AW_DONE t=%0t",$time);
+   end
+   begin
+    @(posedge clk);while(!pwr)@(posedge clk);
+    @(negedge clk);pwv=0;if(writes<=5)$display("SDF_W_DONE t=%0t",$time);
+   end
+  join
+  wait(pbv);@(negedge clk);check(pbr==0,"SDF AXI write response");
  end endtask
  task read_word(input [39:0] a);begin
   @(negedge clk);pra=a;prv=1;
   @(posedge clk);while(!prar)@(posedge clk);
   @(negedge clk);prv=0;wait(prvalid);@(negedge clk);
-  check(prresp==0,"SDF AXI read response");value=prd;
+  check(prresp==0,"SDF AXI read response");check(!$isunknown(prd),"known SDF AXI read data");value=prd;
  end endtask
  task pread(input [11:0] a);begin read_word(40'h0080001000+a);end endtask
  task aread(input [11:0] a);begin read_word(40'h0080000000+a);end endtask
@@ -127,6 +139,7 @@ module timing_tb;
  end endtask
  task adopted(input integer s);begin
   value=0;while(value!=s)begin #1000;pread('h0c);end
+  check(value==s,"SDF adopted sequence");
   pread(4);while(value[1])begin #200;pread(4);end
   $display("SDF_ADOPT seq=%0d t=%0t",s,$time);
  end endtask

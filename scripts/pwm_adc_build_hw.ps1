@@ -8,8 +8,9 @@ $env:MC_PWM='1'
 $env:AX03B3_TEST='0'
 if($Stage -ne 'sdf'){& "$PSScriptRoot/ax03b3_build_hw.ps1" -Stage $Stage -Output $Output}
 if($Stage -in @('all','build','sdf')) {
+ if(Test-Path -LiteralPath (Join-Path $Output 'timing_pl')){throw 'Timing export exists; preserve completed output'}
  & 'E:/AMDDesignTools/2026.1/Vivado/bin/vivado.bat' -mode batch `
   -source hardware/axu5ev/motor_control/export_timing.tcl `
-  -log "$Output.sdf.log" -journal "$Output.sdf.jou" -tclargs $Output
+  -log "$Output.pl_sdf.log" -journal "$Output.pl_sdf.jou" -tclargs $Output
  if($LASTEXITCODE -ne 0){throw 'Routed SDF export failed'}
 }
