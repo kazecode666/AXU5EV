@@ -1,0 +1,169 @@
+{
+  "scope": "Issue30 AX-03B2 J15 raw ADC offline delivery",
+  "date": "2026-11-05",
+  "status": "OFFLINE_BUILD_PASS_BOARD_NOT_RUN",
+  "baseline": "33f8237ad0d3fa08b9eac4b9fa5c97f0cf241e8d",
+  "branch": "codex/ax03b2-adc-j15",
+  "interface_rtl": {
+    "status": "PASS",
+    "scope": "NEW_ADC_PHYSICAL_INTERFACE_RTL_ONLY",
+    "pass_marker": "AX03B2_ADC_INTERFACE_PASS checks=9482 captures=549 publications=3",
+    "run_dir": "D:\\Project\\AXU5EV\\.runtime\\ax03b2\\interface_02",
+    "board": "NOT_RUN",
+    "old_pr24_b1_regression": "NOT_RUN"
+  },
+  "hardware": {
+    "status": "PASS",
+    "tool": "Vivado 2026.1 build6511674",
+    "part": "xczu5ev-sfvc784-2-i",
+    "ps_clock_metadata_hz": 49999500,
+    "adc_clock_metadata_hz": 4999950,
+    "publish_metadata_hz": 9999.9,
+    "sta_report_period_ns": [
+      20.0,
+      200.0
+    ],
+    "capture_phase": 4,
+    "capture_delay_logic_periods": 4,
+    "pipeline_conversion_events": 7,
+    "wns_ns": 1.826,
+    "tns_ns": 0.0,
+    "whs_ns": 0.014,
+    "ths_ns": 0.0,
+    "wpws_ns": 8.5,
+    "tpws_ns": 0.0,
+    "setup_hold_pulse_failing_endpoints": [
+      0,
+      0,
+      0
+    ],
+    "adc_input_setup_min_ns": 1.826,
+    "adc_input_hold_min_ns": 5.516,
+    "input_ports_with_complete_min_max_delays": 26,
+    "digital_package_pin_assignments": 28,
+    "no_unconstrained_internal_endpoints": true,
+    "input_delays_ns": {
+      "min": 2,
+      "max": 10,
+      "external_each_direction_budget": [
+        0,
+        2
+      ],
+      "budget_measured": false,
+      "otr_same_budget_is_assumption": true
+    },
+    "drc": {
+      "errors": 0,
+      "critical_warnings": 0,
+      "warnings": {
+        "PDCN-1569": 3,
+        "REQP-1617": 2,
+        "RTSTAT-10": 1
+      }
+    },
+    "methodology": {
+      "LUTAR-1": 5,
+      "TIMING-18": 26,
+      "XDCB-5": 4,
+      "note": "Current warnings, not stale cache. TIMING-18 requests clk_pl_0 input delay; this interface launches externally from its 5MHz forwarded pad clocks. Those clocks have full min/max and timed paths; no fabricated 50MHz launch constraint or false path added. Engineering review, not an official tool-defect exemption."
+    },
+    "clock_output_registers": "two SLICE_X9Y167 FDREs; requested IOB packing not achieved; routed FF/fabric/OBUF/pad delays included in ADC input timing",
+    "representative_slow_setup_clock_pad_delay_ns": {
+      "a": 6.855,
+      "b": 7.012,
+      "difference": 0.157,
+      "measured": false
+    },
+    "utilization": {
+      "lut": 2029,
+      "registers": 3544,
+      "bram_tiles": 2,
+      "dsp": 0
+    },
+    "ila": {
+      "cores": 1,
+      "probe0_width": 64,
+      "depth": 1024
+    },
+    "full_reports": ".runtime/ax03b2/hardware_01/reports/"
+  },
+  "r5": {
+    "fsbl": {
+      "processor": "psu_cortexa53_0",
+      "machine": "AArch64",
+      "elf_class": 64,
+      "byte_order": "little",
+      "entry": 4294705152
+    },
+    "application": {
+      "machine": "ARM",
+      "elf_class": 32,
+      "byte_order": "little",
+      "entry": 60,
+      "flags": 83887104,
+      "segments": [
+        {
+          "address": 0,
+          "file_bytes": 2008,
+          "memory_bytes": 2008,
+          "flags": 7
+        },
+        {
+          "address": 1048576,
+          "file_bytes": 16844,
+          "memory_bytes": 107200,
+          "flags": 7
+        }
+      ],
+      "processor": "psu_cortexr5_0"
+    },
+    "launch": "ax03b2_adc_manual",
+    "status": "OFFLINE_STARTUP_CHECK_PASS",
+    "workspace": "D:/Project/AXU5EV/.runtime/ax03b2/vitis_adc_01",
+    "platform": "ax03b2_platform",
+    "application_name": "ax03b2_adc",
+    "xsa": "D:/Project/AXU5EV/.runtime/ax03b2/hardware_01/ax03b2_adc.xsa",
+    "bitstream": "D:/Project/AXU5EV/.runtime/ax03b2/hardware_01/ax03b2_adc.bit",
+    "ltx": "D:/Project/AXU5EV/.runtime/ax03b2/hardware_01/ax03b2_adc.ltx",
+    "elf": "D:/Project/AXU5EV/.runtime/ax03b2/vitis_adc_01/ax03b2_adc/build/ax03b2_adc.elf",
+    "base_address": "0x80000000",
+    "base_macro": "XPAR_ADC_OBSERVER_0_BASEADDR",
+    "psu_init": "D:/Project/AXU5EV/.runtime/ax03b2/vitis_adc_01/ax03b2_platform/hw/sdt/psu_init.tcl",
+    "observations": 64,
+    "board": "NOT_RUN",
+    "voltage": "nominal SMA uV=(raw-2048)*10040000/4096, rounded",
+    "current_calibration": "disabled; no current values printed",
+    "manual_order": [
+      "A53 FSBL; R5 stopAtEntry",
+      "program this bitstream without another system reset",
+      "matching psu_init: isolation_removal then reset_config",
+      "continue R5; UART WAIT; send s for one 64-row window"
+    ]
+  },
+  "current_preprocessing": "not instantiated; existing current fields zero/invalid; no manual-valid override or calibration",
+  "abz": "NOT_CONNECTED",
+  "numeric_source_change": false,
+  "hdl_regeneration": "NOT_RUN",
+  "old_pr24_b1_full_regression": "NOT_RUN",
+  "board_connection_or_operation": "NOT_RUN",
+  "physical_adc_or_voltage_validation": "NOT_RUN",
+  "real_current_calibration": "NOT_RUN",
+  "artifacts": [
+    {
+      "path": ".runtime/ax03b2/hardware_01/ax03b2_adc.bit",
+      "bytes": 7797907
+    },
+    {
+      "path": ".runtime/ax03b2/hardware_01/ax03b2_adc.ltx",
+      "bytes": 14234
+    },
+    {
+      "path": ".runtime/ax03b2/hardware_01/ax03b2_adc.xsa",
+      "bytes": 711670
+    },
+    {
+      "path": ".runtime/ax03b2/vitis_adc_01/ax03b2_adc/build/ax03b2_adc.elf",
+      "bytes": 212384
+    }
+  ]
+}
