@@ -37,3 +37,8 @@ Thumbs.db
 
 # User-supplied ALINX originals: index and summarize; never add the vendor tree.
 /资料/
+
+# ADC HDL Coder side products stay local; only the explicit RTL pair is source.
+/generated/adc/AXU5EV_ADC_HDL/*
+!/generated/adc/AXU5EV_ADC_HDL/Current_Preprocess.sv
+!/generated/adc/AXU5EV_ADC_HDL/Numeric_Algorithm.sv
