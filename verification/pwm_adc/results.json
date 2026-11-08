@@ -1,0 +1,297 @@
+{
+  "issue": "kazecode666/AXU5EV#34",
+  "status": "OFFLINE_PASS_REVIEW",
+  "branch": "codex/pwm-adc-100mhz",
+  "baseline": {
+    "pr33_main": "811dd56364b6c27d8653d7d3ab8821dd2d497e17",
+    "pr36_merge": "bb6314c8a7ff17499ee7cb793c62fa046962e8e8",
+    "both_are_ancestors": true,
+    "main_updated": false
+  },
+  "clock": {
+    "metadata_not_measurement": true,
+    "ps_hz": 49999500,
+    "pwm_hz": 99999000,
+    "ratio": 2,
+    "mmcm_M": 24,
+    "mmcm_D": 1,
+    "mmcm_O": 12,
+    "pwm_period_cycles": 10000,
+    "peak": 5000,
+    "dead_high_cycles": 100,
+    "dead_low_cycles": 100,
+    "adc_conversion_divide": 10,
+    "adc_frame_conversions": 500
+  },
+  "model": {
+    "status": "PASS",
+    "numeric_checks": 42,
+    "vector_rows": 49,
+    "output_fields": 14,
+    "output_latency_cycles": 1,
+    "observer_frames": 4,
+    "board": "NOT_RUN",
+    "run_dir": ".runtime/pwm_adc/model_01",
+    "restored_assertions": [
+      "sample_time_position",
+      "sample_time_Z",
+      "illegal_count"
+    ]
+  },
+  "rtl": {
+    "pwm": {
+      "status": "PASS",
+      "scope": "PWM_ADC_RELATED_CLOCKS",
+      "pass_marker": "PWM_PASS checks=694175 valleys=30",
+      "run_dir": "D:\\Project\\AXU5EV\\.runtime\\pwm_adc\\pwm_rtl_07",
+      "board": "NOT_RUN",
+      "old_pr24_b1_regression": "NOT_RUN"
+    },
+    "adc_before_receiver": {
+      "status": "PASS",
+      "scope": "PWM_ADC_RELATED_CLOCKS",
+      "pass_marker": "PWM_ADC_PASS checks=135 frames=10 phases=9 valid=6 cancellations=1",
+      "run_dir": "D:\\Project\\AXU5EV\\.runtime\\pwm_adc\\adc_rtl_08",
+      "board": "NOT_RUN",
+      "old_pr24_b1_regression": "NOT_RUN"
+    },
+    "b3": {
+      "status": "PASS",
+      "scope": "B3_GENERATED_CURRENT_INTEGRATION",
+      "pass_marker": "AX03B3_PASS checks=2064 first_done_a=2 first_done_b=2 restart_clear=1",
+      "run_dir": "D:\\Project\\AXU5EV\\.runtime\\pwm_adc\\b3_rtl_03",
+      "board": "NOT_RUN",
+      "old_pr24_b1_regression": "NOT_RUN"
+    }
+  },
+  "implementation": {
+    "status": "PASS",
+    "hardware": ".runtime/pwm_adc/hardware_05",
+    "wns_ns": 2.419,
+    "tns_ns": 0.0,
+    "setup_failing": 0,
+    "setup_endpoints": 13964,
+    "whs_ns": 0.015,
+    "ths_ns": 0.0,
+    "hold_failing": 0,
+    "hold_endpoints": 13948,
+    "wpws_ns": 4.0,
+    "tpws_ns": 0.0,
+    "pulse_width_failing": 0,
+    "pulse_width_endpoints": 6010,
+    "check_timing": {
+      "no_clock": 0,
+      "constant_clock": 0,
+      "pulse_width_clock": 0,
+      "unconstrained_internal_endpoints": 0,
+      "no_input_delay": 0,
+      "no_output_delay": 2,
+      "multiple_clock": 0,
+      "generated_clocks": 0,
+      "loops": 0,
+      "partial_input_delay": 0,
+      "partial_output_delay": 0,
+      "latch_loops": 0
+    },
+    "no_output_delay_note": "Two forwarded ADC clock outputs, not unconstrained data outputs.",
+    "worst_setup": {
+      "source": "adc_data_b_i[0]",
+      "destination": "design_1_i/adc_observer_0/inst/receiver/pair_b_reg[0]/D",
+      "path_type": "Setup (Max at Slow Process Corner)",
+      "requirement": "20.000ns  (clk_pl_0 rise@20.000ns - an9238_clk_b rise@0.000ns)",
+      "clock_uncertainty": "0.209ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE",
+      "slack_ns": 2.419
+    },
+    "worst_hold": {
+      "source": "design_1_i/adc_observer_0/inst/snapshot/latest_payload_reg[511]/C",
+      "destination": "design_1_i/adc_observer_0/inst/snapshot/frozen_payload_reg[511]/D",
+      "path_type": "Hold (Min at Slow Process Corner)",
+      "requirement": "0.000ns  (clk_pl_0 rise@0.000ns - clk_pl_0 rise@0.000ns)",
+      "slack_ns": 0.015
+    },
+    "worst_removal": {
+      "source": "dbg_hub/inst/BSCANID.u_xsdbm_id/CORE_XSDB.UUT_MASTER/U_ICON_INTERFACE/rddata_rst_reg/C",
+      "destination": "dbg_hub/inst/BSCANID.u_xsdbm_id/CORE_XSDB.UUT_MASTER/U_ICON_INTERFACE/U_CMD6_RD/U_RD_FIFO/SUBCORE_FIFO.xsdbm_v3_0_6_rdfifo_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/rstblk/ngwrdrst.grst.g7serrst.rst_wr_reg1_reg/PRE",
+      "path_type": "Removal (Min at Fast Process Corner)",
+      "requirement": "0.000ns  (clk_out1_design_1_pwm_clock_0 rise@0.000ns - clk_out1_design_1_pwm_clock_0 rise@0.000ns)",
+      "slack_ns": 0.091
+    },
+    "related_paths": {
+      "related_forward_min": {
+        "source": "design_1_i/pwm_control_0/inst/frozen_seq_reg[12]/C",
+        "destination": "design_1_i/pwm_control_0/inst/pwm/pending_seq_reg[12]/D",
+        "path_type": "Hold (Min at Slow Process Corner)",
+        "requirement": "0.000ns  (clk_out1_design_1_pwm_clock_0 rise@0.000ns - clk_pl_0 rise@0.000ns)",
+        "clock_uncertainty": "0.241ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE",
+        "slack_ns": 0.016
+      },
+      "related_forward_max": {
+        "source": "design_1_i/rst_pl0/U0/ACTIVE_LOW_PR_OUT_DFF[0].FDRE_PER_N_replica/C",
+        "destination": "design_1_i/pwm_control_0/inst/reset_release_reg[0]/CLR",
+        "path_type": "Recovery (Max at Slow Process Corner)",
+        "requirement": "5.000ns  (clk_out1_design_1_pwm_clock_0 fall@5.000ns - clk_pl_0 rise@0.000ns)",
+        "clock_uncertainty": "0.241ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE",
+        "slack_ns": 3.359
+      },
+      "related_reverse_min": {
+        "source": "design_1_i/pwm_control_0/inst/pwm/accepted_reg/C",
+        "destination": "design_1_i/pwm_control_0/inst/accept_pipe_reg[0]/D",
+        "path_type": "Hold (Min at Fast Process Corner)",
+        "requirement": "0.000ns  (clk_pl_0 rise@0.000ns - clk_out1_design_1_pwm_clock_0 rise@0.000ns)",
+        "clock_uncertainty": "0.364ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE",
+        "slack_ns": 0.716
+      },
+      "related_reverse_max": {
+        "source": "design_1_i/pwm_control_0/inst/pwm/applied_reg/C",
+        "destination": "design_1_i/pwm_control_0/inst/apply_pipe_reg[0]/D",
+        "path_type": "Setup (Max at Slow Process Corner)",
+        "requirement": "10.000ns  (clk_pl_0 rise@20.000ns - clk_out1_design_1_pwm_clock_0 rise@10.000ns)",
+        "clock_uncertainty": "0.364ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE",
+        "slack_ns": 7.827
+      }
+    },
+    "adc_input_setup_ns": 2.419,
+    "adc_input_hold_ns": 5.28,
+    "io_audit": {
+      "status": "PASS",
+      "matched_adc_ports": 28,
+      "standard": "LVCMOS33",
+      "input_ports": 26,
+      "input_min_ns": 2,
+      "input_max_ns": 10,
+      "forwarded_clock_divide": 10,
+      "adc_instances": 1,
+      "numeric_instances": [
+        "design_1_adc_observer_0_0_Numeric_Algorithm u_Numeric_Algorithm",
+        "design_1_adc_observer_0_0_Current_Preprocess generated_current"
+      ],
+      "evidence": [
+        "reports/io.rpt",
+        "reports/expanded_constraints.xdc",
+        "timing_pl/motor_routed.v"
+      ]
+    },
+    "drc": {
+      "errors": 0,
+      "critical_warnings": 0,
+      "warnings": 55,
+      "retained": "49 numerical DSP pipeline advisories; 3 LUT equations; 2 IOB placement; 1 debug-only no-routable-load. No numerical pipeline changes."
+    },
+    "methodology": {
+      "LUTAR-1": 7,
+      "TIMING-18": 26,
+      "XDCB-5": 4,
+      "CLKC-40": 1,
+      "CLKC-56": 1,
+      "note": "Reset combining LUTs and vendor reset logic are explicit; recovery/removal checked. TIMING-18 requests direct pl_clk delays but the actual 26 inputs use unchanged forwarded ADC clocks and min2/max10ns; no_input_delay/partial_input_delay are zero. No waivers or relaxed exceptions added."
+    },
+    "cdc": {
+      "CDC-3_info": 9,
+      "CDC-9_info": 2,
+      "CDC-15_warning": 4,
+      "scope": "Only vendor debug hub TCK crossings; 50/100MHz functional paths are related and timed."
+    },
+    "bus_skew_min_slack_ns": 9.524
+  },
+  "r5": {
+    "fsbl": {
+      "processor": "psu_cortexa53_0",
+      "machine": "AArch64",
+      "elf_class": 64,
+      "byte_order": "little",
+      "entry": 4294705152
+    },
+    "application": {
+      "machine": "ARM",
+      "elf_class": 32,
+      "byte_order": "little",
+      "entry": 60,
+      "flags": 83887104,
+      "segments": [
+        {
+          "address": 0,
+          "file_bytes": 2008,
+          "memory_bytes": 2008,
+          "flags": 7
+        },
+        {
+          "address": 1048576,
+          "file_bytes": 16060,
+          "memory_bytes": 104592,
+          "flags": 7
+        }
+      ],
+      "processor": "psu_cortexr5_0"
+    },
+    "launch": "pwm_adc_manual",
+    "status": "OFFLINE_STARTUP_CHECK_PASS",
+    "workspace": "D:/Project/AXU5EV/.runtime/pwm_adc/vitis_02",
+    "xsa": "D:/Project/AXU5EV/.runtime/pwm_adc/hardware_05/ax03b3_adc.xsa",
+    "elf": "D:/Project/AXU5EV/.runtime/pwm_adc/vitis_02/pwm_adc_observer/build/pwm_adc_observer.elf",
+    "pwm_base": "0x80001000",
+    "pwm_macro": "XPAR_PWM_CONTROL_0_BASEADDR",
+    "board": "NOT_RUN",
+    "external_pwm": "PENDING_INTERNAL_ILA_ONLY"
+  },
+  "sdf": {
+    "status": "PASS",
+    "export": "hardware_05/timing_pl",
+    "scope": "Routed functional PL with ILA/debug hub black boxes (PG172 unsupported simulation); PS clock/reset and AXI master transactions substituted. Full STA and bit retain actual debug IP. No re-synthesis or reroute.",
+    "resolution_ps": 1,
+    "input_model": "ADC pins, seven conversion events, tPD4ns; no TEST injection",
+    "timing_checks": "enabled; transport interconnect and zero pulse filtering",
+    "cell_count": 8066,
+    "iopath_count": 32598,
+    "interconnect_count": 50481,
+    "timingcheck_cell_count": 3292,
+    "corners": {
+      "slow": {
+        "status": "PASS",
+        "column": "max",
+        "run_dir": ".runtime/pwm_adc/sdf_pl_slow_02",
+        "checks": 515,
+        "samples": 9,
+        "turn_on_edges": 37,
+        "minimum_internal_dead_ns": 999.977,
+        "maximum_switch_dead_ns": 1000.023,
+        "complete_carrier_periods": 6,
+        "adc_pad_minus_internal_peak_ns": [
+          2.772,
+          2.772
+        ],
+        "backannotation": "XSIM 43-3452",
+        "annotation_warnings": 0,
+        "timing_violations": 0,
+        "unknown_failures": 0
+      },
+      "fast": {
+        "status": "PASS",
+        "column": "min",
+        "run_dir": ".runtime/pwm_adc/sdf_pl_fast_02",
+        "checks": 515,
+        "samples": 9,
+        "turn_on_edges": 37,
+        "minimum_internal_dead_ns": 999.991,
+        "maximum_switch_dead_ns": 1000.009,
+        "complete_carrier_periods": 6,
+        "adc_pad_minus_internal_peak_ns": [
+          1.332,
+          1.332
+        ],
+        "backannotation": "XSIM 43-3452",
+        "annotation_warnings": 0,
+        "timing_violations": 0,
+        "unknown_failures": 0
+      }
+    },
+    "limitations": "PS execution and debug capture are not dynamically verified. Only slow/max and fast/min, not all four PVT-column combinations. H/L are internal routed nodes, not external driver pins."
+  },
+  "board": "NOT_RUN",
+  "external_pwm": "PENDING_INTERNAL_ILA_ONLY",
+  "driver_motor": "NOT_CONNECTED",
+  "physical_link_verified": 0,
+  "numeric_hdl_generation": "NOT_RUN_UNCHANGED",
+  "old_full_regression": "NOT_RUN",
+  "preservation": "Six user-modified tracked files, two user untracked files, all prior workspaces and raw outputs retained. No user model save.",
+  "non_adopted_attempts": "hardware_01 dual-ILA license rejection; hardware_02/03 earlier SDF boundary/reset investigation; hardware_04 Vivado child startup error. All retained. Clipped SDF and direct slave forcing were superseded by full functional PL and compliant independent AW/W source. No ADC counter attribute change retained."
+}

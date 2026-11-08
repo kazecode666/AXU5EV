@@ -1,8 +1,26 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-08，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
+更新：2026-11-09，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
-## 当前：Issue35 ADC 单源组件与统一PL入口整理
+## 当前：Issue34 PWM 100MHz 与 ADC 选样协同（离线完成，待Review）
+
+执行 [Issue34 最新正文](https://github.com/kazecode666/AXU5EV/issues/34)，任务书 `coordination/tasks/pwm_adc_100mhz.md`。分支 `codex/pwm-adc-100mhz` 普通 merge 纳入 main `811dd56364b6c27d8653d7d3ab8821dd2d497e17`（PR33）和 PR36 merge `bb6314c8a7ff17499ee7cb793c62fa046962e8e8`；两项祖先检查通过，保留本地发布历史，未自动更新 main。独立 Draft PR 以 main 为目标。Git HTTPS两次失败后使用连接器发布：远端保留main/PR36合并父提交，本地原历史不改，不强推/reset；发布映射与PR链接在收尾时补齐。
+
+同一 `motor_control` 工程从既有 PS 49.9995MHz 元数据派生严格2倍 PWM 时钟99.999MHz（MMCM M24/D1/O12），ADC/AXI仍为原域。共同载波10000拍、三相冻结整组谷值采用、上下100拍死区、许可/禁止/重新允许、失锁取消已实现。ADC只增加采样前相位锚，原采样/七事件返回/数值一级延迟和REAL/TEST合同不变；旧FOC/Runtime/电机参数/PI未改。外部200MHz、ABZ新功能和完整闭环均未接入。
+
+PR36三条原位置/Z/illegal_count断言已恢复，并只运行一次对应模型验证：42项数值、49×14一级延迟、4帧PASS。最终短RTL：`pwm_rtl_07` 694175检查/30谷值；`adc_rtl_08` 接收器前刺激10帧、135检查、9次相位、6帧有效结果；`b3_rtl_03` 2064帧、两路各两次首次done=1024、restart清零PASS。原始输出均在 `.runtime/pwm_adc/`。
+
+采用候选 `.runtime/pwm_adc/hardware_05` 完整综合/布局布线及bit/ltx/含bit XSA PASS：WNS+2.419ns、WHS+0.015ns、WPWS+4.000ns，TNS/THS/TPWS=0。28个J15管脚和原26路min2/max10ns输入预算均命中；功能路径无缺失时钟/未约束端点，相关50/100MHz和适用recovery/removal通过。保留的工具建议与具体最差路径见精简结果，未放宽约束。
+
+功能PL边界真实路由SDF `sdf_pl_slow_02` / `sdf_pl_fast_02` 均PASS：各515检查、9选样、37开通边沿、6周期，注释/时序/未知态零失败。内部死区slow为999.977–1000.023ns，fast为999.991–1000.009ns；ADC pad相对内部峰值固定晚2.772/1.332ns，无漂移。按PG172仅在内存仿真视图中black-box不支持仿真的ILA/debug hub，保留功能时钟/ADC/AXI/PWM/互连；完整STA和bit仍含真实调试IP，不覆盖PS执行、ILA采集或全部PVT组合。最小R5新Workspace `.runtime/pwm_adc/vitis_02` 构建及被动启动检查PASS，实际BSP PWM地址0x80001000，A53 FSBL与R5 ELF/Launch匹配；明确产物路径见唯一指南。
+
+早期/失败/中断候选及日志全部保留，未作PASS：双ILA许可限制、裁剪/直接force从机边界、Vivado子进程启动失败；SDF测试台AW/W相互等待已改为独立握手。ADC计数器试验属性已撤回，原逻辑不变。真实新域首级reset removal告警通过两级下降沿释放留半周期解决，最终STA/SDF已确认。
+
+唯一工程/寄存器/时序说明为 `hardware/axu5ev/motor_control/README.md`，唯一操作指南为 `firmware/r5/pwm_adc/FIRST_RUN_ZH.md`。六路仅接100MHz内部ILA，外部引脚/缓冲/极性/配对与板上验收PENDING；physical_link_verified仍0、ENCON/RELCON未接入。本轮板卡发现/连接/下载/运行均NOT_RUN。用户6个已修改文件、2个未跟踪文件及全部旧Workspace/原始数据保留，未保存用户模型。完成同一Draft PR后停在Review，不合并/关闭Issue；按用户要求随后仅请求正常关机，不强制关闭未保存窗口。
+
+以下为 PR36 及先前阶段的历史记录，不作为本轮新验证结论。
+
+## 历史：Issue35 ADC 单源组件与统一PL入口整理
 
 2026-11-08，分支 `codex/adc-source-consolidation` 明确接续 PR33 已审查 head `07e245c0919645b7049b4414d0f6549b9d9c7256`（启动时PR33仍Draft，未自动合并）。本轮为独立整理PR，不重新开发B3，不进入PWM/ABZ。
 
