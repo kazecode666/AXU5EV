@@ -6,7 +6,7 @@ set mc_root [file normalize [file join [file dirname [info script]] ../../..]]
 set mc_out [file normalize [lindex $argv 0]]
 set mc_stage [expr {$argc>1 ? [lindex $argv 1] : "validate"}]
 set mc_vendor [expr {$argc>2 ? [file normalize [lindex $argv 2]] : [file join $mc_root .runtime ax03b2 vendor_ps design_1.bd]}]
-if {$mc_stage ni {base integrate synth audit validate build all}} {error "unknown stage"}
+if {$mc_stage ni {base integrate synth audit validate build all reports}} {error "unknown stage"}
 proc mc_sources {root kind} {
     set f [open $root/hardware/axu5ev/motor_control/sources.list r]
     set sources [list]
@@ -47,6 +47,10 @@ proc mc_build {out} {
     report_exceptions -file $out/reports/exceptions.rpt
     report_timing -from [get_ports {adc_data_* adc_otr_*}] -delay_type max -max_paths 26 -file $out/reports/adc_setup.rpt
     report_timing -from [get_ports {adc_data_* adc_otr_*}] -delay_type min -max_paths 26 -file $out/reports/adc_hold.rpt
+    if {[info exists ::env(MC_PWM)] && $::env(MC_PWM)==1} {
+        source $::mc_root/hardware/axu5ev/motor_control/pwm_reports.tcl
+        mc_pwm_reports $out
+    }
     if {[get_property SLACK [get_timing_paths -delay_type max -max_paths 1]]<0 || \
         [get_property SLACK [get_timing_paths -delay_type min -max_paths 1]]<0} {error "timing failed"}
     write_debug_probes -force $out/ax03b3_adc.ltx
@@ -129,3 +133,10 @@ if {$mc_stage in {integrate validate all}} {mc_integrate $mc_root $mc_out}
 if {$mc_stage in {synth validate}} {mc_synth $mc_out}
 if {$mc_stage in {audit validate}} {mc_audit $mc_root $mc_out}
 if {$mc_stage in {build all}} {mc_build $mc_out}
+if {$mc_stage eq "reports"} {
+    open_project $mc_out/project/ax02a_ps.xpr
+    open_run impl_1
+    source $mc_root/hardware/axu5ev/motor_control/pwm_reports.tcl
+    mc_pwm_reports $mc_out
+    close_project
+}

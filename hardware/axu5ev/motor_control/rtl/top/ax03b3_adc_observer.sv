@@ -20,6 +20,8 @@ module ax03b3_adc_observer #(
     (* IOB = "TRUE", DONT_TOUCH = "TRUE" *) output reg adc_clk_a_o,
     (* IOB = "TRUE", DONT_TOUCH = "TRUE" *) output reg adc_clk_b_o,
     output wire [63:0] debug_o,
+    // Registered look-ahead only; original ADC clocks/capture/selection unchanged.
+    output reg pwm_anchor_o,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axi AWADDR",
        X_INTERFACE_PARAMETER = "XIL_INTERFACENAME s_axi, PROTOCOL AXI4LITE, DATA_WIDTH 32, ADDR_WIDTH 12, READ_WRITE_MODE READ_WRITE, FREQ_HZ 49999500" *)
     input wire [11:0] s_axi_awaddr,
@@ -55,7 +57,9 @@ module ax03b3_adc_observer #(
             adc_phase <= 0;tick <= 0;sample_tick <= 0;observe_phase <= 0;
             adc_clk_a_o <= 0;adc_clk_b_o <= 0;
             captured_a <= 0;captured_b <= 0;captured_otr <= 0;
+            pwm_anchor_o <= 0;
         end else begin
+            pwm_anchor_o <= (adc_phase == 8 && observe_phase == 0);
             tick <= tick + 1'b1;
             adc_phase <= adc_phase == 9 ? 0 : adc_phase + 1'b1;
             if (adc_phase == 0) begin

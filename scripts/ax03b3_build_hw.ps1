@@ -1,4 +1,4 @@
-param([ValidateSet('base','integrate','synth','audit','validate','build','all')][string]$Stage='all',
+param([ValidateSet('base','integrate','synth','audit','validate','build','all','reports')][string]$Stage='all',
       [string]$Output='.runtime/ax03b3/hardware_real_02')
 $ErrorActionPreference='Stop'
 $root=Split-Path -Parent $PSScriptRoot

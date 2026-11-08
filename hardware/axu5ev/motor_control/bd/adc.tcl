@@ -15,7 +15,8 @@ proc mc_integrate {root out} {
     if {[info exists ::env(AX03B3_TEST)]} {set_property CONFIG.TEST_INPUT $::env(AX03B3_TEST) [get_bd_cells adc_observer_0]}
     puts "ADC_MREF_CLOCK_HZ=[get_property CONFIG.FREQ_HZ [get_bd_pins adc_observer_0/s_axi_aclk]]"
     create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect axi_adc
-    set_property -dict [list CONFIG.NUM_SI 1 CONFIG.NUM_MI 1 CONFIG.NUM_CLKS 1] [get_bd_cells axi_adc]
+    set with_pwm [expr {[info exists ::env(MC_PWM)] && $::env(MC_PWM)==1}]
+    set_property -dict [list CONFIG.NUM_SI 1 CONFIG.NUM_MI [expr {$with_pwm?2:1}] CONFIG.NUM_CLKS 1] [get_bd_cells axi_adc]
     create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset rst_pl0
     create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant zero
     set_property CONFIG.CONST_VAL 0 [get_bd_cells zero]
@@ -34,12 +35,24 @@ proc mc_integrate {root out} {
         make_bd_pins_external [get_bd_pins adc_observer_0/$name]
         set_property name $name [get_bd_ports ${name}_0]
     }
-    create_bd_cell -type ip -vlnv xilinx.com:ip:ila adc_ila
-    set_property -dict [list CONFIG.C_MONITOR_TYPE Native CONFIG.C_NUM_OF_PROBES 1 CONFIG.C_PROBE0_WIDTH 64 \
-        CONFIG.C_DATA_DEPTH 1024 CONFIG.C_EN_STRG_QUAL 1] [get_bd_cells adc_ila]
-    connect_bd_net [get_bd_pins $ps/pl_clk0] [get_bd_pins adc_ila/clk]
-    connect_bd_net [get_bd_pins adc_observer_0/debug_o] [get_bd_pins adc_ila/probe0]
+    if {!$with_pwm} {
+        create_bd_cell -type ip -vlnv xilinx.com:ip:ila adc_ila
+        set_property -dict [list CONFIG.C_MONITOR_TYPE Native CONFIG.C_NUM_OF_PROBES 1 CONFIG.C_PROBE0_WIDTH 64 \
+            CONFIG.C_DATA_DEPTH 1024 CONFIG.C_EN_STRG_QUAL 1] [get_bd_cells adc_ila]
+        connect_bd_net [get_bd_pins $ps/pl_clk0] [get_bd_pins adc_ila/clk]
+        connect_bd_net [get_bd_pins adc_observer_0/debug_o] [get_bd_pins adc_ila/probe0]
+    }
+    if {$with_pwm} {
+        source $root/hardware/axu5ev/motor_control/bd/pwm_clock.tcl
+        mc_pwm_integrate $out $ps
+    }
     assign_bd_address
+    if {$with_pwm} {
+        set_property offset 0x80000000 [get_bd_addr_segs $ps/Data/SEG_adc_observer_0_reg0]
+        set_property range 4K [get_bd_addr_segs $ps/Data/SEG_adc_observer_0_reg0]
+        set_property offset 0x80001000 [get_bd_addr_segs $ps/Data/SEG_pwm_control_0_reg0]
+        set_property range 4K [get_bd_addr_segs $ps/Data/SEG_pwm_control_0_reg0]
+    }
     validate_bd_design
     save_bd_design
     if {[get_property CONFIG.C_AUX_RESET_HIGH [get_bd_cells rst_pl0]] != 0} {error "aux reset polarity"}
