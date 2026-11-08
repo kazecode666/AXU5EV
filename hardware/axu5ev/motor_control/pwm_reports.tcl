@@ -3,6 +3,7 @@ proc mc_pwm_reports {out} {
     set report_dir $out/reports
     report_clock_interaction -delay_type min_max -file $report_dir/clock_interaction.rpt
     report_cdc -details -file $report_dir/cdc.rpt
+    report_bus_skew -file $report_dir/bus_skew.rpt
     report_timing -delay_type max -max_paths 20 -path_type full_clock_expanded -file $report_dir/worst_setup.rpt
     report_timing -delay_type min -max_paths 20 -path_type full_clock_expanded -file $report_dir/worst_hold.rpt
     report_pulse_width -all_violators -file $report_dir/pulse_width.rpt
@@ -22,15 +23,5 @@ proc mc_pwm_reports {out} {
         }
     }
     write_checkpoint $out/pwm_adc_routed.dcp
-    file mkdir $out/timing_sim
-    # PS/SmartConnect/ILA remain covered by whole-design STA. Export actual
-    # routed ADC/PWM/MMCM cells for bounded PL timing simulation without PS VIP.
-    foreach {name cell} {adc_routed adc_observer_0 pwm_routed pwm_control_0 clock_routed pwm_clock} {
-        set target [get_cells design_1_i/$cell]
-        if {[llength $target]!=1} {error "SDF boundary missing: $cell"}
-        write_verilog -mode timesim -cell $target -rename_top $name $out/timing_sim/$name.v
-        foreach corner {slow fast} {
-            write_sdf -process_corner $corner -cell $target -rename_top $name $out/timing_sim/${name}_${corner}.sdf
-        }
-    }
+    # export_timing.tcl subsequently exports the full matching timing netlist/SDF.
 }

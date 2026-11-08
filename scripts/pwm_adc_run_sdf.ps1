@@ -24,7 +24,7 @@ function Invoke-B2Tool([string]$name,[string[]]$Arguments,[string]$Directory){
  $process=[Diagnostics.Process]::new();$process.StartInfo=$psi
  if(-not $process.Start()){throw "$name failed to start"}
  $stdout=$process.StandardOutput.ReadToEndAsync();$stderr=$process.StandardError.ReadToEndAsync()
- $finished=$process.WaitForExit(300000)
+ $finished=$process.WaitForExit(1800000)
  if(-not $finished){$process.Kill();throw "$name timed out"}
  $output=$stdout.GetAwaiter().GetResult()+[Environment]::NewLine+$stderr.GetAwaiter().GetResult()
  [IO.File]::WriteAllText((Join-Path $Directory ($name+'.console.log')),$output,[Text.UTF8Encoding]::new($false))
@@ -34,25 +34,22 @@ function Invoke-B2Tool([string]$name,[string[]]$Arguments,[string]$Directory){
  }
  return $output
 }
-$netdir=Join-Path ([IO.Path]::GetFullPath($Hardware)) 'timing_sim'
-$sources=@('adc_routed','pwm_routed','clock_routed') | ForEach-Object {Join-Path $netdir ($_.ToString()+'.v')}
+$netdir=Join-Path ([IO.Path]::GetFullPath($Hardware)) 'timing_full'
+$sources=@((Join-Path $netdir 'motor_routed.v'))
 $sources+=Join-Path $axRoot 'verification/pwm_adc/timing_tb.sv'
 $sources+=Join-Path $VivadoBin '../data/verilog/src/glbl.v'
 $compile=Invoke-B2Tool 'xvlog' (@('-sv')+$sources) $RunDir
-$option=if($Corner -eq 'slow'){'-sdfmax'}else{'-sdfmin'}
-$arguments=@('work.timing_tb','work.glbl','-s','pwm_timing','-debug','typical',
+$arguments=@('work.timing_tb','work.glbl','-s','pwm_timing','-debug','off',
  '-timescale','1ns/1ps','-L','simprims_ver','-L','unisims_ver','-L','secureip',
  '-transport_int_delays','-pulse_r','0','-pulse_int_r','0','-pulse_e','0','-pulse_int_e','0')
-foreach($cell in @('adc','pwm','clock')) {
- $sdf=Join-Path $netdir ($cell+'_routed_'+$Corner+'.sdf')
- if(!(Test-Path -LiteralPath $sdf)){throw "Missing actual routed SDF: $sdf"}
- $arguments+=@($option,('/timing_tb/'+$cell+'_dut='+$sdf.Replace('\','/')))
-}
+$option=if($Corner -eq 'slow'){'-sdfmax'}else{'-sdfmin'}
+$arguments+=@($option,('/timing_tb/dut='+(Join-Path $netdir ('motor_'+$Corner+'.sdf')).Replace('\','/')))
 $elaborate=Invoke-B2Tool 'xelab' $arguments $RunDir
 $simulation=Invoke-B2Tool 'xsim' @('pwm_timing','-runall') $RunDir
 $marker=@($simulation -split '\r?\n' | Where-Object {$_ -match '^PWM_SDF_PASS '})
 if($marker.Count -ne 1){throw 'Missing SDF test PASS'}
-if(($elaborate+$simulation) -match '(?im)(timing violation|\$setuphold|\$recrem|SDF.*(ERROR|WARNING)|not annotated)'){throw 'Review SDF annotation or timing violation'}
-$summary=[ordered]@{status='PASS';corner=$Corner;pass_marker=$marker[0];hardware=$Hardware;run_dir=$RunDir;board='NOT_RUN';scope='routed ADC/PWM/MMCM cells; PS/AXI fabric/ILA excluded'}
+if(($elaborate+$simulation) -match '(?im)(timing violation|\$(setuphold|recrem|width|setup|hold|recovery|removal|period)\(|SDF.*(ERROR|WARNING)|WARNING:.*(SDF|annotat)|not annotated)'){throw 'Review SDF annotation or timing violation'}
+if($elaborate -notmatch 'XSIM 43-3452'){throw 'Missing successful SDF backannotation confirmation'}
+$summary=[ordered]@{status='PASS';corner=$Corner;pass_marker=$marker[0];hardware=$Hardware;run_dir=$RunDir;board='NOT_RUN';scope='full routed PL; PS clock/reset and AXI transaction sources substituted'}
 [IO.File]::WriteAllText((Join-Path $RunDir 'summary.json'),($summary|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
 Write-Output $marker[0]
