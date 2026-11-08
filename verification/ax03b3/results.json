@@ -1,0 +1,57 @@
+{
+  "rtl": "PASS",
+  "frames_checked": 2064,
+  "rtl_run": ".runtime/ax03b3/interface_86c4dfb354c24acaaa6c60fe5016bfd1",
+  "scope": "B3 TEST input, unchanged generated current arithmetic, two calibrations, fractional means, completion invalid, positive and negative currents, reconstruction, command collision exclusion; same-frame snapshot publication",
+  "hardware": "PASS",
+  "r5": "PASS",
+  "board": "NOT_RUN",
+  "variants": {
+    "REAL": {
+      "path": ".runtime/ax03b3/hardware_real_02",
+      "wns_ns": 1.361,
+      "whs_ns": 0.015,
+      "tns_ns": 0,
+      "ths_ns": 0,
+      "lut": 4463,
+      "ff": 4699,
+      "dsp": 22,
+      "bram_tile": 2,
+      "files": {
+        "ax03b3_adc.bit": 7797907,
+        "ax03b3_adc.ltx": 14234,
+        "ax03b3_adc.xsa": 815138
+      },
+      "r5": {
+        "workspace": ".runtime/ax03b3/vitis_real_01",
+        "elf_bytes": 211156,
+        "fsbl_bytes": 340632,
+        "base_address": "0x80000000",
+        "startup_check": "PASS"
+      }
+    },
+    "TEST": {
+      "path": ".runtime/ax03b3/hardware_test_01",
+      "wns_ns": 1.757,
+      "whs_ns": 0.012,
+      "tns_ns": 0,
+      "ths_ns": 0,
+      "lut": 4449,
+      "ff": 4620,
+      "dsp": 22,
+      "bram_tile": 2,
+      "files": {
+        "ax03b3_adc.bit": 7797907,
+        "ax03b3_adc.ltx": 14234,
+        "ax03b3_adc.xsa": 801255
+      },
+      "r5": {
+        "workspace": ".runtime/ax03b3/vitis_test_01",
+        "elf_bytes": 211156,
+        "fsbl_bytes": 340632,
+        "base_address": "0x80000000",
+        "startup_check": "PASS"
+      }
+    }
+  }
+}

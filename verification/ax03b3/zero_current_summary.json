@@ -1,0 +1,21 @@
+{
+  "source": "B2 user zero_current_01; 24V auxiliary on, bus/motor absent; 1.654V measured before AN9238 connection",
+  "uart_rows": 64,
+  "uart": {
+    "A": {
+      "min": 2659,
+      "max": 2680,
+      "mean": 2669.078125,
+      "otr": 0
+    },
+    "B": {
+      "min": 2658,
+      "max": 2678,
+      "mean": 2667.59375,
+      "otr": 0
+    }
+  },
+  "ila_rows": 1024,
+  "ila_refresh": "User reports initial discovery failed, recovered after refresh",
+  "scope": "raw observation only; no physical calibration or independent 1024-sample claim"
+}
