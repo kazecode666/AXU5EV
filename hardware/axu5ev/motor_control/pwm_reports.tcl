@@ -6,6 +6,7 @@ proc mc_pwm_reports {out} {
     report_timing -delay_type max -max_paths 20 -path_type full_clock_expanded -file $report_dir/worst_setup.rpt
     report_timing -delay_type min -max_paths 20 -path_type full_clock_expanded -file $report_dir/worst_hold.rpt
     report_pulse_width -all_violators -file $report_dir/pulse_width.rpt
+    report_timing -to [get_pins -hier -filter {REF_PIN_NAME =~ CLR || REF_PIN_NAME =~ PRE}] -delay_type min_max -max_paths 20 -path_type full_clock_expanded -file $report_dir/reset_recovery_removal.rpt
     write_xdc -force $report_dir/expanded_constraints.xdc
     set pwm [get_clocks -of_objects [get_pins design_1_i/pwm_control_0/pwm_clk]]
     set adc [get_clocks -of_objects [get_pins design_1_i/adc_observer_0/s_axi_aclk]]
