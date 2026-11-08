@@ -4,7 +4,20 @@
 
 ## 当前：Issue34 PWM 100MHz 与 ADC 选样协同（离线完成，待Review）
 
-执行 [Issue34 最新正文](https://github.com/kazecode666/AXU5EV/issues/34)，任务书 `coordination/tasks/pwm_adc_100mhz.md`。分支 `codex/pwm-adc-100mhz` 普通 merge 纳入 main `811dd56364b6c27d8653d7d3ab8821dd2d497e17`（PR33）和 PR36 merge `bb6314c8a7ff17499ee7cb793c62fa046962e8e8`；两项祖先检查通过，保留本地发布历史，未自动更新 main。独立 Draft PR 以 main 为目标。Git HTTPS两次失败后使用连接器发布：远端保留main/PR36合并父提交，本地原历史不改，不强推/reset；发布映射与PR链接在收尾时补齐。
+执行 [Issue34 最新正文](https://github.com/kazecode666/AXU5EV/issues/34)，任务书 `coordination/tasks/pwm_adc_100mhz.md`。已提交 [kazecode666/AXU5EV Draft PR37](https://github.com/kazecode666/AXU5EV/pull/37)，目标 main，停在 Review。分支 `codex/pwm-adc-100mhz` 普通 merge 纳入 main `811dd56364b6c27d8653d7d3ab8821dd2d497e17`（PR33）和 PR36 merge `bb6314c8a7ff17499ee7cb793c62fa046962e8e8`；两项祖先检查通过，未自动更新 main。Git HTTPS两次失败后使用连接器发布；远端合并提交 `eff47db0774194676057cb5466fd058917f19c40` 保留上述两个父提交，其树与本地合并 `36c57e3` 一致。以下实现提交逐项核对 Git 树一致，本地原历史保留，不强推/reset；网络恢复后可正常 fetch/merge 保留双方历史。
+
+| 本地提交 | 连接器发布提交 |
+| --- | --- |
+| `eff59b0c1d8983dda6f5ae149486e68236457f22` | `b65ec9a34ddea17afc24f8d78b680898f81ba971` |
+| `21317163c41c8ecc3a0bac8d6f248bf72a816be8` | `9b3fcabea6d6c1dfc846699d2dd83123702d13bb` |
+| `37649ba6ec75b1bb0b2cd6c42d04cce9c97d25cb` | `9fde2285b413ebe1fb36714cfb1c050efd250586` |
+| `d9ec28123a00ee0b4547e9c8dc9c4146527fe046` | `4c3e4172e240b47e146a360452b68dc8e11f72c1` |
+| `b0a4efbff02f32af20977eeff6df6a58707df2c1` | `99bd630a996dc66934f9ebfc36a7fc9523726f40` |
+| `a23e4093dca2492ca6702c5254b37f85af53568c` | `4c62ef2366685e8f26dad75a950d332ff9555f57` |
+| `c5597d5a5cea5b67ed5d757c4a9a362a8ba2daf0` | `7667ec43703144f9c61e521c46f629c4e2f05010` |
+| `cbbe0c2add1ce3721ac5375be5cb95a506dfd1bf` | `6cc7875b2d432d72e33284916bd1f6aaf6d3ac32` |
+
+此表覆盖实现与验证记录；后续提交仅补齐本节 PR 链接和发布映射。
 
 同一 `motor_control` 工程从既有 PS 49.9995MHz 元数据派生严格2倍 PWM 时钟99.999MHz（MMCM M24/D1/O12），ADC/AXI仍为原域。共同载波10000拍、三相冻结整组谷值采用、上下100拍死区、许可/禁止/重新允许、失锁取消已实现。ADC只增加采样前相位锚，原采样/七事件返回/数值一级延迟和REAL/TEST合同不变；旧FOC/Runtime/电机参数/PI未改。外部200MHz、ABZ新功能和完整闭环均未接入。
 
