@@ -23,9 +23,29 @@ always @(posedge clk) if(rstn && dut.result_strobe) begin
  expected_bank=dut.payload;
  #1;if(dut.snapshot.latest_payload!==expected_bank)$fatal(1,"publication alignment");
 end
-integer checks=0;integer rounds=0;integer valid_frames=0;
+integer checks=0;integer valid_frames=0;
+reg done_seen_a=0,done_seen_b=0;
+integer done_checks_a=0,done_checks_b=0,restart_checks=0;
+// restart is consumed on this edge; inspect after the generated output NBA.
+always @(posedge clk) if(rstn && dut.restart) begin
+ #1;
+ if(dut.ca!==16'd0 || dut.cb!==16'd0 || dut.da!==1'b0 || dut.db!==1'b0)
+   $fatal(1,"restart outputs not cleared: count=%0d,%0d done=%b,%b",dut.ca,dut.cb,dut.da,dut.db);
+ done_seen_a=0;done_seen_b=0;restart_checks=restart_checks+1;
+ $display("AX03B3_RESTART_CLEAR count_a=%0d count_b=%0d done_a=%b done_b=%b",dut.ca,dut.cb,dut.da,dut.db);
+end
 always @(negedge clk) begin
  if(rstn && dut.result_strobe && dut.cal_en) begin
+  if(dut.da && !done_seen_a) begin
+    if(dut.ca!==16'd1024)$fatal(1,"A first done count=%0d",dut.ca);
+    done_seen_a=1;done_checks_a=done_checks_a+1;
+    $display("AX03B3_FIRST_DONE channel=A round=%0d count=%0d",done_checks_a,dut.ca);
+  end
+  if(dut.db && !done_seen_b) begin
+    if(dut.cb!==16'd1024)$fatal(1,"B first done count=%0d",dut.cb);
+    done_seen_b=1;done_checks_b=done_checks_b+1;
+    $display("AX03B3_FIRST_DONE channel=B round=%0d count=%0d",done_checks_b,dut.cb);
+  end
   if(dut.ca>1024 || dut.cb>1024)$fatal(1,"count");
   if(dut.da && dut.db) begin
     if(!prior_done && dut.valid)$fatal(1,"completion must be invalid");
@@ -45,8 +65,10 @@ end
 initial begin
 repeat(5) @(negedge clk);rstn=1;
 write('h100,0);write('h104,0);write('h108,65536);write('h10c,65536);write('h110,10);write('h114,1);write('h118,5);
-wait(valid_frames>=8);write('h118,6);wait(!dut.da);valid_frames=0;
-wait(valid_frames>=8);$display("AX03B3_PASS checks=%0d",checks);$finish;
+wait(valid_frames>=8);write('h118,6);wait(restart_checks==1);valid_frames=0;
+wait(valid_frames>=8);
+if(done_checks_a!=2 || done_checks_b!=2 || restart_checks!=1)$fatal(1,"missing calibration/restart assertions");
+$display("AX03B3_PASS checks=%0d first_done_a=%0d first_done_b=%0d restart_clear=%0d",checks,done_checks_a,done_checks_b,restart_checks);$finish;
 end
 initial begin #2000000;$fatal(1,"timeout");end
 endmodule

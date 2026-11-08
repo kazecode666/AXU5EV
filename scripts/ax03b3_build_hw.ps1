@@ -1,5 +1,5 @@
 param([ValidateSet('base','integrate','build','all')][string]$Stage='all',
-      [string]$Output='.runtime/ax03b3/hardware_real_01')
+      [string]$Output='.runtime/ax03b3/hardware_real_02')
 $ErrorActionPreference='Stop'
 $root=Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $root

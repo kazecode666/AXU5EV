@@ -29,3 +29,11 @@ REAL与TEST均完成综合、布局布线、bit/ltx/含bit XSA导出。REAL：WN
 唯一操作说明：`firmware/r5/ax03b3/FIRST_RUN_ZH.md`。无驱动板，不进行真实零流/增益/极性/噪声验证；后续手动板测须另行授权。原5个修改文件、2个未跟踪文件、全部旧Workspace和数据保留。
 
 交付：[kazecode666/AXU5EV Draft PR33](https://github.com/kazecode666/AXU5EV/pull/33)，实现提交`90f70e62803c9e7de49e24d42793f8154e2279bf`。已停止等待Review。
+
+## PR33 最小收尾：Review 5817361622
+
+依据[项目来源对齐后的复审](https://github.com/kazecode666/AXU5EV/pull/33#pullrequestreview-5817361622)，只统一硬件脚本默认REAL输出为 `.runtime/ax03b3/hardware_real_02`（静态核对与R5配置、操作说明一致），并补充现有测试断言。未移动或覆盖产物，未对完成目录执行all。
+
+本次仅运行 `scripts/ax03b3_run_rtl.ps1 -RunDir .runtime/ax03b3/review_5817361622_01`。2064帧PASS；两轮首次done分别检查A/B count均为1024，共4次通过；restart消费边沿后等待输出寄存器NBA更新，再确认两路count=0/done=0，通过1次。结束条件要求上述断言实际执行完整；原完成当帧无效、偏置保持、电流换算和同帧发布检查均保留并通过。未发现实现错误。
+
+原仿真目录保留。本次综合/实现、R5重建、HDL生成、旧工程全量回归及板卡操作均NOT_RUN；上文硬件/R5 PASS为既有交付记录。数值源、生成HDL及功能RTL未改。修订回同一PR33，继续停在Draft/Review，PWM和ABZ留待独立任务。

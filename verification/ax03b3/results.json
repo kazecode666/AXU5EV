@@ -1,7 +1,7 @@
 {
   "rtl": "PASS",
   "frames_checked": 2064,
-  "rtl_run": ".runtime/ax03b3/interface_86c4dfb354c24acaaa6c60fe5016bfd1",
+  "rtl_run": ".runtime/ax03b3/review_5817361622_01",
   "scope": "B3 TEST input, unchanged generated current arithmetic, two calibrations, fractional means, completion invalid, positive and negative currents, reconstruction, command collision exclusion; same-frame snapshot publication",
   "hardware": "PASS",
   "r5": "PASS",
@@ -53,5 +53,29 @@
         "startup_check": "PASS"
       }
     }
+  },
+  "previous_rtl_run": ".runtime/ax03b3/interface_86c4dfb354c24acaaa6c60fe5016bfd1",
+  "review_5817361622": {
+    "status": "PASS",
+    "pass_marker": "AX03B3_PASS checks=2064 first_done_a=2 first_done_b=2 restart_clear=1",
+    "first_done_a_counts": [
+      1024,
+      1024
+    ],
+    "first_done_b_counts": [
+      1024,
+      1024
+    ],
+    "restart_after_output_update": {
+      "count_a": 0,
+      "count_b": 0,
+      "done_a": false,
+      "done_b": false
+    },
+    "default_path_static_check": "PASS: script, R5 config and guide use .runtime/ax03b3/hardware_real_02",
+    "hardware_r5_records": "previous delivery retained; synthesis/implementation/R5 build NOT_RUN this revision",
+    "hdl_generation": "NOT_RUN",
+    "old_full_regression": "NOT_RUN",
+    "board": "NOT_RUN"
   }
 }
