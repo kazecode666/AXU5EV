@@ -1,0 +1,7 @@
+{
+  "xsa": ".runtime/ax03b3/hardware_real_02/ax03b3_adc.xsa",
+  "bitstream": ".runtime/ax03b3/hardware_real_02/ax03b3_adc.bit",
+  "ltx": ".runtime/ax03b3/hardware_real_02/ax03b3_adc.ltx",
+  "workspace": ".runtime/ax03b3/vitis_real_01",
+  "source": "REAL"
+}

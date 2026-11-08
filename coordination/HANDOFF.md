@@ -1,6 +1,18 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-06，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
+更新：2026-11-08，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
+
+## 当前：AX-03B3 双路校准与电流观察离线集成
+
+PR33最新Review [5817361622](https://github.com/kazecode666/AXU5EV/pull/33#pullrequestreview-5817361622)最小收尾已完成：硬件脚本默认REAL输出统一为hardware_real_02；现有短测试补齐两轮A/B首次done各count==1024，以及restart消费并输出更新后两路count/done清零断言。仅新跑 `.runtime/ax03b3/review_5817361622_01`，2064帧、4次首次done和1次restart清零检查PASS，原检查保留。没有实现错误；本次综合实现/R5重建/HDL生成/旧全量回归均NOT_RUN，以下硬件和R5结果为原交付记录。原产物/工作区/用户修改保留，板卡操作NOT_RUN；推送同一PR33后继续等待Review。
+
+2026-11-08，执行[kazecode666/AXU5EV Issue32](https://github.com/kazecode666/AXU5EV/issues/32)，基于已合并PR31的main `810939798c76ed66ee8f96a450d5283f6b6f3656`，分支 `codex/ax03b3-current-observer`。B1生成数值链接入B2采集；新增最小参数提交/显式重校准、R5观察及固定TEST输入。数值源/生成SV、电机参数/PI/旧FOC不变。
+
+新增2064帧RTL集成验证PASS。REAL/TEST综合实现均PASS：WNS +1.361/+1.757ns，WHS +0.015/+0.012ns，TNS/THS均0，bit/ltx/含bit XSA已生成。工作区分别`.runtime/ax03b3/vitis_real_01`与`vitis_test_01`；R5最终结果以[主报告](reports/ax03b3_current_observer.md)和[精简证据](../verification/ax03b3/results.json)为准。唯一[操作说明](../firmware/r5/ax03b3/FIRST_RUN_ZH.md)。已提交[kazecode666/AXU5EV Draft PR33](https://github.com/kazecode666/AXU5EV/pull/33)，实现提交`90f70e62803c9e7de49e24d42793f8154e2279bf`，REAL/TEST R5构建及被动启动检查均PASS。当前停止等待Review，不自动合并。
+
+无MBDL4驱动板，全部板卡发现/连接/下载/运行NOT_RUN。TEST绕过模拟前端和ADC针脚，不作为真实标定；默认gain仅数字测试比例，physical_link_verified仍0。原5个用户修改文件、2个未跟踪文件及全部Workspace/数据保留；B2零流原始记录仅作历史观测归档。完成Draft PR后停止Review，不合并、不关闭Issue、不进入其他阶段。
+
+以下B2待Review为历史：PR31现已合并。
 
 ## 当前：AX-03B2 J15最小ADC工程离线完成，待Review
 

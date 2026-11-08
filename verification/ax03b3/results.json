@@ -1,0 +1,81 @@
+{
+  "rtl": "PASS",
+  "frames_checked": 2064,
+  "rtl_run": ".runtime/ax03b3/review_5817361622_01",
+  "scope": "B3 TEST input, unchanged generated current arithmetic, two calibrations, fractional means, completion invalid, positive and negative currents, reconstruction, command collision exclusion; same-frame snapshot publication",
+  "hardware": "PASS",
+  "r5": "PASS",
+  "board": "NOT_RUN",
+  "variants": {
+    "REAL": {
+      "path": ".runtime/ax03b3/hardware_real_02",
+      "wns_ns": 1.361,
+      "whs_ns": 0.015,
+      "tns_ns": 0,
+      "ths_ns": 0,
+      "lut": 4463,
+      "ff": 4699,
+      "dsp": 22,
+      "bram_tile": 2,
+      "files": {
+        "ax03b3_adc.bit": 7797907,
+        "ax03b3_adc.ltx": 14234,
+        "ax03b3_adc.xsa": 815138
+      },
+      "r5": {
+        "workspace": ".runtime/ax03b3/vitis_real_01",
+        "elf_bytes": 211156,
+        "fsbl_bytes": 340632,
+        "base_address": "0x80000000",
+        "startup_check": "PASS"
+      }
+    },
+    "TEST": {
+      "path": ".runtime/ax03b3/hardware_test_01",
+      "wns_ns": 1.757,
+      "whs_ns": 0.012,
+      "tns_ns": 0,
+      "ths_ns": 0,
+      "lut": 4449,
+      "ff": 4620,
+      "dsp": 22,
+      "bram_tile": 2,
+      "files": {
+        "ax03b3_adc.bit": 7797907,
+        "ax03b3_adc.ltx": 14234,
+        "ax03b3_adc.xsa": 801255
+      },
+      "r5": {
+        "workspace": ".runtime/ax03b3/vitis_test_01",
+        "elf_bytes": 211156,
+        "fsbl_bytes": 340632,
+        "base_address": "0x80000000",
+        "startup_check": "PASS"
+      }
+    }
+  },
+  "previous_rtl_run": ".runtime/ax03b3/interface_86c4dfb354c24acaaa6c60fe5016bfd1",
+  "review_5817361622": {
+    "status": "PASS",
+    "pass_marker": "AX03B3_PASS checks=2064 first_done_a=2 first_done_b=2 restart_clear=1",
+    "first_done_a_counts": [
+      1024,
+      1024
+    ],
+    "first_done_b_counts": [
+      1024,
+      1024
+    ],
+    "restart_after_output_update": {
+      "count_a": 0,
+      "count_b": 0,
+      "done_a": false,
+      "done_b": false
+    },
+    "default_path_static_check": "PASS: script, R5 config and guide use .runtime/ax03b3/hardware_real_02",
+    "hardware_r5_records": "previous delivery retained; synthesis/implementation/R5 build NOT_RUN this revision",
+    "hdl_generation": "NOT_RUN",
+    "old_full_regression": "NOT_RUN",
+    "board": "NOT_RUN"
+  }
+}
