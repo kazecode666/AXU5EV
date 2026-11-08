@@ -12,7 +12,7 @@
 
 实际模型检查/HDL生成PASS，42项数值检查、49行×14输出一级延迟对比、原4×20观察记录一致；B3短RTL2064帧及定向数值RTL25检查PASS，含两轮1024完成/restart断言。新REAL候选 `.runtime/adc_consolidation/hardware_real_01` 完成BD验证/综合/源与约束命中核对；实现、新bitstream、R5重建、旧全量回归和板卡操作NOT_RUN。本次无新可上板产物，保留PR33原bit/XSA/ELF及全部旧工作区/数据，不能沿用旧布线时序宣称新候选已实现。综合态debug/PS未约束项保留，详见精简结果。
 
-唯一[入口与旧新路径说明](../hardware/axu5ev/motor_control/README.md)，[精简结果](../verification/adc_consolidation/results.json)。PR链接待发布后补充。用户原5个修改文件和2个未跟踪文件保持原样；不改旧FOC/Runtime/电机参数/PI。提交Draft PR后停止Review，不自动合并或关闭Issue。
+唯一[入口与旧新路径说明](../hardware/axu5ev/motor_control/README.md)，[精简结果](../verification/adc_consolidation/results.json)。已提交[kazecode666/AXU5EV Draft PR36](https://github.com/kazecode666/AXU5EV/pull/36)，base为PR33分支，当前停止等待Review。Git HTTPS连续失败后改用连接器发布：远端实现提交`e4a237edfed92119a41b0be651ac005ab9c071a9`与本地`77b0362`实现树一致；本地原历史保留，未强推/reset，后续网络恢复可正常fetch/merge保留双方历史。用户原5个修改文件和2个未跟踪文件保持原样；不改旧FOC/Runtime/电机参数/PI。提交Draft PR后停止Review，不自动合并或关闭Issue。
 
 以下B3/板测相关状态为原阶段记录，不作为本轮新运行结果。
 
