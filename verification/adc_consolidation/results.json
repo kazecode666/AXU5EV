@@ -1,0 +1,138 @@
+{
+  "issue": 35,
+  "dependency_pr": 33,
+  "base": "07e245c0919645b7049b4414d0f6549b9d9c7256",
+  "model": {
+    "status": "PASS",
+    "numeric_checks": 42,
+    "vector_rows": 49,
+    "output_fields": 14,
+    "output_latency_cycles": 1,
+    "observer_frames": 4,
+    "board": "NOT_RUN"
+  },
+  "hdl": {
+    "status": "PASS",
+    "model": "AXU5EV_ADC_HDL",
+    "dut": "AXU5EV_ADC_HDL/Current_Preprocess",
+    "component": "AXU5EV_PL_Algorithm_Library/Current_Preprocess",
+    "output_latency_cycles": 1,
+    "generated_directory": "D:\\Project\\AXU5EV\\generated\\adc\\AXU5EV_ADC_HDL",
+    "board": "NOT_RUN"
+  },
+  "observer_accepted_record_comparison": "PASS: 4 rows x 20 columns equal previous accepted observer frames",
+  "model_structure": "PASS: both active shells link same library; 18 inputs / 14 output UnitDelays preserved; internal and shell connectivity healthy",
+  "generator_clean_shell": "PASS; only clean new AXU5EV_ADC_HDL saved, user legacy models not saved",
+  "b3_rtl": {
+    "status": "PASS",
+    "scope": "B3_GENERATED_CURRENT_INTEGRATION",
+    "pass_marker": "AX03B3_PASS checks=2064 first_done_a=2 first_done_b=2 restart_clear=1",
+    "run_dir": "D:\\Project\\AXU5EV\\.runtime\\adc_consolidation\\b3_rtl_01",
+    "board": "NOT_RUN",
+    "old_pr24_b1_regression": "NOT_RUN"
+  },
+  "current_rtl": {
+    "status": "PASS",
+    "kind": "NEW_RTL_BEHAVIORAL_ONLY",
+    "run_dir": "D:\\Project\\AXU5EV\\.runtime\\adc_consolidation\\current_rtl_01",
+    "results": [
+      {
+        "suite": "current",
+        "status": "PASS",
+        "top": "ax03b1_current_tb",
+        "pass_marker": [
+          "AX03B1_CURRENT_PASS checks=25"
+        ],
+        "log_directory": "D:\\Project\\AXU5EV\\.runtime\\adc_consolidation\\current_rtl_01\\current"
+      }
+    ],
+    "board": "NOT_RUN",
+    "synthesis": "NOT_RUN",
+    "implementation": "NOT_RUN",
+    "physical_timing_cdc": "NOT_RUN"
+  },
+  "board_candidate": {
+    "status": "SYNTHESIS_AND_CONSTRAINT_CHECK_PASS",
+    "path": ".runtime/adc_consolidation/hardware_real_01",
+    "variant": "REAL",
+    "implementation": "NOT_RUN",
+    "new_bitstream": "NOT_RUN",
+    "r5_rebuild": "NOT_RUN",
+    "board": "NOT_RUN",
+    "bd_validation": "PASS",
+    "sources": {
+      "handwritten": 4,
+      "generated": 2,
+      "constraints": 1,
+      "each_loaded_once": true
+    },
+    "package_pins_lvcmos33": 28,
+    "input_bits": 26,
+    "forwarded_clocks_ns": [
+      200,
+      200
+    ],
+    "input_delay_checks": {
+      "a": {
+        "clock": "an9238_clk_a",
+        "min_ns": 2.0,
+        "max_ns": 10.0,
+        "applied_ports": [
+          "adc_data_a_i[0]",
+          "adc_data_a_i[10]",
+          "adc_data_a_i[11]",
+          "adc_data_a_i[1]",
+          "adc_data_a_i[2]",
+          "adc_data_a_i[3]",
+          "adc_data_a_i[4]",
+          "adc_data_a_i[5]",
+          "adc_data_a_i[6]",
+          "adc_data_a_i[7]",
+          "adc_data_a_i[8]",
+          "adc_data_a_i[9]",
+          "adc_otr_a_i"
+        ]
+      },
+      "b": {
+        "clock": "an9238_clk_b",
+        "min_ns": 2.0,
+        "max_ns": 10.0,
+        "applied_ports": [
+          "adc_data_b_i[0]",
+          "adc_data_b_i[10]",
+          "adc_data_b_i[11]",
+          "adc_data_b_i[1]",
+          "adc_data_b_i[2]",
+          "adc_data_b_i[3]",
+          "adc_data_b_i[4]",
+          "adc_data_b_i[5]",
+          "adc_data_b_i[6]",
+          "adc_data_b_i[7]",
+          "adc_data_b_i[8]",
+          "adc_data_b_i[9]",
+          "adc_otr_b_i"
+        ]
+      },
+      "status": "PASS",
+      "min_covered_bits": 26,
+      "max_covered_bits": 26
+    },
+    "base_address": "0x80000000",
+    "address_range_bytes": 4096,
+    "pl_clock_hz": 49999500,
+    "check_timing": {
+      "no_input_delay": 0,
+      "partial_input_delay": 0,
+      "generated_clocks": 0,
+      "no_clock": 1235,
+      "unconstrained_internal_endpoints": 1746,
+      "limits": "synthesized design only; 1227 no-clock pins rooted at debug hub, 8 PS8 peripheral clock outputs; all 1746 unconstrained endpoints under adc_ila; no routed timing closure claimed"
+    },
+    "top_synthesis_messages": {
+      "warnings": 5,
+      "critical_warnings": 0,
+      "errors": 0,
+      "scope": "unconnected outputs/reset unused ports; see original new-candidate synth log"
+    }
+  }
+}

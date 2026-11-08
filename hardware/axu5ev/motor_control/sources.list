@@ -1,0 +1,14 @@
+# kind|repository-relative source; one active ADC source list.
+# Vendor IP is instantiated in bd/adc.tcl; PS customization is reused, not copied.
+handwritten|hardware/axu5ev/motor_control/rtl/adc/ax03b1_adc_receiver.sv
+handwritten|hardware/axu5ev/motor_control/rtl/adc/ax03b1_current_adapter.sv
+handwritten|hardware/axu5ev/motor_control/rtl/axi/ax03b1_snapshot_axi.sv
+handwritten|hardware/axu5ev/motor_control/rtl/top/ax03b3_adc_observer.sv
+generated|generated/adc/AXU5EV_ADC_HDL/Current_Preprocess.sv
+generated|generated/adc/AXU5EV_ADC_HDL/Numeric_Algorithm.sv
+constraints|hardware/axu5ev/motor_control/constraints/adc_j15.xdc
+vendor_ip|xilinx.com:ip:zynq_ultra_ps_e
+vendor_ip|xilinx.com:ip:smartconnect
+vendor_ip|xilinx.com:ip:proc_sys_reset
+vendor_ip|xilinx.com:ip:xlconstant
+vendor_ip|xilinx.com:ip:ila

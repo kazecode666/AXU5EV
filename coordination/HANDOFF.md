@@ -2,6 +2,20 @@
 
 更新：2026-11-08，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
+## 当前：Issue35 ADC 单源组件与统一PL入口整理
+
+2026-11-08，分支 `codex/adc-source-consolidation` 明确接续 PR33 已审查 head `07e245c0919645b7049b4414d0f6549b9d9c7256`（启动时PR33仍Draft，未自动合并）。本轮为独立整理PR，不重新开发B3，不进入PWM/ABZ。
+
+共享组件为 `simulation/AXU5EV_PL_Algorithm_Library.slx/Current_Preprocess`；新 `AXU5EV_ADC_HDL` 与 `AXU5EV_ADC_Observer` 均库链接引用它。MATLAB Function只调用原权威数值源 `simulation/real_io/ax03b1_current_preprocess.m`，没有第二套公式。唯一生成入口 `simulation/adc/adc_generate_hdl.m`，活动生成物 `generated/adc/AXU5EV_ADC_HDL/` 两份SV。用户修改的原 `AXU5EV_RealIO_NoPower.slx` 保留，不作活动生成源；新观察壳从PR33已审查模型建立。
+
+统一PL入口为 `hardware/axu5ev/motor_control/build.tcl`，源清单 `sources.list`，PS/AXI/时钟复位/ILA装配 `bd/adc.tcl`，手写RTL和XDC按功能归集；旧B3入口薄转发，历史重现调用路径已同步。所有采样节拍、数值、一级延迟、寄存器/帧身份、REAL/TEST和物理许可语义保留。
+
+实际模型检查/HDL生成PASS，42项数值检查、49行×14输出一级延迟对比、原4×20观察记录一致；B3短RTL2064帧及定向数值RTL25检查PASS，含两轮1024完成/restart断言。新REAL候选 `.runtime/adc_consolidation/hardware_real_01` 完成BD验证/综合/源与约束命中核对；实现、新bitstream、R5重建、旧全量回归和板卡操作NOT_RUN。本次无新可上板产物，保留PR33原bit/XSA/ELF及全部旧工作区/数据，不能沿用旧布线时序宣称新候选已实现。综合态debug/PS未约束项保留，详见精简结果。
+
+唯一[入口与旧新路径说明](../hardware/axu5ev/motor_control/README.md)，[精简结果](../verification/adc_consolidation/results.json)。已提交[kazecode666/AXU5EV Draft PR36](https://github.com/kazecode666/AXU5EV/pull/36)，base为PR33分支，当前停止等待Review。Git HTTPS连续失败后改用连接器发布：远端实现提交`e4a237edfed92119a41b0be651ac005ab9c071a9`与本地`77b0362`实现树一致；本地原历史保留，未强推/reset，后续网络恢复可正常fetch/merge保留双方历史。用户原5个修改文件和2个未跟踪文件保持原样；不改旧FOC/Runtime/电机参数/PI。提交Draft PR后停止Review，不自动合并或关闭Issue。
+
+以下B3/板测相关状态为原阶段记录，不作为本轮新运行结果。
+
 ## 当前：AX-03B3 双路校准与电流观察离线集成
 
 PR33最新Review [5817361622](https://github.com/kazecode666/AXU5EV/pull/33#pullrequestreview-5817361622)最小收尾已完成：硬件脚本默认REAL输出统一为hardware_real_02；现有短测试补齐两轮A/B首次done各count==1024，以及restart消费并输出更新后两路count/done清零断言。仅新跑 `.runtime/ax03b3/review_5817361622_01`，2064帧、4次首次done和1次restart清零检查PASS，原检查保留。没有实现错误；本次综合实现/R5重建/HDL生成/旧全量回归均NOT_RUN，以下硬件和R5结果为原交付记录。原产物/工作区/用户修改保留，板卡操作NOT_RUN；推送同一PR33后继续等待Review。
