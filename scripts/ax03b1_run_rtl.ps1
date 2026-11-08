@@ -9,7 +9,8 @@ $axRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 if(-not $RunDir){$RunDir=Join-Path $axRoot ('.runtime/ax03b1/rtl_'+[guid]::NewGuid().ToString('N'))}
 $RunDir=[IO.Path]::GetFullPath($RunDir)
 $axRuntime=[IO.Path]::GetFullPath((Join-Path $axRoot '.runtime/ax03b1'))
-if(-not $RunDir.StartsWith($axRuntime+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'RunDir must be a new subdirectory of .runtime/ax03b1'}
+$axConsolidation=[IO.Path]::GetFullPath((Join-Path $axRoot '.runtime/adc_consolidation'))
+if(-not ($RunDir.StartsWith($axRuntime+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase) -or $RunDir.StartsWith($axConsolidation+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase))){throw 'RunDir must be a new subdirectory of .runtime/ax03b1 or .runtime/adc_consolidation'}
 if(Test-Path -LiteralPath $RunDir){throw 'RunDir already exists; select a new path to preserve evidence'}
 New-Item -ItemType Directory -Path $RunDir -Force | Out-Null
 function Quote-B1([string]$value){
@@ -39,8 +40,11 @@ function Invoke-B1Tool([string]$name,[string[]]$Arguments,[string]$Directory){
 }
 # Only this new observer family is compiled; no PR24/FOC build or hardware tool.
 $rtl=@(Get-ChildItem -LiteralPath (Join-Path $axRoot 'integration/rtl/ax03b1') -File | Where-Object Extension -eq '.sv' | Sort-Object Name | ForEach-Object FullName)
+$rtl+=@('hardware/axu5ev/motor_control/rtl/adc/ax03b1_adc_receiver.sv',
+ 'hardware/axu5ev/motor_control/rtl/adc/ax03b1_current_adapter.sv',
+ 'hardware/axu5ev/motor_control/rtl/axi/ax03b1_snapshot_axi.sv') | ForEach-Object {Join-Path $axRoot $_}
 $generated=@()
-$genDir=Join-Path $axRoot 'generated/ax03b1'
+$genDir=Join-Path $axRoot 'generated/adc/AXU5EV_ADC_HDL'
 if(Test-Path -LiteralPath $genDir){
  $generated=@(Get-ChildItem -LiteralPath $genDir -File -Recurse | Where-Object { $_.Extension -in '.v','.sv' -and $_.Name -notmatch '_tb\.' } | Sort-Object @{Expression={if($_.Name -match 'pkg|package'){0}else{1}}},Name | ForEach-Object FullName)
 }

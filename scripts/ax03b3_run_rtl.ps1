@@ -31,14 +31,12 @@ function Invoke-B2Tool([string]$name,[string[]]$Arguments,[string]$Directory){
  }
  return $output
 }
-# Compile only this new physical interface and its two unchanged B1 dependencies.
-$sources=@('integration/rtl/ax03b1/ax03b1_adc_receiver.sv',
- 'integration/rtl/ax03b1/ax03b1_snapshot_axi.sv',
- 'integration/rtl/ax03b3/ax03b3_adc_observer.sv',
- 'integration/rtl/ax03b1/ax03b1_current_adapter.sv',
- 'generated/ax03b1/AXU5EV_RealIO_NoPower/Current_Preprocess.sv',
- 'generated/ax03b1/AXU5EV_RealIO_NoPower/Numeric_Algorithm.sv',
- 'verification/ax03b3/current_tb.sv') | ForEach-Object {Join-Path $axRoot $_}
+# Compile the same explicit handwritten/generated manifest as the board entry.
+$manifest=Join-Path $axRoot 'hardware/axu5ev/motor_control/sources.list'
+$sources=@(Get-Content -LiteralPath $manifest | ForEach-Object {
+ $entry=$_ -split '\|',2
+ if($entry[0] -in @('handwritten','generated')) {Join-Path $axRoot $entry[1]}
+}) + @(Join-Path $axRoot 'verification/ax03b3/current_tb.sv')
 $compile=Invoke-B2Tool 'xvlog' (@('-sv')+$sources) $RunDir
 $elaborate=Invoke-B2Tool 'xelab' @('work.ax03b3_tb','-s','b2_interface','-debug','off','-timescale','1ns/1ps') $RunDir
 $simulation=Invoke-B2Tool 'xsim' @('b2_interface','-runall') $RunDir

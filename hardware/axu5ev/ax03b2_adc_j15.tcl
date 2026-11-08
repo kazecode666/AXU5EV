@@ -20,8 +20,8 @@ proc b2_integrate {root out} {
         CONFIG.PSU__FPGA_PL0_ENABLE 1 CONFIG.PSU__CRL_APB__PL0_REF_CTRL__SRCSEL IOPLL \
         CONFIG.PSU__CRL_APB__PL0_REF_CTRL__FREQMHZ 50] $ps
     set_property CONFIG.PSU__NUM_FABRIC_RESETS 1 $ps
-    add_files -norecurse [list $root/integration/rtl/ax03b1/ax03b1_adc_receiver.sv \
-        $root/integration/rtl/ax03b1/ax03b1_snapshot_axi.sv \
+    add_files -norecurse [list $root/hardware/axu5ev/motor_control/rtl/adc/ax03b1_adc_receiver.sv \
+        $root/hardware/axu5ev/motor_control/rtl/axi/ax03b1_snapshot_axi.sv \
         $root/integration/rtl/ax03b2/ax03b2_adc_observer.sv]
     update_compile_order -fileset sources_1
     update_ip_catalog -update_module_ref
