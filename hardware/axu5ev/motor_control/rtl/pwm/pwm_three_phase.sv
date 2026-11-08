@@ -2,7 +2,8 @@
 // Integer compare C / 5000, 10000 clocks/period. Requests contain exactly
 // 2*C high intervals. Dead times are clock counts, fixed for this build.
 module pwm_three_phase #(
- parameter integer DEAD_HIGH=100, parameter integer DEAD_LOW=100
+ parameter integer DEAD_HIGH=pwm_parameters::DEAD_HIGH,
+ parameter integer DEAD_LOW=pwm_parameters::DEAD_LOW
 )(
  input wire clk, input wire resetn, input wire fast_inhibit,
  input wire anchor, input wire request,
@@ -15,6 +16,7 @@ module pwm_three_phase #(
  output reg [2:0] high_o, output reg [2:0] low_o,
  output wire [2:0] high_request
 );
+ localparam integer PEAK=pwm_parameters::PEAK, PERIOD=pwm_parameters::PERIOD;
  wire [13:0] next_phase;
  pwm_timebase timebase(.clk(clk),.resetn(resetn),.anchor(anchor),
  .started(started),.phase(phase),.next_phase(next_phase),.valley(valley),.peak(peak));
@@ -44,7 +46,7 @@ module pwm_three_phase #(
  genvar g;
  generate for(g=0;g<3;g=g+1) begin: leg
   wire [12:0] c=use_compare[g*13+:13];
-  wire req=(c==5000) || ((c!=0) && ((next_phase<c) || (next_phase>=10000-c)));
+  wire req=(c==PEAK) || ((c!=0) && ((next_phase<c) || (next_phase>=PERIOD-c)));
   wire want_h=started && use_permission[6] && use_permission[g] && req;
   wire want_l=started && use_permission[6] && use_permission[g+3] && !req;
   reg last_h,last_l;

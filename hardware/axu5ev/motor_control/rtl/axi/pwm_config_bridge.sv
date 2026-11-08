@@ -29,10 +29,12 @@ module pwm_config_bridge(
  (* X_INTERFACE_INFO="xilinx.com:interface:aximm:1.0 s_axi RVALID" *) output reg s_axi_rvalid,
  (* X_INTERFACE_INFO="xilinx.com:interface:aximm:1.0 s_axi RREADY" *) input wire s_axi_rready
 );
+ import pwm_parameters::*;
  wire clock_resetn=s_axi_aresetn && locked;
  wire mailbox_resetn=clock_resetn && !fast_inhibit;
  (* ASYNC_REG="TRUE" *) reg [1:0] reset_release;
- always @(posedge pwm_clk or negedge clock_resetn)
+ // Release on falling edges, leaving a half-cycle before positive-edge logic.
+ always @(negedge pwm_clk or negedge clock_resetn)
   if(!clock_resetn) reset_release<=0;else reset_release<={reset_release[0],1'b1};
  wire pwm_resetn=reset_release[1];
  reg request;reg [38:0] frozen_compare;reg [31:0] frozen_seq;
@@ -84,9 +86,9 @@ module pwm_config_bridge(
     s_axi_bvalid<=1;s_axi_bresp<=0;
     if(wstrb!=4'hf) s_axi_bresp<=2;
     else case(awaddr)
-     12'h010: if(wdata<=5000)shadow_a<=wdata[12:0];else s_axi_bresp<=2;
-     12'h014: if(wdata<=5000)shadow_b<=wdata[12:0];else s_axi_bresp<=2;
-     12'h018: if(wdata<=5000)shadow_c<=wdata[12:0];else s_axi_bresp<=2;
+     12'h010: if(wdata<=PEAK)shadow_a<=wdata[12:0];else s_axi_bresp<=2;
+     12'h014: if(wdata<=PEAK)shadow_b<=wdata[12:0];else s_axi_bresp<=2;
+     12'h018: if(wdata<=PEAK)shadow_c<=wdata[12:0];else s_axi_bresp<=2;
      12'h01c: shadow_seq<=wdata;
      12'h020: if(wdata==1 && !busy && online_pipe[1] && !fast_inhibit) begin
       frozen_compare<={shadow_c,shadow_b,shadow_a};frozen_seq<=shadow_seq;
@@ -125,8 +127,8 @@ module pwm_config_bridge(
      12'h030:s_axi_rdata<={19'd0,adopted_compare[12:0]};
      12'h034:s_axi_rdata<={19'd0,adopted_compare[25:13]};
      12'h038:s_axi_rdata<={19'd0,adopted_compare[38:26]};
-     12'h040:s_axi_rdata<=10000;
-     12'h044:s_axi_rdata<={16'd100,16'd100};
+     12'h040:s_axi_rdata<=PERIOD;
+     12'h044:s_axi_rdata<={DEAD_LOW[15:0],DEAD_HIGH[15:0]};
      default:begin s_axi_rdata<=0;s_axi_rresp<=2;end
     endcase
    end

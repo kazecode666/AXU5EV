@@ -29,10 +29,11 @@ proc mc_base {root out vendor} {
 proc mc_build {out} {
     open_project $out/project/ax02a_ps.xpr
     set_param general.maxThreads 8
-    launch_runs synth_1 -jobs 4
+    set jobs [expr {[info exists ::env(MC_PWM)] && $::env(MC_PWM)==1 ? 2 : 4}]
+    launch_runs synth_1 -jobs $jobs
     wait_on_run synth_1
     if {![string match {*Complete*} [get_property STATUS [get_runs synth_1]]]} {error "synthesis failed"}
-    launch_runs impl_1 -to_step route_design -jobs 4
+    launch_runs impl_1 -to_step route_design -jobs $jobs
     wait_on_run impl_1
     if {![string match {*Complete*} [get_property STATUS [get_runs impl_1]]]} {error "implementation failed"}
     open_run impl_1
@@ -55,7 +56,7 @@ proc mc_build {out} {
         [get_property SLACK [get_timing_paths -delay_type min -max_paths 1]]<0} {error "timing failed"}
     write_debug_probes -force $out/ax03b3_adc.ltx
     close_design
-    launch_runs impl_1 -to_step write_bitstream -jobs 4
+    launch_runs impl_1 -to_step write_bitstream -jobs $jobs
     wait_on_run impl_1
     if {![string match {*Complete*} [get_property STATUS [get_runs impl_1]]]} {error "bitstream failed"}
     open_run impl_1
