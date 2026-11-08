@@ -6,7 +6,7 @@
 
 2026-11-08，执行[kazecode666/AXU5EV Issue32](https://github.com/kazecode666/AXU5EV/issues/32)，基于已合并PR31的main `810939798c76ed66ee8f96a450d5283f6b6f3656`，分支 `codex/ax03b3-current-observer`。B1生成数值链接入B2采集；新增最小参数提交/显式重校准、R5观察及固定TEST输入。数值源/生成SV、电机参数/PI/旧FOC不变。
 
-新增2064帧RTL集成验证PASS。REAL/TEST综合实现均PASS：WNS +1.361/+1.757ns，WHS +0.015/+0.012ns，TNS/THS均0，bit/ltx/含bit XSA已生成。工作区分别`.runtime/ax03b3/vitis_real_01`与`vitis_test_01`；R5最终结果以[主报告](reports/ax03b3_current_observer.md)和[精简证据](../verification/ax03b3/results.json)为准。唯一[操作说明](../firmware/r5/ax03b3/FIRST_RUN_ZH.md)。PR链接待发布后补充。
+新增2064帧RTL集成验证PASS。REAL/TEST综合实现均PASS：WNS +1.361/+1.757ns，WHS +0.015/+0.012ns，TNS/THS均0，bit/ltx/含bit XSA已生成。工作区分别`.runtime/ax03b3/vitis_real_01`与`vitis_test_01`；R5最终结果以[主报告](reports/ax03b3_current_observer.md)和[精简证据](../verification/ax03b3/results.json)为准。唯一[操作说明](../firmware/r5/ax03b3/FIRST_RUN_ZH.md)。已提交[kazecode666/AXU5EV Draft PR33](https://github.com/kazecode666/AXU5EV/pull/33)，实现提交`90f70e62803c9e7de49e24d42793f8154e2279bf`，REAL/TEST R5构建及被动启动检查均PASS。当前停止等待Review，不自动合并。
 
 无MBDL4驱动板，全部板卡发现/连接/下载/运行NOT_RUN。TEST绕过模拟前端和ADC针脚，不作为真实标定；默认gain仅数字测试比例，physical_link_verified仍0。原5个用户修改文件、2个未跟踪文件及全部Workspace/数据保留；B2零流原始记录仅作历史观测归档。完成Draft PR后停止Review，不合并、不关闭Issue、不进入其他阶段。
 

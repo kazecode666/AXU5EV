@@ -27,3 +27,5 @@ REAL与TEST均完成综合、布局布线、bit/ltx/含bit XSA导出。REAL：WN
 ## 使用与未完成项
 
 唯一操作说明：`firmware/r5/ax03b3/FIRST_RUN_ZH.md`。无驱动板，不进行真实零流/增益/极性/噪声验证；后续手动板测须另行授权。原5个修改文件、2个未跟踪文件、全部旧Workspace和数据保留。
+
+交付：[kazecode666/AXU5EV Draft PR33](https://github.com/kazecode666/AXU5EV/pull/33)，实现提交`90f70e62803c9e7de49e24d42793f8154e2279bf`。已停止等待Review。
