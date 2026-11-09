@@ -1,6 +1,6 @@
 {
   "issue": "kazecode666/AXU5EV#40",
-  "status": "DRAFT_REVIEW_SDF_INCOMPLETE",
+  "status": "DRAFT_REVIEW; FULL_FUNCTIONAL_SDF_SLOW_TIMEOUT; ACCEPTANCE_OPEN",
   "base": "ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13",
   "branch": "codex/motor-control-chain",
   "functional_commit": "906c9a5aa414863add479b11bc49535f92f87e7d",
@@ -8,7 +8,28 @@
   "source_entry_commit": "af73f437e0035b3f3c9da4de014762c702413571",
   "timing_export_test_commit": "d63e96f6930a865671124029a12817e694107b5d",
   "scope": "precommitted references; ADC/QEP to original model algorithms/FOC to original PWM; no power",
+  "full_functional_sdf": {
+    "authorization": [6745328232, 6745337679],
+    "source_commit": "0191fc773102bc4aa5d71c89e652137cce10c350",
+    "hardware": ".runtime/motor_control/hardware_02",
+    "view": "existing full functional PL; only ILA black box; structural dbg_hub retained; PS clock/reset and AXI stimulus replaced",
+    "testbench": "verification/motor_control/timing_tb.sv netlist branch; MC_TIMING_RTL not defined",
+    "tool_timeout_ms": 10800000,
+    "additional_wait_authorized_by_latest_user": true,
+    "unstarted_fast_planned_tool_timeout_ms": 21600000,
+    "same_native_pid_watch_limit_ms": 21600000,
+    "wait_extension_note": "original slow wrapper already waiting at 3h; read-only handle observes same native PID, no restart; wrapper timeout does not itself prove native success and closing output pipes is a risk; require actual exit0 and complete annotation/log checks",
+    "status": "STOPPED_AT_EXTENDED_6H_LIMIT; ACCEPTANCE_OPEN",
+    "slow_max": {"run": ".runtime/motor_control/sdf_full_slow_01", "status": "ELABORATION_TIMEOUT_NOT_COMPLETED", "wrapper": "TIMED_OUT_AFTER_3H", "same_native_pid": 8028, "native_restart_count": 0, "native_deadline_local": "2026-11-10T06:32:48.5420411+08:00", "stopped_local": "2026-11-10T06:34:15.8282873+08:00", "natural_exit_code": null, "supervisor_termination_exit_code": -1, "xvlog": "PASS", "static_elaboration": "COMPLETED", "kernel": "NOT_GENERATED", "successful_annotation_confirmation": false, "annotation": "NOT_COMPLETED", "dynamic": "NOT_RUN", "remaining_task_processes": 0},
+    "fast_min": {"status": "NOT_RUN", "reason": "slow/max did not complete; not started"},
+    "evidence": "evidence/full_sdf_20261110/README.md",
+    "failure_scope": "elaboration timeout; no dynamic assertion or timing result; absence of an explicit error in the available log does not prove success",
+    "automatic_retry": false,
+    "rebuild_or_cut": "NOT_RUN",
+    "board": "NOT_RUN"
+  },
   "finite_finish": {
+    "historical_record": true,
     "review_comments": [6740612318, 6740096397],
     "dut_algorithm_constraints_changed": false,
     "new_timing_test_preflight": {
@@ -157,6 +178,8 @@
     "boundary": "MC_AUTO: only PWM ILA black box; structural dbg_hub retained; original DCP unchanged"
   },
   "sdf": {
+    "historical_record": true,
+    "current_results": "full_functional_sdf",
     "status": "NOT_RUN_AFTER_BOUNDED_CHECK",
     "previous_slow_status": "STOPPED_BY_USER",
     "completion": "NOT_COMPLETED",
@@ -180,14 +203,14 @@
     "draft": true,
     "base_branch": "main",
     "branch_pushed": true,
-    "review_status": "FINITE_FINISH_REPORTED; DIRECTED_SDF_ACCEPTANCE_STILL_OPEN",
+    "review_status": "FULL_NETLIST_SLOW_TIMEOUT_REPORTED; DIRECTED_SDF_ACCEPTANCE_STILL_OPEN",
     "review_target": "Issue40 and existing ChatGPT chat: Review DraftPR33",
     "review_issue_comment": "https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6739546511",
     "review_source_commit": "6731492716f5c21b1864d39cb2ad299c4e26172d",
     "review_chatgpt_thread": "6af03b57-7910-83e8-a39c-bd281805c2f7",
-    "review_dispatch": "Review6740096397 and Review6740612318 received; user authorized finite finish; bounded stop now reached",
+    "review_dispatch": "Review6740096397/6740612318 criteria retained; full-netlist SDF authorized by 6745328232/6745337679; same native slow process stopped after extended 6h limit; no automatic retry",
     "development_resume_authorized": false,
-    "remaining": "slow/max and fast/min affected-boundary SDF after a separately agreed feasible route; Issue40 acceptance remains open",
+    "remaining": "actual slow/max and fast/min annotation plus event dynamic validation remain incomplete; latest complete functional netlist attempt timed out before kernel; Review decides next route or deferral",
     "resume_entry": "coordination/HANDOFF.md first section"
   },
   "r5": {

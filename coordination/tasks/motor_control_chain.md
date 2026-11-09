@@ -1,5 +1,11 @@
 # Issue40 — 统一模型与PL自动数据通路
 
+2026-11-10本轮授权：执行Issue评论6745328232 / PR41评论6745337679，接续0191fc7及同一PR，复用hardware_02已有完整功能PL网表和两角SDF，最新事件timing_tb网表分支，不定义MC_TIMING_RTL；先slow/max，完全通过后再fast/min，各用新目录、单工具10800000ms。不得裁剪、重建、重复旧测试或第二次固定六帧oracle。实际错误/超时即保存现场、清理本轮专属进程并停止，不重试或启动下一角。完成结果/交接/PR更新后停在Review。用户本次消息另明确要求结束后正常关机，优先于评论中旧“不自动关机”；不强制关闭/保存用户窗口。本轮实际结果见HANDOFF首节与results.json。
+
+运行中用户追加允许更长等待：不打断已开始的slow，不重启/重编译；未启动的fast单工具原计划增加到21600000ms。slow原wrapper已阻塞的3h等待不能原地改值，另以只读Process.Handle监督同一原生xelab PID8028，最多到其启动后6h。此监督不保护原wrapper退出后stdout/stderr管道；不能凭CPU或kernel文件认定成功。
+
+本轮实际结束：原wrapper03:32:48超时，原生在06:32:48.542的6h上限仍未完成；核实路径/命令/启动时间后于06:34:15.828停止任务树，剩余0。xvlog通过、static elaboration完成，但无kernel/成功注释确认，slow注释NOT_COMPLETED、动态NOT_RUN，fast未启动，未重试。证据 `verification/motor_control/evidence/full_sdf_20261110/`，各角见results.json/full_functional_sdf。两角注释/动态验收仍开放，同一PR41保持Draft交Review决定后续路线或延期，不自动续跑；交接推送后按用户要求请求正常关机。
+
 基线：最新main `ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13`（已合并PR39），独立分支 `codex/motor-control-chain`。八个用户已修改文件、未跟踪文件及旧Workspace/原始数据保留，不保存用户模型，不操作板卡。
 
 实施顺序：核对单源/FOC合同 → 可运行统一模型与生成数值映射 → 预提交参考/同帧输入冻结/自动PWM交接 → 同帧表模型与RTL比对 → 新候选完整实现STA/CDC与定向SDF → 匹配R5观察构建 → Draft PR。

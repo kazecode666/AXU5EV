@@ -2,7 +2,11 @@
 
 基线为已合并PR39的 `origin/main ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13`，独立分支 `codex/motor-control-chain`。真实实时路径为原ADC/QEP接收器→原生成电流/电角度→原p3 FOC→模型生成Q30比较值→原100MHz PWM。板级仍使用同一个motor_control工程；没有复制外设或手写第二套数值算法。
 
-**当前为Draft PR41，SDF缺项仍开放**：用户已按评论6740612318授权有限收尾，保留6740096397判据。实现/RTL/数值比较/STA/R5证据复用；只改验证和文档，不改DUT/算法/约束。新增事件测试短预跑3035检查PASS，反例在首次实际采用沿按预期失败。仅一次原DCP只读核对在600秒上限停止，未完成局部切点/保留路径证明，无临时导出、无routed xelab，不回退完整网表长跑。两角定向SDF保持NOT_RUN，不能关闭该验收项；下一路线或明确延期须用户决定。
+**当前为Draft PR41，完整功能网表slow/max超时，SDF验收仍开放**：用户按Issue40评论6745328232与PR41评论6745337679另行授权复用hardware_02完整功能PL网表及两角SDF，使用最新事件测试台网表分支，不定义MC_TIMING_RTL；先slow/max完全通过再fast/min。实现/RTL/数值比较/STA/R5证据直接复用，DUT/算法/约束未改，没有再次裁剪或重建。
+
+2026-11-10 00:32:36在新目录 `sdf_full_slow_01` 启动。用户运行中允许更长等待；原wrapper固定3h在03:32:48超时退出，原生xelab PID8028继续，未重启。只读句柄监督到启动后6h（06:32:48.542）时仍未完成，随后核实身份并于06:34:15.828终止该任务树，剩余0；终止码-1不代表自然工具退出。原wrapper的stdout/stderr管道可能已关闭，独立句柄不保护管道。xvlog通过、static elaboration完成，但无kernel、无XSIM 43-3452注释成功确认，slow注释NOT_COMPLETED、动态NOT_RUN，fast未启动。可用日志无显式ERROR/FATAL也不能证明进度或DUT无误；这是展开超时，不是动态断言失败/通过。全部现场保留，未重试。证据见 `verification/motor_control/evidence/full_sdf_20261110/README.md`，各角以 `results.json/full_functional_sdf` 为准。同帧、整组三相、目标谷值、晚到取消、disarm、失锁重臂、死区和80字快照的网表动态仍全部NOT_RUN，后续路线交Review决定，保持Draft。
+
+以下有限收尾记录为本次完整网表授权之前的历史：事件测试短预跑3035检查PASS，反例在首次实际采用沿按预期失败；唯一原DCP只读核对在600秒停止，未证明局部切点/路径保留，无临时导出。当时的“不回退完整网表长跑”停止点已由上述明确授权解除，其余判据保持。
 
 原2026-11-09 19:54:37的关机暂停记录仍保留：slow_01无kernel、注释未完成、动态NOT_RUN，fast未启动。原第二次固定六帧FOC oracle未运行，现按用户和Review标为NOT_REQUIRED_DUPLICATE，不改PASS。此前43c9378的完整两角六帧续跑计划已被本轮有限边界替代。
 

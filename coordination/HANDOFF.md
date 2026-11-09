@@ -1,8 +1,16 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-09，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
+更新：2026-11-10，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
-## 当前：Issue40 有限收尾（Draft PR41，定向SDF缺项开放）
+## 当前：完整功能PL网表slow/max超时，PR41保持Draft待Review
+
+按Issue40评论6745328232、PR41评论6745337679接续0191fc7，复用hardware_02已有完整功能PL网表及两角SDF，当前事件测试台网表分支，未定义MC_TIMING_RTL。新目录 `.runtime/motor_control/sdf_full_slow_01`：00:32:36启动；xvlog通过、static elaboration完成，原wrapper在03:32:48报3h超时退出。用户追加允许更长等待后，仅同一次原生PID8028继续监督，未重启/重编译；到其启动后6h（06:32:48.542）仍未完成。核实原生路径/命令/精确启动时间后，于06:34:15.828终止该任务进程树，剩余0。原wrapper管道完整性无法保证，未取得原生自然退出0；监督终止码-1不是自然工具失败码。
+
+**本轮不是SDF PASS**：没有kernel或XSIM 43-3452注释成功确认，slow注释NOT_COMPLETED、动态NOT_RUN，fast/min未启动。可用日志无显式ERROR/FATAL，但不能因此证明进度或DUT无误；没有动态断言结论。同帧、三相整组、目标谷值、晚到取消、disarm、失锁重臂、死区和80字快照的网表动态验收仍全部开放。精简证据 `verification/motor_control/evidence/full_sdf_20261110/README.md`、分角记录 `results.json/full_functional_sdf`；原始调用、进程、超时/继续监督/停止日志与中间文件全部原位保留。没有重试或下一角，也没有再裁剪、修改DUT/算法/约束、重建hardware_02/vitis_01或重跑旧回归/重复oracle。停在同一Draft PR41等待Review，不合并、不关闭Issue、不操作板卡；后续路线或延期交Review决定，不自动续跑。用户明确要求交接推送完成后正常关机，不强制关闭或保存用户窗口。
+
+下列为前轮有限收尾记录，原停止点已仅对本次授权SDF解除；生产DUT/算法/约束及旧产物仍保持。
+
+## 前轮记录：Issue40 有限收尾（定向SDF缺项开放）
 
 从包含已合并PR39的main `ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13` 接续独立分支 `codex/motor-control-chain`，已创建 [kazecode666/AXU5EV Draft PR41](https://github.com/kazecode666/AXU5EV/pull/41)，目标main，关联Issue40。实现/整链RTL/数值比较/新STA/R5构建已有证据；**SDF注释和动态验证仍未完成**。本轮按用户与 [6740612318](https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6740612318) 执行有限收尾，并保留 [6740096397](https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6740096397) 的边界判据。不转Ready、不合并、不关闭Issue。
 

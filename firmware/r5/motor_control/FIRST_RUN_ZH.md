@@ -2,7 +2,7 @@
 
 本轮只离线构建和仿真，不连接/发现/下载/运行板卡，不接驱动板、电机或外部PWM/QEP线。六路只在内部观察，physical_link_verified=0。本说明不是上板授权。
 
-当前交付为Draft PR41，已有实现/RTL/数值比较/STA/R5证据；新增边界的两角SDF注释与动态验证仍NOT_RUN。一轮只读routed裁剪核对已在600秒上限停止，未证明局部切点和关键路径保留，未导出视图或启动长xelab。按Review6740612318停止后续尝试，先由用户决定验证路线或明确延期；不自动回退完整网表。
+当前交付为Draft PR41，已有实现/RTL/数值比较/STA/R5证据；两角SDF验收仍开放。2026-11-10按评论6745328232/6745337679运行完整功能PL网表slow/max，最新事件测试台网表分支，未定义MC_TIMING_RTL。新目录 `.runtime/motor_control/sdf_full_slow_01`：原wrapper3h超时后，仅同一次原生xelab继续至延长6h上限，仍无kernel/成功注释确认；06:34:15核实后停止，任务进程剩余0。slow注释NOT_COMPLETED、动态NOT_RUN，fast/min未启动；没有动态PASS或DUT断言失败结论。现场完整保留，后续由Review决定路线或延期，不自动重试。各角记录见 `verification/motor_control/results.json/full_functional_sdf`、精简证据 `verification/motor_control/evidence/full_sdf_20261110/README.md` 和HANDOFF首节；不把RTL预跑、导出或STA当作SDF结果。
 
 本轮新增测试入口只验证刺激与监视器，**不等于SDF**：
 
