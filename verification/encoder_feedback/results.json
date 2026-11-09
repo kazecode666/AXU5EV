@@ -1,0 +1,261 @@
+{
+  "issue": "kazecode666/AXU5EV#38",
+  "status": "OFFLINE_PASS_REVIEW",
+  "branch": "codex/encoder-feedback",
+  "baseline": "5c9aca2ad23792645366cc58b748bcdca4001e85",
+  "baseline_contains_merged_pr37": true,
+  "scale": "simulation/encoder/encoder_test_scale.json",
+  "source_contract": {
+    "decoder": "integration/rtl/ax03b1/ax03b1_abz_receiver.sv reused without modification",
+    "current_and_pwm": "existing generated current and 100MHz PWM preserved",
+    "angle": "AXU5EV_Encoder_Components/Encoder_Angle -> encoder_angle_step.m",
+    "position_speed": "encoder_position_speed.m -> active target C; R5 calls generated code",
+    "shared_scale": "JSON-generated PL package and C header; explicit digital TEST, no extra x4"
+  },
+  "model_hdl": {
+    "status": "PASS",
+    "generation": ".runtime/encoder_feedback/model_03",
+    "comparison": ".runtime/encoder_feedback/angle_model_03",
+    "vectors": 46,
+    "clock_steps": 2208,
+    "max_ideal_error_q32_lsb": 1,
+    "angle_format": "signed40 Q32 radians in int64 storage",
+    "post_edge_output_latency_clocks": 33,
+    "parent_capture_latency_clocks": 34
+  },
+  "generated_hdl_rtl": {
+    "status": "PASS",
+    "run_dir": ".runtime/encoder_feedback/angle_rtl_04",
+    "vectors": 46,
+    "checks": 460
+  },
+  "software_target_c": {
+    "status": "PASS",
+    "run_dir": ".runtime/encoder_feedback/software_09",
+    "exact_active_target_c_frame_comparisons": 1301,
+    "scenarios": 17,
+    "history_entries": 51,
+    "difference_intervals": 50,
+    "nominal_window_ms": 5,
+    "arm_native64": true,
+    "comparison": "Actual ARM-target numerical C compiled through test-only host MEX ABI gateway"
+  },
+  "rtl": {
+    "integration": {
+      "run_dir": ".runtime/encoder_feedback/rtl_09",
+      "checks": 271,
+      "publications": 8,
+      "pwm_peak_samples": 7,
+      "valid_current_frames": 3,
+      "coincident_acceptance_samples": 1,
+      "phase4_count_changed_samples": 2,
+      "receiver_wrap_tests": 2,
+      "sampled_frame_wraps": 1,
+      "sample_to_publish_clocks": 110,
+      "sample_to_publish_nominal_us": 2.2,
+      "snapshot_words": 41,
+      "release_address": "0xac",
+      "stimulus": "ABZ and seven-event delayed ADC data driven before the receivers",
+      "signed_wrap_variant": ".runtime/encoder_feedback/rtl_signed_01"
+    },
+    "receiver": {
+      "run_dir": ".runtime/encoder_feedback/receiver_01",
+      "checks": 1341,
+      "returns": 38
+    },
+    "pwm": {
+      "run_dir": ".runtime/encoder_feedback/pwm_rtl_01",
+      "checks": 694175,
+      "valleys": 30
+    },
+    "adc": {
+      "run_dir": ".runtime/encoder_feedback/adc_rtl_01",
+      "checks": 135,
+      "frames": 10
+    },
+    "b3": {
+      "run_dir": ".runtime/encoder_feedback/b3_rtl_01",
+      "frames": 2064,
+      "first_done_a": 2,
+      "first_done_b": 2,
+      "restart_clear": 1
+    }
+  },
+  "hardware": {
+    "status": "PASS",
+    "output": ".runtime/encoder_feedback/hardware_02",
+    "adc_pins": 28,
+    "vendor_cdc_warnings": 4,
+    "related_clocks": "50/100MHz min/max both directions PASS",
+    "frequency_metadata_not_measurement": true,
+    "worst_setup": "ADC B[0] -> receiver.pair_b[0]",
+    "unconstrained_internal_endpoints": 0,
+    "sta": {
+      "wns_ns": 1.818,
+      "whs_ns": 0.01,
+      "wpws_ns": 4.0,
+      "tns_ns": 0,
+      "ths_ns": 0,
+      "tpws_ns": 0,
+      "setup_endpoints": 22664,
+      "hold_endpoints": 22648,
+      "pulse_endpoints": 9127
+    },
+    "methodology_advisories": 2,
+    "audit": ".runtime/encoder_feedback/route_audit_03",
+    "adc_inputs": 26,
+    "drc_warnings": 58,
+    "new_paths": [
+      {
+        "group": "angle",
+        "retained_sequential_cells": 318,
+        "timed_endpoints": 814,
+        "max_slack_ns": 8.352,
+        "min_slack_ns": 0.044
+      },
+      {
+        "group": "sample_metadata",
+        "retained_sequential_cells": 259,
+        "timed_endpoints": 777,
+        "max_slack_ns": 16.365,
+        "min_slack_ns": 0.023
+      },
+      {
+        "group": "seven_event_metadata",
+        "retained_sequential_cells": 969,
+        "timed_endpoints": 2261,
+        "max_slack_ns": 16.119,
+        "min_slack_ns": 0.026
+      },
+      {
+        "group": "pair_metadata",
+        "retained_sequential_cells": 323,
+        "timed_endpoints": 969,
+        "max_slack_ns": 14.743,
+        "min_slack_ns": 0.01
+      },
+      {
+        "group": "current_join",
+        "retained_sequential_cells": 357,
+        "timed_endpoints": 1069,
+        "max_slack_ns": 15.272,
+        "min_slack_ns": 0.028
+      },
+      {
+        "group": "theta_join",
+        "retained_sequential_cells": 37,
+        "timed_endpoints": 111,
+        "max_slack_ns": 16.979,
+        "min_slack_ns": 0.041
+      },
+      {
+        "group": "snapshot_latest",
+        "retained_sequential_cells": 654,
+        "timed_endpoints": 1962,
+        "max_slack_ns": 16.743,
+        "min_slack_ns": 0.025
+      },
+      {
+        "group": "snapshot_frozen",
+        "retained_sequential_cells": 654,
+        "timed_endpoints": 1962,
+        "max_slack_ns": 13.832,
+        "min_slack_ns": 0.014
+      }
+    ],
+    "abz_async_reg_cells": 6,
+    "bit_ltx_included_bit_xsa": "PASS",
+    "methodology_warnings": 37,
+    "clock_metadata_hz": [
+      49999500,
+      99999000
+    ],
+    "input_delay_min_max_ns": [
+      2,
+      10
+    ],
+    "functional_illegal_cdc": 0,
+    "worst_hold": "receiver.meta_pipe[6][105] -> receiver.pair_meta[105]"
+  },
+  "sdf": {
+    "status": "PASS",
+    "scope": "Actual routed functional PL; debug ILA/hub black boxes only; PS clock/reset and AXI transaction sources substituted",
+    "corners": {
+      "fast": {
+        "publications": 10,
+        "periods": 6,
+        "adc_pad_minus_peak_ns": 1.659,
+        "unknown_failures": 0,
+        "samples": 9,
+        "annotation_warnings": 0,
+        "run_dir": ".runtime/encoder_feedback/sdf_fast_01",
+        "turn_on_edges": 37,
+        "pad_sample_to_snapshot_q_ns": 2197.538,
+        "encoder_frames": 2,
+        "dead_ns": [
+          999.984,
+          1000.016
+        ],
+        "checks": 730,
+        "timing_violations": 0
+      },
+      "slow": {
+        "publications": 10,
+        "periods": 6,
+        "adc_pad_minus_peak_ns": 3.388,
+        "unknown_failures": 0,
+        "samples": 9,
+        "annotation_warnings": 0,
+        "run_dir": ".runtime/encoder_feedback/sdf_slow_01",
+        "turn_on_edges": 37,
+        "pad_sample_to_snapshot_q_ns": 2195.211,
+        "encoder_frames": 2,
+        "dead_ns": [
+          999.966,
+          1000.034
+        ],
+        "checks": 730,
+        "timing_violations": 0
+      }
+    },
+    "resolution_ps": 1,
+    "transport_interconnect": true,
+    "timing_checks": "ON",
+    "pulse_filter": 0,
+    "backannotation_confirmation": "XSIM 43-3452",
+    "limitations": "Not PS execution, ILA capture, physical I/O or all four PVT-column dynamic combinations. Propagation offsets are routed internal observations, not board measurements."
+  },
+  "r5": {
+    "status": "PASS",
+    "workspace": ".runtime/encoder_feedback/vitis_02",
+    "app_errors": 0,
+    "application_arch": "ARM32 R5_0, VFPv3-D16 hard-float",
+    "application_id": "0x45464301",
+    "actual_bsp_address": "0x80000000",
+    "sample_service_timing": "NOT_RUN",
+    "text": 43707,
+    "app_warnings": 0,
+    "fsbl_arch": "AArch64 A53_0",
+    "bss": 116064,
+    "macro": "XPAR_ADC_OBSERVER_0_BASEADDR",
+    "vendor_warnings": "Existing BSP/FSBL dependencies, deprecated xbasic types and CRL_APB macros retained",
+    "data": 2188,
+    "startup_validation": ".runtime/encoder_feedback/vitis_02/startup_validation.json"
+  },
+  "board": "NOT_RUN",
+  "physical_link_verified": 0,
+  "external_abz_pwm_driver_motor": "NOT_CONNECTED_PENDING_ELECTRICAL_REVIEW",
+  "full_foc_runtime_alignment": "NOT_CONNECTED_NOT_RUN",
+  "old_full_regression": "NOT_RUN",
+  "preservation": "8 user-modified tracked files, 2 user untracked files, old workspaces and raw outputs retained; no user model save",
+  "attempts": "Initial unsafe HDL signed-min literal fixed in MATLAB source and regenerated; initial codegen native64 setting and host gateway type clash fixed without editing generated C; integration base_payload wiring corrected after test failure. Earlier candidates retained and not substituted for final results. Hardware_01 superseded for wrap/config continuity bug; fixed MATLAB sources preserve mechanical origin/unoffset phase for version/phase updates and regenerated HDL/C. Final unit and true ABZ signed-boundary integration plus exact C replay cover the fix; hardware_01 retained, not adopted. vitis_01 retained after completed build exposed unsigned-long/unsigned-int pointer warnings; handwritten record storage changed to generated uint32_T, final vitis_02 compiled with zero application warnings/errors. Numeric C unchanged by ABI storage fix.",
+  "pl_frame_c_replay": {
+    "streams": [
+      ".runtime/encoder_feedback/pl_frame_replay_10",
+      ".runtime/encoder_feedback/pl_frame_signed_replay_01"
+    ],
+    "frames_per_stream": 8,
+    "status": "PASS",
+    "comparison": "Final actual RTL snapshot streams -> MATLAB and exact generated target C through the same R5 field adapter"
+  }
+}

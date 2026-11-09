@@ -13,6 +13,10 @@ proc mc_integrate {root out} {
     update_ip_catalog -update_module_ref
     create_bd_cell -type module -reference ax03b3_adc_observer adc_observer_0
     if {[info exists ::env(AX03B3_TEST)]} {set_property CONFIG.TEST_INPUT $::env(AX03B3_TEST) [get_bd_cells adc_observer_0]}
+    set with_encoder [expr {[info exists ::env(MC_ENCODER)] && $::env(MC_ENCODER)==1}]
+    if {$with_encoder} {
+        set_property -dict [list CONFIG.ENCODER_FEEDBACK 1 CONFIG.TEST_ABZ 1] [get_bd_cells adc_observer_0]
+    }
     puts "ADC_MREF_CLOCK_HZ=[get_property CONFIG.FREQ_HZ [get_bd_pins adc_observer_0/s_axi_aclk]]"
     create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect axi_adc
     set with_pwm [expr {[info exists ::env(MC_PWM)] && $::env(MC_PWM)==1}]
@@ -22,6 +26,10 @@ proc mc_integrate {root out} {
     set_property CONFIG.CONST_VAL 0 [get_bd_cells zero]
     create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant one
     set_property CONFIG.CONST_VAL 1 [get_bd_cells one]
+    # Physical encoder pins remain unassigned. Explicit TEST_ABZ goes through
+    # the existing receiver; its source remains stopped until a software command.
+    connect_bd_net [get_bd_pins zero/dout] [get_bd_pins adc_observer_0/abz_a_i] \
+        [get_bd_pins adc_observer_0/abz_b_i] [get_bd_pins adc_observer_0/abz_z_i]
     connect_bd_intf_net [get_bd_intf_pins $ps/M_AXI_HPM0_LPD] [get_bd_intf_pins axi_adc/S00_AXI]
     connect_bd_intf_net [get_bd_intf_pins axi_adc/M00_AXI] [get_bd_intf_pins adc_observer_0/s_axi]
     connect_bd_net [get_bd_pins $ps/pl_clk0] [get_bd_pins $ps/maxihpm0_lpd_aclk] \
@@ -60,7 +68,7 @@ proc mc_integrate {root out} {
     puts $f "part=[get_property PART [current_project]]\nVivado=[version -short]"
     puts $f "pl_clock_pin_hz=[get_property CONFIG.FREQ_HZ [get_bd_pins $ps/pl_clk0]]"
     puts $f "actual_freq_mhz=[get_property CONFIG.PSU__CRL_APB__PL0_REF_CTRL__ACT_FREQMHZ $ps]"
-    puts $f "aux_reset_in=1;mb_debug_sys_rst=0;ABZ=not_connected;current_calibration=explicit_command"
+    puts $f "aux_reset_in=1;mb_debug_sys_rst=0;ABZ_TEST=$with_encoder;physical_ABZ=not_connected;current_calibration=explicit_command"
     foreach seg [get_bd_addr_segs -of_objects [get_bd_addr_spaces $ps/Data]] {
         puts $f "segment=$seg offset=[get_property OFFSET $seg] range=[get_property RANGE $seg]"
     }

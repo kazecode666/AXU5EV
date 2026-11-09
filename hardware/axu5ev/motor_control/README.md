@@ -1,5 +1,33 @@
 # ADC/PWM 模型与 PL 工程入口
 
+## Issue38 编码器同帧增量
+
+基线为已合并PR37的main `5c9aca2`。仍只使用本目录的 `build.tcl`、`sources.list` 和BD；`scripts/encoder_feedback_build_hw.ps1` 临时设置 `MC_ENCODER=1` 并调用原PWM入口。默认 ADC-only/PWM旧入口保持32字B3OB；本轮候选启用 `ENCODER_FEEDBACK=1, TEST_ABZ=1`，仍是原50MHz ADC/AXI、100MHz PWM、5MHz转换和500转换/反馈帧。ABZ源码直接引用原 `integration/rtl/ax03b1/ax03b1_abz_receiver.sv`，没有第二份解码器。
+
+在phase0实际ADC采样沿锁存已注册count、ready、Z seen/count/tick、illegal_count及整组编码器配置；同沿AB/Z接受读取更新前状态。元数据在phase4随原码身份送入七事件管线。既有两级同步及两拍稳定资格条件保留，锁存的是经过这些延迟的数字状态，不能称为无延迟物理位置。电流一拍结果先冻结，角度生成路径完成后再与其会合发布，sample_id/tick仍是采样身份而非发布时间。
+
+电角度权威源 `simulation/encoder/encoder_angle_step.m`，组件 `AXU5EV_Encoder_Components/Encoder_Angle`，新HDL壳链接引用它，生成入口 `encoder_generate_hdl.m`；未保存用户修改的原共享库。输出以int64存储Q32弧度，低40位与既有FOC有符号40/Q32端口匹配，本轮不连接FOC。首次ready/手动位置零点变化以signed-modulo(count-zero)建立参考；之后将每帧模2^32增量连续化，电周期内相位按30000count取余。仅更新电相位偏置/版本不重建连续相位，反向将已保持的无偏置相位取反后继续累计，软件也保留连续位置原点。每次计数变化必须严格小于2^31count，恰半圈歧义失效并重新建立状态。机械位置零点、电相位偏置分开；Z仅观察。
+
+数字TEST尺度为AQM30mm电周期、每有效解码count为1μm，得到30000count/周期；不再乘除4，不改旧AUM参数。相位偏置以count表达，正方向结果为 `(连续相位 + 偏置) mod 30000`，反向先对计数方向取反再加偏置。Q32系数和公布量化误差见新数值源/验证。物理分辨率尚未实测。
+
+同一ADC AXI基址0x80000000，快照BEGIN/epoch/flags协议不变。新identity `0x454e4346`（ENCF）、schema2、epoch `0x454e0002`，41字；最后word40在字节地址 **0xac** 响应完成时释放，旧word31/0x88不再释放。旧字段含义保留，以下为新增或启用字段：
+
+| payload字 | 内容/单位 |
+| --- | --- |
+| 2 | 原质量位；新增bit9 encoder ready、10 Z seen、11 angle valid、18 TEST_ABZ；bit17 physical_link_verified仍0 |
+| 3 / 4–5 | 转换编号sample_id（正常帧+500）/50MHz sample_tick（正常帧+5000） |
+| 16 / 17 / 18–19 / 20 | 原始模2^32 count / Z锁存count / Z锁存tick / illegal_count |
+| 27 / 28 | 既有稳定资格2拍 / 电流生成延迟1拍 |
+| 29 | 角度生成结果由父模块消费的延迟34拍；生成输出在接受沿后第33拍NBA更新可见，父模块下一沿捕获 |
+| 32–33 | 电角度int64 Q32弧度，低字在前 |
+| 34–37 | 本帧配置version、zero_count、phase_offset_count、reverse（0正1负） |
+| 38 | bit0 encoder ready、bit1 angle valid、bit2 TEST_ABZ |
+| 39–40 | counts/electrical period、nm/effective count（显式TEST尺度） |
+
+配置写地址0x140/144/148/14c分别为上述zero/phase/reverse/version，0x150 bit0提交整组、bit1运行TEST_ABZ。提交冻结，不受后续shadow写影响；在下一个选中phase0采用并随该帧传递，pending时第二次提交返回SLVERR。原电流0x100–118及PWM基址0x80001000/寄存器语义保留。配置version由调用者显式递增。
+
+本候选ABZ外部输入在BD接常量，内部TEST源默认停止，手动允许后每500个50MHz拍输出一个合法正向转换（名义10μs），Z为step计数bit5；停止保持AB/Z状态。测试源位于原接收器之前，不绕过同步/解码链。没有ABZ外部XDC、驱动板/电机接线或物理许可。唯一新操作说明 `firmware/r5/encoder_feedback/FIRST_RUN_ZH.md`；本轮新结果以 `verification/encoder_feedback/results.json` 和HANDOFF首节为准。下列PR37/ADC证据均为历史基线。
+
 Issue34 在原工程增加独立 PWM 域，未复制 ADC 工程。新分支普通 merge 纳入 main `811dd56`（PR33）及 `bb6314c`（PR36），也保留先前本地发布历史；main 未被自动更新。下文 ADC 整理说明是 Issue35 已审查基线；最新验证以 `verification/pwm_adc/results.json` 和 HANDOFF 首节为准。
 
 ## PWM/ADC 100MHz 增量

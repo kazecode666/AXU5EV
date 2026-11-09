@@ -2,7 +2,31 @@
 
 更新：2026-11-09，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
-## 当前：PR37 Review 最小收尾（待复审）
+## 当前：Issue38 编码器同帧与PL/R5反馈（离线完成，待Review）
+
+从含已合并PR37的最新 `origin/main 5c9aca2ad23792645366cc58b748bcdca4001e85` 建立独立分支 `codex/encoder-feedback`，执行 [kazecode666/AXU5EV Issue38](https://github.com/kazecode666/AXU5EV/issues/38)，任务正文与实施顺序在 `coordination/tasks/encoder_feedback.md`。没有接续旧PWM功能分支，main未自动更新，正常Git保留历史。
+
+已提交 [kazecode666/AXU5EV Draft PR39](https://github.com/kazecode666/AXU5EV/pull/39)，目标main，停在Review。功能提交 `336b4da4403aad6df1f27ace295b54afd61ab910`；后续仅补最终证据与交接链接，均正常Git推送，无连接器提交映射、强推或reset。本轮不自动合并或关闭Issue。
+
+原B1 ABZ接收器直接加入统一motor_control源清单，无第二份解码器/ADC/PWM工程；phase0实际ADC采样沿锁存旧注册count/Z/ready/illegal及本帧配置，phase4捕获ADC原码，经原七事件链对齐。角度单源模型生成HDL，电流一拍结果先冻结，等角度结果整组发布：选样到发布110个50MHz拍（名义2.2us）。ENCF identity/schema2扩展到41字，最后0xac响应释放；原ADC-only仍32字B3OB，原电流及PWM寄存器合同不变。
+
+新共享组件 `AXU5EV_Encoder_Components/Encoder_Angle` 由新HDL壳库链接复用，唯一算法源 `simulation/encoder/encoder_angle_step.m`。未保存用户修改的原共享库/ADC模型。电角度匹配旧FOC signed40/Q32弧度，用int64存储；TEST尺度JSON统一生成PL常量与C头，1000nm/有效count、30000count/电周期，不额外乘除4。连续化处理模32增量；仅改电相位偏置/版本不重建机械参考，反向保持连续原点并取反，显式zero改变才重定参考。恰半回绕失效；Z仅观察，不归零或启动对齐。
+
+模型与生成HDL最终46向量/2208模型步、460项RTL检查PASS，Q32理想误差≤1LSB。软件函数生成的实际ARM native64 C与MATLAB共1301帧/17类场景PASS；51项100us历史实现50间隔测速，启动/重复/缺帧/回绕/配置变化有独立有效位。真实RTL的两组8帧×41字快照经同一R5字段适配器回放给MATLAB和目标C均一致。接收器前集成普通/有符号边界两组各271检查、8发布、7次PWM峰值选样PASS，含同沿接受、phase4新计数、原码/电流/角度/版本同帧及快照冻结释放。复用的相关PWM/ADC/B3短验证和原接收器定向验证PASS，未跑旧FOC全量。
+
+采用新候选 `.runtime/encoder_feedback/hardware_02`，完整综合/布局布线、bit/ltx/含bit XSA PASS；WNS+1.818ns、WHS+0.010ns、WPWS+4.000ns，TNS/THS/TPWS=0。新角度路径setup/hold+8.352/+0.044ns，新增元数据/整帧会合/快照实际端点均受约束且非负；全局最差hold为meta_pipe[6][105]→pair_meta[105]。原28个J15管脚、26路min2/max10ns预算命中，6个ABZ ASYNC_REG FF保留，相关50/100MHz双向通过。58项DRC warning、37项methodology warning及2项advisory、4项vendor debug CDC warning保留，无功能CDC违例。完整定向审计为 `.runtime/encoder_feedback/route_audit_03`，未放宽约束或改频。
+
+匹配R5新Workspace `.runtime/encoder_feedback/vitis_02` 构建及被动启动检查PASS，实际BSP地址0x80000000，应用ID45464301、Launch encoder_feedback_manual，ARM32/R5和AArch64/A53 FSBL匹配；应用零警告/错误，text/data/bss=43707/2188/116064。真实逐帧服务/无漏帧NOT_RUN。
+
+最终功能PL边界 `sdf_slow_01` / `sdf_fast_01` 各730检查、9选样、37开通边沿、6周期、2完整41字编码器/电流快照、10次原子发布PASS；注释告警/时序违例/未知失败均0。slow/fast内部死区分别999.966–1000.034ns / 999.984–1000.016ns；ADC pad相对内部峰值固定晚3.388/1.659ns，pad采样沿到快照Q固定2195.211/2197.538ns。这些是路由传播下的内部观察，不是板上测量。仅在内存导出视图black-box不支持仿真的ILA/debug hub，保留功能时钟/ADC/AXI/PWM互连，PS时钟/复位与主AXI事务源替代；不覆盖ARM执行/ILA采集或全部PVT动态组合。
+
+`hardware_01` 因复核发现回绕后偏置/版本更新重定原点的数值边界问题被替代，保留不计最终PASS；修正在MATLAB源中完成并重新生成HDL/C，未手改生成物，新向量和真实ABZ回绕集成已覆盖。`vitis_01` 构建后暴露标准uint32与生成类型的指针告警，手写记录改用生成uint32_T，再于vitis_02构建通过；数值C未因ABI存储修正改变。模型/脚本/审计早期失败及全部原始输出也保留。
+
+唯一操作说明 `firmware/r5/encoder_feedback/FIRST_RUN_ZH.md`，字段/工程说明 `hardware/axu5ev/motor_control/README.md`，精简结果 `verification/encoder_feedback/results.json`。TEST_ABZ源位于原接收器前，复位后停住，R5显式命令才走数；无外部ABZ管脚或XDC，六路PWM仍只接内部ILA。physical_link_verified=0，板卡发现/连接/下载/运行NOT_RUN。完整FOC/Runtime、对齐、驱动板/电机均未接入；原电机参数/PI/电流公式及50/100MHz、5MHz、100us合同保留。8个用户修改文件、2个用户未跟踪文件、全部旧Workspace/原始数据保留。完成独立Draft PR后停在Review，不合并或关闭Issue，不操作板卡。
+
+以下PR37已合并；其旧Review/关机措辞为历史，不作为本次动作。
+
+## 历史：PR37 Review 最小收尾（已合并）
 
 按 [kazecode666/AXU5EV PR37](https://github.com/kazecode666/AXU5EV/pull/37) 最新 Review（审查 head `902ff0852f9021586467beefda8152b2d826c76c`）仅修构建环境隔离与 ILA 说明。`scripts/pwm_adc_build_hw.ps1` 保存 MC_PWM/AX03B3_TEST 的存在状态和原值，设置与调用均置于 try/finally，正常或异常返回后恢复；原本不存在的变量通过 Env: 赋 null 移除，避免当前 PowerShell 的 .NET null→空字符串转换。
 

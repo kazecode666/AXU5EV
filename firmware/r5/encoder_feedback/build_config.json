@@ -1,0 +1,6 @@
+{
+  "xsa": ".runtime/encoder_feedback/hardware_02/ax03b3_adc.xsa",
+  "bitstream": ".runtime/encoder_feedback/hardware_02/ax03b3_adc.bit",
+  "ltx": ".runtime/encoder_feedback/hardware_02/ax03b3_adc.ltx",
+  "workspace": ".runtime/encoder_feedback/vitis_02"
+}

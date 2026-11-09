@@ -42,3 +42,11 @@ Thumbs.db
 /generated/adc/AXU5EV_ADC_HDL/*
 !/generated/adc/AXU5EV_ADC_HDL/Current_Preprocess.sv
 !/generated/adc/AXU5EV_ADC_HDL/Numeric_Algorithm.sv
+
+# Encoder HDL Coder side products remain local; retain the two active modules.
+/generated/encoder/AXU5EV_Encoder_Angle_HDL/*
+!/generated/encoder/AXU5EV_Encoder_Angle_HDL/Encoder_Angle.sv
+!/generated/encoder/AXU5EV_Encoder_Angle_HDL/Electric_Angle_Core.sv
+/generated/encoder/feedback_c/*
+!/generated/encoder/feedback_c/*.c
+!/generated/encoder/feedback_c/*.h
