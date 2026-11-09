@@ -1,6 +1,61 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-08，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
+更新：2026-11-09，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
+
+## 当前：PR37 Review 最小收尾（待复审）
+
+按 [kazecode666/AXU5EV PR37](https://github.com/kazecode666/AXU5EV/pull/37) 最新 Review（审查 head `902ff0852f9021586467beefda8152b2d826c76c`）仅修构建环境隔离与 ILA 说明。`scripts/pwm_adc_build_hw.ps1` 保存 MC_PWM/AX03B3_TEST 的存在状态和原值，设置与调用均置于 try/finally，正常或异常返回后恢复；原本不存在的变量通过 Env: 赋 null 移除，避免当前 PowerShell 的 .NET null→空字符串转换。
+
+轻量验证 `verification/pwm_adc/test_build_environment.ps1` 在新目录 `.runtime/pwm_adc/review_pr37_02` 使用真实包装脚本副本及相邻构建 stub：两变量各自存在/不存在的4种组合×正常返回/抛错，共8例PASS，同时检查子调用期间 MC_PWM=1、AX03B3_TEST=0，未启动Vivado。首次候选的空字符串恢复失败保留于 `review_pr37_01`，不计PASS。复跑此轻量验证必须指定未占用的 RunDir。
+
+`firmware/r5/pwm_adc/FIRST_RUN_ZH.md` 补充4096点约100MHz的连续窗口约40.96us，小于完整PWM周期及选样到下一采用边界，分别触发观察死区、整组更新和许可/重新使能边界。ILA深度、PWM/ADC RTL、时钟及数值算法未改，hardware_05/vitis_02沿用原产物；本次综合实现、SDF、R5构建、旧全量回归均NOT_RUN，未连接或操作板卡。用户6个已修改文件、2个未跟踪文件、旧Workspace和原始数据保留。推送同一Draft PR37后停止等待复审，不自动合并或关闭Issue。
+
+以下为原Issue34实现和发布记录；其硬件/软件验证是上轮结果，本次未重跑。
+
+## 当前：Issue34 PWM 100MHz 与 ADC 选样协同（离线完成，待Review）
+
+执行 [Issue34 最新正文](https://github.com/kazecode666/AXU5EV/issues/34)，任务书 `coordination/tasks/pwm_adc_100mhz.md`。已提交 [kazecode666/AXU5EV Draft PR37](https://github.com/kazecode666/AXU5EV/pull/37)，目标 main，停在 Review。分支 `codex/pwm-adc-100mhz` 普通 merge 纳入 main `811dd56364b6c27d8653d7d3ab8821dd2d497e17`（PR33）和 PR36 merge `bb6314c8a7ff17499ee7cb793c62fa046962e8e8`；两项祖先检查通过，未自动更新 main。Git HTTPS两次失败后使用连接器发布；远端合并提交 `eff47db0774194676057cb5466fd058917f19c40` 保留上述两个父提交，其树与本地合并 `36c57e3` 一致。以下实现提交逐项核对 Git 树一致，本地原历史保留，不强推/reset；网络恢复后可正常 fetch/merge 保留双方历史。
+
+| 本地提交 | 连接器发布提交 |
+| --- | --- |
+| `eff59b0c1d8983dda6f5ae149486e68236457f22` | `b65ec9a34ddea17afc24f8d78b680898f81ba971` |
+| `21317163c41c8ecc3a0bac8d6f248bf72a816be8` | `9b3fcabea6d6c1dfc846699d2dd83123702d13bb` |
+| `37649ba6ec75b1bb0b2cd6c42d04cce9c97d25cb` | `9fde2285b413ebe1fb36714cfb1c050efd250586` |
+| `d9ec28123a00ee0b4547e9c8dc9c4146527fe046` | `4c3e4172e240b47e146a360452b68dc8e11f72c1` |
+| `b0a4efbff02f32af20977eeff6df6a58707df2c1` | `99bd630a996dc66934f9ebfc36a7fc9523726f40` |
+| `a23e4093dca2492ca6702c5254b37f85af53568c` | `4c62ef2366685e8f26dad75a950d332ff9555f57` |
+| `c5597d5a5cea5b67ed5d757c4a9a362a8ba2daf0` | `7667ec43703144f9c61e521c46f629c4e2f05010` |
+| `cbbe0c2add1ce3721ac5375be5cb95a506dfd1bf` | `6cc7875b2d432d72e33284916bd1f6aaf6d3ac32` |
+
+此表覆盖实现与验证记录；后续提交仅补齐本节 PR 链接和发布映射。
+
+同一 `motor_control` 工程从既有 PS 49.9995MHz 元数据派生严格2倍 PWM 时钟99.999MHz（MMCM M24/D1/O12），ADC/AXI仍为原域。共同载波10000拍、三相冻结整组谷值采用、上下100拍死区、许可/禁止/重新允许、失锁取消已实现。ADC只增加采样前相位锚，原采样/七事件返回/数值一级延迟和REAL/TEST合同不变；旧FOC/Runtime/电机参数/PI未改。外部200MHz、ABZ新功能和完整闭环均未接入。
+
+PR36三条原位置/Z/illegal_count断言已恢复，并只运行一次对应模型验证：42项数值、49×14一级延迟、4帧PASS。最终短RTL：`pwm_rtl_07` 694175检查/30谷值；`adc_rtl_08` 接收器前刺激10帧、135检查、9次相位、6帧有效结果；`b3_rtl_03` 2064帧、两路各两次首次done=1024、restart清零PASS。原始输出均在 `.runtime/pwm_adc/`。
+
+采用候选 `.runtime/pwm_adc/hardware_05` 完整综合/布局布线及bit/ltx/含bit XSA PASS：WNS+2.419ns、WHS+0.015ns、WPWS+4.000ns，TNS/THS/TPWS=0。28个J15管脚和原26路min2/max10ns输入预算均命中；功能路径无缺失时钟/未约束端点，相关50/100MHz和适用recovery/removal通过。保留的工具建议与具体最差路径见精简结果，未放宽约束。
+
+功能PL边界真实路由SDF `sdf_pl_slow_02` / `sdf_pl_fast_02` 均PASS：各515检查、9选样、37开通边沿、6周期，注释/时序/未知态零失败。内部死区slow为999.977–1000.023ns，fast为999.991–1000.009ns；ADC pad相对内部峰值固定晚2.772/1.332ns，无漂移。按PG172仅在内存仿真视图中black-box不支持仿真的ILA/debug hub，保留功能时钟/ADC/AXI/PWM/互连；完整STA和bit仍含真实调试IP，不覆盖PS执行、ILA采集或全部PVT组合。最小R5新Workspace `.runtime/pwm_adc/vitis_02` 构建及被动启动检查PASS，实际BSP PWM地址0x80001000，A53 FSBL与R5 ELF/Launch匹配；明确产物路径见唯一指南。
+
+早期/失败/中断候选及日志全部保留，未作PASS：双ILA许可限制、裁剪/直接force从机边界、Vivado子进程启动失败；SDF测试台AW/W相互等待已改为独立握手。ADC计数器试验属性已撤回，原逻辑不变。真实新域首级reset removal告警通过两级下降沿释放留半周期解决，最终STA/SDF已确认。
+
+唯一工程/寄存器/时序说明为 `hardware/axu5ev/motor_control/README.md`，唯一操作指南为 `firmware/r5/pwm_adc/FIRST_RUN_ZH.md`。六路仅接100MHz内部ILA，外部引脚/缓冲/极性/配对与板上验收PENDING；physical_link_verified仍0、ENCON/RELCON未接入。本轮板卡发现/连接/下载/运行均NOT_RUN。用户6个已修改文件、2个未跟踪文件及全部旧Workspace/原始数据保留，未保存用户模型。完成同一Draft PR后停在Review，不合并/关闭Issue；按用户要求随后仅请求正常关机，不强制关闭未保存窗口。
+
+以下为 PR36 及先前阶段的历史记录，不作为本轮新验证结论。
+
+## 历史：Issue35 ADC 单源组件与统一PL入口整理
+
+2026-11-08，分支 `codex/adc-source-consolidation` 明确接续 PR33 已审查 head `07e245c0919645b7049b4414d0f6549b9d9c7256`（启动时PR33仍Draft，未自动合并）。本轮为独立整理PR，不重新开发B3，不进入PWM/ABZ。
+
+共享组件为 `simulation/AXU5EV_PL_Algorithm_Library.slx/Current_Preprocess`；新 `AXU5EV_ADC_HDL` 与 `AXU5EV_ADC_Observer` 均库链接引用它。MATLAB Function只调用原权威数值源 `simulation/real_io/ax03b1_current_preprocess.m`，没有第二套公式。唯一生成入口 `simulation/adc/adc_generate_hdl.m`，活动生成物 `generated/adc/AXU5EV_ADC_HDL/` 两份SV。用户修改的原 `AXU5EV_RealIO_NoPower.slx` 保留，不作活动生成源；新观察壳从PR33已审查模型建立。
+
+统一PL入口为 `hardware/axu5ev/motor_control/build.tcl`，源清单 `sources.list`，PS/AXI/时钟复位/ILA装配 `bd/adc.tcl`，手写RTL和XDC按功能归集；旧B3入口薄转发，历史重现调用路径已同步。所有采样节拍、数值、一级延迟、寄存器/帧身份、REAL/TEST和物理许可语义保留。
+
+实际模型检查/HDL生成PASS，42项数值检查、49行×14输出一级延迟对比、原4×20观察记录一致；B3短RTL2064帧及定向数值RTL25检查PASS，含两轮1024完成/restart断言。新REAL候选 `.runtime/adc_consolidation/hardware_real_01` 完成BD验证/综合/源与约束命中核对；实现、新bitstream、R5重建、旧全量回归和板卡操作NOT_RUN。本次无新可上板产物，保留PR33原bit/XSA/ELF及全部旧工作区/数据，不能沿用旧布线时序宣称新候选已实现。综合态debug/PS未约束项保留，详见精简结果。
+
+唯一[入口与旧新路径说明](../hardware/axu5ev/motor_control/README.md)，[精简结果](../verification/adc_consolidation/results.json)。已提交[kazecode666/AXU5EV Draft PR36](https://github.com/kazecode666/AXU5EV/pull/36)，base为PR33分支，当前停止等待Review。Git HTTPS连续失败后改用连接器发布：远端实现提交`e4a237edfed92119a41b0be651ac005ab9c071a9`与本地`77b0362`实现树一致；本地原历史保留，未强推/reset，后续网络恢复可正常fetch/merge保留双方历史。用户原5个修改文件和2个未跟踪文件保持原样；不改旧FOC/Runtime/电机参数/PI。提交Draft PR后停止Review，不自动合并或关闭Issue。
+
+以下B3/板测相关状态为原阶段记录，不作为本轮新运行结果。
 
 ## 当前：AX-03B3 双路校准与电流观察离线集成
 

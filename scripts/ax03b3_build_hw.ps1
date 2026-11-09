@@ -1,4 +1,4 @@
-param([ValidateSet('base','integrate','build','all')][string]$Stage='all',
+param([ValidateSet('base','integrate','synth','audit','validate','build','all','reports')][string]$Stage='all',
       [string]$Output='.runtime/ax03b3/hardware_real_02')
 $ErrorActionPreference='Stop'
 $root=Split-Path -Parent $PSScriptRoot
@@ -15,7 +15,7 @@ if (!(Test-Path -LiteralPath "$vendor/design_1.bd")) {
 }
 New-Item -ItemType Directory -Force -Path .runtime/ax03b3 | Out-Null
 & 'E:/AMDDesignTools/2026.1/Vivado/bin/vivado.bat' -mode batch `
-    -source hardware/axu5ev/ax03b3_adc.tcl `
+    -source hardware/axu5ev/motor_control/build.tcl `
     -log "$Output.console.log" -journal "$Output.console.jou" `
     -tclargs $Output $Stage "$vendor/design_1.bd"
 if ($LASTEXITCODE -ne 0) {throw "AX03B3 Vivado $Stage failed ($LASTEXITCODE)"}

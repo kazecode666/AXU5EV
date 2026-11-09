@@ -1,18 +1,17 @@
-# AX-03B1 observation model
+# ADC source and observation compatibility
 
-Run through MATLAB MCP:
+The active observer is `simulation/AXU5EV_ADC_Observer.slx`; its linked
+component is `AXU5EV_PL_Algorithm_Library/Current_Preprocess`.
+The authoritative arithmetic remains `ax03b1_current_preprocess.m` here.
+No formula is copied into either active shell. The old user-modified
+`AXU5EV_RealIO_NoPower.slx` is preserved and is not a generation entry.
 
-```matlab
-addpath('D:/Project/AXU5EV/simulation/real_io');
-result = ax03b1_run_no_power(true);
-```
+The compatibility `ax03b1_run_no_power` delegates to `simulation/adc/adc_run_observer`.
+The sole HDL generator is `simulation/adc/adc_generate_hdl.m`, targeting
+`AXU5EV_ADC_HDL/Current_Preprocess`, writing `generated/adc/AXU5EV_ADC_HDL/`.
+See `hardware/axu5ev/motor_control/README.md` for the model, PL and old/new paths.
 
-`false` runs the new numeric checks and no-power simulation; `true` also
-regenerates `generated/ax03b1/AXU5EV_RealIO_NoPower/Current_Preprocess.sv`
-and `Numeric_Algorithm.sv` from the **Current_Preprocess** subsystem.
-Generated RTL is never edited. The entry restores path/cache settings and
-leaves models open. It saves only this newly authored model when recording
-its HDL generation settings.
+## Historical B1 observation semantics
 
 The SLX separates the SIM-only peripheral stimulus, ADC pipeline reference,
 current preprocessing, ideal already-synchronized ABZ logic reference,

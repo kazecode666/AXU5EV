@@ -32,8 +32,8 @@ function Invoke-B2Tool([string]$name,[string[]]$Arguments,[string]$Directory){
  return $output
 }
 # Compile only this new physical interface and its two unchanged B1 dependencies.
-$sources=@('integration/rtl/ax03b1/ax03b1_adc_receiver.sv',
- 'integration/rtl/ax03b1/ax03b1_snapshot_axi.sv',
+$sources=@('hardware/axu5ev/motor_control/rtl/adc/ax03b1_adc_receiver.sv',
+ 'hardware/axu5ev/motor_control/rtl/axi/ax03b1_snapshot_axi.sv',
  'integration/rtl/ax03b2/ax03b2_adc_observer.sv',
  'verification/ax03b2/adc_interface_tb.sv') | ForEach-Object {Join-Path $axRoot $_}
 $compile=Invoke-B2Tool 'xvlog' (@('-sv')+$sources) $RunDir
