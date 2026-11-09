@@ -4,7 +4,9 @@
 
 ## 当前：Issue40 统一模型与PL自动控制通路（用户已暂停，可关机）
 
-从包含已合并PR39的最新main `ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13` 建立独立分支 `codex/motor-control-chain`，执行 [kazecode666/AXU5EV Issue40](https://github.com/kazecode666/AXU5EV/issues/40)。功能提交 `906c9a5aa414863add479b11bc49535f92f87e7d`；当前代码/导出/测试提交 `d63e96f6930a865671124029a12817e694107b5d`，随后仅保存暂停交接。本地分支尚未推送、Draft PR尚未创建，不自动合并/关闭Issue。
+从包含已合并PR39的最新main `ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13` 建立独立分支 `codex/motor-control-chain`，执行 [kazecode666/AXU5EV Issue40](https://github.com/kazecode666/AXU5EV/issues/40)。功能提交 `906c9a5aa414863add479b11bc49535f92f87e7d`；当前代码/导出/测试提交 `d63e96f6930a865671124029a12817e694107b5d`，随后仅保存暂停交接。暂停断点 `43c9378023c16720f8e85f68c582c9c21b287a84` 已按用户追加的审查请求正常推送到同名远端分支，供读取源码/证据；Draft PR尚未创建，不自动合并/关闭Issue。
+
+**当前先审查，不续跑**：用户要求将已完成内容及未完成项写入Issue40，请原ChatGPT对话“Review DraftPR33”审查并判断剩余验证是否必要、是否可以缩减或延期。本轮只发布交接和审查请求，不重新启动SDF/模型/Vivado/Vitis。以下恢复命令是暂停时保留的原计划，不代表现在执行；在审查结论及后续用户指令前保持暂停。不得把取消/延期的验证改记为PASS，也不得自行改变Issue原验收要求。
 
 **安全断点（2026-11-09 19:54:37）**：用户为关机明确要求暂停。仅终止本轮slow_01的xelab PID31032，外层CMD39140与pwsh6516自然退出，进程树核查剩余0；未启动fast或模型比对。最后阶段为Completed static elaboration之后的执行核准备，没有生成kernel、未完成SDF注释、动态仿真NOT_RUN，不计PASS。原目录、console、xelab.log及停止记录全部保留，证据 `verification/motor_control/evidence/sdf_pause_20261109.json`。没有替用户保存/关闭未保存窗口，也没有执行关机。
 

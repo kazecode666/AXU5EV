@@ -2,7 +2,7 @@
 
 基线为已合并PR39的 `origin/main ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13`，独立分支 `codex/motor-control-chain`。真实实时路径为原ADC/QEP接收器→原生成电流/电角度→原p3 FOC→模型生成Q30比较值→原100MHz PWM。板级仍使用同一个motor_control工程；没有复制外设或手写第二套数值算法。
 
-**用户暂停，未完成交付**：2026-11-09 19:54:37为关机安全停止slow_01的xelab，外层自然退出、剩余本轮进程0。最后处于static elaboration之后的执行核准备，没有可复用kernel，SDF注释未完成、动态仿真NOT_RUN；fast及实际6帧原FOC比对NOT_RUN，未创建/推送Draft PR。所有原始目录/日志保留，续跑只需新SDF目录，不重建已通过的hardware_02/R5。停止证据 `verification/motor_control/evidence/sdf_pause_20261109.json`，具体命令与剩余交付顺序见HANDOFF首节。
+**用户暂停，未完成交付**：2026-11-09 19:54:37为关机安全停止slow_01的xelab，外层自然退出、剩余本轮进程0。最后处于static elaboration之后的执行核准备，没有可复用kernel，SDF注释未完成、动态仿真NOT_RUN；fast及实际6帧原FOC比对NOT_RUN，未创建Draft PR。所有原始目录/日志保留，续跑只需新SDF目录，不重建已通过的hardware_02/R5。停止证据 `verification/motor_control/evidence/sdf_pause_20261109.json`，具体命令与剩余交付顺序见HANDOFF首节。用户随后要求先交ChatGPT审查：现有断点正常推送到同名独立分支供审查，开发保持暂停，剩余验证是否必要/可缩减或延期交由审查明确，尚未修改验收口径。
 
 ## 实际入口与数值来源
 

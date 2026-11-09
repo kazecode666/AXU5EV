@@ -136,7 +136,10 @@
   },
   "delivery": {
     "draft_pr": "NOT_CREATED",
-    "branch_pushed": false,
+    "branch_pushed": true,
+    "review_status": "USER_REQUESTED_CHATGPT_REVIEW_OF_COMPLETED_WORK_AND_REMAINING_SCOPE",
+    "review_target": "Issue40 and existing ChatGPT chat: Review DraftPR33",
+    "development_resume_authorized": false,
     "remaining": "slow/fast SDF, actual six-frame original FOC comparison, final evidence and Draft PR targeting main",
     "resume_entry": "coordination/HANDOFF.md first section"
   },
