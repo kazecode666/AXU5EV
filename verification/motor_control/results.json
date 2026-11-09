@@ -1,6 +1,6 @@
 {
   "issue": "kazecode666/AXU5EV#40",
-  "status": "PAUSED_BY_USER",
+  "status": "DRAFT_REVIEW_SDF_INCOMPLETE",
   "base": "ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13",
   "branch": "codex/motor-control-chain",
   "functional_commit": "906c9a5aa414863add479b11bc49535f92f87e7d",
@@ -8,6 +8,42 @@
   "source_entry_commit": "af73f437e0035b3f3c9da4de014762c702413571",
   "timing_export_test_commit": "d63e96f6930a865671124029a12817e694107b5d",
   "scope": "precommitted references; ADC/QEP to original model algorithms/FOC to original PWM; no power",
+  "finite_finish": {
+    "review_comments": [6740612318, 6740096397],
+    "dut_algorithm_constraints_changed": false,
+    "new_timing_test_preflight": {
+      "status": "PASS_NOT_SDF",
+      "run": ".runtime/motor_control/timing_preflight_03",
+      "checks": 3035,
+      "event_frames": 15,
+      "actual_adoptions": 6,
+      "distinct_triplet_changes": 5,
+      "late_cases": 1,
+      "lock_loss_cases": 1,
+      "explicit_rearms": 2,
+      "disarm_priority_cases": 2,
+      "p0_handshake_cases": 1,
+      "falling_release_checks": 5,
+      "snapshots_80_words": 15,
+      "counterexample": "EXPECTED_FAILURE: one bad expected compare bit; ACTIVE_TRIPLET_MISMATCH at first actual adoption",
+      "evidence": "evidence/timing_events/README.md"
+    },
+    "routed_view_check": {
+      "status": "STOPPED_AT_600S_BOUND_NOT_PROVEN",
+      "run": ".runtime/motor_control/routed_boundary_probe_01",
+      "invocations": 1,
+      "core_first_receivers": 628,
+      "core_output_sources": 192,
+      "whole_core_blackbox": "REJECTED: removes required input/output sequential boundary objects",
+      "partial_cut_path_clock_net_preservation": "NOT_PROVEN",
+      "temporary_view_exports": 0,
+      "routed_xelab_runs": 0,
+      "remaining_task_processes": 0,
+      "evidence": "evidence/routed/BOUNDED_VIEW_CHECK.md",
+      "next": "stop; no retries or full-netlist fallback without a new user decision"
+    },
+    "reused_without_rerun": ["system_04", "combined_oracle_02", "rtl_06", "mapper_01", "hardware_02", "vitis_01"]
+  },
   "model": {
     "status": "PASS",
     "run": ".runtime/motor_control/system_04",
@@ -121,7 +157,8 @@
     "boundary": "MC_AUTO: only PWM ILA black box; structural dbg_hub retained; original DCP unchanged"
   },
   "sdf": {
-    "status": "STOPPED_BY_USER",
+    "status": "NOT_RUN_AFTER_BOUNDED_CHECK",
+    "previous_slow_status": "STOPPED_BY_USER",
     "completion": "NOT_COMPLETED",
     "slow_run": ".runtime/motor_control/sdf_slow_01",
     "stopped_at_local": "2026-11-09 19:54:37 +08:00",
@@ -130,21 +167,27 @@
     "dynamic_simulation": "NOT_RUN",
     "fast": "NOT_RUN",
     "six_frame_model_comparison": "NOT_RUN",
+    "six_frame_oracle_requirement": "NOT_REQUIRED_DUPLICATE per user and Review6740612318; preserve NOT_RUN history, not PASS",
+    "affected_boundaries_slow_max": "NOT_RUN",
+    "affected_boundaries_fast_min": "NOT_RUN",
+    "full_chain_dynamic": "NOT_RUN",
     "remaining_task_processes": 0,
     "pause_evidence": "evidence/sdf_pause_20261109.json",
-    "resume": "new slow/fast result directories using hardware_02/timing_pl; do not rebuild hardware or R5"
+    "resume": "user must decide next verification route or explicit deferral; no safe directed view selected in the one bounded check; do not rebuild hardware or R5"
   },
   "delivery": {
-    "draft_pr": "NOT_CREATED",
+    "draft_pr": "https://github.com/kazecode666/AXU5EV/pull/41",
+    "draft": true,
+    "base_branch": "main",
     "branch_pushed": true,
-    "review_status": "USER_REQUESTED_CHATGPT_REVIEW_OF_COMPLETED_WORK_AND_REMAINING_SCOPE",
+    "review_status": "FINITE_FINISH_REPORTED; DIRECTED_SDF_ACCEPTANCE_STILL_OPEN",
     "review_target": "Issue40 and existing ChatGPT chat: Review DraftPR33",
     "review_issue_comment": "https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6739546511",
     "review_source_commit": "6731492716f5c21b1864d39cb2ad299c4e26172d",
     "review_chatgpt_thread": "6af03b57-7910-83e8-a39c-bd281805c2f7",
-    "review_dispatch": "SENT; chat active; no review conclusion received yet",
+    "review_dispatch": "Review6740096397 and Review6740612318 received; user authorized finite finish; bounded stop now reached",
     "development_resume_authorized": false,
-    "remaining": "slow/fast SDF, actual six-frame original FOC comparison, final evidence and Draft PR targeting main",
+    "remaining": "slow/max and fast/min affected-boundary SDF after a separately agreed feasible route; Issue40 acceptance remains open",
     "resume_entry": "coordination/HANDOFF.md first section"
   },
   "r5": {

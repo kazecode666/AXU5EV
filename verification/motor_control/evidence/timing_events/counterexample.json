@@ -1,0 +1,10 @@
+{
+  "status": "EXPECTED_FAILURE",
+  "run": ".runtime/motor_control/timing_counterexample_01",
+  "fault": "test scoreboard flips one expected compare bit; DUT unmodified",
+  "failure": "ACTIVE_TRIPLET_MISMATCH",
+  "first_adoption_ns": 250514,
+  "proof": "actual-adoption triplet monitor was executed",
+  "sdf": "NOT_RUN",
+  "board": "NOT_RUN"
+}

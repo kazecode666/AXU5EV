@@ -2,7 +2,17 @@
 
 基线为已合并PR39的 `origin/main ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13`，独立分支 `codex/motor-control-chain`。真实实时路径为原ADC/QEP接收器→原生成电流/电角度→原p3 FOC→模型生成Q30比较值→原100MHz PWM。板级仍使用同一个motor_control工程；没有复制外设或手写第二套数值算法。
 
-**用户暂停，未完成交付**：2026-11-09 19:54:37为关机安全停止slow_01的xelab，外层自然退出、剩余本轮进程0。最后处于static elaboration之后的执行核准备，没有可复用kernel，SDF注释未完成、动态仿真NOT_RUN；fast及实际6帧原FOC比对NOT_RUN，未创建Draft PR。所有原始目录/日志保留，续跑只需新SDF目录，不重建已通过的hardware_02/R5。停止证据 `verification/motor_control/evidence/sdf_pause_20261109.json`，具体命令与剩余交付顺序见HANDOFF首节。用户随后要求先交ChatGPT审查：现有断点正常推送到同名独立分支供审查，开发保持暂停，剩余验证是否必要/可缩减或延期交由审查明确，尚未修改验收口径。
+**当前为Draft PR41，SDF缺项仍开放**：用户已按评论6740612318授权有限收尾，保留6740096397判据。实现/RTL/数值比较/STA/R5证据复用；只改验证和文档，不改DUT/算法/约束。新增事件测试短预跑3035检查PASS，反例在首次实际采用沿按预期失败。仅一次原DCP只读核对在600秒上限停止，未完成局部切点/保留路径证明，无临时导出、无routed xelab，不回退完整网表长跑。两角定向SDF保持NOT_RUN，不能关闭该验收项；下一路线或明确延期须用户决定。
+
+原2026-11-09 19:54:37的关机暂停记录仍保留：slow_01无kernel、注释未完成、动态NOT_RUN，fast未启动。原第二次固定六帧FOC oracle未运行，现按用户和Review标为NOT_REQUIRED_DUPLICATE，不改PASS。此前43c9378的完整两角六帧续跑计划已被本轮有限边界替代。
+
+## 有限收尾的新证据与停止原因
+
+同一 `timing_tb.sv` 增加actual active_seq/active_compare的Q变化与时钟事件监测；同时核对采样peak+5000个PWM沿、三相offer与实际采用、传播偏差。新增ready接口晚到、pending期间LOCKED丢失、锁恢复不重臂及显式新提交；取消后跨后续P0/谷值继续观察。保留disarm两种优先级、无效/OTR、互补死区、两级下降沿许可释放及80字/0x148响应释放。精确P0事务直接注入ADC slave AXI，其余从PS测试事务源进入；不force最终compare/active。
+
+`.runtime/motor_control/timing_preflight_03` 是同一新测试的功能预跑：3035检查、15次事件快照、6次实际采用、5次三相组变化、1晚到、1失锁、2显式重臂、2 disarm、1 P0握手、5释放及36开通沿PASS。帧数是事件序列结果，不是验收门槛；未含真实SmartConnect/MMCM/布线/SDF，不能叫实现后PASS。`timing_counterexample_01`只在测试端翻转1位期望，250514ns首次采用报ACTIVE_TRIPLET_MISMATCH、无PASS，证明监视器确实工作；DUT未改。自检01的内部名称适配失败及02中间通过也原样保留。精简数据见 `verification/motor_control/evidence/timing_events/`。
+
+唯一只读探查 `routed_boundary_probe_01` 取得P127寄存器270、下降沿保持270、原核内首次接收顺序对象628、输出源192、帧壳结果102及mapper/整组邮箱/采用/释放对象；不是接口位宽清单。整核黑盒会删除必需输入/输出对象。到boundary get_timing_paths循环触及600秒上限，未完成路径、时钟/复位树和局部切点保留证明；相关进程树已清空。未导出临时视图，未进行SDF匹配/注释或动态运行，不断言所有裁剪均不可能。具体表和缺项见 `verification/motor_control/evidence/routed/BOUNDED_VIEW_CHECK.md`。按用户停止条件不再扩大核对、不试其他切点、不启动长xelab；保留hardware_02/vitis_01及全部日志，不重新综合小工程冒充原候选。
 
 ## 实际入口与数值来源
 

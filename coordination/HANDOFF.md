@@ -2,24 +2,17 @@
 
 更新：2026-11-09，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
-## 当前：Issue40 统一模型与PL自动控制通路（用户已暂停，可关机）
+## 当前：Issue40 有限收尾（Draft PR41，定向SDF缺项开放）
 
-从包含已合并PR39的最新main `ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13` 建立独立分支 `codex/motor-control-chain`，执行 [kazecode666/AXU5EV Issue40](https://github.com/kazecode666/AXU5EV/issues/40)。功能提交 `906c9a5aa414863add479b11bc49535f92f87e7d`；当前代码/导出/测试提交 `d63e96f6930a865671124029a12817e694107b5d`，随后仅保存暂停交接。暂停断点 `43c9378023c16720f8e85f68c582c9c21b287a84` 已按用户追加的审查请求正常推送到同名远端分支，供读取源码/证据；Draft PR尚未创建，不自动合并/关闭Issue。
+从包含已合并PR39的main `ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13` 接续独立分支 `codex/motor-control-chain`，已创建 [kazecode666/AXU5EV Draft PR41](https://github.com/kazecode666/AXU5EV/pull/41)，目标main，关联Issue40。实现/整链RTL/数值比较/新STA/R5构建已有证据；**SDF注释和动态验证仍未完成**。本轮按用户与 [6740612318](https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6740612318) 执行有限收尾，并保留 [6740096397](https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6740096397) 的边界判据。不转Ready、不合并、不关闭Issue。
 
-**当前先审查，不续跑**：用户要求将已完成内容及未完成项写入Issue40，请原ChatGPT对话“Review DraftPR33”审查并判断剩余验证是否必要、是否可以缩减或延期。本轮只发布交接和审查请求，不重新启动SDF/模型/Vivado/Vitis。以下恢复命令是暂停时保留的原计划，不代表现在执行；在审查结论及后续用户指令前保持暂停。不得把取消/延期的验证改记为PASS，也不得自行改变Issue原验收要求。
+**新测试已验证，不能叫SDF PASS**：现有timing_tb改为事件驱动，直接监测实际active_seq/active_compare采用沿及三相整组；实际注入ready晚到、pending时失锁并显式重臂，保留两项disarm、无效/OTR、互补死区、两级下降沿释放和80字/0x148释放。最终 `timing_preflight_03` 3035检查PASS：6次实际采用、1晚到、1失锁、2重臂、2 disarm、1 P0握手、5释放、15快照；15帧是事件序列结果，不是固定门槛。只改测试期望1位的反例在首次实际采用250514ns按预期失败，DUT未改。RTL预跑不包含真实MMCM/SmartConnect/布线/SDF，详情 `verification/motor_control/evidence/timing_events/README.md`。
 
-审查资料已发布：[Issue40评论6739546511](https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6739546511)，源码/证据固定到远端 `6731492716f5c21b1864d39cb2ad299c4e26172d`；已按用户授权向既有ChatGPT对话“Review DraftPR33”（`6af03b57-7910-83e8-a39c-bd281805c2f7`）发送审查请求，发送后对话为active，结论尚待返回。当前不预先采纳缩减方案，不创建Draft PR；下次先读Issue最新审查回复及用户后续指令。
+**一轮裁剪核对已用完，到停止点**：只读hardware_02的 `routed_boundary_probe_01` 找到P127/下降沿寄存器各270、旧核内首次接收顺序对象628、输出侧源192、帧壳结果102，以及mapper/邮箱/active/回执/释放对象。整核黑盒会删除必须保留的实际边界；到boundary get_timing_paths循环触及600秒上限，未完成路径/时钟复位树及局部切点保留证明。仅此一次，已停止专属进程树并核查剩余0；临时导出0次、routed xelab0次。不是证明所有裁剪不可能，但没有选定可证明的视图。按用户要求不再试切点、不扩大检查、不回退完整网表长跑。证据及具体缺口见 `verification/motor_control/evidence/routed/BOUNDED_VIEW_CHECK.md`。
 
 **安全断点（2026-11-09 19:54:37）**：用户为关机明确要求暂停。仅终止本轮slow_01的xelab PID31032，外层CMD39140与pwsh6516自然退出，进程树核查剩余0；未启动fast或模型比对。最后阶段为Completed static elaboration之后的执行核准备，没有生成kernel、未完成SDF注释、动态仿真NOT_RUN，不计PASS。原目录、console、xelab.log及停止记录全部保留，证据 `verification/motor_control/evidence/sdf_pause_20261109.json`。没有替用户保存/关闭未保存窗口，也没有执行关机。
 
-**恢复只做剩余验证和交付**：先核对本分支及用户修改仍在，复用已完成的 `hardware_02/timing_pl` 与 `vitis_01`；不要重跑all、综合/布线、HDL生成、R5构建或旧全量回归。xelab没有跨关机续跑快照，选择未占用的新SDF目录重新开始本轮慢角，然后快角（下列名称若已占用则另选新名）：
-
-```powershell
-./scripts/motor_control_run_sdf.ps1 -Hardware .runtime/motor_control/hardware_02 -RunDir .runtime/motor_control/sdf_slow_02 -Corner slow -ToolTimeoutMs 21600000
-./scripts/motor_control_run_sdf.ps1 -Hardware .runtime/motor_control/hardware_02 -RunDir .runtime/motor_control/sdf_fast_01 -Corner fast -ToolTimeoutMs 21600000
-```
-
-两角实际PASS后，核对实际6帧 `foc_frames.txt` 是否相同；相同时通过MATLAB MCP调用 `motor_control_run(<新oracle目录>, <实际SDF的foc_frames.txt>)`，一次连续原FOC比较6帧/18字，不制造预期表、不逐帧重启模型。两角表不同先定位具体差异。随后更新精简结果、报告/操作说明和本交接，正常推送当前独立分支，创建以main为目标、关联Issue40的Draft PR后停止Review。当前暂停不代表任务已完成；任何板卡操作仍未授权。
+**剩余由用户决定路线**：新增边界slow/max、fast/min的匹配注释和动态验证均NOT_RUN，仍是Issue40完整离线验收缺项。没有局部或完整整链SDF PASS。需要用户另行决定验证方案或明确延期，不能自行豁免；即便将来局部通过也只记AFFECTED_BOUNDARIES_SDF_PASS。hardware_02/vitis_01、旧模型/19帧比较/原整链RTL/综合实现全部复用，不重跑。原第二次固定六帧FOC oracle保留NOT_RUN历史，按本轮用户与Review改为NOT_REQUIRED_DUPLICATE，不再作为固定门槛；此前43c9378的完整两角六帧恢复命令是历史，不再作为自动续跑入口。
 
 原ADC/QEP接收器→原电流/角度生成HDL→原p3 FOC→新模型生成比较值→原PWM的自动PL数据路径已连通，保持50/100MHz、5MHz转换和100us帧。统一系统模型实际55帧、最终RTL06同表Current20事件/280字、Angle19事件及连续原FOC19帧/57个Q30字逐位对比、生成mapper31向量/125RTL检查已PASS。最终整链RTL06 370245检查PASS，含19发布/9采用/9无效、92386原核CE拍、晚到/失锁与两项disarm优先级；未修RTL05先复现失败，bc52d74最小清ref_pending后再通过。
 
@@ -27,7 +20,7 @@
 
 新整体完整STA为WNS+1.272ns、WHS+0.011ns、WPWS+4.000ns，TNS/THS/TPWS=0，no_clock/未约束内部端点/缺失及部分输入延时均0。实际CLB13788/14640=94.18%（LUT67.36%），不能以LUT余量代替布局空间；4项CDC warning均位于原dbg_hub，相关50/100MHz功能路径由STA计时。route_audit_01实际完成16组端点及新增恢复/移除路径审计，均已约束且非负，28管脚/26路ADC输入min2/max10ns预算及6个ABZ同步FF保留。
 
-匹配新R5 Workspace `vitis_01` 构建及被动启动检查PASS，实际基址0x80000000、应用ID4d435401，A53 FSBL64/R5 ELF32匹配，text/data/bss=43859/2196/135520，应用零警告、厂商BSP/FSBL七条警告保留，ARM服务时序NOT_RUN。原debug黑盒化触发Vivado NULL ParentLH工具异常；最小修正仅在MC_AUTO仿真导出中黑盒ILA、保留结构dbg_hub，生产入口两角网表/SDF导出PASS，bit/DCP不变。慢角准备已按上述用户要求停止，快角及对应六帧模型比对仍待完成；所有失败/对照目录保留，未重建候选或改变约束。
+匹配新R5 Workspace `vitis_01` 构建及被动启动检查PASS，实际基址0x80000000、应用ID4d435401，A53 FSBL64/R5 ELF32匹配，text/data/bss=43859/2196/135520，应用零警告、厂商BSP/FSBL七条警告保留，ARM服务时序NOT_RUN。原debug黑盒化触发Vivado NULL ParentLH工具异常；最小修正仅在MC_AUTO仿真导出中黑盒ILA、保留结构dbg_hub，生产入口两角网表/SDF导出PASS，bit/DCP不变。原完整网表slow准备已在19:54暂停，fast未启动；本轮没有匹配局部视图，不追加门级长跑。全部失败/对照目录保留，未重建候选或改变约束。
 
 唯一模型运行入口 `simulation/motor_control/motor_control_run.m`，单一PL构建 `scripts/motor_control_build_hw.ps1`，操作说明 `firmware/r5/motor_control/FIRST_RUN_ZH.md`，实施及来源见 `coordination/tasks/motor_control_chain.md` 与 `coordination/reports/motor_control_chain.md`。无完整外环/Runtime/自动对齐，电机参数/PI/原电流公式不改；8个用户已修改文件、未跟踪文件及全部旧Workspace/原始数据保留。板卡发现/连接/下载/运行NOT_RUN，六路仍内部观察，physical_link_verified=0。
 

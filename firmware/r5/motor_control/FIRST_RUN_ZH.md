@@ -2,6 +2,18 @@
 
 本轮只离线构建和仿真，不连接/发现/下载/运行板卡，不接驱动板、电机或外部PWM/QEP线。六路只在内部观察，physical_link_verified=0。本说明不是上板授权。
 
+当前交付为Draft PR41，已有实现/RTL/数值比较/STA/R5证据；新增边界的两角SDF注释与动态验证仍NOT_RUN。一轮只读routed裁剪核对已在600秒上限停止，未证明局部切点和关键路径保留，未导出视图或启动长xelab。按Review6740612318停止后续尝试，先由用户决定验证路线或明确延期；不自动回退完整网表。
+
+本轮新增测试入口只验证刺激与监视器，**不等于SDF**：
+
+```powershell
+./scripts/motor_control_run_rtl.ps1 -Suite timing-preflight -RunDir .runtime/motor_control/<新自检目录>
+# 可选监视器反例：只改测试期望1位，预期ACTIVE_TRIPLET_MISMATCH、退出1
+./scripts/motor_control_run_rtl.ps1 -Suite timing-preflight -BadAdoptionExpectation -RunDir .runtime/motor_control/<新反例目录>
+```
+
+已完成的hardware_02/vitis_01、55帧模型、19帧原FOC比较和原整链RTL均直接复用。以下完整生成/构建命令仅供将来修改实现后的复现索引，本次收尾不执行。第二次固定六帧FOC oracle保留NOT_RUN历史，已取消强制门槛；只有相关算法/状态合同改变或实际数值不一致才另定必要比较。
+
 ## 查看、运行和生成
 
 统一模型为 `simulation/motor_control/AXU5EV_Motor_Control_System.slx`，唯一运行入口 `motor_control_run(<新结果目录>)`，通过MATLAB MCP调用。它运行真实电流/角度库组件、原FOC和模型数值映射；SIM_ONLY接口/显示不代替RTL接收器或100MHz边沿验证。用户已修改的ADC/共享库不保存，受控运行在隔离batch中使用Git已提交的原依赖，详见数值入口说明。
