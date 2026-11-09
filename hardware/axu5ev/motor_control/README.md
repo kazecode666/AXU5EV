@@ -1,4 +1,49 @@
-# ADC/PWM 模型与 PL 工程入口
+# motor_control 统一模型与 PL 工程入口
+
+## Issue40：同帧反馈到 FOC/PWM 的自动通路
+
+从已合并PR39的main `ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13` 建立 `codex/motor-control-chain`。本轮不复制ADC/QEP/PWM工程，不接完整外环、Runtime或自动对齐。原始ADC针脚/ABZ接收器→原电流/角度生成HDL→原p3 FOC→新模型生成比较值→原整组三相PWM的路径实际连通。六路仍只在内部观察，physical_link_verified=0，板卡操作NOT_RUN。
+
+| 工作 | 唯一入口/来源 |
+|---|---|
+| 查看/运行整个数值链 | `simulation/motor_control/AXU5EV_Motor_Control_System.slx`；`motor_control_run(<新结果目录>)` |
+| 电流数值/生成 | `simulation/real_io/ax03b1_current_preprocess.m`、原 `Current_Preprocess` 库块；`adc_generate_hdl` |
+| PL电角度数值/生成 | `simulation/encoder/encoder_angle_step.m`、`Encoder_Angle` 库块；`encoder_generate_hdl` |
+| 原FOC数值/生成合同 | `baselines/pr53_p3/source/PMLSM_FOC_FixedPoint.slx`；直接复用 `generated/legacy_m3_p3/manifest.json` 列出的29份设计SV及原 `integration/rtl/axu5ev_foc_frame_top.sv`，未重新生成或手改 |
+| duty到PWM比较值 | `simulation/motor_control/duty_to_compare.m`；`motor_control_generate_mapper`，生成两份SV到 `generated/motor_control/AXU5EV_Duty_Adapter_HDL/` |
+| R5位置/50间隔测速 | `simulation/encoder/encoder_position_speed.m`；原 `encoder_generate_c`，复用其生成C和原字段适配器 |
+| 外设/冻结/调度/跨频接口 | 本目录 `rtl/` 与原 `integration/rtl/ax03b1/ax03b1_abz_receiver.sv`；`sources.list` 为实际清单 |
+| 板级装配/时钟/XDC/构建 | 本目录 `build.tcl`、`bd/`、`constraints/`；`scripts/motor_control_build_hw.ps1` |
+| 匹配R5观察器/操作 | `scripts/motor_control_build.py`、`firmware/r5/motor_control/build_config.json`、该目录 `FIRST_RUN_ZH.md` |
+
+系统壳实际调用同一个电流/角度库组件、原FOC Model Reference和原R5函数。ADC/QEP/PWM的系统模型部分明确标为SIM_ONLY，逻辑参考采用一帧对齐，不能将其显示延迟当作物理调度；实际接收器、同步资格和互补/死区由RTL和路由后定向测试验证。数值类型、受控原依赖及模型运行方法详见 `simulation/motor_control/README.md`。安全入口在新结果目录从上述Git基线取原库/FOC依赖进行隔离运行，不保存用户已修改的模型或改变交互MATLAB的电机/PI参数。
+
+### 自动候选及时间合同
+
+`MC_AUTO=1` 只选择本轮自动候选，包装脚本用try/finally恢复原进程环境；它仍调用原编码器/PWM构建入口。`AUTO_CONTROL=1`、`AUTO_FOC=1` 是静态来源选择；自动候选拒绝原手动PWM COMMIT/许可写，旧 `AUTO_FOC=0` 保持原语义。数值换算只在生成的Duty_To_Compare中执行：unsignedQ30限幅至0..1，乘5000并half-up舍入，三路整组交接。
+
+| 相对于选中ADC phase0（P0，50MHz拍） | 自动通路 |
+|---|---|
+| P0 | 采用已预提交参考，锁存原ADC/QEP身份及元数据 |
+| P110，名义+2.2us | 原电流/角度会合，冻结同帧结果 |
+| P127/P128 | 冻结九字段；原FOC下降沿壳捕获后，在P128第一次接受 |
+| P442，名义+8.84us附近 | 原结果post314/外部edge315就绪，捕获带本帧身份的三相duty |
+| P445附近 | 一拍模型映射后向原PWM整组邮箱交接 |
+| P2400，名义+48us | 尚未完成的晚到交接取消并禁止，不冒充目标采用成功 |
+| P2500，名义+50us | 原100MHz共同载波下一谷值整组三相采用 |
+| P2508之后 | 收集采用确认并发布80字控制快照；精确传播相位以本轮RTL/SDF结果为准 |
+
+50MHz ADC/算法/AXI、2倍频100MHz PWM、5MHz转换及500转换/100us选样保持原合同。FOC一次启动后连续使能，每帧完整5000拍；不逐帧global reset/timing_restart或在结果出现后停钟。无效/未许可帧仍以零电流/参考/角度/速度、48V和PI_Reset=1运行，结果不提交。首次有效结果之前保持禁止；禁止/重校准/失锁取消在途数据，重新允许只能用新有效结果在谷值生效。失锁后须新的参考版本或显式arm低/高，保持旧arm不会自动恢复。
+
+固定捕获后的disarm/失锁/晚到只立即禁止并取消PWM，不改变本帧已冻结输入。下一捕获根据当时有效性及显式PI_Reset决定递推/复位PI；已经显式重臂且反馈有效则保持原状态，不增加隐式global reset或自动PI恢复。
+
+### 参考与快照
+
+ADC原基址0x80000000不变。参考shadow写0x180/184=id/iq signedQ24，0x188/18c=omega低32/高8 signedQ24，0x190=Vdc unsignedQ24，0x194=PI_Reset，0x198=版本，0x19c=arm；0x1a0写1冻结整组并在下一P0采用，pending时第二次提交拒绝，后续shadow写不污染冻结组。0x1a4写1立即disarm。48V母线和omega均为明确TEST参考，未宣称实测。
+
+新快照MCT1（0x4d435431）/schema3/epoch0x4d430003为80字；BEGIN、冻结及原前41字单位保留，最后word79 **0x148读响应** 才释放。原写寄存器与读取空间独立，不能沿用0x88或0xac作为新候选释放位置。word41为控制标志，42–44=FOC采样ID/tick，45=参考版本，46–56=完整冻结九字段，57–59=Q30 duty，60–62=比较值，63=提交采样ID，64=最后确认采用ID，65–67=提交/晚到/无效计数，68/69=原核帧号/capture_edge，70–71=目标tick，72=结果数；73–79保留0。word64是采用历史，须与禁止/有效/late位联合判断，不能表示禁止后仍有输出。
+
+最终候选、模型/RTL逐位对比、完整STA/CDC、定向SDF及R5构建结果见 `verification/motor_control/results.json` 和HANDOFF首节。所有旧结果目录/Workspace、用户8个模型/参数修改及未跟踪文件均保留。以下段落是PR39及先前工程的历史入口说明，不能用其旧“未接FOC”或旧时序证据替代本轮结果。
 
 ## Issue38 编码器同帧增量
 

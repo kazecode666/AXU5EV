@@ -9,6 +9,7 @@ module ax03b3_adc_observer #(
     parameter integer OBSERVE_CONVERSIONS = 500,
     parameter integer ENCODER_FEEDBACK = 0,
     parameter integer TEST_ABZ = 0,
+    parameter integer AUTO_CONTROL = 0,
     parameter [31:0] ENCODER_INITIAL_COUNT = 0
 ) (
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 s_axi_aclk CLK",
@@ -27,6 +28,12 @@ module ax03b3_adc_observer #(
     output wire [63:0] debug_o,
     // Registered look-ahead only; original ADC clocks/capture/selection unchanged.
     output reg pwm_anchor_o,
+    output wire auto_valid_o,
+    output wire [38:0] auto_compare_o,
+    output wire [31:0] auto_seq_o,
+    output wire auto_inhibit_o,
+    input wire auto_ready_i, auto_online_i,
+    input wire [31:0] auto_applied_seq_i,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axi AWADDR",
        X_INTERFACE_PARAMETER = "XIL_INTERFACENAME s_axi, PROTOCOL AXI4LITE, DATA_WIDTH 32, ADDR_WIDTH 12, READ_WRITE_MODE READ_WRITE, FREQ_HZ 49999500" *)
     input wire [11:0] s_axi_awaddr,
@@ -67,6 +74,8 @@ module ax03b3_adc_observer #(
     reg enc_frozen_direction;
     reg [31:0] enc_active_zero, enc_active_phase, enc_active_version;
     reg enc_active_direction;
+    reg [31:0] ref_shadow[0:7],ref_frozen[0:7],ref_active[0:7];
+    reg ref_pending,manual_disarm;
     reg [258:0] sample_encoder;
     wire [31:0] selected_zero = enc_pending && observe_phase==0 ? enc_frozen_zero : enc_active_zero;
     wire [31:0] selected_phase = enc_pending && observe_phase==0 ? enc_frozen_phase : enc_active_phase;
@@ -126,6 +135,7 @@ module ax03b3_adc_observer #(
     wire [11:0] pair_a,pair_b;
     wire [1:0] pair_otr;
     wire [31:0] pair_id;
+    wire [31:0] next_sample_id;
     wire [63:0] pair_tick;
     wire [META_WIDTH-1:0] sample_meta, pair_meta;
     assign sample_meta = ENCODER_FEEDBACK ? {sample_encoder,sample_tick} : sample_tick;
@@ -142,7 +152,7 @@ module ax03b3_adc_observer #(
         .valid_a(1'b1),.valid_b(1'b1),.otr_a(adc_otr_a_i),.otr_b(adc_otr_b_i),
         .sample_meta(sample_meta),.pair_strobe(pair_strobe),.pair_complete(pair_complete),
         .pair_valid_a(pair_valid_a),.pair_valid_b(pair_valid_b),.pair_a(pair_a),.pair_b(pair_b),
-        .pair_otr(pair_otr),.pair_id(pair_id),.pair_meta(pair_meta)
+        .pair_otr(pair_otr),.pair_id(pair_id),.pair_meta(pair_meta),.next_sample_id_o(next_sample_id)
     );
     // Commit occurs between selected returns; AW/W are independently retained.
     reg [31:0] shadow [0:5];
@@ -182,7 +192,7 @@ module ax03b3_adc_observer #(
       .cal_count_a(ca),.cal_count_b(cb),.cal_done_a(da),.cal_done_b(db),
       .cal_version(version),.valid(valid),.clip(clip),.error(error),.result_strobe(result_strobe));
     reg [1023:0] base_payload;
-    localparam integer SNAP_WORDS=ENCODER_FEEDBACK ? 41 : 32;
+    localparam integer SNAP_WORDS=AUTO_CONTROL ? 80 : (ENCODER_FEEDBACK ? 41 : 32);
     reg [SNAP_WORDS*32-1:0] payload;
     wire publish_strobe;
     wire signed [63:0] theta_q32;
@@ -239,6 +249,47 @@ module ax03b3_adc_observer #(
       assign theta_q32=0;assign angle_valid=0;assign angle_strobe=0;assign angle_version=0;
       always @* payload=base_payload;
     end endgenerate
+    wire [1023:0] control_debug;
+    wire control_status_strobe;
+    wire [SNAP_WORDS*32-1:0] snapshot_payload;
+    wire snapshot_strobe;
+    generate if(AUTO_CONTROL) begin: auto_path
+      reg [SNAP_WORDS*32-1:0] feedback_bank,control_bank;
+      reg bank_strobe;
+      // The feedback event remains P110. Publish schema3 after the controller's
+      // fixed post-valley status event, joining the SAME captured feedback bank.
+      always @(posedge s_axi_aclk) begin
+        if(!s_axi_aresetn) begin feedback_bank<=0;control_bank<=0;bank_strobe<=0;end
+        else begin
+          bank_strobe<=control_status_strobe;
+          if(publish_strobe) feedback_bank<=payload;
+          if(control_status_strobe) begin
+            control_bank<=feedback_bank;
+            control_bank[0+:32]<=32'h4d435431;control_bank[32+:32]<=3;
+            control_bank[41*32+:1024]<=control_debug;
+          end
+        end
+      end
+      motor_foc_control controller(.clk(s_axi_aclk),.rst(!s_axi_aresetn),
+        .sample_event(adc_phase==0 && observe_phase==0),.sample_tick(tick),.sample_id(next_sample_id),
+        .feedback_event(publish_strobe),
+        .feedback_valid(payload[2*32+7] && payload[2*32+9] && payload[2*32+11] &&
+          !payload[2*32+3] && !payload[2*32+4] && !payload[2*32+8] && frame_illegal==0),
+        .feedback_id(payload[3*32+:32]),.feedback_tick(payload[4*32+:64]),
+        .ia(payload[8*32+:32]),.ib(payload[9*32+:32]),.ic(payload[10*32+:32]),
+        .theta_e(payload[32*32+:40]),
+        .ref_id(ref_active[0]),.ref_iq(ref_active[1]),.ref_omega({ref_active[3][7:0],ref_active[2]}),
+        .ref_vdc(ref_active[4]),.ref_pi_reset(ref_active[5][0]),.ref_version(ref_active[6]),.ref_arm(ref_active[7][0]),
+        .invalidate(apply || restart || manual_disarm),
+        .auto_ready(auto_ready_i),.auto_online(auto_online_i),.auto_applied_seq(auto_applied_seq_i),
+        .auto_valid(auto_valid_o),.auto_compare(auto_compare_o),.auto_seq(auto_seq_o),.auto_inhibit(auto_inhibit_o),
+        .debug_o(control_debug),.status_strobe(control_status_strobe));
+      assign snapshot_payload=control_bank;assign snapshot_strobe=bank_strobe;
+    end else begin: no_auto_control
+      assign auto_valid_o=0;assign auto_compare_o=0;assign auto_seq_o=0;assign auto_inhibit_o=1;
+      assign control_debug=0;assign control_status_strobe=0;
+      assign snapshot_payload=payload;assign snapshot_strobe=publish_strobe;
+    end endgenerate
     reg [31:0] quality;
     always @* begin
         quality=0;
@@ -265,8 +316,8 @@ module ax03b3_adc_observer #(
         // word 27 filter_cycles=0 explicitly denotes ABZ not connected.
     end
     ax03b1_snapshot_axi #(.SNAP_WORDS(SNAP_WORDS),.ADDR_WIDTH(12)) snapshot (
-        .clk(s_axi_aclk),.rst_n(s_axi_aresetn),.publish_i(publish_strobe),
-        .payload_i(payload),.epoch_i(ENCODER_FEEDBACK ? 32'h454e0002 : 32'h42330001),
+        .clk(s_axi_aclk),.rst_n(s_axi_aresetn),.publish_i(snapshot_strobe),
+        .payload_i(snapshot_payload),.epoch_i(AUTO_CONTROL ? 32'h4d430003 : (ENCODER_FEEDBACK ? 32'h454e0002 : 32'h42330001)),
         .s_axi_araddr(s_axi_araddr),.s_axi_arvalid(s_axi_arvalid),.s_axi_arready(s_axi_arready),
         .s_axi_rdata(s_axi_rdata),.s_axi_rresp(s_axi_rresp),
         .s_axi_rvalid(s_axi_rvalid),.s_axi_rready(s_axi_rready)
@@ -283,9 +334,17 @@ module ax03b3_adc_observer #(
         enc_frozen_zero<=0;enc_frozen_phase<=0;enc_frozen_direction<=0;enc_frozen_version<=0;
         enc_active_zero<=0;enc_active_phase<=0;enc_active_direction<=0;enc_active_version<=0;
         enc_pending<=0;test_abz_enable<=0;
+        ref_pending<=0;manual_disarm<=1;
+        for(i=0;i<8;i=i+1) begin ref_shadow[i]<=0;ref_frozen[i]<=0;ref_active[i]<=0;end
+        ref_shadow[4]<=32'd805306368;ref_frozen[4]<=32'd805306368;ref_active[4]<=32'd805306368;
+        ref_shadow[5]<=1;ref_frozen[5]<=1;ref_active[5]<=1;
         for(i=0;i<6;i=i+1) shadow[i]<=0;
       end else begin
         apply<=0;restart<=0;
+        if(adc_phase==0 && observe_phase==0 && ref_pending) begin
+          for(i=0;i<8;i=i+1) ref_active[i]<=ref_frozen[i];
+          ref_pending<=0;manual_disarm<=!ref_frozen[7][0];
+        end
         if(adc_phase==0 && observe_phase==0 && enc_pending) begin
           enc_active_zero<=enc_frozen_zero;enc_active_phase<=enc_frozen_phase;
           enc_active_direction<=enc_frozen_direction;enc_active_version<=enc_frozen_version;
@@ -316,7 +375,16 @@ module ax03b3_adc_observer #(
                 enc_pending<=1;
               end
             end
-          end else s_axi_bresp<=2;
+          end else if(AUTO_CONTROL && awaddr>=12'h180 && awaddr<=12'h19c && awaddr[1:0]==0)
+            ref_shadow[(awaddr-12'h180)>>2]<=wdata;
+          else if(AUTO_CONTROL && awaddr==12'h1a0 && wdata==1) begin
+            if(ref_pending) s_axi_bresp<=2;
+            else begin
+              for(i=0;i<8;i=i+1) ref_frozen[i]<=ref_shadow[i];
+              ref_pending<=1;
+            end
+          end else if(AUTO_CONTROL && awaddr==12'h1a4 && wdata==1) manual_disarm<=1;
+          else s_axi_bresp<=2;
         end
         if(s_axi_bvalid && s_axi_bready) begin s_axi_bvalid<=0;aw_seen<=0;w_seen<=0;end
       end

@@ -2,6 +2,7 @@
 param([Parameter(Mandatory=$true)][string]$Hardware,
       [Parameter(Mandatory=$true)][string]$RunDir,
       [ValidateSet('slow','fast')][string]$Corner='slow',
+      [ValidateRange(1,2147483647)][int]$ToolTimeoutMs=1800000,
       [string]$VivadoBin='E:/AMDDesignTools/2026.1/Vivado/bin',
       [string]$Testbench='verification/pwm_adc/timing_tb.sv')
 $ErrorActionPreference='Stop'
@@ -25,7 +26,7 @@ function Invoke-B2Tool([string]$name,[string[]]$Arguments,[string]$Directory){
  $process=[Diagnostics.Process]::new();$process.StartInfo=$psi
  if(-not $process.Start()){throw "$name failed to start"}
  $stdout=$process.StandardOutput.ReadToEndAsync();$stderr=$process.StandardError.ReadToEndAsync()
- $finished=$process.WaitForExit(1800000)
+ $finished=$process.WaitForExit($ToolTimeoutMs)
  if(-not $finished){$process.Kill();throw "$name timed out"}
  $output=$stdout.GetAwaiter().GetResult()+[Environment]::NewLine+$stderr.GetAwaiter().GetResult()
  [IO.File]::WriteAllText((Join-Path $Directory ($name+'.console.log')),$output,[Text.UTF8Encoding]::new($false))
