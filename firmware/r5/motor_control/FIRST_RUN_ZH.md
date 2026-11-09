@@ -19,7 +19,7 @@ vitis.bat -s scripts/motor_control_build.py
 python scripts/motor_control_build.py --check-startup
 ```
 
-采用的硬件/Workspace及实际PASS项以 `verification/motor_control/results.json`、`coordination/HANDOFF.md` 首节为准。默认新配置为 `.runtime/motor_control/hardware_01/ax03b3_adc.bit/.ltx/.xsa`、Workspace `.runtime/motor_control/vitis_01`，平台 `motor_control_platform`、应用 `motor_control_observer`、Launch `motor_control_manual`。ELF为Workspace下 `motor_control_observer/build/motor_control_observer.elf`，A53 FSBL为 `motor_control_platform/export/motor_control_platform/sw/boot/fsbl.elf`。
+采用的硬件/Workspace及实际PASS项以 `verification/motor_control/results.json`、`coordination/HANDOFF.md` 首节为准。默认新配置为 `.runtime/motor_control/hardware_02/ax03b3_adc.bit/.ltx/.xsa`、Workspace `.runtime/motor_control/vitis_01`，平台 `motor_control_platform`、应用 `motor_control_observer`、Launch `motor_control_manual`。ELF为Workspace下 `motor_control_observer/build/motor_control_observer.elf`，A53 FSBL为 `motor_control_platform/export/motor_control_platform/sw/boot/fsbl.elf`。
 
 ## 后续获准后手动观察
 
@@ -29,7 +29,7 @@ python scripts/motor_control_build.py --check-startup
 4. `j`预提交iq约0.2A阶跃，仍由PL反馈→FOC→模型比较值→PWM自动交接；R5不逐帧写duty。
 5. `m`显式启动原接收器前的合成ABZ源；每10us一个有效count，TEST的0.001mm/count与30mm电周期对应名义omega=20.943951rad/s（Q24=351381190）。这是声明的测试参考，不是R5把mm/s直接当rad/s或真实速度传感器测量。
 6. `r`按PL新快照轮询最多128帧，期间不打印；`p`在采集停止后导出位置/速度、FOC输入身份、参考版本、duty、比较值及实际采用身份。真实无漏帧服务能力NOT_RUN，历史不足/重复/缺帧规则沿用PR39。`s`只读一次状态。
-7. `d`通过独立禁止命令停止逻辑输出；不将其称作板卡/驱动器急停。重启PL/换候选须重新启动R5观察器，重新建立历史和显式提交，不能跨无法辨识的复位声称连续位置/速度。
+7. `d`通过独立禁止命令停止逻辑输出，同时取消此前已提交但尚未在P0采用的参考；恢复须在它之后重新显式提交arm，旧pending不会自动复活。不将其称作板卡/驱动器急停。重启PL/换候选须重新启动R5观察器，重新建立历史和显式提交，不能跨无法辨识的复位声称连续位置/速度。
 
 ## 字段与时间
 

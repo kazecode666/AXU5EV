@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "current_events": 20,
+  "current_output_words": 280,
+  "angle_events": 19,
+  "same_input_table": "D:/Project/AXU5EV/.runtime/motor_control/rtl_06",
+  "source_current": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\combined_oracle_02\\dependencies\\ax03b1_current_preprocess.m",
+  "source_angle": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\combined_oracle_02\\dependencies\\encoder_angle_step.m",
+  "board": "NOT_RUN"
+}

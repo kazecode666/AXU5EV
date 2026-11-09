@@ -39,7 +39,7 @@
 
 ### 参考与快照
 
-ADC原基址0x80000000不变。参考shadow写0x180/184=id/iq signedQ24，0x188/18c=omega低32/高8 signedQ24，0x190=Vdc unsignedQ24，0x194=PI_Reset，0x198=版本，0x19c=arm；0x1a0写1冻结整组并在下一P0采用，pending时第二次提交拒绝，后续shadow写不污染冻结组。0x1a4写1立即disarm。48V母线和omega均为明确TEST参考，未宣称实测。
+ADC原基址0x80000000不变。参考shadow写0x180/184=id/iq signedQ24，0x188/18c=omega低32/高8 signedQ24，0x190=Vdc unsignedQ24，0x194=PI_Reset，0x198=版本，0x19c=arm；0x1a0写1冻结整组并在下一P0采用，pending时第二次提交拒绝，后续shadow写不污染冻结组。0x1a4写1立即disarm并取消此前的pending参考，之后须新的显式commit才能解除禁止。写命令仍在原phase8消费，AXI握手本身不等同已执行。48V母线和omega均为明确TEST参考，未宣称实测。
 
 新快照MCT1（0x4d435431）/schema3/epoch0x4d430003为80字；BEGIN、冻结及原前41字单位保留，最后word79 **0x148读响应** 才释放。原写寄存器与读取空间独立，不能沿用0x88或0xac作为新候选释放位置。word41为控制标志，42–44=FOC采样ID/tick，45=参考版本，46–56=完整冻结九字段，57–59=Q30 duty，60–62=比较值，63=提交采样ID，64=最后确认采用ID，65–67=提交/晚到/无效计数，68/69=原核帧号/capture_edge，70–71=目标tick，72=结果数；73–79保留0。word64是采用历史，须与禁止/有效/late位联合判断，不能表示禁止后仍有输出。
 

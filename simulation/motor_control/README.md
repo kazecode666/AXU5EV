@@ -46,4 +46,6 @@ motor_control_run('D:/Project/AXU5EV/.runtime/motor_control/<另一个新目录>
 
 独立FOC参考的测试壳通过SimulationInput将九个根Inport的SampleTime明确为100us、关闭输入插值，并将SampleTimeConstraint临时设为Unconstrained及FixedStepDiscrete=100us。这样消除原继承端口加auto步长的欠约束，得到精确的逐帧日志；原FOC_DUT、PI/AW递推和冻结SLX均不修改、不保存、不重新生成。只接受时间点逐项一致后的Q30位串比较，不靠插值或截取尾部匹配。
 
+前端比较也将本次`dependencies`目录放在路径首位；运行日志及结果JSON记录`which`解析的两条权威函数绝对路径，并断言它们确实位于本次受控目录。系统SLX和映射组件的各个新建层级另做端口连线及块重叠检查；仅排版不触发旧数值回归。
+
 所有源未改变的模块仍使用原生成入口及设置；Current/Angle与p3的Oversampling/内部调度不同，不要求一次makehdl生成全部组件。以后修改组件时必须重新生成对应边界、重新做其定向对比，不能只改SLX说明而继续部署另一份旧算法。

@@ -1,8 +1,12 @@
 function result=motor_control_compare_front(trace_dir,output_dir)
 % Exact event input/output table comparison to the existing authority functions.
 assert(batchStartupOptionUsed,'Run through the isolated motor_control_run entry.');
-root=fileparts(fileparts(fileparts(mfilename('fullpath'))));
-addpath(fullfile(root,'simulation','real_io'),fullfile(root,'simulation','encoder'));
+deps=fullfile(output_dir,'dependencies');addpath(deps,'-begin');
+clear ax03b1_current_preprocess encoder_angle_step
+source_current=which('ax03b1_current_preprocess');source_angle=which('encoder_angle_step');
+assert(strcmpi(strrep(source_current,'\','/'),strrep(fullfile(deps,'ax03b1_current_preprocess.m'),'\','/')));
+assert(strcmpi(strrep(source_angle,'\','/'),strrep(fullfile(deps,'encoder_angle_step.m'),'\','/')));
+fprintf('Current authority: %s\nAngle authority: %s\n',source_current,source_angle);
 f=fopen(fullfile(trace_dir,'current_events.txt'));cl=onCleanup(@()fclose(f));current_checks=0;
 types={'logical','uint16','uint16','logical','logical','logical','logical','logical','logical','logical', ...
  'uint32','int32','int32','logical','logical','int32','int32','uint8'};
@@ -34,7 +38,7 @@ while true
  assert(seen);angle_checks=angle_checks+1;
 end
 result=struct('status','PASS','current_events',current_checks,'current_output_words',14*current_checks, ...
- 'angle_events',angle_checks,'same_input_table',trace_dir,'source_current','ax03b1_current_preprocess.m', ...
- 'source_angle','encoder_angle_step.m','board','NOT_RUN');
+ 'angle_events',angle_checks,'same_input_table',trace_dir,'source_current',source_current, ...
+ 'source_angle',source_angle,'board','NOT_RUN');
 fo=fopen(fullfile(output_dir,'front_model_result.json'),'w');cl3=onCleanup(@()fclose(fo));fprintf(fo,'%s\n',jsonencode(result,PrettyPrint=true));disp(result);
 end

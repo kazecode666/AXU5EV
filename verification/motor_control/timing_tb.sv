@@ -176,6 +176,8 @@ module timing_tb;
   check(packet[0]==32'h4d435431 && packet[1]==3,"routed unified MCT1 schema3");
   check(packet[3]==captured*500 && {packet[5],packet[4]}==packet[3]*64'd10,"routed successive sample identities and 50MHz ticks");
   check(packet[42]==packet[3] && {packet[44],packet[43]}=={packet[5],packet[4]},"routed FOC/current/angle same frozen sample identity");
+  check(packet[45]==(captured>=5?3:captured>=3?2:captured>=2?1:0),"routed frozen reference version follows only explicit commit");
+  check(packet[41][1]==(captured==2 || captured==3 || captured==5),"routed calibration/disarm/invalid/recovery frame validity");
   check(packet[6]==2000+(packet[3]>=1000?1:0) && packet[7]==2100-(packet[3]>=1000?1:0),"routed pre-receiver ADC data correspondence");
   check(packet[69]==315 && !packet[41][2],"original FOC capture edge315, held inputs never violate");
   check(packet[68]==captured+1 && packet[72]==captured+1,"original stateful FOC runs all frames without per-frame reset");
@@ -210,7 +212,11 @@ module timing_tb;
   awrite('h140,0);awrite('h144,7500);awrite('h148,0);awrite('h14c,1);awrite('h150,1);
   refs(32'd1677722,1);
   #(60000-$realtime);snapshot;
+  check(packet[45]==0,"initial reference is pending before its next selected P0");
+  awrite('h1a4,1); // Cancel that pending arm, preserving command phase8.
   #(160000-$realtime);snapshot;
+  check(packet[45]==0 && packet[41][4],"consumed disarm prevents pending version1 revival across selected P0");
+  refs(32'd1677722,1); // Only this fresh explicit commit may arm the path.
   #(260000-$realtime);snapshot;refs(32'd3355443,2);
   #(360000-$realtime);snapshot;
   #(460000-$realtime);snapshot;refs(32'd1677722,3);
