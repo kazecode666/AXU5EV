@@ -31,6 +31,8 @@ R5整组预提交九字段参考，下一选中ADC phase0采用，后续shadow�
 
 `hardware_01` 因该问题在综合中主动取消，只终止核实属于本轮的batch及其子进程，项目/日志保留，不计最终实现PASS；新候选为 `hardware_02`。模型独立复核还修正了front比对的冻结依赖查找优先级及本轮新SLX端口/终止器的重叠，不改旧用户模型或算法。早期脚本日志采样失败、RTL04、RTL05及全部原始数据均保留。
 
+hardware02初次集成发生filemgmt56-587模块发现失败，48份源路径存在且语法检查通过，fresh reopen在原自动模式可解析同一模块。入口改为包在前的一次完整源登记；原清单读取函数仅移到同一BD入口复用。冷启动 `source_entry_02` 在新结果目录的in-memory工程、独立空top下直接调用该生产入口，46份HDL、ADC/PWM两模块引用与AUTO参数/端口检查PASS，不做综合、不复制板级工程。随后只续建02尚未成功的integrate/build，原all失败日志及诊断日志保留，不重跑all。首个源诊断额外写出的根 `.srcs` 原位保留未入库，最终测试已隔离；没有为模块发现切换手动编译模式或修改DUT/XDC。
+
 完整新候选、STA/CDC、SDF及匹配R5实际结果集中记录在 `verification/motor_control/results.json`；原始日志/数据保留于各自新 `.runtime/motor_control/` 目录。操作入口为 `firmware/r5/motor_control/FIRST_RUN_ZH.md`，生成/板级来源索引为motor_control README。
 
 板卡发现/连接/下载/运行、驱动板/电机均NOT_RUN，physical_link_verified=0。内部PWM观察不是外部引脚实测；AQM数字测试尺度、48V和omega不是已恢复的完整AUM机械参数。真实标定、电平/缓冲/极性、完整外环/Runtime/自动对齐留后续。原电机/PI/电流公式及用户8个模型/参数修改、未跟踪文件、全部旧Workspace和原始数据保留；未重跑旧FOC全量回归。提交独立Draft PR后停在Review，不合并或关闭Issue。

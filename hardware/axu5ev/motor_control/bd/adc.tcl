@@ -1,4 +1,23 @@
 # Existing PS/AXI/ADC/ILA wiring, unchanged by source consolidation.
+proc mc_sources {root kind} {
+    set f [open $root/hardware/axu5ev/motor_control/sources.list r]
+    set sources [list]
+    foreach line [split [read $f] "\n"] {
+        set fields [split [string trim $line] |]
+        if {[lindex $fields 0] eq $kind} {
+            lappend sources [file normalize [file join $root [lindex $fields 1]]]
+        }
+    }
+    close $f
+    return $sources
+}
+proc mc_hdl_sources {root with_auto} {
+    # Register declarations and their consumers together, packages first.
+    # Splitting registration can leave module-reference discovery incomplete.
+    set files [mc_sources $root generated]
+    if {$with_auto} {set files [concat $files [mc_sources $root generated_foc]]}
+    return [concat $files [mc_sources $root handwritten]]
+}
 proc mc_integrate {root out} {
     open_project $out/project/ax02a_ps.xpr
     open_bd_design [get_files */design_1.bd]
@@ -7,10 +26,8 @@ proc mc_integrate {root out} {
         CONFIG.PSU__FPGA_PL0_ENABLE 1 CONFIG.PSU__CRL_APB__PL0_REF_CTRL__SRCSEL IOPLL \
         CONFIG.PSU__CRL_APB__PL0_REF_CTRL__FREQMHZ 50] $ps
     set_property CONFIG.PSU__NUM_FABRIC_RESETS 1 $ps
-    add_files -norecurse [mc_sources $root handwritten]
-    add_files -norecurse [mc_sources $root generated]
     set with_auto [expr {[info exists ::env(MC_AUTO)] && $::env(MC_AUTO)==1}]
-    if {$with_auto} {add_files -norecurse [mc_sources $root generated_foc]}
+    add_files -norecurse [mc_hdl_sources $root $with_auto]
     update_compile_order -fileset sources_1
     update_ip_catalog -update_module_ref
     create_bd_cell -type module -reference ax03b3_adc_observer adc_observer_0

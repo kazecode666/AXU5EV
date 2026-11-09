@@ -6,9 +6,9 @@
 
 从包含已合并PR39的最新main `ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13` 建立独立分支 `codex/motor-control-chain`，执行 [kazecode666/AXU5EV Issue40](https://github.com/kazecode666/AXU5EV/issues/40)。功能提交 `906c9a5aa414863add479b11bc49535f92f87e7d`；仍在本轮直接相关验证及最小Review修订，尚未提交最终Draft PR，不自动合并/关闭Issue。
 
-原ADC/QEP接收器→原电流/角度生成HDL→原p3 FOC→新模型生成比较值→原PWM的自动PL数据路径已连通，保持50/100MHz、5MHz转换和100us帧。统一系统模型实际55帧、同表Current/Angle及连续原FOC15帧/45个Q30字逐位对比、生成mapper31向量/125RTL检查已PASS。整链原短RTL04 290172检查PASS；追加Review发现的pending-arm被disarm取消边界尚待新定向结果，不能将旧短测当作覆盖该边界。
+原ADC/QEP接收器→原电流/角度生成HDL→原p3 FOC→新模型生成比较值→原PWM的自动PL数据路径已连通，保持50/100MHz、5MHz转换和100us帧。统一系统模型实际55帧、最终RTL06同表Current20事件/280字、Angle19事件及连续原FOC19帧/57个Q30字逐位对比、生成mapper31向量/125RTL检查已PASS。最终整链RTL06 370245检查PASS，含19发布/9采用/9无效、92386原核CE拍、晚到/失锁与两项disarm优先级；未修RTL05先复现失败，bc52d74最小清ref_pending后再通过。
 
-`hardware_01` 在综合阶段因上述禁止优先级问题有选择地取消，仅终止本轮已核实的batch及子进程；其项目、日志和superseded记录全部保留，不计完整实现PASS。修正后将使用新 `hardware_02`，匹配新R5 Workspace `vitis_01` 尚未构建；完整STA/CDC、SDF、R5结果均待本轮新候选实际完成，不借用旧报告。
+`hardware_01` 在综合阶段因上述禁止优先级问题有选择地取消，仅终止本轮已核实的batch及子进程；其项目、日志和superseded记录全部保留，不计完整实现PASS。新 `hardware_02` 初次集成模块发现失败；48份源存在/语法有效，入口改为包在前的一次完整登记。source_entry_02冷启动46源/两AUTO模块引用PASS，02从尚未完成的integrate阶段续建，已通过BD验证，原失败日志保留，未重跑all。匹配新R5 Workspace `vitis_01` 尚未构建；完整STA/CDC、SDF、R5结果均待实际完成，不借用旧报告。
 
 唯一模型运行入口 `simulation/motor_control/motor_control_run.m`，单一PL构建 `scripts/motor_control_build_hw.ps1`，操作说明 `firmware/r5/motor_control/FIRST_RUN_ZH.md`，实施及来源见 `coordination/tasks/motor_control_chain.md` 与 `coordination/reports/motor_control_chain.md`。无完整外环/Runtime/自动对齐，电机参数/PI/原电流公式不改；8个用户已修改文件、未跟踪文件及全部旧Workspace/原始数据保留。板卡发现/连接/下载/运行NOT_RUN，六路仍内部观察，physical_link_verified=0。
 

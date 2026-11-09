@@ -22,6 +22,8 @@
 
 `MC_AUTO=1` 只选择本轮自动候选，包装脚本用try/finally恢复原进程环境；它仍调用原编码器/PWM构建入口。`AUTO_CONTROL=1`、`AUTO_FOC=1` 是静态来源选择；自动候选拒绝原手动PWM COMMIT/许可写，旧 `AUTO_FOC=0` 保持原语义。数值换算只在生成的Duty_To_Compare中执行：unsignedQ30限幅至0..1，乘5000并half-up舍入，三路整组交接。
 
+`bd/adc.tcl` 的 `mc_hdl_sources` 从同一清单收集包在前的完整源集，一次登记后自动更新层次，避免分批添加时模块发现处于缺少声明的中间状态。轻量冷启动检查为 `verification/motor_control/source_entry_tb.tcl <新结果目录>`（由Vivado batch执行），只验证实际源入口与两模块引用，不装配另一套板级工程或运行综合。
+
 | 相对于选中ADC phase0（P0，50MHz拍） | 自动通路 |
 |---|---|
 | P0 | 采用已预提交参考，锁存原ADC/QEP身份及元数据 |
