@@ -6,6 +6,8 @@
 
 从含已合并PR37的最新 `origin/main 5c9aca2ad23792645366cc58b748bcdca4001e85` 建立独立分支 `codex/encoder-feedback`，执行 [kazecode666/AXU5EV Issue38](https://github.com/kazecode666/AXU5EV/issues/38)，任务正文与实施顺序在 `coordination/tasks/encoder_feedback.md`。没有接续旧PWM功能分支，main未自动更新，正常Git保留历史。
 
+已提交 [kazecode666/AXU5EV Draft PR39](https://github.com/kazecode666/AXU5EV/pull/39)，目标main，停在Review。功能提交 `336b4da4403aad6df1f27ace295b54afd61ab910`；后续仅补最终证据与交接链接，均正常Git推送，无连接器提交映射、强推或reset。本轮不自动合并或关闭Issue。
+
 原B1 ABZ接收器直接加入统一motor_control源清单，无第二份解码器/ADC/PWM工程；phase0实际ADC采样沿锁存旧注册count/Z/ready/illegal及本帧配置，phase4捕获ADC原码，经原七事件链对齐。角度单源模型生成HDL，电流一拍结果先冻结，等角度结果整组发布：选样到发布110个50MHz拍（名义2.2us）。ENCF identity/schema2扩展到41字，最后0xac响应释放；原ADC-only仍32字B3OB，原电流及PWM寄存器合同不变。
 
 新共享组件 `AXU5EV_Encoder_Components/Encoder_Angle` 由新HDL壳库链接复用，唯一算法源 `simulation/encoder/encoder_angle_step.m`。未保存用户修改的原共享库/ADC模型。电角度匹配旧FOC signed40/Q32弧度，用int64存储；TEST尺度JSON统一生成PL常量与C头，1000nm/有效count、30000count/电周期，不额外乘除4。连续化处理模32增量；仅改电相位偏置/版本不重建机械参考，反向保持连续原点并取反，显式zero改变才重定参考。恰半回绕失效；Z仅观察，不归零或启动对齐。
