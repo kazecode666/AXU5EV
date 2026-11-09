@@ -34,7 +34,7 @@ motor_control_run('D:/Project/AXU5EV/.runtime/motor_control/<另一个新目录>
 | --- | --- |
 | 电流零偏与换算 | 原 `simulation/real_io/ax03b1_current_preprocess.m` / Current_Preprocess，未改；原 `simulation/adc/adc_generate_hdl.m` 为独立生成入口 |
 | 电角度 | 原 `simulation/encoder/encoder_angle_step.m` / Encoder_Angle，未改；原 `encoder_generate_hdl.m` |
-| FOC/坐标变换/PI/SVPWM | 已接受p3固定点模型与其原生成配置，原生成RTL复用，未为本轮排版重生成 |
+| FOC/坐标变换/PI/SVPWM | 已接受p3固定点模型与 `baselines/pr53_p3/codegen/candidate.json`；`simulation/axu5ev_build_pl_target.m` 是独立batch目标生成入口。本轮复用原生成RTL，未调用或重生成；冻结包仍保持原样 |
 | Q30→比较尺度 | 唯一新数值源 `duty_to_compare.m`，模型 `AXU5EV_Duty_Adapter_HDL/Duty_To_Compare`，`motor_control_generate_mapper(new_dir)` 生成两个SV |
 | 位置/50间隔测速C | 原 `encoder_position_speed.m` / `encoder_generate_c.m`；已生成目标C直接复用 |
 | ADC/QEP/PWM/AXI/跨频 | 同一motor_control源清单、手写RTL与BD，不由系统SIM_ONLY块生成 |

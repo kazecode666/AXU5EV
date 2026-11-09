@@ -4,7 +4,8 @@ param([Parameter(Mandatory=$true)][string]$Hardware,
       [ValidateSet('slow','fast')][string]$Corner='slow',
       [ValidateRange(1,2147483647)][int]$ToolTimeoutMs=1800000,
       [string]$VivadoBin='E:/AMDDesignTools/2026.1/Vivado/bin',
-      [string]$Testbench='verification/pwm_adc/timing_tb.sv')
+      [string]$Testbench='verification/pwm_adc/timing_tb.sv',
+      [string]$Scope='routed functional PL; ILA/debug hub black boxes; PS clock/reset and AXI transaction sources substituted')
 $ErrorActionPreference='Stop'
 $axRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 
@@ -52,6 +53,6 @@ $marker=@($simulation -split '\r?\n' | Where-Object {$_ -match '^PWM_SDF_PASS '}
 if($marker.Count -ne 1){throw 'Missing SDF test PASS'}
 if(($elaborate+$simulation) -match '(?im)(timing violation|\$(setuphold|recrem|width|setup|hold|recovery|removal|period)\(|SDF.*(ERROR|WARNING)|WARNING:.*(SDF|annotat)|not annotated)'){throw 'Review SDF annotation or timing violation'}
 if($elaborate -notmatch 'XSIM 43-3452'){throw 'Missing successful SDF backannotation confirmation'}
-$summary=[ordered]@{status='PASS';corner=$Corner;pass_marker=$marker[0];hardware=$Hardware;run_dir=$RunDir;board='NOT_RUN';scope='routed functional PL; ILA/debug hub black boxes; PS clock/reset and AXI transaction sources substituted'}
+$summary=[ordered]@{status='PASS';corner=$Corner;pass_marker=$marker[0];hardware=$Hardware;run_dir=$RunDir;board='NOT_RUN';scope=$Scope}
 [IO.File]::WriteAllText((Join-Path $RunDir 'summary.json'),($summary|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
 Write-Output $marker[0]

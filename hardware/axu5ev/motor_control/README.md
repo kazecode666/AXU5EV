@@ -9,7 +9,7 @@
 | 查看/运行整个数值链 | `simulation/motor_control/AXU5EV_Motor_Control_System.slx`；`motor_control_run(<新结果目录>)` |
 | 电流数值/生成 | `simulation/real_io/ax03b1_current_preprocess.m`、原 `Current_Preprocess` 库块；`adc_generate_hdl` |
 | PL电角度数值/生成 | `simulation/encoder/encoder_angle_step.m`、`Encoder_Angle` 库块；`encoder_generate_hdl` |
-| 原FOC数值/生成合同 | `baselines/pr53_p3/source/PMLSM_FOC_FixedPoint.slx`；直接复用 `generated/legacy_m3_p3/manifest.json` 列出的29份设计SV及原 `integration/rtl/axu5ev_foc_frame_top.sv`，未重新生成或手改 |
+| 原FOC数值/生成合同 | `baselines/pr53_p3/source/PMLSM_FOC_FixedPoint.slx`、`baselines/pr53_p3/codegen/candidate.json`；独立目标生成入口 `simulation/axu5ev_build_pl_target.m`（隔离batch）。本轮直接复用 `generated/legacy_m3_p3/manifest.json` 列出的29份设计SV及原帧壳，未调用该生成或手改 |
 | duty到PWM比较值 | `simulation/motor_control/duty_to_compare.m`；`motor_control_generate_mapper`，生成两份SV到 `generated/motor_control/AXU5EV_Duty_Adapter_HDL/` |
 | R5位置/50间隔测速 | `simulation/encoder/encoder_position_speed.m`；原 `encoder_generate_c`，复用其生成C和原字段适配器 |
 | 外设/冻结/调度/跨频接口 | 本目录 `rtl/` 与原 `integration/rtl/ax03b1/ax03b1_abz_receiver.sv`；`sources.list` 为实际清单 |
@@ -46,6 +46,8 @@ ADC原基址0x80000000不变。参考shadow写0x180/184=id/iq signedQ24，0x188/
 新快照MCT1（0x4d435431）/schema3/epoch0x4d430003为80字；BEGIN、冻结及原前41字单位保留，最后word79 **0x148读响应** 才释放。原写寄存器与读取空间独立，不能沿用0x88或0xac作为新候选释放位置。word41为控制标志，42–44=FOC采样ID/tick，45=参考版本，46–56=完整冻结九字段，57–59=Q30 duty，60–62=比较值，63=提交采样ID，64=最后确认采用ID，65–67=提交/晚到/无效计数，68/69=原核帧号/capture_edge，70–71=目标tick，72=结果数；73–79保留0。word64是采用历史，须与禁止/有效/late位联合判断，不能表示禁止后仍有输出。
 
 最终候选、模型/RTL逐位对比、完整STA/CDC、定向SDF及R5构建结果见 `verification/motor_control/results.json` 和HANDOFF首节。所有旧结果目录/Workspace、用户8个模型/参数修改及未跟踪文件均保留。以下段落是PR39及先前工程的历史入口说明，不能用其旧“未接FOC”或旧时序证据替代本轮结果。
+
+本轮MC_AUTO时序仿真视图只将不支持仿真的PWM ILA黑盒化，保留结构dbg_hub；同时黑盒两个debug对象会在此大设计上触发Vivado内部NULL ParentLH异常，完整原始导出与ILA-only对照已用于定位。旧非AUTO导出策略保持原样。原路由DCP、bit和完整STA包含实际调试IP，仿真视图不写回检查点、不重布局布线、不手改网表/SDF；PS时钟、复位和AXI事务源由测试台替代。ILA/JTAG采集功能和ARM执行不由该仿真证明。
 
 ## Issue38 编码器同帧增量
 

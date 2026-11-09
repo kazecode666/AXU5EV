@@ -7,6 +7,10 @@ set xdc [file normalize [lindex $argv 2]]
 if {[file exists $out]} {error "Choose an unoccupied audit output directory"}
 file mkdir $out
 open_checkpoint $checkpoint
+foreach delay {max min} {
+ set worst [get_timing_paths -delay_type $delay -max_paths 1 -no_report_unconstrained]
+ if {[llength $worst]!=1 || [get_property SLACK $worst]<0} {error "Global routed $delay timing failed"}
+}
 set allregs [get_cells -hier -filter {IS_SEQUENTIAL == 1}]
 set summary [open $out/paths.tsv w]
 puts $summary "group\tretained_sequential_cells\tmax_paths_checked\tmax_slack_ns\tmin_slack_ns"
@@ -18,8 +22,13 @@ foreach {group pattern} {
  original_foc {*controller*foc/core/*}
  generated_duty_mapper {*controller*duty_mapper*}
  compare_offer {*controller*auto_compare_reg*}
+ generated_current {*generated_current*}
+ generated_angle {*generated_angle*}
  sample_metadata {*sample_encoder_reg*}
  seven_event_metadata {*meta_pipe_reg*}
+ pair_metadata {*pair_meta_reg*}
+ current_join {*current_frame_reg*}
+ theta_join {*theta_frame_reg*}
  snapshot_latest {*snapshot*latest_payload_reg*}
  snapshot_frozen {*snapshot*frozen_payload_reg*}
  pwm_auto_release {*pwm_control_0*auto_release_reg*}
@@ -51,7 +60,12 @@ foreach delay {max min} {
 }
 set syncs [filter $allregs {NAME =~ *encoder*receiver*sync?_reg*}]
 if {[llength $syncs]!=6} {error "Expected six retained original ABZ synchronizer registers"}
-foreach c $syncs {if {![get_property ASYNC_REG $c]} {error "ABZ ASYNC_REG missing: $c"}}
+set f [open $out/abz_synchronizers.tsv w]
+foreach c $syncs {
+ if {![get_property ASYNC_REG $c]} {error "ABZ ASYNC_REG missing: $c"}
+ puts $f "$c\tASYNC_REG=TRUE"
+}
+close $f
 set f [open $xdc r];set constraints [read $f];close $f
 set f [open $out/adc_pins.tsv w];set pins 0
 foreach line [split $constraints "\n"] {
@@ -88,8 +102,24 @@ foreach direction {forward reverse} {
   report_timing -from $from -to $to -delay_type $delay -max_paths 10 -path_type full_clock_expanded -file $out/related_${direction}_${delay}.rpt
  }
 }
+# Explicit new cancellation recovery/removal coverage: ADC-domain inhibit to
+# falling PWM-edge release, then falling release to positive-edge PWM state.
+set auto_release [filter $allregs {NAME =~ *pwm_control_0*auto_release_reg*}]
+set release_clear [get_pins -of_objects $auto_release -filter {REF_PIN_NAME == CLR}]
+set pwm_regs [filter $allregs {NAME =~ *pwm_control_0*}]
+set pwm_async [get_pins -of_objects $pwm_regs -filter {REF_PIN_NAME == CLR || REF_PIN_NAME == PRE}]
+foreach direction {inhibit_to_release release_to_pwm} {
+ if {$direction eq "inhibit_to_release"} {set from $adc;set to $release_clear} else {set from $auto_release;set to $pwm_async}
+ foreach delay {max min} {
+  set paths [get_timing_paths -from $from -to $to -delay_type $delay -max_paths 10 -no_report_unconstrained]
+  if {[llength $paths]==0} {error "Missing automatic $direction $delay recovery/removal path"}
+  foreach p $paths {if {[get_property SLACK $p]<0} {error "Automatic $direction $delay recovery/removal failed"}}
+  report_timing -from $from -to $to -delay_type $delay -max_paths 10 -path_type full_clock_expanded -file $out/${direction}_${delay}.rpt
+ }
+}
 report_timing -to [get_pins -hier -filter {REF_PIN_NAME =~ CLR || REF_PIN_NAME =~ PRE}] -delay_type min_max -max_paths 20 -path_type full_clock_expanded -file $out/reset_recovery_removal.rpt
 report_timing_summary -delay_type min_max -check_timing_verbose -file $out/timing_summary.rpt
+report_pulse_width -all_violators -file $out/pulse_width.rpt
 check_timing -verbose -file $out/check_timing.rpt
 report_utilization -file $out/utilization.rpt
 report_utilization -hierarchical -hierarchical_depth 6 -file $out/utilization_hierarchy.rpt

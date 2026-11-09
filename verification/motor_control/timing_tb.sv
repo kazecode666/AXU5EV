@@ -1,6 +1,7 @@
 `timescale 1ns/1ps
 // Routed candidate PL boundary with matching process-corner SDF.
-// ILA/debug hub are unsupported-IP black boxes; full-design STA retains them.
+// Only the unsupported PWM ILA is a black box; the structural debug hub stays.
+// Full-design STA retains both debug cores and their actual routing.
 // Only PS clock/reset and AXI transaction sources are substituted below.
 module timing_tb;
  reg clk=0;always #10 clk=~clk;
@@ -187,9 +188,13 @@ module timing_tb;
   if(packet[41][1])begin
    check(packet[64]==packet[3] && !packet[41][4],"routed current frame adopted at target valley before status publication");
    check(packet[2][7] && packet[2][9] && packet[2][11],"valid FOC input requires valid current and angle");
+   check(packet[46]==packet[8] && packet[47]==packet[9] && packet[48]==packet[10],"routed FOC frozen currents equal this feedback frame");
+   check({packet[52],packet[51]}=={packet[33],packet[32]},"routed FOC frozen angle equals this feedback frame");
+   check(packet[49]==0 && packet[50]==(captured==3?32'd3355443:32'd1677722) && packet[55]==32'h30000000 && packet[56]==0,"routed frozen reference/Vdc/PI group matches the explicit transaction");
    check({packet[52][7:0],packet[51]}==40'h01921fb544 && packet[53]==0 && packet[54]==0,"routed stationary QEP quarter phase and explicit zero rad/s");
    valid_frames++;
   end else begin
+   check({packet[46],packet[47],packet[48],packet[49],packet[50],packet[51],packet[52],packet[53],packet[54]}==0 && packet[55]==32'h30000000 && packet[56]==1,"routed invalid frame supplies zero numerical inputs,48V,and PI_Reset");
    check(packet[56]==1 && packet[41][4] && {h,l}==0,"invalid/calibrating frame supplies PI_Reset and inhibits all six outputs");invalid_frames++;
   end
   check(packet[66]==0,"no relaxed late deadline in routed scenario");
@@ -198,7 +203,8 @@ module timing_tb;
    packet[42],{packet[44],packet[43]},packet[45],packet[46],packet[47],packet[48],packet[49],packet[50],
    {packet[52][7:0],packet[51]},{packet[54][7:0],packet[53]},packet[55],packet[56],packet[57],packet[58],packet[59]);
   for(integer i=0;i<80;i++)$fwrite(packet_fd,"%08x ",packet[i]);$fwrite(packet_fd,"\n");
-  $display("MOTOR_SDF_FRAME id=%0d ref=%0d valid=%0d applied=%0d duty=%08x/%08x/%08x",packet[3],packet[45],packet[41][1],packet[64],packet[57],packet[58],packet[59]);
+  $fflush(trace_fd);$fflush(packet_fd);
+  $display("MOTOR_SDF_FRAME completed=%0d/6 id=%0d ref=%0d valid=%0d applied=%0d duty=%08x/%08x/%08x t=%0t",captured+1,packet[3],packet[45],packet[41][1],packet[64],packet[57],packet[58],packet[59],$time);
   captured++;
  end endtask
  initial begin
