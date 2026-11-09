@@ -16,7 +16,7 @@ volatile const uint32_t encoder_feedback_mmio_base=ENCODER_FEEDBACK_BASEADDR;
 extern char inbyte(void);
 enum { WORDS=41, RECORDS=128 };
 typedef struct {
- uint32_t seq,p[WORDS],numeric_status;double position_mm,speed_mm_s;
+ uint32_T seq,p[WORDS],numeric_status;double position_mm,speed_mm_s;
  int64_t continuous;uint8_t history;boolean_T position_valid,speed_valid;
 } record_t;
 static record_t records[RECORDS];

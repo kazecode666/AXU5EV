@@ -20,9 +20,15 @@ The existing FOC contract was read from `simulation/pmlsm_foc_fixed_config.m`
 port. It is radians, not turns. This component returns integer Q32 bits in an
 int64 container, with nonnegative values below 2pi; the low40 bits therefore
 match that input format. It is not connected to FOC in this issue.
-Legacy Runtime's generated alignment offset uses the negative mechanical
-position contribution; here the manual `zero_count` is subtracted and the
-manual phase offset is added. No alignment state machine is run or changed.
+The saved Hybrid model was also read through MATLAB MCP:
+`Alignment_Interface/Alignment_Angle_Selection` (SID2148), Gain SID2157 uses
+`2*pi/Tau_e_mm*x_mm`; Sum SID2152 adds both `Theta_Offset_auto` (input2151)
+and `Theta_Offset_Fine` (constant2161) before wrapping. The manual phase-offset
+sign here is therefore additive, matching that existing convention.
+Legacy Runtime C lines314–315 compute the alignment correction as
+`0 - 2*pi*x_align/60`; here the manual `zero_count` is subtracted and the
+manual phase offset is added. That legacy60mm parameter is not reused for
+the explicit30mm test scale. No alignment state machine is run or changed.
 
 For the first ready frame or a manual zero change, the coordinate is the
 nearest signed-modulo32 distance from raw `zero_count`. Subsequent frames use

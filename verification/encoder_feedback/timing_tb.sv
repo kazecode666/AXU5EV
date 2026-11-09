@@ -167,7 +167,7 @@ module timing_tb;
   check(packet[3]%500==0 && {packet[5],packet[4]}==packet[3]*64'd10,"routed same-frame ID / 50MHz tick");
   check(packet[6]==1900+packet[3]%64 && packet[7]==2100+(2*packet[3])%64,"routed ADC pad result from same sample");
   check(packet[2][9] && packet[2][11] && packet[2][18] && !packet[2][17],"routed encoder/angle valid, explicit TEST_ABZ, physical false");
-  check(packet[2][10] && packet[17]==32 && {packet[19],packet[18]}<={packet[5],packet[4]},"routed Z event is observed, never resets count, and predates this sample");
+  check(packet[2][10] && packet[17]==32+((packet[16]-32)/64)*64 && {packet[19],packet[18]}<={packet[5],packet[4]},"routed Z event is observed, never resets count, and predates this sample");
   check(packet[20]==0 && packet[38][2:0]==7,"routed legal TEST sequence / independent metadata valid flags");
   check(packet[34]==1 && packet[35]==0 && packet[36]==0 && packet[37]==0,"routed atomic scale configuration");
   check(packet[39]==30000 && packet[40]==1000,"routed one count-scale definition");
