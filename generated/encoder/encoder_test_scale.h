@@ -1,0 +1,9 @@
+/* Generated from encoder_test_scale.json; TEST ONLY. */
+#ifndef ENCODER_TEST_SCALE_H
+#define ENCODER_TEST_SCALE_H
+#define ENCODER_NM_PER_COUNT 1000u
+#define ENCODER_COUNTS_PER_PERIOD 30000u
+#define ENCODER_TICK_HZ 50000000u
+#define ENCODER_SAMPLE_ID_STEP 500u
+#define ENCODER_SAMPLE_TICK_STEP 5000u
+#endif

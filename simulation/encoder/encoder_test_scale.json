@@ -1,0 +1,14 @@
+{
+  "classification": "SIM_ASSUMPTION_TEST_ONLY_NOT_PHYSICAL_SIGNOFF",
+  "nanometres_per_count": 1000,
+  "counts_per_electrical_period": 30000,
+  "tick_hz": 50000000,
+  "sample_tick_step": 5000,
+  "sample_id_step": 500,
+  "speed_intervals": 50,
+  "history_entries": 51,
+  "direction": "00->01->11->10->00 positive; reverse flag1 means negate",
+  "quadrature_scale": "one effective receiver count; no additional x4 conversion",
+  "foc_angle": "signed40 Q32 radians; low40 bits of generated int64",
+  "physical_link_verified": 0
+}

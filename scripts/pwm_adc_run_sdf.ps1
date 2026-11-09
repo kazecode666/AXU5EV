@@ -2,7 +2,8 @@
 param([Parameter(Mandatory=$true)][string]$Hardware,
       [Parameter(Mandatory=$true)][string]$RunDir,
       [ValidateSet('slow','fast')][string]$Corner='slow',
-      [string]$VivadoBin='E:/AMDDesignTools/2026.1/Vivado/bin')
+      [string]$VivadoBin='E:/AMDDesignTools/2026.1/Vivado/bin',
+      [string]$Testbench='verification/pwm_adc/timing_tb.sv')
 $ErrorActionPreference='Stop'
 $axRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 
@@ -36,7 +37,7 @@ function Invoke-B2Tool([string]$name,[string[]]$Arguments,[string]$Directory){
 }
 $netdir=Join-Path ([IO.Path]::GetFullPath($Hardware)) 'timing_pl'
 $sources=@((Join-Path $netdir 'motor_routed.v'))
-$sources+=Join-Path $axRoot 'verification/pwm_adc/timing_tb.sv'
+$sources+=Join-Path $axRoot $Testbench
 $sources+=Join-Path $VivadoBin '../data/verilog/src/glbl.v'
 $compile=Invoke-B2Tool 'xvlog' (@('-sv')+$sources) $RunDir
 $arguments=@('work.timing_tb','work.glbl','-s','pwm_timing','-debug','off',

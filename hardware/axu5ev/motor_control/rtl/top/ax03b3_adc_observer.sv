@@ -2,10 +2,14 @@
 // AX-03B3 J15 current observer, using unchanged generated B1 arithmetic. A single 50 MHz logic domain forwards two
 // in-phase 5 MHz clocks. The ADC samples on their rising edges; capture is
 // four logic periods (80 ns) later, after the specified output tPD window.
-// No motor, ABZ, control Runtime or power outputs. Calibration is explicit.
+// Optional encoder feedback uses the existing B1 receiver. No control Runtime
+// or power outputs. Calibration and synthetic encoder motion are explicit.
 module ax03b3_adc_observer #(
     parameter integer TEST_INPUT = 0,
-    parameter integer OBSERVE_CONVERSIONS = 500
+    parameter integer OBSERVE_CONVERSIONS = 500,
+    parameter integer ENCODER_FEEDBACK = 0,
+    parameter integer TEST_ABZ = 0,
+    parameter [31:0] ENCODER_INITIAL_COUNT = 0
 ) (
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 s_axi_aclk CLK",
        X_INTERFACE_PARAMETER = "XIL_INTERFACENAME s_axi_aclk, ASSOCIATED_BUSIF s_axi, ASSOCIATED_RESET s_axi_aresetn, FREQ_HZ 49999500" *)
@@ -17,6 +21,7 @@ module ax03b3_adc_observer #(
     input wire [11:0] adc_data_b_i,
     input wire adc_otr_a_i,
     input wire adc_otr_b_i,
+    input wire abz_a_i, abz_b_i, abz_z_i,
     (* IOB = "TRUE", DONT_TOUCH = "TRUE" *) output reg adc_clk_a_o,
     (* IOB = "TRUE", DONT_TOUCH = "TRUE" *) output reg adc_clk_b_o,
     output wire [63:0] debug_o,
@@ -44,6 +49,7 @@ module ax03b3_adc_observer #(
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axi RVALID" *) output wire s_axi_rvalid,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axi RREADY" *) input wire s_axi_rready
 );
+    import encoder_scale_pkg::*;
     reg [3:0] adc_phase;
     reg [63:0] tick, sample_tick;
     integer observe_phase;
@@ -51,6 +57,43 @@ module ax03b3_adc_observer #(
     wire observe_select = capture_event && observe_phase == 0;
     reg [11:0] captured_a, captured_b;
     reg [1:0] captured_otr;
+    localparam integer META_WIDTH = ENCODER_FEEDBACK ? 323 : 64;
+    wire [31:0] enc_count, enc_illegal, enc_z_count;
+    wire [63:0] enc_z_tick;
+    wire enc_ready, enc_z_seen;
+    reg [31:0] enc_shadow_zero, enc_shadow_phase, enc_shadow_version;
+    reg enc_shadow_direction, enc_pending, test_abz_enable;
+    reg [31:0] enc_frozen_zero, enc_frozen_phase, enc_frozen_version;
+    reg enc_frozen_direction;
+    reg [31:0] enc_active_zero, enc_active_phase, enc_active_version;
+    reg enc_active_direction;
+    reg [258:0] sample_encoder;
+    wire [31:0] selected_zero = enc_pending && observe_phase==0 ? enc_frozen_zero : enc_active_zero;
+    wire [31:0] selected_phase = enc_pending && observe_phase==0 ? enc_frozen_phase : enc_active_phase;
+    wire [31:0] selected_version = enc_pending && observe_phase==0 ? enc_frozen_version : enc_active_version;
+    wire selected_direction = enc_pending && observe_phase==0 ? enc_frozen_direction : enc_active_direction;
+    generate if(ENCODER_FEEDBACK) begin: encoder
+      reg [8:0] test_div;
+      reg [7:0] test_steps;
+      always @(posedge s_axi_aclk) begin
+        if(!s_axi_aresetn) begin test_div<=0;test_steps<=0;end
+        else if(test_abz_enable) begin
+          if(test_div==499) begin test_div<=0;test_steps<=test_steps+1'b1;end
+          else test_div<=test_div+1'b1;
+        end
+      end
+      wire [1:0] test_ab={test_steps[1],test_steps[1]^test_steps[0]};
+      ax03b1_abz_receiver #(.FILTER_CYCLES(2),.INITIAL_COUNT(ENCODER_INITIAL_COUNT)) receiver(
+        .clk(s_axi_aclk),.rst(!s_axi_aresetn),.tick(tick),
+        .a_async(TEST_ABZ ? test_ab[1] : abz_a_i),
+        .b_async(TEST_ABZ ? test_ab[0] : abz_b_i),
+        .z_async(TEST_ABZ ? test_steps[5] : abz_z_i),
+        .q_count(enc_count),.ab_ready(enc_ready),.illegal_count(enc_illegal),
+        .z_seen(enc_z_seen),.z_count(enc_z_count),.z_tick(enc_z_tick));
+    end else begin: no_encoder
+      assign enc_count=0;assign enc_illegal=0;assign enc_z_count=0;
+      assign enc_z_tick=0;assign enc_ready=0;assign enc_z_seen=0;
+    end endgenerate
 
     always @(posedge s_axi_aclk) begin
         if (!s_axi_aresetn) begin
@@ -58,12 +101,16 @@ module ax03b3_adc_observer #(
             adc_clk_a_o <= 0;adc_clk_b_o <= 0;
             captured_a <= 0;captured_b <= 0;captured_otr <= 0;
             pwm_anchor_o <= 0;
+            sample_encoder <= 0;
         end else begin
             pwm_anchor_o <= (adc_phase == 8 && observe_phase == 0);
             tick <= tick + 1'b1;
             adc_phase <= adc_phase == 9 ? 0 : adc_phase + 1'b1;
             if (adc_phase == 0) begin
                 adc_clk_a_o <= 1;adc_clk_b_o <= 1;sample_tick <= tick;
+                // Same-edge AB/Z acceptance is deliberately observed BEFORE update.
+                sample_encoder <= {selected_zero,selected_phase,selected_direction,selected_version,
+                  enc_ready,enc_z_seen,enc_illegal,enc_z_tick,enc_z_count,enc_count};
             end else if (adc_phase == 5) begin
                 adc_clk_a_o <= 0;adc_clk_b_o <= 0;
             end
@@ -80,13 +127,22 @@ module ax03b3_adc_observer #(
     wire [1:0] pair_otr;
     wire [31:0] pair_id;
     wire [63:0] pair_tick;
-    ax03b1_adc_receiver #(.META_WIDTH(64),.PIPELINE_EVENTS(7)) receiver (
+    wire [META_WIDTH-1:0] sample_meta, pair_meta;
+    assign sample_meta = ENCODER_FEEDBACK ? {sample_encoder,sample_tick} : sample_tick;
+    assign pair_tick=pair_meta[63:0];
+    wire [258:0] pair_encoder=pair_meta >> 64;
+    wire [31:0] frame_zero,frame_phase,frame_version,frame_count,frame_z_count,frame_illegal;
+    wire frame_direction,frame_ready,frame_z_seen;
+    wire [63:0] frame_z_tick;
+    assign {frame_zero,frame_phase,frame_direction,frame_version,
+      frame_ready,frame_z_seen,frame_illegal,frame_z_tick,frame_z_count,frame_count}=pair_encoder;
+    ax03b1_adc_receiver #(.META_WIDTH(META_WIDTH),.PIPELINE_EVENTS(7)) receiver (
         .clk(s_axi_aclk),.rst(!s_axi_aresetn),.sample_ce(capture_event),
         .observe_select(observe_select),.raw_a(adc_data_a_i),.raw_b(adc_data_b_i),
         .valid_a(1'b1),.valid_b(1'b1),.otr_a(adc_otr_a_i),.otr_b(adc_otr_b_i),
-        .sample_meta(sample_tick),.pair_strobe(pair_strobe),.pair_complete(pair_complete),
+        .sample_meta(sample_meta),.pair_strobe(pair_strobe),.pair_complete(pair_complete),
         .pair_valid_a(pair_valid_a),.pair_valid_b(pair_valid_b),.pair_a(pair_a),.pair_b(pair_b),
-        .pair_otr(pair_otr),.pair_id(pair_id),.pair_meta(pair_tick)
+        .pair_otr(pair_otr),.pair_id(pair_id),.pair_meta(pair_meta)
     );
     // Commit occurs between selected returns; AW/W are independently retained.
     reg [31:0] shadow [0:5];
@@ -125,7 +181,64 @@ module ax03b3_adc_observer #(
       .ia_q24(ia),.ib_q24(ib),.ic_q24(ic),.offset_a_q16(oa),.offset_b_q16(ob),
       .cal_count_a(ca),.cal_count_b(cb),.cal_done_a(da),.cal_done_b(db),
       .cal_version(version),.valid(valid),.clip(clip),.error(error),.result_strobe(result_strobe));
-    reg [1023:0] payload;
+    reg [1023:0] base_payload;
+    localparam integer SNAP_WORDS=ENCODER_FEEDBACK ? 41 : 32;
+    reg [SNAP_WORDS*32-1:0] payload;
+    wire publish_strobe;
+    wire signed [63:0] theta_q32;
+    wire angle_valid,angle_strobe;
+    wire [31:0] angle_version;
+    generate if(ENCODER_FEEDBACK) begin: angle_path
+      Encoder_Angle generated_angle(.clk(s_axi_aclk),.reset(!s_axi_aresetn),.clk_enable(1'b1),
+        .sample_strobe(pair_strobe),.count(frame_count),.ready(frame_ready),
+        .zero_count(frame_zero),.phase_offset_count(frame_phase[15:0]),
+        .direction(frame_direction),.config_version(frame_version),
+        .theta_q32(theta_q32),.valid(angle_valid),.result_strobe(angle_strobe),
+        .version(angle_version),.phase_count(),.ce_out());
+      reg [1023:0] current_frame;
+      reg current_ready,theta_ready;
+      reg signed [63:0] theta_frame;
+      reg theta_valid_frame;
+      reg [31:0] theta_version_frame;
+      // One selected frame per 5000 clocks; join independent numerical paths.
+      // Neither result event nor current calibration is an encoder validity gate.
+      always @(posedge s_axi_aclk) begin
+        if(!s_axi_aresetn) begin
+          current_frame<=0;current_ready<=0;theta_ready<=0;
+          theta_frame<=0;theta_valid_frame<=0;theta_version_frame<=0;
+        end else begin
+          if(result_strobe) begin current_frame<=base_payload;current_ready<=1;end
+          if(angle_strobe) begin
+            theta_frame<=theta_q32;theta_valid_frame<=angle_valid;
+            theta_version_frame<=angle_version;theta_ready<=1;
+          end
+          if(publish_strobe) begin current_ready<=0;theta_ready<=0;end
+        end
+      end
+      assign publish_strobe=current_ready && theta_ready;
+      always @* begin
+        payload=0;payload[1023:0]=current_frame;
+        payload[0*32+:32]=32'h454e4346;payload[1*32+:32]=2;
+        payload[2*32+9]=frame_ready;payload[2*32+10]=frame_z_seen;
+        payload[2*32+11]=theta_valid_frame;payload[2*32+18]=TEST_ABZ;
+        payload[16*32+:32]=frame_count;payload[17*32+:32]=frame_z_count;
+        payload[18*32+:64]=frame_z_tick;payload[20*32+:32]=frame_illegal;
+        payload[27*32+:32]=2;
+        payload[28*32+:32]=1; // Current generated latency unchanged: one clock.
+        payload[32*32+:64]=theta_frame;
+        payload[34*32+:32]=theta_version_frame;
+        payload[35*32+:32]=frame_zero;payload[36*32+:32]=frame_phase;
+        payload[37*32+:32]={31'b0,frame_direction};
+        payload[38*32+:32]={29'b0,1'b0,theta_valid_frame,frame_ready} | (TEST_ABZ ? 4:0);
+        payload[29*32+:32]=34; // Encoder generated latency, measured by model/RTL.
+        payload[39*32+:32]=ENCODER_COUNTS_PER_PERIOD;
+        payload[40*32+:32]=ENCODER_NM_PER_COUNT;
+      end
+    end else begin: legacy_payload
+      assign publish_strobe=result_strobe;
+      assign theta_q32=0;assign angle_valid=0;assign angle_strobe=0;assign angle_version=0;
+      always @* payload=base_payload;
+    end endgenerate
     reg [31:0] quality;
     always @* begin
         quality=0;
@@ -134,26 +247,26 @@ module ax03b3_adc_observer #(
         quality[5]=da;quality[6]=db;quality[7]=valid;quality[8]=clip;quality[16]=TEST_INPUT;
         // ABZ ready/Z-seen remain zero. Physical link
         // is not verified by a bitstream or a changing code; bit 17 stays zero.
-        payload=0;
-        payload[0*32+:32]=32'h42334f42; // B3OB, schema 1
-        payload[1*32+:32]=1;
-        payload[2*32+:32]=quality;
-        payload[3*32+:32]=pair_id;
-        payload[4*32+:64]=pair_tick;
-        payload[6*32+:32]={20'd0,aligned_a};payload[7*32+:32]={20'd0,aligned_b};
-        payload[8*32+:32]=ia;payload[9*32+:32]=ib;payload[10*32+:32]=ic;
-        payload[11*32+:32]=oa;payload[12*32+:32]=ob;
-        payload[13*32+:32]={16'b0,ca};payload[14*32+:32]={16'b0,cb};
-        payload[15*32+:32]=version;
-        payload[21*32+:32]={16'b0,error}; // B1 OTR + uncalibrated bits
-        payload[22*32+:32]=24;payload[23*32+:32]=16;
-        payload[24*32+:32]=7;payload[25*32+:32]=10;
-        payload[26*32+:32]=OBSERVE_CONVERSIONS*10;
+        base_payload=0;
+        base_payload[0*32+:32]=32'h42334f42; // B3OB, schema 1
+        base_payload[1*32+:32]=1;
+        base_payload[2*32+:32]=quality;
+        base_payload[3*32+:32]=pair_id;
+        base_payload[4*32+:64]=pair_tick;
+        base_payload[6*32+:32]={20'd0,aligned_a};base_payload[7*32+:32]={20'd0,aligned_b};
+        base_payload[8*32+:32]=ia;base_payload[9*32+:32]=ib;base_payload[10*32+:32]=ic;
+        base_payload[11*32+:32]=oa;base_payload[12*32+:32]=ob;
+        base_payload[13*32+:32]={16'b0,ca};base_payload[14*32+:32]={16'b0,cb};
+        base_payload[15*32+:32]=version;
+        base_payload[21*32+:32]={16'b0,error}; // B1 OTR + uncalibrated bits
+        base_payload[22*32+:32]=24;base_payload[23*32+:32]=16;
+        base_payload[24*32+:32]=7;base_payload[25*32+:32]=10;
+        base_payload[26*32+:32]=OBSERVE_CONVERSIONS*10;
         // word 27 filter_cycles=0 explicitly denotes ABZ not connected.
     end
-    ax03b1_snapshot_axi #(.SNAP_WORDS(32),.ADDR_WIDTH(12)) snapshot (
-        .clk(s_axi_aclk),.rst_n(s_axi_aresetn),.publish_i(result_strobe),
-        .payload_i(payload),.epoch_i(32'h42330001),
+    ax03b1_snapshot_axi #(.SNAP_WORDS(SNAP_WORDS),.ADDR_WIDTH(12)) snapshot (
+        .clk(s_axi_aclk),.rst_n(s_axi_aresetn),.publish_i(publish_strobe),
+        .payload_i(payload),.epoch_i(ENCODER_FEEDBACK ? 32'h454e0002 : 32'h42330001),
         .s_axi_araddr(s_axi_araddr),.s_axi_arvalid(s_axi_arvalid),.s_axi_arready(s_axi_arready),
         .s_axi_rdata(s_axi_rdata),.s_axi_rresp(s_axi_rresp),
         .s_axi_rvalid(s_axi_rvalid),.s_axi_rready(s_axi_rready)
@@ -166,13 +279,22 @@ module ax03b3_adc_observer #(
       if(!s_axi_aresetn) begin
         aw_seen<=0;w_seen<=0;s_axi_bvalid<=0;s_axi_bresp<=0;
         cal_en<=0;apply<=0;restart<=0;awaddr<=0;wdata<=0;wstrb<=0;
+        enc_shadow_zero<=0;enc_shadow_phase<=0;enc_shadow_direction<=0;enc_shadow_version<=0;
+        enc_frozen_zero<=0;enc_frozen_phase<=0;enc_frozen_direction<=0;enc_frozen_version<=0;
+        enc_active_zero<=0;enc_active_phase<=0;enc_active_direction<=0;enc_active_version<=0;
+        enc_pending<=0;test_abz_enable<=0;
         for(i=0;i<6;i=i+1) shadow[i]<=0;
       end else begin
         apply<=0;restart<=0;
+        if(adc_phase==0 && observe_phase==0 && enc_pending) begin
+          enc_active_zero<=enc_frozen_zero;enc_active_phase<=enc_frozen_phase;
+          enc_active_direction<=enc_frozen_direction;enc_active_version<=enc_frozen_version;
+          enc_pending<=0;
+        end
         if(s_axi_awvalid && s_axi_awready) begin aw_seen<=1;awaddr<=s_axi_awaddr;end
         if(s_axi_wvalid && s_axi_wready) begin w_seen<=1;wdata<=s_axi_wdata;wstrb<=s_axi_wstrb;end
-        // phase 8 is safely after receiver/result publication (capture phase 4).
-        // Apply is consumed on phase 9, never coinciding with selected sampling.
+        // Preserve the original current command phase. Encoder configuration
+        // is frozen separately and adopted on the next selected sample phase0.
         if(aw_seen && w_seen && !s_axi_bvalid && adc_phase==8) begin
           s_axi_bvalid<=1;s_axi_bresp<=0;
           if(wstrb!=4'hf) s_axi_bresp<=2;
@@ -180,6 +302,20 @@ module ax03b3_adc_observer #(
             shadow[(awaddr-12'h100)>>2]<=wdata;
           else if(awaddr==12'h118) begin
             apply<=wdata[0];restart<=wdata[1] && !wdata[0];cal_en<=wdata[2];
+          end else if(ENCODER_FEEDBACK && awaddr==12'h140) enc_shadow_zero<=wdata;
+          else if(ENCODER_FEEDBACK && awaddr==12'h144 && wdata<ENCODER_COUNTS_PER_PERIOD) enc_shadow_phase<=wdata;
+          else if(ENCODER_FEEDBACK && awaddr==12'h148 && wdata<=1) enc_shadow_direction<=wdata[0];
+          else if(ENCODER_FEEDBACK && awaddr==12'h14c) enc_shadow_version<=wdata;
+          else if(ENCODER_FEEDBACK && awaddr==12'h150) begin
+            if(wdata[0] && enc_pending) s_axi_bresp<=2;
+            else begin
+              test_abz_enable<=wdata[1];
+              if(wdata[0]) begin
+                enc_frozen_zero<=enc_shadow_zero;enc_frozen_phase<=enc_shadow_phase;
+                enc_frozen_direction<=enc_shadow_direction;enc_frozen_version<=enc_shadow_version;
+                enc_pending<=1;
+              end
+            end
           end else s_axi_bresp<=2;
         end
         if(s_axi_bvalid && s_axi_bready) begin s_axi_bvalid<=0;aw_seen<=0;w_seen<=0;end
@@ -187,6 +323,6 @@ module ax03b3_adc_observer #(
     end
     // ILA probe0: [11:0] rawA, [23:12] rawB, [25:24] OTR{B,A},
     // [26] capture, [27] selected capture, [28] publish, [60:29] sample_id.
-    assign debug_o={3'd0,pair_id,result_strobe,observe_select,capture_event,
+    assign debug_o={3'd0,pair_id,publish_strobe,observe_select,capture_event,
                     captured_otr,captured_b,captured_a};
 endmodule
