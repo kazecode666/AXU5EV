@@ -1,0 +1,25 @@
+{
+  "status": "STOPPED_BY_USER",
+  "completion": "NOT_COMPLETED",
+  "time_local": "2026-11-09 19:54:37 +08:00",
+  "source_commit": "d63e96f6930a865671124029a12817e694107b5d",
+  "run_dir": ".runtime/motor_control/sdf_slow_01",
+  "corner": "slow",
+  "hardware": ".runtime/motor_control/hardware_02",
+  "terminated_pid": 31032,
+  "exited_wrapper_pids": [
+    39140,
+    6516
+  ],
+  "remaining_task_processes": 0,
+  "last_phase": "xelab: Completed static elaboration; post-elaboration preparation",
+  "last_log": ".runtime/motor_control/sdf_slow_01/xelab.log",
+  "console_log": ".runtime/motor_control/sdf_slow_01/xelab.console.log",
+  "annotation": "NOT_COMPLETED",
+  "simulation": "NOT_RUN",
+  "fast_corner": "NOT_RUN",
+  "kernel_reusable": false,
+  "kernel_reason": "xsim.dir/pwm_timing was not generated",
+  "resume": "Use a new slow SDF result directory, then fast; reuse hardware_02 DCP/bit/XSA and matching R5 build. Do not rebuild hardware or R5 for this pause.",
+  "board": "NOT_RUN"
+}

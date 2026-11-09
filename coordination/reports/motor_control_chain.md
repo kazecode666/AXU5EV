@@ -2,6 +2,8 @@
 
 基线为已合并PR39的 `origin/main ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13`，独立分支 `codex/motor-control-chain`。真实实时路径为原ADC/QEP接收器→原生成电流/电角度→原p3 FOC→模型生成Q30比较值→原100MHz PWM。板级仍使用同一个motor_control工程；没有复制外设或手写第二套数值算法。
 
+**用户暂停，未完成交付**：2026-11-09 19:54:37为关机安全停止slow_01的xelab，外层自然退出、剩余本轮进程0。最后处于static elaboration之后的执行核准备，没有可复用kernel，SDF注释未完成、动态仿真NOT_RUN；fast及实际6帧原FOC比对NOT_RUN，未创建/推送Draft PR。所有原始目录/日志保留，续跑只需新SDF目录，不重建已通过的hardware_02/R5。停止证据 `verification/motor_control/evidence/sdf_pause_20261109.json`，具体命令与剩余交付顺序见HANDOFF首节。
+
 ## 实际入口与数值来源
 
 统一系统模型 `simulation/motor_control/AXU5EV_Motor_Control_System.slx` 实际连接完整数值链，通过 `motor_control_run(<新目录>)` 执行。Current_Preprocess和Encoder_Angle仍为原库链接，FOC是原固定点模型的Model Reference，R5旁路调用原位置/50间隔测速函数。外设接口及谷值保持标为SIM_ONLY，没有电机/逆变器plant、完整外环、Runtime或自动对齐。
@@ -31,8 +33,22 @@ R5整组预提交九字段参考，下一选中ADC phase0采用，后续shadow�
 
 `hardware_01` 因该问题在综合中主动取消，只终止核实属于本轮的batch及其子进程，项目/日志保留，不计最终实现PASS；新候选为 `hardware_02`。模型独立复核还修正了front比对的冻结依赖查找优先级及本轮新SLX端口/终止器的重叠，不改旧用户模型或算法。早期脚本日志采样失败、RTL04、RTL05及全部原始数据均保留。
 
-hardware02初次集成发生filemgmt56-587模块发现失败，48份源路径存在且语法检查通过，fresh reopen在原自动模式可解析同一模块。入口改为包在前的一次完整源登记；原清单读取函数仅移到同一BD入口复用。冷启动 `source_entry_02` 在新结果目录的in-memory工程、独立空top下直接调用该生产入口，46份HDL、ADC/PWM两模块引用与AUTO参数/端口检查PASS，不做综合、不复制板级工程。随后只续建02尚未成功的integrate/build，原all失败日志及诊断日志保留，不重跑all。首个源诊断额外写出的根 `.srcs` 原位保留未入库，最终测试已隔离；没有为模块发现切换手动编译模式或修改DUT/XDC。
+hardware02初次集成发生filemgmt56-587模块发现失败，48份源路径存在且语法检查通过，fresh reopen在原自动模式可解析同一模块。入口改为包在前的一次完整源登记；原清单读取函数仅移到同一BD入口复用。冷启动 `source_entry_02` 在新结果目录的in-memory工程、独立空top下直接调用该生产入口，46份HDL、ADC/PWM两模块引用与AUTO参数/端口检查PASS，不做综合、不复制板级工程。随后只续建02尚未成功的integrate/build，原all失败日志及诊断日志保留，不重跑all。首个源诊断额外写出的根 `.srcs`/`.gen` 原位保留未入库，最终测试已隔离；没有为模块发现切换手动编译模式或修改DUT/XDC。
+
+完整hardware02 bit/XSA及STA通过后，原仿真导出对ILA和dbg_hub同时黑盒化触发Vivado NULL ParentLH异常。逐个先处理hub会拆出冲突的共享时钟；完整不修改DCP的网表/SDF对照可成功导出。最终单变量 `export_probe_03` 证明仅黑盒不支持仿真的ILA、保留结构dbg_hub可正常导出两角；`export_timing.tcl` 只对MC_AUTO模式采用这个边界，旧模式保持原策略。全设计STA与bit仍含实际全部debug，不保存修改后的DCP、不重综合/布局/布线，不手改生成网表或SDF。失败与对照全保留，ILA采集/JTAG功能不是本次动态验收内容。
 
 完整新候选、STA/CDC、SDF及匹配R5实际结果集中记录在 `verification/motor_control/results.json`；原始日志/数据保留于各自新 `.runtime/motor_control/` 目录。操作入口为 `firmware/r5/motor_control/FIRST_RUN_ZH.md`，生成/板级来源索引为motor_control README。
+
+| 新候选检查 | 实际结果 |
+| --- | --- |
+| hardware_02 完整综合/布局布线及bit/ltx/含bit XSA | PASS；沿用同一motor_control板级工程 |
+| 全设计setup/hold/pulse | WNS +1.272ns / WHS +0.011ns / WPWS +4.000ns；TNS/THS/TPWS均0 |
+| 新路径定向审计 route_audit_01 | 16组端点、50↔100MHz及禁止恢复/移除均受约束且非负；6个ABZ同步FF保留 |
+| ADC输入约束 | 原28管脚/26输入min2/max10ns保留，实际最差setup/hold +1.272/+5.583ns；外部预算仍为工程假设 |
+| 匹配R5 vitis_01 | 构建及被动启动检查PASS；ARM32/R5与AArch64/A53 FSBL匹配，实际BSP基址0x80000000 |
+
+实际资源为LUT78891/117120（67.36%）、FF94459、DSP455、BRAM14.5及CLB13788/14640（94.18%），布局空间较紧。4项CDC告警均在原dbg_hub，功能CDC告警0；DRC820条Warning（814条原生成DSP流水建议），方法学40条Warning/2条Advisory均保留。没有为消除告警改流水线、降低频率或放宽约束。
+
+R5应用ID4d435401，text/data/bss=43859/2196/135520字节，应用零警告；厂商BSP/FSBL的7条警告保留。128帧无打印采集及后打印入口已构建，真实ARM逐帧服务时序和无漏帧仍NOT_RUN，被动启动检查不代表上板执行。
 
 板卡发现/连接/下载/运行、驱动板/电机均NOT_RUN，physical_link_verified=0。内部PWM观察不是外部引脚实测；AQM数字测试尺度、48V和omega不是已恢复的完整AUM机械参数。真实标定、电平/缓冲/极性、完整外环/Runtime/自动对齐留后续。原电机/PI/电流公式及用户8个模型/参数修改、未跟踪文件、全部旧Workspace和原始数据保留；未重跑旧FOC全量回归。提交独立Draft PR后停在Review，不合并或关闭Issue。
