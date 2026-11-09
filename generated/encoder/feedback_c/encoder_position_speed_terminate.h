@@ -5,7 +5,7 @@
  * File: encoder_position_speed_terminate.h
  *
  * MATLAB Coder version            : 26.2
- * C/C++ source code generated on  : 2026-11-09 11:55:12
+ * C/C++ source code generated on  : 2026-11-09 12:02:50
  */
 
 #ifndef ENCODER_POSITION_SPEED_TERMINATE_H

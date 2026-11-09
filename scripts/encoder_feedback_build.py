@@ -47,7 +47,8 @@ def check_startup():
 def build(resume):
     if (WS/'startup_validation.json').exists():raise ValueError('Completed workspace preserved')
     if WS.exists() and not resume:raise ValueError('Use a new workspace; --resume only for this unfinished build')
-    sources=[ROOT/'firmware/r5/encoder_feedback/main.c',ROOT/'generated/encoder/encoder_test_scale.h']
+    sources=[ROOT/'firmware/r5/encoder_feedback'/n for n in ('main.c','numeric_adapter.c','numeric_adapter.h')]
+    sources.append(ROOT/'generated/encoder/encoder_test_scale.h')
     sources+=sorted(p for p in (ROOT/'generated/encoder/feedback_c').glob('*') if p.suffix in ('.h','.c'))
     if not any(p.name=='encoder_position_speed.c' for p in sources):raise ValueError('Generate the software numerical C first')
     import vitis

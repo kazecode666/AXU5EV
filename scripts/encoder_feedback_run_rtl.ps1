@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([ValidateSet('encoder','receiver')][string]$Suite='encoder',[string]$RunDir,[string]$VivadoBin='E:/AMDDesignTools/2026.1/Vivado/bin')
+param([ValidateSet('encoder','signed','receiver')][string]$Suite='encoder',[string]$RunDir,[string]$VivadoBin='E:/AMDDesignTools/2026.1/Vivado/bin')
 $ErrorActionPreference='Stop'
 $axRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 if(-not $RunDir){$RunDir=Join-Path $axRoot ('.runtime/encoder_feedback/rtl_'+[guid]::NewGuid().ToString('N'))}
@@ -44,6 +44,7 @@ if($Suite -eq 'receiver'){
 }else{
  $sources += @(Join-Path $axRoot 'verification/encoder_feedback/encoder_tb.sv')
  $top='encoder_tb'
+ if($Suite -eq 'signed'){$top='encoder_signed_boundary_tb'}
 }
 $compile=Invoke-B2Tool 'xvlog' (@('-sv')+$sources) $RunDir
 $elaborate=Invoke-B2Tool 'xelab' @(('work.'+$top),'-s','b2_interface','-debug','off','-timescale','1ns/1ps') $RunDir
@@ -54,4 +55,3 @@ $summary=[ordered]@{status='PASS';scope='ENCODER_ADC_PWM_SAME_FRAME';pass_marker
 [IO.File]::WriteAllText((Join-Path $RunDir 'summary.json'),($summary|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))
 Write-Output $marker[0]
 Write-Output ('ENCODER_RTL_PASS '+(Join-Path $RunDir 'summary.json'))
-

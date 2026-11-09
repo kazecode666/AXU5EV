@@ -3,6 +3,7 @@
 #include "mex.h"
 #include <stdbool.h>
 #include <string.h>
+#include "numeric_adapter.h"
 /* Match the native64 generated ABI without including rtwtypes.h in the MEX
  * translation unit: MATLAB's tmwtypes and target rtwtypes define boolean_T
  * differently. The numeric .c translation units retain their own headers. */
@@ -12,7 +13,11 @@ extern void encoder_position_speed(unsigned int,unsigned int,unsigned long long,
 void mexFunction(int nlhs,mxArray *plhs[],int nrhs,const mxArray *prhs[]){
  unsigned long long tick;long long count;double position,speed;
  bool pv,sv;unsigned char history;unsigned int status;
- if(nrhs!=10 || nlhs>7)mexErrMsgIdAndTxt("ENCF:Gateway","Expected 10 inputs and at most 7 outputs");
+ if((nrhs!=10 && nrhs!=1) || nlhs>7)mexErrMsgIdAndTxt("ENCF:Gateway","Expected 10 numeric inputs or one frame, and at most 7 outputs");
+ if(nrhs==1){
+  if(!mxIsUint32(prhs[0])||mxGetNumberOfElements(prhs[0])!=41)mexErrMsgIdAndTxt("ENCF:Gateway","Expected 41 uint32 payload words");
+  encoder_feedback_numeric((const unsigned int*)mxGetData(prhs[0]),&position,&speed,&pv,&sv,&history,&status,&count);
+ }else{
  if(!mxIsUint32(prhs[0])||!mxIsUint32(prhs[1])||!mxIsUint64(prhs[2])||
     !mxIsUint32(prhs[4])||!mxIsUint32(prhs[5])||!mxIsUint32(prhs[7])||!mxIsUint32(prhs[8]))
   mexErrMsgIdAndTxt("ENCF:Gateway","Integer input types differ from generated signature");
@@ -22,6 +27,7 @@ void mexFunction(int nlhs,mxArray *plhs[],int nrhs,const mxArray *prhs[]){
   mxIsLogicalScalarTrue(prhs[3]),*(const unsigned int*)mxGetData(prhs[4]),*(const unsigned int*)mxGetData(prhs[5]),
   mxIsLogicalScalarTrue(prhs[6]),*(const unsigned int*)mxGetData(prhs[7]),*(const unsigned int*)mxGetData(prhs[8]),
   mxIsLogicalScalarTrue(prhs[9]),&position,&speed,&pv,&sv,&history,&status,&count);
+ }
  if(nlhs>0)plhs[0]=mxCreateDoubleScalar(position);
  if(nlhs>1)plhs[1]=mxCreateDoubleScalar(speed);
  if(nlhs>2)plhs[2]=mxCreateLogicalScalar(pv);

@@ -77,11 +77,29 @@ encoder_position_speed_mex(uint32(0),uint32(5000),uint64(50000),true,uint32(0),u
 [~,~,mpv,msv,mn,ms]=encoder_position_speed_mex(uint32(1),uint32(0),uint64(0),true,uint32(0),uint32(0),false,uint32(1),uint32(1000),false);
 assert(isequal([pv,sv,double(n),double(s)],[mpv,msv,double(mn),double(ms)]));
 assert(~pv && ~sv && n==0 && bitand(s,uint32(64))~=0);checks=checks+1;
+% Reach a full raw32 revolution with individually unambiguous synthetic steps.
+% Phase/version and direction changes must not reinterpret the continuous
+% mechanical origin; only a changed manual zero remaps that origin.
+encoder_position_speed(uint32(0),uint32(0),uint64(0),false,uint32(0),uint32(0),false,uint32(0),uint32(1000),true);
+encoder_position_speed_mex(uint32(0),uint32(0),uint64(0),false,uint32(0),uint32(0),false,uint32(0),uint32(1000),true);
+raws=uint32([0 2147483647 4294967294 1 2 3 4 5 6 7]);
+versions=uint32([1 1 1 1 2 3 4 5 6 7]);
+reverses=logical([0 0 0 0 0 1 1 1 0 0]);zeros_=uint32([0 0 0 0 0 0 4 4 4 4]);
+expected_total=int64([0 2147483647 4294967294 4294967297 4294967298 4294967299 4294967300 4294967301 4294967302 4294967303]);
+expected_position=[0 2147483.647 4294967.294 4294967.297 4294967.298 -4294967.299 0 -.001 .002 .003];
+for k=1:numel(raws)
+ args={raws(k),uint32((k-1)*500),uint64((k-1)*5000),true,uint32(0),zeros_(k),reverses(k),versions(k),uint32(1000),false};
+ [a,b,c,d,e,f,g]=encoder_position_speed(args{:});
+ [ma,mb,mc,md,me,mf,mg]=encoder_position_speed_mex(args{:});
+ assert(abs(a-ma)<1e-12 && abs(b-mb)<1e-12 && isequal([c,d,double(e),double(f),double(g)],[mc,md,double(me),double(mf),double(mg)]));
+ assert(c && ~d && g==expected_total(k) && abs(a-expected_position(k))<1e-9);checks=checks+1;
+ rows(end+1,:)=[17,k-1,double(raws(k)),(k-1)*500,a,b,c,d,double(e),double(f),double(g),double(zeros_(k)),double(reverses(k)),double(versions(k))]; %#ok<AGROW>
+end
 writematrix(rows,fullfile(output_dir,'software_golden.csv'));
 result=struct('status','PASS','matlab_generated_c_frame_comparisons',checks, ...
- 'scenarios',16,'history_entries',51,'speed_intervals',50,'nominal_history_ms',5, ...
+ 'scenarios',17,'history_entries',51,'speed_intervals',50,'nominal_history_ms',5, ...
  'position_unit','mm','speed_unit','mm/s','tick_hz',50000000, ...
- 'id_step',500,'tick_step',5000,'cases','stationary,forward,reverse,motion reversal,direction/config change,count/id/tick wrap,duplicate,gap,zero/config,unready,illegal,half-wrap,restart and full history reacquisition');
+ 'id_step',500,'tick_step',5000,'cases','stationary,forward,reverse,motion reversal,direction/config change,count/id/tick wrap,duplicate,gap,zero/config,unready,illegal,half-wrap,restart,full history reacquisition and full count revolution then version/direction/manual-zero changes');
 end
 function r=wrap32(a,delta)
 r=uint32(mod(double(a)+delta,4294967296));

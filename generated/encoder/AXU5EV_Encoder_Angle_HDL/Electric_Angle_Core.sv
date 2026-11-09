@@ -45,9 +45,7 @@ module Electric_Angle_Core
   logic signed [31:0] phase;  /* int32 */
   logic primed;
   logic [31:0] old_zero;  /* uint32 */
-  logic [15:0] old_offset;  /* uint16 */
   logic old_dir;
-  logic [31:0] old_version;  /* uint32 */
   logic [7:0] stage;  /* uint8 */
   logic [31:0] work;  /* uint32 */
   logic [15:0] remainder;  /* uint16 */
@@ -61,9 +59,7 @@ module Electric_Angle_Core
   logic signed [31:0] phase_next;  /* int32 */
   logic primed_next;
   logic [31:0] old_zero_next;  /* uint32 */
-  logic [15:0] old_offset_next;  /* uint16 */
   logic old_dir_next;
-  logic [31:0] old_version_next;  /* uint32 */
   logic [7:0] stage_next;  /* uint8 */
   logic [31:0] work_next;  /* uint32 */
   logic [15:0] remainder_next;  /* uint16 */
@@ -84,30 +80,35 @@ module Electric_Angle_Core
   logic [63:0] a1_0;  /* uint64 */
   logic [7:0] remaining_temp;  /* uint8 */
   logic negative_temp;
+  logic signed [31:0] base_temp;  /* int32 */
   logic signed [31:0] p_0;  /* int32 */
   logic signed [32:0] add_temp;  /* sfix33 */
   logic signed [32:0] sub_temp;  /* sfix33 */
   logic signed [8:0] sub_temp_0;  /* sfix9 */
+  logic signed [32:0] t_0;  /* sfix33 */
   logic signed [32:0] add_temp_0;  /* sfix33 */
-  logic signed [64:0] delta_0;  /* sfix65 */
+  logic signed [32:0] add_temp_1;  /* sfix33 */
   logic [63:0] add_cast;  /* uint64 */
+  logic signed [64:0] delta_0;  /* sfix65 */
   logic signed [64:0] delta_1;  /* sfix65 */
-  logic signed [63:0] t_0;  /* int64 */
-  logic signed [63:0] t_1;  /* int64 */
-  logic signed [64:0] t_2;  /* sfix65 */
-  logic signed [64:0] t_3;  /* sfix65 */
-  logic signed [8:0] t_4;  /* sfix9 */
-  logic signed [32:0] t_5;  /* sfix33 */
-  logic signed [31:0] t_6;  /* int32 */
-  logic signed [32:0] t_7;  /* sfix33 */
+  logic signed [32:0] t_1;  /* sfix33 */
+  logic signed [32:0] t_2;  /* sfix33 */
+  logic signed [63:0] t_3;  /* int64 */
+  logic signed [63:0] t_4;  /* int64 */
+  logic signed [64:0] t_5;  /* sfix65 */
+  logic signed [64:0] t_6;  /* sfix65 */
+  logic signed [8:0] t_7;  /* sfix9 */
   logic signed [32:0] t_8;  /* sfix33 */
   logic signed [31:0] t_9;  /* int32 */
   logic signed [32:0] t_10;  /* sfix33 */
+  logic signed [32:0] t_11;  /* sfix33 */
+  logic signed [31:0] t_12;  /* int32 */
+  logic signed [32:0] t_13;  /* sfix33 */
   logic [79:0] mul_temp;  /* ufix80 */
-  logic [63:0] t_11;  /* uint64 */
-  logic signed [32:0] t_12;  /* sfix33 */
-  logic signed [31:0] t_13;  /* int32 */
-  logic signed [32:0] t_14;  /* sfix33 */
+  logic [63:0] t_14;  /* uint64 */
+  logic signed [32:0] t_15;  /* sfix33 */
+  logic signed [31:0] t_16;  /* int32 */
+  logic signed [32:0] t_17;  /* sfix33 */
 
 
   always_ff @(posedge clk)
@@ -117,9 +118,7 @@ module Electric_Angle_Core
         phase <= 32'sd0;
         primed <= 1'b0;
         old_zero <= 32'd0;
-        old_offset <= 16'd0;
         old_dir <= 1'b0;
-        old_version <= 32'd0;
         stage <= 8'd0;
         work <= 32'd0;
         remainder <= 16'd0;
@@ -136,9 +135,7 @@ module Electric_Angle_Core
           phase <= phase_next;
           primed <= primed_next;
           old_zero <= old_zero_next;
-          old_offset <= old_offset_next;
           old_dir <= old_dir_next;
-          old_version <= old_version_next;
           stage <= stage_next;
           work <= work_next;
           remainder <= remainder_next;
@@ -155,49 +152,51 @@ module Electric_Angle_Core
   always_comb begin
     changed = 1'b0;
     origin = 32'd0;
-    t_0 = 64'sd0;
-    t_1 = 64'sd0;
+    t_1 = 33'sh000000000;
+    t_0 = 33'sh000000000;
+    t_2 = 33'sh000000000;
+    add_temp_1 = 33'sh000000000;
+    t_3 = 64'sd0;
+    t_4 = 64'sd0;
     delta = 64'sd0;
-    t_2 = 65'sh00000000000000000;
+    t_5 = 65'sh00000000000000000;
     delta_0 = 65'sh00000000000000000;
-    t_3 = 65'sh00000000000000000;
+    t_6 = 65'sh00000000000000000;
     delta_1 = 65'sh00000000000000000;
     a1 = 32'd0;
     shifted = 32'd0;
-    t_4 = 9'sb000000000;
+    t_7 = 9'sb000000000;
     sub_temp_0 = 9'sb000000000;
-    t_5 = 33'sh000000000;
-    t_6 = 32'sd0;
-    t_7 = 33'sh000000000;
-    sub_temp = 33'sh000000000;
-    p = 32'sd0;
     t_8 = 33'sh000000000;
     t_9 = 32'sd0;
     t_10 = 33'sh000000000;
+    sub_temp = 33'sh000000000;
+    p = 32'sd0;
+    t_11 = 33'sh000000000;
+    t_12 = 32'sd0;
+    t_13 = 33'sh000000000;
     add_temp_0 = 33'sh000000000;
     p_0 = 32'sd0;
     mul_temp = 80'h00000000000000000000;
     add_cast = 64'd0;
     a1_0 = 64'd0;
-    t_11 = 64'd0;
-    t_12 = 33'sh000000000;
-    t_13 = 32'sd0;
-    t_14 = 33'sh000000000;
+    t_14 = 64'd0;
+    t_15 = 33'sh000000000;
+    t_16 = 32'sd0;
+    t_17 = 33'sh000000000;
     add_temp = 33'sh000000000;
     remaining_temp = remaining;
     negative_temp = negative;
+    base_temp = base;
     work_valid_1 = work_valid;
     prev_next = prev;
     phase_next = phase;
     primed_next = primed;
     old_zero_next = old_zero;
-    old_offset_next = old_offset;
     old_dir_next = old_dir;
-    old_version_next = old_version;
     stage_next = stage;
     work_next = work;
     remainder_next = remainder;
-    base_next = base;
     work_offset_next = work_offset;
     work_version_next = work_version;
     // Observation-only electrical angle. FOC interface: signed40, radians Q32.
@@ -211,16 +210,44 @@ module Electric_Angle_Core
     version_1 = work_version;
     if (stage == 8'd0) begin
       if (sample_strobe) begin
-        changed = ((( ! primed || (old_zero != zero_count)) || (old_offset != phase_offset_count)) || (old_dir != direction)) || (old_version != config_version);
+        // Phase/epoch labels do not destroy accumulated modulo32 continuity.
+        // Reverse changes the sign of the retained unoffset coordinate.
+        changed =  ! primed || (old_zero != zero_count);
         origin = prev;
-        base_next = phase;
+        base_temp = phase;
+        if (old_dir != direction) begin
+          t_1 = {phase[31], phase};
+          t_0 =  - (t_1);
+          if ((t_0[32] == 1'b0) && (t_0[31] != 1'b0)) begin
+            base_temp = 32'sb01111111111111111111111111111111;
+          end
+          else if ((t_0[32] == 1'b1) && (t_0[31] != 1'b1)) begin
+            base_temp = 32'sb10000000000000000000000000000000;
+          end
+          else begin
+            base_temp = t_0[31:0];
+          end
+          if (base_temp < 32'sd0) begin
+            t_2 = {base_temp[31], base_temp};
+            add_temp_1 = t_2 + 33'sh000007530;
+            if ((add_temp_1[32] == 1'b0) && (add_temp_1[31] != 1'b0)) begin
+              base_temp = 32'sb01111111111111111111111111111111;
+            end
+            else if ((add_temp_1[32] == 1'b1) && (add_temp_1[31] != 1'b1)) begin
+              base_temp = 32'sb10000000000000000000000000000000;
+            end
+            else begin
+              base_temp = add_temp_1[31:0];
+            end
+          end
+        end
         if (changed) begin
           origin = zero_count;
-          base_next = 32'sd0;
+          base_temp = 32'sd0;
         end
-        t_0 = {32'b0, count};
-        t_1 = {32'b0, origin};
-        delta = t_0 - t_1;
+        t_3 = {32'b0, count};
+        t_4 = {32'b0, origin};
+        delta = t_3 - t_4;
         if (delta > 64'sd2147483647) begin
           delta = delta - 64'sd4294967296;
         end
@@ -230,14 +257,14 @@ module Electric_Angle_Core
         // The exact half range has no unique direction and must re-prime.
         work_valid_1 = (ready && (phase_offset_count < 16'd30000)) && (delta >= -64'sd2147483647);
         if (direction) begin
-          t_2 = {delta[63], delta};
-          delta_0 =  - (t_2);
+          t_5 = {delta[63], delta};
+          delta_0 =  - (t_5);
           delta = delta_0[63:0];
         end
         negative_temp = delta < 64'sd0;
         if (negative_temp) begin
-          t_3 = {delta[63], delta};
-          delta_1 =  - (t_3);
+          t_6 = {delta[63], delta};
+          delta_1 =  - (t_6);
           delta = delta_1[63:0];
         end
         if ((delta[63] == 1'b0) && (delta[62:32] != 31'b0000000000000000000000000000000)) begin
@@ -254,9 +281,7 @@ module Electric_Angle_Core
         work_offset_next = phase_offset_count;
         work_version_next = config_version;
         old_zero_next = zero_count;
-        old_offset_next = phase_offset_count;
         old_dir_next = direction;
-        old_version_next = config_version;
         prev_next = count;
         primed_next = work_valid_1;
         stage_next = 8'd1;
@@ -275,8 +300,8 @@ module Electric_Angle_Core
         remainder_next = shifted[15:0];
       end
       work_next = work <<< 8'd1;
-      t_4 = {1'b0, remaining};
-      sub_temp_0 = t_4 - 9'sb000000001;
+      t_7 = {1'b0, remaining};
+      sub_temp_0 = t_7 - 9'sb000000001;
       if (sub_temp_0[8] == 1'b1) begin
         remaining_temp = 8'b00000000;
       end
@@ -289,10 +314,10 @@ module Electric_Angle_Core
     end
     else begin
       if (negative) begin
-        t_5 = {base[31], base};
-        t_6 = {16'b0, remainder};
-        t_7 = {t_6[31], t_6};
-        sub_temp = t_5 - t_7;
+        t_8 = {base[31], base};
+        t_9 = {16'b0, remainder};
+        t_10 = {t_9[31], t_9};
+        sub_temp = t_8 - t_10;
         if ((sub_temp[32] == 1'b0) && (sub_temp[31] != 1'b0)) begin
           p = 32'sb01111111111111111111111111111111;
         end
@@ -304,10 +329,10 @@ module Electric_Angle_Core
         end
       end
       else begin
-        t_12 = {base[31], base};
-        t_13 = {16'b0, remainder};
-        t_14 = {t_13[31], t_13};
-        add_temp = t_12 + t_14;
+        t_15 = {base[31], base};
+        t_16 = {16'b0, remainder};
+        t_17 = {t_16[31], t_16};
+        add_temp = t_15 + t_17;
         if ((add_temp[32] == 1'b0) && (add_temp[31] != 1'b0)) begin
           p = 32'sb01111111111111111111111111111111;
         end
@@ -326,10 +351,10 @@ module Electric_Angle_Core
       end
       if (work_valid) begin
         phase_next = p;
-        t_8 = {p[31], p};
-        t_9 = {16'b0, work_offset};
-        t_10 = {t_9[31], t_9};
-        add_temp_0 = t_8 + t_10;
+        t_11 = {p[31], p};
+        t_12 = {16'b0, work_offset};
+        t_13 = {t_12[31], t_12};
+        add_temp_0 = t_11 + t_13;
         if ((add_temp_0[32] == 1'b0) && (add_temp_0[31] != 1'b0)) begin
           p_0 = 32'sb01111111111111111111111111111111;
         end
@@ -356,8 +381,8 @@ module Electric_Angle_Core
         mul_temp = phase_count_2 * 64'd943231700270;
         add_cast = mul_temp[63:0];
         a1_0 = add_cast + 64'd524288;
-        t_11 = a1_0 >>> 8'd20;
-        theta_q32_1 = t_11;
+        t_14 = a1_0 >>> 8'd20;
+        theta_q32_1 = t_14;
       end
       valid_1 = work_valid;
       result_strobe_1 = 1'b1;
@@ -366,6 +391,7 @@ module Electric_Angle_Core
     phase_count_1 = phase_count_2;
     remaining_next = remaining_temp;
     negative_next = negative_temp;
+    base_next = base_temp;
     work_valid_next = work_valid_1;
   end
 

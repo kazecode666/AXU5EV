@@ -6,6 +6,7 @@
 #include "encoder_test_scale.h"
 #include "encoder_position_speed.h"
 #include "encoder_position_speed_initialize.h"
+#include "numeric_adapter.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -25,14 +26,15 @@ static uint32_t rd(uint32_t off){return Xil_In32(ENCODER_FEEDBACK_BASEADDR+off);
 static void wr(uint32_t off,uint32_t value){Xil_Out32(ENCODER_FEEDBACK_BASEADDR+off,value);}
 static int snapshot(record_t *r){
  r->seq=rd(0);
- for(unsigned i=0;i<WORDS;i++)r->p[i]=rd(12+4*i);
+ r->p[0]=rd(12);r->p[1]=rd(16);
+ /* Reject the old32-word schema before reading beyond its release word. */
+ if(r->p[0]!=0x454e4346u || r->p[1]!=2u)return 0;
+ for(unsigned i=2;i<WORDS;i++)r->p[i]=rd(12+4*i);
  /* Word40 at0xac is the new LAST release response. Never use old0x88. */
- return r->p[0]==0x454e4346u && r->p[1]==2u && r->p[39]==ENCODER_COUNTS_PER_PERIOD && r->p[40]==ENCODER_NM_PER_COUNT;
+ return r->p[39]==ENCODER_COUNTS_PER_PERIOD && r->p[40]==ENCODER_NM_PER_COUNT;
 }
 static void numeric(record_t *r){
- uint64_t tick=((uint64_t)r->p[5]<<32)|r->p[4];
- encoder_position_speed(r->p[16],r->p[3],tick,(r->p[2]&(1u<<9))!=0,
-   r->p[20],r->p[35],r->p[37]!=0,r->p[34],r->p[40],false,
+ encoder_feedback_numeric(r->p,
    &r->position_mm,&r->speed_mm_s,&r->position_valid,&r->speed_valid,
    &r->history,&r->numeric_status,&r->continuous);
 }

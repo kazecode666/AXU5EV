@@ -5,7 +5,7 @@
  * File: encoder_position_speed.c
  *
  * MATLAB Coder version            : 26.2
- * C/C++ source code generated on  : 2026-11-09 11:55:12
+ * C/C++ source code generated on  : 2026-11-09 12:02:50
  */
 
 /* Include Files */
@@ -119,9 +119,11 @@ void encoder_position_speed(unsigned int raw_count, unsigned int sample_id,
     bool guard1;
     bool guard2;
     bool guard3;
+    bool guard4;
     guard1 = false;
     guard2 = false;
     guard3 = false;
+    guard4 = false;
     if (initialized) {
       qY_tmp = (unsigned long long)sample_id - last_id;
       id_delta = qY_tmp;
@@ -180,10 +182,10 @@ void encoder_position_speed(unsigned int raw_count, unsigned int sample_id,
           filled = 0U;
           head = 1U;
           *status = 4U;
-          guard3 = true;
+          guard4 = true;
         }
       } else {
-        guard3 = true;
+        guard4 = true;
       }
     } else {
       total = raw_count;
@@ -191,9 +193,11 @@ void encoder_position_speed(unsigned int raw_count, unsigned int sample_id,
         total -= 4294967296LL;
       }
       *status = 1U;
-      guard2 = true;
+      filled = 0U;
+      head = 1U;
+      guard3 = true;
     }
-    if (guard3) {
+    if (guard4) {
       delta = (long long)raw_count - last_raw;
       if (delta > 2147483647LL) {
         delta -= 4294967296LL;
@@ -214,46 +218,58 @@ void encoder_position_speed(unsigned int raw_count, unsigned int sample_id,
         } else {
           total += delta;
         }
-        if ((zero_count != old_zero) || (reverse != old_reverse) ||
-            (config_version != old_version) || (nm_per_count != old_scale)) {
-          guard2 = true;
+        guard3 = true;
+      }
+    }
+    if (guard3) {
+      bool b;
+      b = !initialized;
+      if (b || (zero_count != old_zero) || (reverse != old_reverse) ||
+          (config_version != old_version) || (nm_per_count != old_scale)) {
+        if (b || (zero_count != old_zero)) {
+          delta = (long long)raw_count - zero_count;
+          if (delta > 2147483647LL) {
+            delta -= 4294967296LL;
+          } else if (delta < -2147483648LL) {
+            delta += 4294967296LL;
+          }
+          if ((int)delta == MIN_int32_T) {
+            initialized = false;
+            filled = 0U;
+            head = 1U;
+            *history_count = 0U;
+            *status = 48U;
+          } else {
+            /*  Only an explicit mechanical zero change remaps the nearest raw
+             * reference. */
+            /*  Electrical phase/version, direction and scale must preserve the
+             * continuous */
+            /*  origin even after one or more complete raw32 wraps. */
+            if ((total >= 0LL) && (delta < total - MAX_int64_T)) {
+              origin = MAX_int64_T;
+            } else if ((total < 0LL) && (delta > total - MIN_int64_T)) {
+              origin = MIN_int64_T;
+            } else {
+              origin = total - delta;
+            }
+            guard2 = true;
+          }
         } else {
-          guard1 = true;
+          guard2 = true;
         }
+      } else {
+        guard1 = true;
       }
     }
     if (guard2) {
-      delta = (long long)raw_count - zero_count;
-      if (delta > 2147483647LL) {
-        delta -= 4294967296LL;
-      } else if (delta < -2147483648LL) {
-        delta += 4294967296LL;
+      /*  Any configuration change clears affected speed history; no offset
+       * impulse. */
+      if (initialized) {
+        *status |= 8U;
       }
-      if ((int)delta == MIN_int32_T) {
-        initialized = false;
-        filled = 0U;
-        head = 1U;
-        *history_count = 0U;
-        *status = 48U;
-      } else {
-        /*  A manual raw zero denotes the nearest signed-modulo reference.
-         * Configuration */
-        /*  creates a coordinate epoch. Position zero is not differentiated for
-         * speed. */
-        if ((total >= 0LL) && (delta < total - MAX_int64_T)) {
-          origin = MAX_int64_T;
-        } else if ((total < 0LL) && (delta > total - MIN_int64_T)) {
-          origin = MIN_int64_T;
-        } else {
-          origin = total - delta;
-        }
-        if (initialized) {
-          *status |= 8U;
-        }
-        filled = 0U;
-        head = 1U;
-        guard1 = true;
-      }
+      filled = 0U;
+      head = 1U;
+      guard1 = true;
     }
     if (guard1) {
       double scale;

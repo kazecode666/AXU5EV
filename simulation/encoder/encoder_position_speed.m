@@ -56,13 +56,17 @@ else
 end
 changed=~initialized || zero_count~=old_zero || reverse~=old_reverse || config_version~=old_version || nm_per_count~=old_scale;
 if changed
- relative=count_delta(raw_count,zero_count);
- if relative==int64(-2147483648)
-  initialized=false;filled=uint8(0);head=uint8(1);history_count=uint8(0);status=uint32(48);return;
+ if ~initialized || zero_count~=old_zero
+  relative=count_delta(raw_count,zero_count);
+  if relative==int64(-2147483648)
+   initialized=false;filled=uint8(0);head=uint8(1);history_count=uint8(0);status=uint32(48);return;
+  end
+  % Only an explicit mechanical zero change remaps the nearest raw reference.
+  % Electrical phase/version, direction and scale must preserve the continuous
+  % origin even after one or more complete raw32 wraps.
+  origin=total-relative;
  end
- % A manual raw zero denotes the nearest signed-modulo reference. Configuration
- % creates a coordinate epoch. Position zero is not differentiated for speed.
- origin=total-relative;
+ % Any configuration change clears affected speed history; no offset impulse.
  if initialized,status=bitor(status,uint32(8));end
  filled=uint8(0);head=uint8(1);
 end

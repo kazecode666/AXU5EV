@@ -8,6 +8,7 @@ module timing_tb;
  wire pwm_clk=dut.design_1_i.pwm_clock.clk_out1;
  wire lock_ip=dut.design_1_i.pwm_clock.locked;
  wire adc_clock,adc_clock_b;wire [127:0] pwm_debug=dut.design_1_i.pwm_control_0.debug_o;
+ wire [31:0] published_seq=dut.design_1_i.adc_observer_0.inst.snapshot.latest_seq_reg;
  reg [11:0] raw_a=0,raw_b=0;
  wire [2:0] h=pwm_debug[2:0],l=pwm_debug[5:3];
  reg [39:0] pa=0,pra=0;reg [31:0] pd=0;reg pav=0,pwv=0,prv=0;
@@ -58,6 +59,8 @@ module timing_tb;
  integer checks=0,conversion=0,sample_checks=0,edge_checks=0,periods=0;
  realtime off_h[3],off_l[3],min_gap=1.0e9,max_gap=0,last_zero=0;
  realtime last_peak=0,sample_at=0,phase_delta,min_phase_delta=1.0e9,max_phase_delta=-1.0e9;
+ realtime publication_delay,min_publication=1.0e9,max_publication=0,previous_publication=0;
+ integer publication_checks=0;
  reg [2:0] old_h=0,old_l=0;reg monitoring=0;reg [31:0] value,id,tick,ra,rb;
  task check(input bit good,input string why);begin checks++;if(!good)$fatal(1,"%s t=%0t phase=%0d",why,$time,pwm_debug[19:6]);end endtask
  always @(h or l)if(monitoring)begin
@@ -79,6 +82,17 @@ module timing_tb;
   old_h=h;old_l=l;
  end
  always @(pwm_debug[19:6])if(pwm_debug[22] && pwm_debug[19:6]==5000)last_peak=$realtime;
+ // Observe the actual routed snapshot sequence flop, not its combinational
+ // enable. Bit0 toggles once per atomic publication without binary-bus skew.
+ always @(published_seq[0])if(monitoring && !$isunknown(published_seq[0]) && sample_at>0)begin
+  publication_delay=$realtime-sample_at;
+  check(publication_delay>=2195 && publication_delay<=2205,"routed sample-to-atomic-publication 110 clocks plus pad/register propagation");
+  if(previous_publication>0)check($realtime-previous_publication>=99999 && $realtime-previous_publication<=100001,"one routed complete publication per 100us frame");
+  if(pwm_debug[22])check(pwm_debug[19:6]>=5219 && pwm_debug[19:6]<=5221,"publication follows the same-frame peak by 220 PWM clocks");
+  if(publication_delay<min_publication)min_publication=publication_delay;
+  if(publication_delay>max_publication)max_publication=publication_delay;
+  previous_publication=$realtime;publication_checks++;
+ end
  always @(posedge pwm_clk)begin
   #4;
   if(!pwm_debug[22])last_zero=0;
@@ -189,7 +203,8 @@ module timing_tb;
   group(1250,2500,3750,4);adopted(4);pwrite('h24,127);#150000;
   encoder_snapshot;
   check(sample_checks>=7 && edge_checks>=25 && periods>=5,"SDF scenario coverage");
-  $display("PWM_SDF_PASS checks=%0d samples=%0d edges=%0d min_dead_ns=%0.3f max_switch_dead_ns=%0.3f periods=%0d adc_minus_peak_ns=[%0.3f,%0.3f] encoder_frames=%0d",checks,sample_checks,edge_checks,min_gap,max_gap,periods,min_phase_delta,max_phase_delta,encoder_frames);$finish;
+  check(publication_checks>=8,"routed publication boundary was observed");
+  $display("PWM_SDF_PASS checks=%0d samples=%0d edges=%0d min_dead_ns=%0.3f max_switch_dead_ns=%0.3f periods=%0d adc_minus_peak_ns=[%0.3f,%0.3f] encoder_frames=%0d publications=%0d sample_to_publish_ns=[%0.3f,%0.3f]",checks,sample_checks,edge_checks,min_gap,max_gap,periods,min_phase_delta,max_phase_delta,encoder_frames,publication_checks,min_publication,max_publication);$finish;
  end
  initial begin #10000;$display("SDF_BOUNDARY clk=%b resetn=%b lock=%b adcclk=%b phase=%0d",dut.design_1_i.adc_observer_0.s_axi_aclk,dut.design_1_i.adc_observer_0.s_axi_aresetn,lock_ip,adc_clock,pwm_debug[19:6]);end
  initial begin #3000000;$fatal(1,"SDF watchdog");end

@@ -6,7 +6,7 @@
 
 在phase0实际ADC采样沿锁存已注册count、ready、Z seen/count/tick、illegal_count及整组编码器配置；同沿AB/Z接受读取更新前状态。元数据在phase4随原码身份送入七事件管线。既有两级同步及两拍稳定资格条件保留，锁存的是经过这些延迟的数字状态，不能称为无延迟物理位置。电流一拍结果先冻结，角度生成路径完成后再与其会合发布，sample_id/tick仍是采样身份而非发布时间。
 
-电角度权威源 `simulation/encoder/encoder_angle_step.m`，组件 `AXU5EV_Encoder_Components/Encoder_Angle`，新HDL壳链接引用它，生成入口 `encoder_generate_hdl.m`；未保存用户修改的原共享库。输出以int64存储Q32弧度，低40位与既有FOC有符号40/Q32端口匹配，本轮不连接FOC。首次ready/配置变化以signed-modulo(count-zero)建立新坐标期；之后将每帧模2^32增量连续化，电周期内相位按30000count取余。每次变化必须严格小于2^31count，恰半圈歧义失效并重新建立状态。反向、机械位置零点、电相位偏置分开；Z仅观察。
+电角度权威源 `simulation/encoder/encoder_angle_step.m`，组件 `AXU5EV_Encoder_Components/Encoder_Angle`，新HDL壳链接引用它，生成入口 `encoder_generate_hdl.m`；未保存用户修改的原共享库。输出以int64存储Q32弧度，低40位与既有FOC有符号40/Q32端口匹配，本轮不连接FOC。首次ready/手动位置零点变化以signed-modulo(count-zero)建立参考；之后将每帧模2^32增量连续化，电周期内相位按30000count取余。仅更新电相位偏置/版本不重建连续相位，反向将已保持的无偏置相位取反后继续累计，软件也保留连续位置原点。每次计数变化必须严格小于2^31count，恰半圈歧义失效并重新建立状态。机械位置零点、电相位偏置分开；Z仅观察。
 
 数字TEST尺度为AQM30mm电周期、每有效解码count为1μm，得到30000count/周期；不再乘除4，不改旧AUM参数。相位偏置以count表达，正方向结果为 `(连续相位 + 偏置) mod 30000`，反向先对计数方向取反再加偏置。Q32系数和公布量化误差见新数值源/验证。物理分辨率尚未实测。
 

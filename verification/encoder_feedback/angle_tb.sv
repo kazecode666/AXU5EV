@@ -30,7 +30,7 @@ module angle_tb;
    checks=checks+5;frames=frames+1;
    repeat(5)begin @(posedge clk);#1;if(result_strobe!==0)$fatal(1,"Duplicate angle result");checks=checks+1;end
   end
-  $fclose(file);if(frames!=36)$fatal(1,"Missing angle cases");
+  $fclose(file);if(frames!=46)$fatal(1,"Missing angle cases");
   $display("ANGLE_PASS vectors=%0d checks=%0d latency=33",frames,checks);$finish;
  end
  initial begin #1000000;$fatal(1,"Angle watchdog");end

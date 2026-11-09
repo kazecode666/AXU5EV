@@ -24,13 +24,18 @@ Legacy Runtime's generated alignment offset uses the negative mechanical
 position contribution; here the manual `zero_count` is subtracted and the
 manual phase offset is added. No alignment state machine is run or changed.
 
-For the first ready frame or a configuration change, the coordinate is the
+For the first ready frame or a manual zero change, the coordinate is the
 nearest signed-modulo32 distance from raw `zero_count`. Subsequent frames use
 nearest signed-modulo32 increments from the previous raw count and maintain
 phase modulo30000, so crossing raw UINT32 or signed INT32 boundaries does not
 change electrical phase spuriously. Direction1 negates that displacement;
-phase_offset_count is added after direction and must be 0..29999. Changes of
-zero, phase offset, direction, or version create a new coordinate epoch.
+phase_offset_count is added after direction and must be 0..29999. A manual
+zero change creates a new coordinate epoch. Phase-offset or version-only
+changes preserve the accumulated unoffset phase; direction changes negate
+that retained phase before applying the new signed increment. This matters
+after displacement has accumulated through a full modulo32 raw-count wrap:
+re-anchoring to raw-zero for a version/offset change would introduce a
+spurious 2^32 mod30000 =17296 count phase shift.
 Not-ready clears the primed state. Every initial/increment displacement must
 be strictly less than 2^31 counts in magnitude; the exact half-wrap is invalid
 and requires re-priming. Z only appears in frame metadata and never resets
@@ -44,11 +49,11 @@ one 50MHz clock. An input event while busy is outside this component's
 contract; integration supplies only one every5000 clocks.
 
 `encoder_validate_angle(new_output_dir)` compares MATLAB with the linked model
-and exports36 analytical vectors. Final model result is
-`.runtime/encoder_feedback/angle_model_02`: 1728 clock steps, maximum ideal
+and exports46 analytical vectors. Final model result is
+`.runtime/encoder_feedback/angle_model_03`: 2208 clock steps, maximum ideal
 error1 Q32 LSB. Its output sample-index offset is34, evaluated before the
 discrete state update. Generated RTL was separately checked at post-edge
-observation in `angle_rtl_03`:36 vectors/360 checks, result visible33 clocks
+observation in `angle_rtl_04`:46 vectors/460 checks, result visible33 clocks
 after the input-accept edge. A consuming parent register captures that result
 on the following edge, at34 clocks; snapshot word29 reports this consumption
 delay. These are explicit sampling conventions, not different algorithms.
@@ -56,7 +61,8 @@ delay. These are explicit sampling conventions, not different algorithms.
 The RTL comparison command is
 `scripts/encoder_run_angle_rtl.ps1 -RunDir <new_directory> -Vectors <angle_model_dir>/angle_vectors.txt`.
 Vectors cover quarter-periods, electrical boundary/negative motion, signed32
-and modulo32 raw wraps, direction/zero/offset/version changes, not-ready and
+and modulo32 raw wraps, large accumulated displacement followed by version,
+offset and direction changes, manual zero changes, not-ready and
 the ambiguous half-wrap. Earlier path-escaping/latency-convention test failures
 remain in angle_rtl_01/02. No generated HDL was hand-edited.
 
