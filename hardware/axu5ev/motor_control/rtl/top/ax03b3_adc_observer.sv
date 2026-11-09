@@ -383,7 +383,10 @@ module ax03b3_adc_observer #(
               for(i=0;i<8;i=i+1) ref_frozen[i]<=ref_shadow[i];
               ref_pending<=1;
             end
-          end else if(AUTO_CONTROL && awaddr==12'h1a4 && wdata==1) manual_disarm<=1;
+          end else if(AUTO_CONTROL && awaddr==12'h1a4 && wdata==1) begin
+            manual_disarm<=1;
+            ref_pending<=0; // A pre-disarm arm command must not revive at P0.
+          end
           else s_axi_bresp<=2;
         end
         if(s_axi_bvalid && s_axi_bready) begin s_axi_bvalid<=0;aw_seen<=0;w_seen<=0;end

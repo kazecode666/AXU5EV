@@ -43,7 +43,7 @@ module chain_tb;
  reg [31:0] angle_count,angle_zero,angle_version;
  reg angle_ready,angle_reverse;reg [15:0] angle_offset;
  integer ce_checks=0,previous_tc=0,last_result_cycle=-1,logic_cycles=0;
- bit core_seen=0,late_test=0;integer late_tests=0,clock_tests=0;
+ bit core_seen=0,late_test=0;integer late_tests=0,clock_tests=0,disarm_tests=0;
  reg [31:0] previous_active=0;
  reg [38:0] offered_compare[0:20000];reg offered[0:20000];
  reg [63:0] sampled_tick[0:20000];realtime sampled_at[0:20000];
@@ -226,9 +226,29 @@ module chain_tb;
   check(`CONTROL.lock_blocked && auto_inhibit && {h,l}==0,"held arm cannot revive output after clock recovery");clock_tests++;
   reference(32'd1677722,5,1);wait(bridge.active_seq==7000);
   awrite('h1a4,1);#100;check({h,l}==0,"final internal output stop");
+  // A disarm cancels an already committed arm before its selected P0.
+  // Keeping the prior active arm high makes stale pending revival visible.
+  reference(32'd1677722,6,1);check(adc.ref_pending,"arm transaction pending before disarm");
+  awrite('h1a4,1);
+  do @(posedge clk);while(!(adc.adc_phase==0 && adc.observe_phase==0));
+  #0.001;
+  check(adc.manual_disarm && !adc.ref_pending && adc.ref_active[6]==5 && auto_inhibit && {h,l}==0,"disarm cancels committed arm at the next selected P0");disarm_tests++;
+  // Both AXI channels handshake at selected P0. The existing command phase8
+  // remains authoritative; once consumed, disarm must survive the next P0.
+  reference(32'd1677722,7,1);check(adc.ref_pending,"second arm pending for P0-handshake disarm");
+  do @(negedge clk);while(!(adc.adc_phase==0 && adc.observe_phase==0));
+  aa='h1a4;ad=1;av=1;wv=1;
+  @(posedge clk);check(ar && wr,"disarm AXI channels handshake exactly at selected P0");
+  @(negedge clk);av=0;wv=0;wait(bv);check(br==0,"P0-handshake disarm consumed at original phase8");
+  @(negedge clk);check(adc.manual_disarm && !adc.ref_pending && auto_inhibit && {h,l}==0,"consumed P0-handshake disarm closes outputs");
+  do @(posedge clk);while(!(adc.adc_phase==0 && adc.observe_phase==0));
+  #0.001;check(adc.manual_disarm && !adc.ref_pending && auto_inhibit && {h,l}==0,"P0-handshake disarm remains disabled through following P0");disarm_tests++;
+  reference(32'd1677722,8,1);wait(bridge.active_seq==9000);
+  check(!adc.manual_disarm && adc.ref_active[6]==8 && !auto_inhibit,"only a new explicit commit rearms after disarm");
+  awrite('h1a4,1);#100;check({h,l}==0,"stop after disarm priority checks");
   rstn=0;repeat(3)@(negedge clk);check({h,l}==0 && !`CONTROL.core_started,"explicit global reset clears scheduler/state/output at run end");
   $fclose(trace_fd);$fclose(packet_fd);$fclose(current_fd);$fclose(angle_fd);
-  $display("MOTOR_CHAIN_PASS checks=%0d foc_frames=%0d publications=%0d adoptions=%0d invalid_frames=%0d phases=%0d triplets=%0d ce_clocks=%0d late=%0d clock_rearm=%0d",checks,foc_frames,publications,adoptions,invalid_frames,phase_checks,triplet_checks,ce_checks,late_tests,clock_tests);$finish;
+  $display("MOTOR_CHAIN_PASS checks=%0d foc_frames=%0d publications=%0d adoptions=%0d invalid_frames=%0d phases=%0d triplets=%0d ce_clocks=%0d late=%0d clock_rearm=%0d disarm=%0d",checks,foc_frames,publications,adoptions,invalid_frames,phase_checks,triplet_checks,ce_checks,late_tests,clock_tests,disarm_tests);$finish;
  end
  initial begin #2000000;$fatal(1,"MOTOR chain watchdog");end
 endmodule
