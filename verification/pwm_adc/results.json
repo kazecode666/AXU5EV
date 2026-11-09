@@ -286,6 +286,19 @@
     },
     "limitations": "PS execution and debug capture are not dynamically verified. Only slow/max and fast/min, not all four PVT-column combinations. H/L are internal routed nodes, not external driver pins."
   },
+  "review_cleanup": {
+    "reviewed_head": "902ff0852f9021586467beefda8152b2d826c76c",
+    "status": "PASS",
+    "test": "verification/pwm_adc/test_build_environment.ps1",
+    "run_dir": ".runtime/pwm_adc/review_pr37_02",
+    "cases": 8,
+    "coverage": "Both variables independently present/absent, success/throw; child overrides and caller existence/value restoration",
+    "vivado": "NOT_RUN_STUB_ONLY",
+    "ila_window_us_approx": 40.96,
+    "ila_depth_changed": false,
+    "hardware_05_vitis_02": "UNCHANGED_NOT_REBUILT",
+    "rtl_sdf_r5_old_regression": "NOT_RUN"
+  },
   "board": "NOT_RUN",
   "external_pwm": "PENDING_INTERNAL_ILA_ONLY",
   "driver_motor": "NOT_CONNECTED",

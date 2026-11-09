@@ -2,6 +2,16 @@
 
 更新：2026-11-09，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
+## 当前：PR37 Review 最小收尾（待复审）
+
+按 [kazecode666/AXU5EV PR37](https://github.com/kazecode666/AXU5EV/pull/37) 最新 Review（审查 head `902ff0852f9021586467beefda8152b2d826c76c`）仅修构建环境隔离与 ILA 说明。`scripts/pwm_adc_build_hw.ps1` 保存 MC_PWM/AX03B3_TEST 的存在状态和原值，设置与调用均置于 try/finally，正常或异常返回后恢复；原本不存在的变量通过 Env: 赋 null 移除，避免当前 PowerShell 的 .NET null→空字符串转换。
+
+轻量验证 `verification/pwm_adc/test_build_environment.ps1` 在新目录 `.runtime/pwm_adc/review_pr37_02` 使用真实包装脚本副本及相邻构建 stub：两变量各自存在/不存在的4种组合×正常返回/抛错，共8例PASS，同时检查子调用期间 MC_PWM=1、AX03B3_TEST=0，未启动Vivado。首次候选的空字符串恢复失败保留于 `review_pr37_01`，不计PASS。复跑此轻量验证必须指定未占用的 RunDir。
+
+`firmware/r5/pwm_adc/FIRST_RUN_ZH.md` 补充4096点约100MHz的连续窗口约40.96us，小于完整PWM周期及选样到下一采用边界，分别触发观察死区、整组更新和许可/重新使能边界。ILA深度、PWM/ADC RTL、时钟及数值算法未改，hardware_05/vitis_02沿用原产物；本次综合实现、SDF、R5构建、旧全量回归均NOT_RUN，未连接或操作板卡。用户6个已修改文件、2个未跟踪文件、旧Workspace和原始数据保留。推送同一Draft PR37后停止等待复审，不自动合并或关闭Issue。
+
+以下为原Issue34实现和发布记录；其硬件/软件验证是上轮结果，本次未重跑。
+
 ## 当前：Issue34 PWM 100MHz 与 ADC 选样协同（离线完成，待Review）
 
 执行 [Issue34 最新正文](https://github.com/kazecode666/AXU5EV/issues/34)，任务书 `coordination/tasks/pwm_adc_100mhz.md`。已提交 [kazecode666/AXU5EV Draft PR37](https://github.com/kazecode666/AXU5EV/pull/37)，目标 main，停在 Review。分支 `codex/pwm-adc-100mhz` 普通 merge 纳入 main `811dd56364b6c27d8653d7d3ab8821dd2d497e17`（PR33）和 PR36 merge `bb6314c8a7ff17499ee7cb793c62fa046962e8e8`；两项祖先检查通过，未自动更新 main。Git HTTPS两次失败后使用连接器发布；远端合并提交 `eff47db0774194676057cb5466fd058917f19c40` 保留上述两个父提交，其树与本地合并 `36c57e3` 一致。以下实现提交逐项核对 Git 树一致，本地原历史保留，不强推/reset；网络恢复后可正常 fetch/merge 保留双方历史。
