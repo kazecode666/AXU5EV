@@ -139,6 +139,10 @@
     "branch_pushed": true,
     "review_status": "USER_REQUESTED_CHATGPT_REVIEW_OF_COMPLETED_WORK_AND_REMAINING_SCOPE",
     "review_target": "Issue40 and existing ChatGPT chat: Review DraftPR33",
+    "review_issue_comment": "https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6739546511",
+    "review_source_commit": "6731492716f5c21b1864d39cb2ad299c4e26172d",
+    "review_chatgpt_thread": "6af03b57-7910-83e8-a39c-bd281805c2f7",
+    "review_dispatch": "SENT; chat active; no review conclusion received yet",
     "development_resume_authorized": false,
     "remaining": "slow/fast SDF, actual six-frame original FOC comparison, final evidence and Draft PR targeting main",
     "resume_entry": "coordination/HANDOFF.md first section"

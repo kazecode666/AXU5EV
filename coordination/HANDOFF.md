@@ -8,6 +8,8 @@
 
 **当前先审查，不续跑**：用户要求将已完成内容及未完成项写入Issue40，请原ChatGPT对话“Review DraftPR33”审查并判断剩余验证是否必要、是否可以缩减或延期。本轮只发布交接和审查请求，不重新启动SDF/模型/Vivado/Vitis。以下恢复命令是暂停时保留的原计划，不代表现在执行；在审查结论及后续用户指令前保持暂停。不得把取消/延期的验证改记为PASS，也不得自行改变Issue原验收要求。
 
+审查资料已发布：[Issue40评论6739546511](https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6739546511)，源码/证据固定到远端 `6731492716f5c21b1864d39cb2ad299c4e26172d`；已按用户授权向既有ChatGPT对话“Review DraftPR33”（`6af03b57-7910-83e8-a39c-bd281805c2f7`）发送审查请求，发送后对话为active，结论尚待返回。当前不预先采纳缩减方案，不创建Draft PR；下次先读Issue最新审查回复及用户后续指令。
+
 **安全断点（2026-11-09 19:54:37）**：用户为关机明确要求暂停。仅终止本轮slow_01的xelab PID31032，外层CMD39140与pwsh6516自然退出，进程树核查剩余0；未启动fast或模型比对。最后阶段为Completed static elaboration之后的执行核准备，没有生成kernel、未完成SDF注释、动态仿真NOT_RUN，不计PASS。原目录、console、xelab.log及停止记录全部保留，证据 `verification/motor_control/evidence/sdf_pause_20261109.json`。没有替用户保存/关闭未保存窗口，也没有执行关机。
 
 **恢复只做剩余验证和交付**：先核对本分支及用户修改仍在，复用已完成的 `hardware_02/timing_pl` 与 `vitis_01`；不要重跑all、综合/布线、HDL生成、R5构建或旧全量回归。xelab没有跨关机续跑快照，选择未占用的新SDF目录重新开始本轮慢角，然后快角（下列名称若已占用则另选新名）：
