@@ -1,0 +1,115 @@
+{
+  "status": "CANCELLED_BY_USER_FOR_MANUAL_WINDOWS_SERVER_HANDOFF",
+  "source_base_commit": "1eba7545a662930133c09cdf8ea856c1a5194285",
+  "local_run": ".runtime\\motor_control\\sdf_o0_slow_01",
+  "stop": {
+    "status": "CANCELLED_BY_USER_FOR_WINDOWS_SERVER_HANDOFF",
+    "time_local": "2026-11-10T14:18:11.8109714+08:00",
+    "remaining_owned_processes": 0,
+    "method": "verified supervisor terminated; its Windows kill-on-close Job terminated all retained owned member handles",
+    "natural_tool_exit": null,
+    "old_running_json": "retained as interrupted; not a final result",
+    "annotation": "NOT_COMPLETED",
+    "dynamic": "NOT_RUN",
+    "fast": "NOT_RUN",
+    "retry": false,
+    "shutdown": "NOT_RUN"
+  },
+  "variable": "--O0",
+  "diagnostic_flags": [
+    "--stats",
+    "--verbose",
+    "1"
+  ],
+  "timing_debug_mt": "unchanged",
+  "xelab_process_record": {
+    "stage": "xelab",
+    "status": "RUNNING",
+    "command": [
+      "E:\\AMDDesignTools\\2026.1\\Vivado\\bin\\xelab.bat",
+      "work.timing_tb",
+      "work.glbl",
+      "-s",
+      "pwm_timing",
+      "-debug",
+      "off",
+      "-timescale",
+      "1ns/1ps",
+      "-L",
+      "simprims_ver",
+      "-L",
+      "unisims_ver",
+      "-L",
+      "secureip",
+      "-transport_int_delays",
+      "-pulse_r",
+      "0",
+      "-pulse_int_r",
+      "0",
+      "-pulse_e",
+      "0",
+      "-pulse_int_e",
+      "0",
+      "-sdfmax",
+      "/timing_tb/dut=D:/Project/AXU5EV/.runtime/motor_control/hardware_02/timing_pl/motor_slow.sdf",
+      "--O0",
+      "--stats",
+      "--verbose",
+      "1"
+    ],
+    "cwd": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\sdf_o0_slow_01",
+    "supervisor_pid": 28344,
+    "started_utc": "2026-11-10T05:50:31.977675+00:00",
+    "timeout_ms": 3600000,
+    "natural_exit_code": null,
+    "remaining_pids": null,
+    "processes": [
+      {
+        "pid": 36284,
+        "creation_filetime": 134387634319803068,
+        "created_utc": "2026-11-10T05:50:31.980307+00:00",
+        "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "natural_exit_code": null
+      },
+      {
+        "pid": 33912,
+        "creation_filetime": 134387634320017998,
+        "created_utc": "2026-11-10T05:50:32.001800+00:00",
+        "image": "C:\\Windows\\System32\\conhost.exe",
+        "natural_exit_code": null
+      },
+      {
+        "pid": 27848,
+        "creation_filetime": 134387634320618101,
+        "created_utc": "2026-11-10T05:50:32.061810+00:00",
+        "image": "C:\\Windows\\System32\\cmd.exe",
+        "natural_exit_code": null
+      },
+      {
+        "pid": 35576,
+        "creation_filetime": 134387634326120214,
+        "created_utc": "2026-11-10T05:50:32.612021+00:00",
+        "image": "E:\\AMDDesignTools\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\xelab.exe",
+        "natural_exit_code": null
+      }
+    ],
+    "launch_command": "\"C:\\WINDOWS\\system32\\cmd.exe\" /d /s /c \"\"E:\\AMDDesignTools\\2026.1\\Vivado\\bin\\xelab.bat\" \"work.timing_tb\" \"work.glbl\" \"-s\" \"pwm_timing\" \"-debug\" \"off\" \"-timescale\" \"1ns/1ps\" \"-L\" \"simprims_ver\" \"-L\" \"unisims_ver\" \"-L\" \"secureip\" \"-transport_int_delays\" \"-pulse_r\" \"0\" \"-pulse_int_r\" \"0\" \"-pulse_e\" \"0\" \"-pulse_int_e\" \"0\" \"-sdfmax\" \"/timing_tb/dut=D:/Project/AXU5EV/.runtime/motor_control/hardware_02/timing_pl/motor_slow.sdf\" \"--O0\" \"--stats\" \"--verbose\" \"1\"\"",
+    "root_pid": 36284
+  },
+  "log_bytes": 274507031,
+  "log_counts": {
+    "severity_prefixes": 0,
+    "annotation_success": 0,
+    "broad_matcher": 23
+  },
+  "severity_interpretation": "broad hits are INFO instance-name mapping, not actual ERROR/WARNING; strict checker unchanged; default verbosity on handoff avoids new mapping INFO output",
+  "kernel_exists": false,
+  "annotation": "NOT_COMPLETED",
+  "dynamic": "NOT_RUN",
+  "fast": "NOT_RUN",
+  "O0_speed_fix": "NOT_PROVEN",
+  "server_execution": "NOT_RUN",
+  "archive": "original server_bundle_01 unchanged",
+  "linux": "DEFERRED_NOT_TESTED",
+  "board_shutdown": "NOT_RUN"
+}

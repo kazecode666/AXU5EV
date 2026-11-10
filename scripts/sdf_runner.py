@@ -364,7 +364,7 @@ def check_sdf(directory):
     return markers[0]
 
 
-def commands(hardware, testbench, vivado_bin, corner):
+def commands(hardware, testbench, vivado_bin, corner, xelab_o0=False, xelab_diagnostics=False):
     suffix = ".bat" if os.name == "nt" else ""
     tools = {name: vivado_bin / (name + suffix) for name in ("xvlog", "xelab", "xsim")}
     netdir = hardware / "timing_pl"
@@ -372,7 +372,7 @@ def commands(hardware, testbench, vivado_bin, corner):
     for source in (netdir / "motor_routed.v", netdir / ("motor_" + corner + ".sdf"), testbench, glbl, *tools.values()):
         if not source.is_file():
             raise FileNotFoundError(source)
-    return [
+    plan = [
         ("xvlog", [str(tools["xvlog"]), "-sv", str(netdir / "motor_routed.v"), str(testbench), str(glbl)]),
         ("xelab", [str(tools["xelab"]), "work.timing_tb", "work.glbl", "-s", "pwm_timing", "-debug", "off",
                    "-timescale", "1ns/1ps", "-L", "simprims_ver", "-L", "unisims_ver", "-L", "secureip",
@@ -381,6 +381,11 @@ def commands(hardware, testbench, vivado_bin, corner):
                    "/timing_tb/dut=" + (netdir / ("motor_" + corner + ".sdf")).as_posix()]),
         ("xsim", [str(tools["xsim"]), "pwm_timing", "-runall"]),
     ]
+    if xelab_o0:
+        plan[1][1].append("--O0")  # Actual local 2026.1 -help spelling, not an HDL change.
+    if xelab_diagnostics:
+        plan[1][1].extend(["--stats", "--verbose", "1"])
+    return plan
 
 
 def main():
@@ -394,6 +399,8 @@ def main():
     parser.add_argument("--cancel-file", type=Path)
     parser.add_argument("--scope", default="routed full functional PL; PWM ILA black box; structural dbg_hub retained; PS clock/reset and AXI transaction sources substituted")
     parser.add_argument("--dry-run", action="store_true", help="Validate files and save commands; do not start tools")
+    parser.add_argument("--xelab-o0", action="store_true", help="Explicit single-variable no-optimization candidate; not a proven speed fix")
+    parser.add_argument("--xelab-diagnostics", action="store_true", help="2026.1 --stats --verbose 1; does not disable timing checks")
     args = parser.parse_args()
     if args.tool_timeout_ms <= 0:
         parser.error("tool-timeout-ms must be positive")
@@ -401,10 +408,12 @@ def main():
     directory.mkdir(parents=True, exist_ok=False)
     result = {"status": "RUNNING", "corner": args.corner, "hardware": str(args.hardware.resolve()),
               "run_dir": str(directory), "board": "NOT_RUN", "scope": args.scope,
-              "started_utc": now(), "stages": [], "MC_TIMING_RTL_defined": False}
+              "started_utc": now(), "stages": [], "MC_TIMING_RTL_defined": False,
+              "xelab_o0": args.xelab_o0, "xelab_diagnostics": args.xelab_diagnostics}
     exit_code = 1
     try:
-        plan = commands(args.hardware.resolve(), args.testbench.resolve(), args.vivado_bin.resolve(), args.corner)
+        plan = commands(args.hardware.resolve(), args.testbench.resolve(), args.vivado_bin.resolve(), args.corner,
+                        args.xelab_o0, args.xelab_diagnostics)
         save(directory / "commands.json", [{"stage": s, "argv": a} for s, a in plan])
         if args.dry_run:
             result["status"] = "DRY_RUN_PASS_NOT_SDF"

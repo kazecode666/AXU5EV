@@ -1,6 +1,6 @@
 {
   "issue": "kazecode666/AXU5EV#40",
-  "status": "DRAFT_REVIEW; RUNNER_AND_PACKAGE_PASS_NOT_SDF; SDF_ACCEPTANCE_OPEN",
+  "status": "WINDOWS_LOCAL_CANCELLED_FOR_MANUAL_SERVER_HANDOFF; DRAFT; SDF_OPEN",
   "base": "ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13",
   "branch": "codex/motor-control-chain",
   "functional_commit": "906c9a5aa414863add479b11bc49535f92f87e7d",
@@ -8,6 +8,26 @@
   "source_entry_commit": "af73f437e0035b3f3c9da4de014762c702413571",
   "timing_export_test_commit": "d63e96f6930a865671124029a12817e694107b5d",
   "scope": "precommitted references; ADC/QEP to original model algorithms/FOC to original PWM; no power",
+  "windows_o0_sdf": {
+    "authorization": [6759938887, 6759942425],
+    "review_route": 5835164071,
+    "source_base_commit": "1eba7545a662930133c09cdf8ea856c1a5194285",
+    "status": "CANCELLED_BY_USER_FOR_MANUAL_WINDOWS_SERVER_HANDOFF",
+    "platform": "Windows local; server deferred; Linux tests deferred",
+    "compilation_variable": "--O0 (actual local 2026.1 help spelling)",
+    "logging_options": ["--stats", "--verbose", "1"],
+    "mt_debug_timing_checks": "unchanged",
+    "tool_timeout_ms": 3600000,
+    "slow_max": {"run": ".runtime/motor_control/sdf_o0_slow_01", "annotation": "NOT_COMPLETED", "dynamic": "NOT_RUN", "stopped_local": "2026-11-10T14:18:11.8109714+08:00", "remaining_owned_processes": 0, "natural_tool_exit": null, "kernel": "NOT_GENERATED"},
+    "fast_min": {"status": "NOT_RUN"},
+    "retry": false,
+    "old_archive": "server_bundle_01 retained unchanged; no repack",
+    "evidence": "evidence/windows_o0_20261110/README.md",
+    "speed_fix": "NOT_PROVEN",
+    "manual_server_guide": "firmware/r5/motor_control/WINDOWS_SERVER_SDF_ZH.md",
+    "server_execution": "NOT_RUN",
+    "board_shutdown": "NOT_RUN"
+  },
   "sdf_runner_fix": {
     "authorization": 6757750944,
     "separate_commit": "0bd081a902397d5365f0b608f1678c6d4ce04d0a",
@@ -46,6 +66,8 @@
     "guide": "firmware/r5/motor_control/SDF_SERVER_ZH.md"
   },
   "full_functional_sdf": {
+    "historical_record": true,
+    "current_results": "windows_o0_sdf",
     "authorization": [6745328232, 6745337679],
     "source_commit": "0191fc773102bc4aa5d71c89e652137cce10c350",
     "hardware": ".runtime/motor_control/hardware_02",

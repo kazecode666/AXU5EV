@@ -1,5 +1,7 @@
 # 统一无功率数字链入口
 
+最新按用户转向：Windows服务器由用户手动执行，Codex不远程连接。本机--O0候选在14:18用户取消并清理，尚无注释/kernel/动态通过。GitHub下载与完整Windows步骤见 [WINDOWS_SERVER_SDF_ZH.md](WINDOWS_SERVER_SDF_ZH.md)：原大包不变，新小入口放在包外，仅--O0、默认日志级别；fast必须核对slow已PASS。旧SDF_SERVER_ZH.md属于前轮包内原说明，新增Windows指南为当前入口。本轮不补Linux、不重打原包、不关机。
+
 本轮只离线构建和仿真，不连接/发现/下载/运行板卡，不接驱动板、电机或外部PWM/QEP线。六路只在内部观察，physical_link_verified=0。本说明不是上板授权。
 
 当前交付为Draft PR41。按评论6757750944先独立提交运行器修复0bd081a，12项短模拟测试PASS，再制作完整服务器包并完成仓库外干净解包、9项SHA256/10文件清单、依赖、两角dry-run及假工具正常/失败传播自检。包在 `.runtime/motor_control/server_bundle_01/AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip`，准确大小/校验见HANDOFF与results.json。便携运行及回收说明见 [SDF_SERVER_ZH.md](SDF_SERVER_ZH.md)，包内同文README_ZH.md。

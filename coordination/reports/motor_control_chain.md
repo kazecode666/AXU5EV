@@ -1,5 +1,9 @@
 # Issue40 — 统一模型与PL自动控制通路
 
+当前按用户转向Windows服务器手动执行，不远程操作。先按6759938887/6759942425与Review5835164071读取旧解析现场及本机帮助，验证--O0单变量（加stats/verbose诊断）后，在sdf_o0_slow_01运行唯一候选。xvlog通过，日志显示FOC各层SDF端口延迟处理；用户转向后14:18取消，Job成员剩余0。未到60min上限，无kernel/注释成功、动态NOT_RUN，fast未启动；不宣称--O0已修复性能或已定位旧根因。
+
+原大包不变；小Windows入口在旧包外运行，仅--O0且保持默认verbosity，不改变时序/事件判据。verbose1产生的23条INFO error_register映射不能当真实错误。新包装5项短验证通过，服务器真实SDF仍NOT_RUN。手动下载/配置/取消/回收见WINDOWS_SERVER_SDF_ZH.md，本轮证据在evidence/windows_o0_20261110；用户允许GitHub附件下载，PR继续Draft，不合并、不板卡、不关机。以下为既有交付历史，旧平台/执行计划以新指南为准。
+
 基线为已合并PR39的 `origin/main ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13`，独立分支 `codex/motor-control-chain`。真实实时路径为原ADC/QEP接收器→原生成电流/电角度→原p3 FOC→模型生成Q30比较值→原100MHz PWM。板级仍使用同一个motor_control工程；没有复制外设或手写第二套数值算法。
 
 **本轮按6757750944完成运行器修复与实际服务器包，PR41保持Draft，SDF验收仍开放。** 先独立提交0bd081a：Windows专属Job先登记bootstrap再放行CMD/BAT/native，持续保存stdout/stderr、命令/PID/创建时间和自然/监督退出分类，finally清理本轮树后再排空管道；原PowerShell入口及SDF判据保留。12项短模拟测试PASS，四类退出均清理0残留、无关进程不受影响，包装传播与缺注释/时序违例/缺PASS/SDF警告拒绝均通过；没有调用Vivado。

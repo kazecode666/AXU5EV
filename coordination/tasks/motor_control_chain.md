@@ -1,5 +1,7 @@
 # Issue40 — 统一模型与PL自动数据通路
 
+最新用户转向：停止本机、由用户在Windows服务器手动执行，允许GitHub下载交接，不远程操作。6759938887/6759942425授权的一次本机--O0候选已执行至SDF端口处理，14:18用户取消，Job成员剩余0；没有注释/kernel/动态通过。保留原大包，提供包外小Windows入口与完整步骤，fast强制slow PASS，默认日志级别、全部原时序/事件判据保留。不要补Linux、重打原包、重试本机长跑或关机。当前入口WINDOWS_SERVER_SDF_ZH.md，结果windows_o0_sdf与evidence/windows_o0_20261110为准。
+
 本轮执行Issue40评论6757750944：先独立提交运行器修复0bd081a及12项短模拟测试，再交付hardware_02原网表/两角SDF、当前事件TB和共用便携入口的实际zip。仓库外干净解包、清单/SHA256、依赖、两角命令dry-run及假工具启动/失败传播均PASS_NOT_SDF。准确文件路径/大小/校验见HANDOFF与 `verification/motor_control/evidence/server_bundle_20261110/`。服务器仿真可用已确认，不讨论迁移可行性；本机不长跑/-O0、不重建/裁剪、不登录服务器/操作板卡、不关机。真实两角注释/动态仍未完成，保持Draft PR41停在Review。
 
 以下凌晨完整网表尝试及先前有限收尾为历史，旧关机或本机恢复计划不是本轮动作。
