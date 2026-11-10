@@ -2,11 +2,13 @@
 
 更新：2026-11-10，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
-## 当前：Issue40运行器修复短测PASS，随后制作服务器包（PR41保持Draft）
+## 当前：Issue40运行器与服务器包自检PASS，PR41保持Draft待Review
 
-本轮按Issue40评论6757750944接续同一分支/PR，服务器可运行仿真已确认。`scripts/sdf_runner.py` 共用入口修复本轮进程树归属、持续日志、finally清理和自然/超时/取消退出分类，原PowerShell包装保留。Windows12项短模拟测试PASS：四类退出各5进程/剩余0、运行中及已产生的末尾stdout/stderr保留、同名无关进程未受影响；包装传播与四类SDF拒绝判据也通过。精简证据 `verification/motor_control/evidence/runner_fix_20261110/`，原始目录runner_fix_01/02保留。本提交先独立交付修复与证据，随后才执行完整包制作及干净目录自检。
+按Issue40评论6757750944接续同一分支/PR，服务器可运行仿真已确认。先独立提交运行器修复 `0bd081a902397d5365f0b608f1678c6d4ce04d0a`：共用 `scripts/sdf_runner.py` 管理专属进程树、持续日志、finally清理和自然/超时/取消分类，原PowerShell包装保留。Windows12项短模拟测试PASS：四类退出各5进程/剩余0、运行中及已产生的末尾stdout/stderr保留、同名无关进程未受影响；包装传播与四类SDF拒绝判据也通过。证据 `verification/motor_control/evidence/runner_fix_20261110/`，原始runner_fix_01/02保留。
 
-本机不启动长SDF、不执行-O0、不重建/裁剪或改DUT/算法/约束，不登录/安装/运行服务器，不操作板卡；本轮不自动关机，替代下列历史关机指令。slow注释NOT_COMPLETED、动态NOT_RUN，fast未运行，SDF验收仍开放；运行器PASS不等于SDF PASS。8个原用户修改文件、全部旧产物和日志保留，最终保持PR41 Draft停在Review。
+随后已生成实际服务器包：`D:\Project\AXU5EV\.runtime\motor_control\server_bundle_01\AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip`，**38,281,015字节**，SHA256 `6932398ee982936da54521c60d5bd978234c5bd55698e76de720910fb509e05b`，相邻.zip.sha256也保留。10文件中含hardware_02原网表/两角SDF、0191fc7事件TB、修复运行器/输入校验、中文说明及来源/清单；没有工具安装或无关Workspace。无额外可见项目文件输入，厂商库/glbl由配置的同版工具提供。已解压至原仓库外C:/Users/lww/AppData/Local/Temp/AXU5EV_Issue40_unpack_20261110_01，从包外工作目录完成9项SHA256/清单、依赖、两角命令dry-run及短假工具正常/失败传播，均PASS_NOT_SDF；实际平台仅Windows，服务器/Linux运行NOT_RUN。包未加入Git或上传；精简证据 `verification/motor_control/evidence/server_bundle_20261110/`，中文入口 `firmware/r5/motor_control/SDF_SERVER_ZH.md`（包内README_ZH.md）。
+
+本轮没有启动真实Vivado/长SDF、-O0、硬件/R5重建或裁剪，DUT/算法/约束不变；未登录/安装/运行服务器或操作板卡。**不自动关机**，替代下列历史关机指令。slow注释NOT_COMPLETED、动态NOT_RUN，fast未运行，SDF验收仍开放；运行器/包自检PASS不等于SDF PASS。8个原用户修改文件、全部旧产物和日志保留。交付同一PR41后保持Draft，停在Review；服务器实际两角另行安排，不自动执行。
 
 ## 历史：完整功能PL网表slow/max超时
 

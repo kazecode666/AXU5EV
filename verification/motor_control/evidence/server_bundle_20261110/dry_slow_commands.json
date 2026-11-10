@@ -1,0 +1,51 @@
+[
+  {
+    "stage": "xvlog",
+    "argv": [
+      "E:\\AMDDesignTools\\2026.1\\Vivado\\bin\\xvlog.bat",
+      "-sv",
+      "C:\\Users\\lww\\AppData\\Local\\Temp\\AXU5EV_Issue40_unpack_20261110_01\\AXU5EV_Issue40_SDF_hardware_02_0bd081a\\inputs\\hardware_02\\timing_pl\\motor_routed.v",
+      "C:\\Users\\lww\\AppData\\Local\\Temp\\AXU5EV_Issue40_unpack_20261110_01\\AXU5EV_Issue40_SDF_hardware_02_0bd081a\\verification\\motor_control\\timing_tb.sv",
+      "E:\\AMDDesignTools\\2026.1\\data\\verilog\\src\\glbl.v"
+    ]
+  },
+  {
+    "stage": "xelab",
+    "argv": [
+      "E:\\AMDDesignTools\\2026.1\\Vivado\\bin\\xelab.bat",
+      "work.timing_tb",
+      "work.glbl",
+      "-s",
+      "pwm_timing",
+      "-debug",
+      "off",
+      "-timescale",
+      "1ns/1ps",
+      "-L",
+      "simprims_ver",
+      "-L",
+      "unisims_ver",
+      "-L",
+      "secureip",
+      "-transport_int_delays",
+      "-pulse_r",
+      "0",
+      "-pulse_int_r",
+      "0",
+      "-pulse_e",
+      "0",
+      "-pulse_int_e",
+      "0",
+      "-sdfmax",
+      "/timing_tb/dut=C:/Users/lww/AppData/Local/Temp/AXU5EV_Issue40_unpack_20261110_01/AXU5EV_Issue40_SDF_hardware_02_0bd081a/inputs/hardware_02/timing_pl/motor_slow.sdf"
+    ]
+  },
+  {
+    "stage": "xsim",
+    "argv": [
+      "E:\\AMDDesignTools\\2026.1\\Vivado\\bin\\xsim.bat",
+      "pwm_timing",
+      "-runall"
+    ]
+  }
+]

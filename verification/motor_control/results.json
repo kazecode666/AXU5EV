@@ -1,6 +1,6 @@
 {
   "issue": "kazecode666/AXU5EV#40",
-  "status": "RUNNER_FIX_PASS; SERVER_PACKAGE_PENDING; SDF_ACCEPTANCE_OPEN",
+  "status": "DRAFT_REVIEW; RUNNER_AND_PACKAGE_PASS_NOT_SDF; SDF_ACCEPTANCE_OPEN",
   "base": "ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13",
   "branch": "codex/motor-control-chain",
   "functional_commit": "906c9a5aa414863add479b11bc49535f92f87e7d",
@@ -10,6 +10,7 @@
   "scope": "precommitted references; ADC/QEP to original model algorithms/FOC to original PWM; no power",
   "sdf_runner_fix": {
     "authorization": 6757750944,
+    "separate_commit": "0bd081a902397d5365f0b608f1678c6d4ce04d0a",
     "status": "PASS_SHORT_MOCK_TESTS_ONLY",
     "run": ".runtime/motor_control/runner_fix_02",
     "cases": 12,
@@ -24,7 +25,26 @@
     "evidence": "evidence/runner_fix_20261110/README.md",
     "real_sdf": "NOT_RUN"
   },
-  "server_bundle": {"status": "PENDING_AFTER_SEPARATE_RUNNER_FIX_COMMIT"},
+  "server_bundle": {
+    "status": "PASS_PACKAGE_AND_UNPACK_CHECKS_ONLY",
+    "authorization": 6757750944,
+    "archive": "D:/Project/AXU5EV/.runtime/motor_control/server_bundle_01/AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip",
+    "bytes": 38281015,
+    "sha256": "6932398ee982936da54521c60d5bd978234c5bd55698e76de720910fb509e05b",
+    "unpacked_root": "C:/Users/lww/AppData/Local/Temp/AXU5EV_Issue40_unpack_20261110_01/AXU5EV_Issue40_SDF_hardware_02_0bd081a",
+    "package_files": 10,
+    "checksum_files": 9,
+    "extra_visible_project_input_files": [],
+    "dry_run_slow_max": "PASS_NOT_SDF",
+    "dry_run_fast_min": "PASS_NOT_SDF",
+    "portable_entry_mock_normal_and_failure": "PASS_NOT_SDF",
+    "executed_platform": "Windows only; Linux/server NOT_RUN",
+    "real_vivado_launches": 0,
+    "server_execution": "NOT_RUN",
+    "uploaded_or_committed_archive": false,
+    "evidence": "evidence/server_bundle_20261110/README.md",
+    "guide": "firmware/r5/motor_control/SDF_SERVER_ZH.md"
+  },
   "full_functional_sdf": {
     "authorization": [6745328232, 6745337679],
     "source_commit": "0191fc773102bc4aa5d71c89e652137cce10c350",
@@ -220,14 +240,14 @@
     "draft": true,
     "base_branch": "main",
     "branch_pushed": true,
-    "review_status": "FULL_NETLIST_SLOW_TIMEOUT_REPORTED; DIRECTED_SDF_ACCEPTANCE_STILL_OPEN",
+    "review_status": "RUNNER_FIX_AND_SERVER_PACKAGE_REPORTED; DIRECTED_SDF_ACCEPTANCE_STILL_OPEN",
     "review_target": "Issue40 and existing ChatGPT chat: Review DraftPR33",
     "review_issue_comment": "https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6739546511",
     "review_source_commit": "6731492716f5c21b1864d39cb2ad299c4e26172d",
     "review_chatgpt_thread": "6af03b57-7910-83e8-a39c-bd281805c2f7",
-    "review_dispatch": "Review6740096397/6740612318 criteria retained; full-netlist SDF authorized by 6745328232/6745337679; same native slow process stopped after extended 6h limit; no automatic retry",
+    "review_dispatch": "6757750944 runner fix first committed separately, then complete bundle/unpack checks; no local long SDF or server execution; keep original dynamic criteria and Draft",
     "development_resume_authorized": false,
-    "remaining": "actual slow/max and fast/min annotation plus event dynamic validation remain incomplete; latest complete functional netlist attempt timed out before kernel; Review decides next route or deferral",
+    "remaining": "server actual slow/max annotation and event dynamic validation, followed only on PASS by fast/min; NOT_RUN/NOT_COMPLETED, not replaced by runner or package checks; stop at Review",
     "resume_entry": "coordination/HANDOFF.md first section"
   },
   "r5": {

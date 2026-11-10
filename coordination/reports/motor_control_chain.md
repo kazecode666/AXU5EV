@@ -2,7 +2,15 @@
 
 基线为已合并PR39的 `origin/main ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13`，独立分支 `codex/motor-control-chain`。真实实时路径为原ADC/QEP接收器→原生成电流/电角度→原p3 FOC→模型生成Q30比较值→原100MHz PWM。板级仍使用同一个motor_control工程；没有复制外设或手写第二套数值算法。
 
-**当前为Draft PR41，完整功能网表slow/max超时，SDF验收仍开放**：用户按Issue40评论6745328232与PR41评论6745337679另行授权复用hardware_02完整功能PL网表及两角SDF，使用最新事件测试台网表分支，不定义MC_TIMING_RTL；先slow/max完全通过再fast/min。实现/RTL/数值比较/STA/R5证据直接复用，DUT/算法/约束未改，没有再次裁剪或重建。
+**本轮按6757750944完成运行器修复与实际服务器包，PR41保持Draft，SDF验收仍开放。** 先独立提交0bd081a：Windows专属Job先登记bootstrap再放行CMD/BAT/native，持续保存stdout/stderr、命令/PID/创建时间和自然/监督退出分类，finally清理本轮树后再排空管道；原PowerShell入口及SDF判据保留。12项短模拟测试PASS，四类退出均清理0残留、无关进程不受影响，包装传播与缺注释/时序违例/缺PASS/SDF警告拒绝均通过；没有调用Vivado。
+
+随后实际包 `.runtime/motor_control/server_bundle_01/AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip` 为38,281,015字节，SHA256 `6932398ee982936da54521c60d5bd978234c5bd55698e76de720910fb509e05b`。包含原网表/两角SDF、0191fc7事件TB、修复入口、输入校验、中文说明和来源/清单，共10文件；不含工具安装/许可证、Workspace、DCP/bit/XSA/ELF。可见源无额外项目输入，厂商保护块原样保留，匹配库/glbl由配置工具提供。
+
+已解压到C:/Users/lww/AppData/Local/Temp/AXU5EV_Issue40_unpack_20261110_01，从原仓库及包外工作目录运行实际解包入口：CRC/9项SHA256/清单、依赖、slow/max与fast/min命令dry-run，以及新短假工具正常/非零传播全部PASS_NOT_SDF。实际仅Windows，Linux/服务器未执行；zip未提交Git或上传。精简证据分别为 `evidence/runner_fix_20261110` 与 `evidence/server_bundle_20261110`；唯一服务器操作说明 `firmware/r5/motor_control/SDF_SERVER_ZH.md`（包内README_ZH.md）。本轮无本机长SDF、-O0、重建、裁剪、DUT/算法/约束更改或板卡/服务器操作，不关机，停在Draft Review。两角实际注释/动态仍NOT_COMPLETED/NOT_RUN，不因本轮自检关闭验收。
+
+## 前轮完整网表尝试（保留现场）
+
+前轮用户按Issue40评论6745328232与PR41评论6745337679授权复用hardware_02完整功能PL网表及两角SDF，使用最新事件测试台网表分支，不定义MC_TIMING_RTL；先slow/max完全通过再fast/min。实现/RTL/数值比较/STA/R5证据直接复用，DUT/算法/约束未改，没有再次裁剪或重建。
 
 2026-11-10 00:32:36在新目录 `sdf_full_slow_01` 启动。用户运行中允许更长等待；原wrapper固定3h在03:32:48超时退出，原生xelab PID8028继续，未重启。只读句柄监督到启动后6h（06:32:48.542）时仍未完成，随后核实身份并于06:34:15.828终止该任务树，剩余0；终止码-1不代表自然工具退出。原wrapper的stdout/stderr管道可能已关闭，独立句柄不保护管道。xvlog通过、static elaboration完成，但无kernel、无XSIM 43-3452注释成功确认，slow注释NOT_COMPLETED、动态NOT_RUN，fast未启动。可用日志无显式ERROR/FATAL也不能证明进度或DUT无误；这是展开超时，不是动态断言失败/通过。全部现场保留，未重试。证据见 `verification/motor_control/evidence/full_sdf_20261110/README.md`，各角以 `results.json/full_functional_sdf` 为准。同帧、整组三相、目标谷值、晚到取消、disarm、失锁重臂、死区和80字快照的网表动态仍全部NOT_RUN，后续路线交Review决定，保持Draft。
 
