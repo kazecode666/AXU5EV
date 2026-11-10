@@ -1,0 +1,30 @@
+{
+  "status": "PUBLISHED_AND_PUBLIC_DOWNLOAD_VERIFIED",
+  "url": "https://github.com/kazecode666/AXU5EV/releases/tag/issue40-windows-sdf-20261110",
+  "release_id": 440018641,
+  "tag": "issue40-windows-sdf-20261110",
+  "target": "d376e56aa8580e5862c9d1a2534bee9af67a96c3",
+  "prerelease": true,
+  "draft": false,
+  "verification": "public API asset SHA256 verified for both zips; small zip unauthenticated public download hash verified",
+  "assets": [
+    {
+      "name": "AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip",
+      "bytes": 38281015,
+      "digest": "sha256:6932398ee982936da54521c60d5bd978234c5bd55698e76de720910fb509e05b",
+      "download_url": "https://github.com/kazecode666/AXU5EV/releases/download/issue40-windows-sdf-20261110/AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip"
+    },
+    {
+      "name": "AXU5EV_Windows_SDF_Entry_20261110.zip",
+      "bytes": 12654,
+      "digest": "sha256:5281edab4975a3a4c9582c657fe0902e5ad4a2d2a7f60a22728f1b3c8857fa47",
+      "download_url": "https://github.com/kazecode666/AXU5EV/releases/download/issue40-windows-sdf-20261110/AXU5EV_Windows_SDF_Entry_20261110.zip"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 213,
+      "digest": "sha256:80fb8a575a6d0c2aeaa2716cc1f91f812b06a793b44349d282fddcce6c5a511e",
+      "download_url": "https://github.com/kazecode666/AXU5EV/releases/download/issue40-windows-sdf-20261110/SHA256SUMS.txt"
+    }
+  ]
+}

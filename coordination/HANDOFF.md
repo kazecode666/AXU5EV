@@ -2,13 +2,15 @@
 
 更新：2026-11-10，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
-## 当前：本机候选已按用户转向停止，准备Windows服务器手动SDF交接
+## 当前：Windows服务器手动SDF交接已发布，PR41保持Draft
 
 按Issue40评论6759938887、PR41评论6759942425接续1eba754，Windows本机执行，服务器暂缓；Linux专项不作前置、不补测、不重新打包。沿Review5835164071只读检查旧目录：仅650份解析sdb，无生成源/对象/kernel，不能定位具体内部瓶颈。本机xelab2026.1帮助实际支持--O0（禁用优化）、--stats、--verbose 1；短help与命令差异核对通过。只改变编译策略--O0，额外两项仅诊断；debug off、mt隐式auto、1ps及所有原时序/事件判据不变，不将运行器修复当作性能修复。
 
 13:50在新目录 `.runtime/motor_control/sdf_o0_slow_01` 启动，预算单工具60min；xvlog通过，详细日志进入FOC各层SDF端口延迟处理。用户随后改为服务器手动执行、不远程操作，允许上传GitHub供下载。14:18:11核实身份后终止本轮监督器，其kill-on-close Job成员句柄均退出、剩余0；这是用户取消，不是到限或原生自然失败。原RUNNING JSON保留，user_stop_result.json另记取消，少量性能样本及全部日志原位保留。没有kernel/成功注释确认，slow注释NOT_COMPLETED、动态NOT_RUN，fast未启动；--O0提速/根因均未证明。
 
-原server_bundle_01大包保持不变；另提供Windows小入口包，用户从GitHub Release下载后手动执行，不自动登录服务器。新入口在原包外，显式TB/硬件路径，原9项SHA256不失效。服务器只启用--O0、保留默认日志级别和全部时序检查；不带verbose1，因为其INFO映射中error_register名称会触发原宽泛匹配式（本机23处均INFO，明确ERROR/WARNING前缀0）。新包装5项短自检通过，真实SDF未通过；下载与步骤见 `firmware/r5/motor_control/WINDOWS_SERVER_SDF_ZH.md`，本轮精简现场见 `verification/motor_control/evidence/windows_o0_20261110/`。DUT/算法/约束及hardware_02/vitis_01不改，不重跑旧全量/重复oracle、不补Linux专项、不操作板卡、不关机。
+已发布文件分发预发布（非验收）：https://github.com/kazecode666/AXU5EV/releases/tag/issue40-windows-sdf-20261110 ，目标入口源提交d376e56。原server_bundle_01大包38,281,015字节/SHA256不变；另附Windows小入口包12,654字节、SHA256SUMS.txt。两zip的GitHub端digest已核对，并以无认证公开下载验证小包SHA256；精简发布回执见evidence/windows_o0_20261110/github_release.json。大包未进入Git历史。
+
+用户下载后手动执行，不自动登录服务器，不使用computer-use。新入口在原包外，显式TB/硬件路径，原9项SHA256不失效。服务器只启用--O0、保留默认日志级别和全部时序检查；不带verbose1，因为其INFO映射中error_register名称会触发原宽泛匹配式（本机23处均INFO，明确ERROR/WARNING前缀0）。新包装5项短自检和小包解压入口dry-run通过，真实SDF未通过；下载与步骤见 `firmware/r5/motor_control/WINDOWS_SERVER_SDF_ZH.md`，本轮精简现场见 `verification/motor_control/evidence/windows_o0_20261110/`。DUT/算法/约束及hardware_02/vitis_01不改，不重跑旧全量/重复oracle、不补Linux专项、不操作板卡、不关机。
 
 以下运行包与修复记录保留为上一轮交付；server_bundle_01及全部旧产物原样保留。
 

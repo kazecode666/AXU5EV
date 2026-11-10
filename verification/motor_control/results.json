@@ -1,6 +1,6 @@
 {
   "issue": "kazecode666/AXU5EV#40",
-  "status": "WINDOWS_LOCAL_CANCELLED_FOR_MANUAL_SERVER_HANDOFF; DRAFT; SDF_OPEN",
+  "status": "DRAFT_REVIEW; WINDOWS_SERVER_DOWNLOAD_READY; SDF_ACCEPTANCE_OPEN",
   "base": "ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13",
   "branch": "codex/motor-control-chain",
   "functional_commit": "906c9a5aa414863add479b11bc49535f92f87e7d",
@@ -8,6 +8,19 @@
   "source_entry_commit": "af73f437e0035b3f3c9da4de014762c702413571",
   "timing_export_test_commit": "d63e96f6930a865671124029a12817e694107b5d",
   "scope": "precommitted references; ADC/QEP to original model algorithms/FOC to original PWM; no power",
+  "manual_windows_server_delivery": {
+    "status": "PUBLISHED_AND_PUBLIC_DOWNLOAD_VERIFIED_NOT_SDF",
+    "source_commit": "d376e56aa8580e5862c9d1a2534bee9af67a96c3",
+    "release": "https://github.com/kazecode666/AXU5EV/releases/tag/issue40-windows-sdf-20261110",
+    "release_kind": "artifact distribution prerelease; not acceptance",
+    "entry_bytes": 12654,
+    "entry_sha256": "5281edab4975a3a4c9582c657fe0902e5ad4a2d2a7f60a22728f1b3c8857fa47",
+    "server_entry_cases": 5,
+    "unpacked_entry_dry_run": "PASS_NOT_SDF",
+    "server_execution": "NOT_RUN_USER_MANUAL",
+    "linux_tests": "DEFERRED_NOT_RUN",
+    "guide": "firmware/r5/motor_control/WINDOWS_SERVER_SDF_ZH.md"
+  },
   "windows_o0_sdf": {
     "authorization": [6759938887, 6759942425],
     "review_route": 5835164071,
@@ -61,7 +74,9 @@
     "executed_platform": "Windows only; Linux/server NOT_RUN",
     "real_vivado_launches": 0,
     "server_execution": "NOT_RUN",
-    "uploaded_or_committed_archive": false,
+    "uploaded_or_committed_archive": true,
+    "uploaded_release": "https://github.com/kazecode666/AXU5EV/releases/tag/issue40-windows-sdf-20261110",
+    "committed_archive_in_git_history": false,
     "evidence": "evidence/server_bundle_20261110/README.md",
     "guide": "firmware/r5/motor_control/SDF_SERVER_ZH.md"
   },
@@ -262,12 +277,12 @@
     "draft": true,
     "base_branch": "main",
     "branch_pushed": true,
-    "review_status": "RUNNER_FIX_AND_SERVER_PACKAGE_REPORTED; DIRECTED_SDF_ACCEPTANCE_STILL_OPEN",
+    "review_status": "WINDOWS_MANUAL_SERVER_DOWNLOAD_READY; DIRECTED_SDF_ACCEPTANCE_STILL_OPEN",
     "review_target": "Issue40 and existing ChatGPT chat: Review DraftPR33",
     "review_issue_comment": "https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6739546511",
     "review_source_commit": "6731492716f5c21b1864d39cb2ad299c4e26172d",
     "review_chatgpt_thread": "6af03b57-7910-83e8-a39c-bd281805c2f7",
-    "review_dispatch": "6757750944 runner fix first committed separately, then complete bundle/unpack checks; no local long SDF or server execution; keep original dynamic criteria and Draft",
+    "review_dispatch": "6759938887/6759942425 local O0 candidate; later user moved to manual Windows server and authorized GitHub upload; local cancelled, release assets published; no server execution",
     "development_resume_authorized": false,
     "remaining": "server actual slow/max annotation and event dynamic validation, followed only on PASS by fast/min; NOT_RUN/NOT_COMPLETED, not replaced by runner or package checks; stop at Review",
     "resume_entry": "coordination/HANDOFF.md first section"
