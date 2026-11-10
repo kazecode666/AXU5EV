@@ -2,7 +2,13 @@
 
 更新：2026-11-10，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
-## 当前：完整功能PL网表slow/max超时，PR41保持Draft待Review
+## 当前：Issue40运行器修复短测PASS，随后制作服务器包（PR41保持Draft）
+
+本轮按Issue40评论6757750944接续同一分支/PR，服务器可运行仿真已确认。`scripts/sdf_runner.py` 共用入口修复本轮进程树归属、持续日志、finally清理和自然/超时/取消退出分类，原PowerShell包装保留。Windows12项短模拟测试PASS：四类退出各5进程/剩余0、运行中及已产生的末尾stdout/stderr保留、同名无关进程未受影响；包装传播与四类SDF拒绝判据也通过。精简证据 `verification/motor_control/evidence/runner_fix_20261110/`，原始目录runner_fix_01/02保留。本提交先独立交付修复与证据，随后才执行完整包制作及干净目录自检。
+
+本机不启动长SDF、不执行-O0、不重建/裁剪或改DUT/算法/约束，不登录/安装/运行服务器，不操作板卡；本轮不自动关机，替代下列历史关机指令。slow注释NOT_COMPLETED、动态NOT_RUN，fast未运行，SDF验收仍开放；运行器PASS不等于SDF PASS。8个原用户修改文件、全部旧产物和日志保留，最终保持PR41 Draft停在Review。
+
+## 历史：完整功能PL网表slow/max超时
 
 按Issue40评论6745328232、PR41评论6745337679接续0191fc7，复用hardware_02已有完整功能PL网表及两角SDF，当前事件测试台网表分支，未定义MC_TIMING_RTL。新目录 `.runtime/motor_control/sdf_full_slow_01`：00:32:36启动；xvlog通过、static elaboration完成，原wrapper在03:32:48报3h超时退出。用户追加允许更长等待后，仅同一次原生PID8028继续监督，未重启/重编译；到其启动后6h（06:32:48.542）仍未完成。核实原生路径/命令/精确启动时间后，于06:34:15.828终止该任务进程树，剩余0。原wrapper管道完整性无法保证，未取得原生自然退出0；监督终止码-1不是自然工具失败码。
 

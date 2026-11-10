@@ -1,6 +1,6 @@
 {
   "issue": "kazecode666/AXU5EV#40",
-  "status": "DRAFT_REVIEW; FULL_FUNCTIONAL_SDF_SLOW_TIMEOUT; ACCEPTANCE_OPEN",
+  "status": "RUNNER_FIX_PASS; SERVER_PACKAGE_PENDING; SDF_ACCEPTANCE_OPEN",
   "base": "ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13",
   "branch": "codex/motor-control-chain",
   "functional_commit": "906c9a5aa414863add479b11bc49535f92f87e7d",
@@ -8,6 +8,23 @@
   "source_entry_commit": "af73f437e0035b3f3c9da4de014762c702413571",
   "timing_export_test_commit": "d63e96f6930a865671124029a12817e694107b5d",
   "scope": "precommitted references; ADC/QEP to original model algorithms/FOC to original PWM; no power",
+  "sdf_runner_fix": {
+    "authorization": 6757750944,
+    "status": "PASS_SHORT_MOCK_TESTS_ONLY",
+    "run": ".runtime/motor_control/runner_fix_02",
+    "cases": 12,
+    "platform": "Windows 11; PowerShell 7.6.9; Python 3.14.6",
+    "tree_cases": ["normal", "nonzero_exit", "timeout", "explicit_cancel_file"],
+    "remaining_owned_processes_each": 0,
+    "live_stdout_stderr": "PASS",
+    "unrelated_process_unchanged": true,
+    "powershell_wrapper_cases": 4,
+    "invalid_sdf_result_rejections": 4,
+    "server_platform_execution": "NOT_RUN",
+    "evidence": "evidence/runner_fix_20261110/README.md",
+    "real_sdf": "NOT_RUN"
+  },
+  "server_bundle": {"status": "PENDING_AFTER_SEPARATE_RUNNER_FIX_COMMIT"},
   "full_functional_sdf": {
     "authorization": [6745328232, 6745337679],
     "source_commit": "0191fc773102bc4aa5d71c89e652137cce10c350",
