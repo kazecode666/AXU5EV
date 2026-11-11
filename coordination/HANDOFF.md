@@ -1,8 +1,22 @@
 # AXU5EV — 当前交接
 
-更新：2026-11-10，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
+更新：2026-11-11，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
-## 当前：Windows服务器手动SDF交接已发布，PR41保持Draft
+## 当前：服务器完整SDF与本地有限无功率板测并行
+
+按[PR41评论6784312486](https://github.com/kazecode666/AXU5EV/pull/41#issuecomment-6784312486)接续56bdd63及同一分支，公共候选为hardware_02/vitis_01。一次产物核对已完成，14项关系通过，包括实现bit/ltx、XSA内bit、平台XSA、FSBL与PS初始化、Launch和ELF身份。实际应用ID4d435401、BSP基址80000000，冻结参数TEST_INPUT=0、TEST_ABZ=1、AUTO_CONTROL=1、AUTO_FOC=1。准确路径/字节/SHA256、生成来源与文档head分别记录在 `verification/motor_control/evidence/parallel_plan_20261111/artifact_correspondence.json`。
+
+本地原38MB大zip记录路径当前缺失。公开Release两包的大小/digest仍与发布回执一致，当前网表/两角SDF/TB也与原包清单一致，服务器下载沿用该Release。核对结果保留这一局限，服务器副本与运行状态依据用户回执更新。
+
+服务器由用户手动运行，长命令见 `firmware/r5/motor_control/WINDOWS_SERVER_SDF_ZH.md`。slow/max和fast/min均显式 `-ToolTimeoutMs 86400000`，24h/工具为启动前资源预算。A线内部保持slow完整PASS后才执行fast，沿用原O0、默认日志级别和全部时序/事件判据。已有同候选任务先核实际命令/预算，保持该次运行。服务器SDF与本地板测各自推进。
+
+本地现场条件已由用户确认，具备接线确认的ADC模块及可靠输入。有限板测步骤见 `firmware/r5/motor_control/FIRST_RUN_ZH.md`，从现有bit/ltx、A53 FSBL和R5 ELF的WAIT/s启动，逐项执行数字校准、t/j参考、m合成编码器、d禁止/显式重臂及局部ILA。现场操作由用户执行，Codex协助下载/采集按用户明确授权的具体动作开展。r最多128条、阻塞采集，p在结束后打印20列选定字段，完整80字保存在records中。R5连续性按sample_id+500、tick+5000、50间隔历史独立归档，ILA按40.96us局部窗口记录。
+
+本轮执行准备和说明修订完成，四条实际验收状态 `server_sdf_slow_max`、`server_sdf_fast_min`、`board_no_power`、`r5_capture_continuity` 当前均为NOT_RUN。精简证据分别归档server_sdf_20261111与board_no_power_01，完整原始日志保留各自新目录。工具/资源异常单列，DUT功能或时序失败暂停受影响场景并报告具体证据。两条线完成后统一Review，PR41继续Draft，Issue40开放。
+
+以下为历史交付与执行安排，当前入口以上述并行计划为准。
+
+## 前轮：Windows服务器手动SDF交接发布
 
 按Issue40评论6759938887、PR41评论6759942425接续1eba754，Windows本机执行，服务器暂缓；Linux专项不作前置、不补测、不重新打包。沿Review5835164071只读检查旧目录：仅650份解析sdb，无生成源/对象/kernel，不能定位具体内部瓶颈。本机xelab2026.1帮助实际支持--O0（禁用优化）、--stats、--verbose 1；短help与命令差异核对通过。只改变编译策略--O0，额外两项仅诊断；debug off、mt隐式auto、1ps及所有原时序/事件判据不变，不将运行器修复当作性能修复。
 

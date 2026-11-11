@@ -1,64 +1,80 @@
-# 统一无功率数字链入口
+# 统一无功率数字链与本地有限板测
 
-最新按用户转向：Windows服务器由用户手动执行，Codex不远程连接。本机--O0候选在14:18用户取消并清理，尚无注释/kernel/动态通过。GitHub下载与完整Windows步骤见 [WINDOWS_SERVER_SDF_ZH.md](WINDOWS_SERVER_SDF_ZH.md)：原大包不变，新小入口放在包外，仅--O0、默认日志级别；fast必须核对slow已PASS。旧SDF_SERVER_ZH.md属于前轮包内原说明，新增Windows指南为当前入口。本轮不补Linux、不重打原包、不关机。
+2026-11-11按PR41评论6784312486接续Issue40。服务器执行完整功能PL两角SDF，本地使用hardware_02与vitis_01开展有限无功率板测，两条工作线独立推进，最后统一Review。当前板测和R5采集连续性均为NOT_RUN。用户已确认现场具备接线确认的ADC模块及可靠输入。
 
-本轮只离线构建和仿真，不连接/发现/下载/运行板卡，不接驱动板、电机或外部PWM/QEP线。六路只在内部观察，physical_link_verified=0。本说明不是上板授权。
+## 冻结候选与启动
 
-当前交付为Draft PR41。按评论6757750944先独立提交运行器修复0bd081a，12项短模拟测试PASS，再制作完整服务器包并完成仓库外干净解包、9项SHA256/10文件清单、依赖、两角dry-run及假工具正常/失败传播自检。包在 `.runtime/motor_control/server_bundle_01/AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip`，准确大小/校验见HANDOFF与results.json。便携运行及回收说明见 [SDF_SERVER_ZH.md](SDF_SERVER_ZH.md)，包内同文README_ZH.md。
+产物路径和本次SHA256见 [artifact_correspondence.json](../../../verification/motor_control/evidence/parallel_plan_20261111/artifact_correspondence.json)。硬件生成来源、服务器入口来源和当前文档head分别记录，现场使用下表的实际产物。
 
-已有实现/RTL/数值比较/STA/R5证据直接复用。旧完整网表slow原生6h仍无kernel，已核实停止，全部现场保留；slow注释NOT_COMPLETED、动态NOT_RUN，fast/min未运行。运行器与包自检不是SDF PASS；本轮不启动真实长SDF、-O0、硬件/R5重建或裁剪，不登录服务器、不操作板卡、不关机，交付后停在Draft Review。真实两角注释/动态另行执行，不能以RTL、导出或STA替代。
+| 项目 | 本机实际入口 |
+| --- | --- |
+| bit / ltx / 含bit XSA | `D:/Project/AXU5EV/.runtime/motor_control/hardware_02/ax03b3_adc.bit`、同目录`.ltx`和`.xsa` |
+| Workspace | `D:/Project/AXU5EV/.runtime/motor_control/vitis_01` |
+| R5应用 | `motor_control_observer/build/motor_control_observer.elf`，相对Workspace |
+| A53 FSBL | `motor_control_platform/export/motor_control_platform/sw/boot/fsbl.elf`，相对Workspace |
+| Launch配置 | `motor_control_observer/_ide/launch.json`中的`motor_control_manual` |
+| 服务器SDF | [WINDOWS_SERVER_SDF_ZH.md](WINDOWS_SERVER_SDF_ZH.md)，slow与fast均显式24h/工具预算 |
 
-本轮新增测试入口只验证刺激与监视器，**不等于SDF**：
+现场由用户操作板卡。需要Codex协助下载或采集时，由用户明确授权相应动作。执行前记录板型、ADC模块/接线和可靠输入条件，确认功率驱动及电机处于断开状态。六路PWM为内部观察，physical_link_verified=0，Vdc=48V为数字测试量。
 
-```powershell
-./scripts/motor_control_run_rtl.ps1 -Suite timing-preflight -RunDir .runtime/motor_control/<新自检目录>
-# 可选监视器反例：只改测试期望1位，预期ACTIVE_TRIPLET_MISMATCH、退出1
-./scripts/motor_control_run_rtl.ps1 -Suite timing-preflight -BadAdoptionExpectation -RunDir .runtime/motor_control/<新反例目录>
-```
+1. 在现有Vivado Hardware Manager中由用户选择冻结bit及配套ltx。保留现有探针和深度。
+2. 在Vitis打开上表Workspace与Launch。Launch配置为`programDevice=false`、`resetSystem=true`、RPU split，用户先确认本次复位影响范围，再手动启动。FSBL对应AArch64/A53_0，应用对应ARM32/R5_0，平台使用这份XSA的PS初始化。具体PS初始化文件路径在产物对应记录中。
+3. Launch在应用入口暂停，用户继续运行至UART出现`MOTOR_CONTROL 4d435401 WAIT; physical_link_verified=0; no automatic arm`。记录原始启动输出。串口沿用PS UART0，115200/8N1、无流控，COM号按现场端口选择。
+4. 单发`s`，应取得`MC sample=... ref=... applied=... flags=... physical=0`。应用在读取时核对MCT1 identity=0x4d435431、schema3、TEST尺度和FOC采样身份，实际BSP基址0x80000000。默认禁止位为flags bit4，首次有效结果前保持禁止。若没有MC状态输出或出现`MC schema/scale absent; stopped`，保存UART及可取得的原始字段并报告，暂停受影响场景。
 
-已完成的hardware_02/vitis_01、55帧模型、19帧原FOC比较和原整链RTL均直接复用。以下完整生成/构建命令仅供将来修改实现后的复现索引，本次收尾不执行。第二次固定六帧FOC oracle保留NOT_RUN历史，已取消强制门槛；只有相关算法/状态合同改变或实际数值不一致才另定必要比较。
+服务器运行进度单独记录，本地现可开展上述现场启动。
 
-## 查看、运行和生成
+## 分场景操作与记录
 
-统一模型为 `simulation/motor_control/AXU5EV_Motor_Control_System.slx`，唯一运行入口 `motor_control_run(<新结果目录>)`，通过MATLAB MCP调用。它运行真实电流/角度库组件、原FOC和模型数值映射；SIM_ONLY接口/显示不代替RTL接收器或100MHz边沿验证。用户已修改的ADC/共享库不保存，受控运行在隔离batch中使用Git已提交的原依赖，详见数值入口说明。
+每次只发一个命令，等该命令完成及状态确认后继续。开始前创建新的原始记录目录，例如`.runtime/motor_control/board_no_power_01`，保存串口原文、命令顺序、输入条件和ILA文件。命令前后记录时间，末尾回到`d`禁止状态。
 
-原FOC/电流/角度生成物直接复用；新Q30到比较值算法源 `simulation/motor_control/duty_to_compare.m`，生成入口 `motor_control_generate_mapper`。R5位置与50间隔测速继续复用 `simulation/encoder/encoder_position_speed.m` 生成的C，未加入外环或自动对齐。改算法、改RTL接口和生成索引见统一motor_control README。
+| 场景 | 用户逐步操作 | 要记录和核对的内容 |
+| --- | --- | --- |
+| 启动与数字校准 | `s`，然后`c`，等候状态更新，再`s → r → p` | `c`先禁止，提交N16/gain65536数字校准。观察两路done、有效帧和原码条件。quality bit5/6为两路校准done，bit7为电流有效，bit3/4为OTR。完整校准计数和偏置可在保存的records里查看。记录当前输入对应的数字偏置与状态 |
+| 静止参考 | `t`，等候新参考版本，再`r`，采集完成后`p` | 合成ABZ停止，id=0、iq约0.1A、omega=0、Vdc=48V。核对refVersion、sample/focSample、offered/applied、duty和compare以及flags |
+| 参考阶跃后状态 | `j`，等候新参考版本，再`r → p` | iq约0.2A，核对新版本与采用身份，结果标为命令后的状态观察。现场数据覆盖到的瞬态另行说明 |
+| 合成编码器 | `m`，等候新版本，再`r → p` | 合成源每10us一个有效count，测试尺度0.001mm/count、电周期30mm，正常100us帧约增加10count和0.010mm。连续51项历史后核对sv、history及名义100mm/s。对应omega约20.943951rad/s，Q24=351381190 |
+| 禁止及显式重臂 | 采集结束后`d`，再`s → r → p`，随后`t`，等候新版本，再`r → p`，最后`d → s` | 禁止持续、旧参考保持取消、新参考版本显式重臂。联合flags与applied历史解释结果。保存禁止前、禁止后及重臂后三组记录 |
+| 局部ILA | 按下节分别触发 | 三相采用、互补死区、禁止和释放分别归档 |
 
-PL继续使用 `hardware/axu5ev/motor_control/build.tcl`，包装入口 `scripts/motor_control_build_hw.ps1`；静态AUTO_CONTROL/AUTO_FOC选择自动来源，手动duty提交在自动候选返回SLVERR。不能同时写两个active来源。
+`r`是阻塞式采集，最多128条新seq，结束时打印records和attempts，随后`p`打印已保存数据。采集期间到达的UART命令会等待主循环处理，测试用`d`在采集结束后发送。精确P0禁止、ready晚到和失锁注入继续由原SDF/RTL事件测试台覆盖。
 
-```powershell
-# 复现时均指定新目录，不重新执行已完成候选的all：
-./scripts/motor_control_run_rtl.ps1 -RunDir .runtime/motor_control/<新RTL目录>
-./scripts/motor_control_build_hw.ps1 -Stage all -Output .runtime/motor_control/<新硬件目录>
-# 按新硬件修改build_config和未占用Workspace后：
-vitis.bat -s scripts/motor_control_build.py
-python scripts/motor_control_build.py --check-startup
-```
+电流、参考、位置和duty均按本轮数字尺度解读。校准记录为N16数字流程结果，参考给定和实际反馈分别观察。若compare达到0或5000造成持续电平，ILA切换场景记录实际未观察项。
 
-采用的硬件/Workspace及实际PASS项以 `verification/motor_control/results.json`、`coordination/HANDOFF.md` 首节为准。默认新配置为 `.runtime/motor_control/hardware_02/ax03b3_adc.bit/.ltx/.xsa`、Workspace `.runtime/motor_control/vitis_01`，平台 `motor_control_platform`、应用 `motor_control_observer`、Launch `motor_control_manual`。ELF为Workspace下 `motor_control_observer/build/motor_control_observer.elf`，A53 FSBL为 `motor_control_platform/export/motor_control_platform/sw/boot/fsbl.elf`。
+## 身份、采集连续性与完整字段
 
-## 后续获准后手动观察
+`p`打印20列选定字段，即sample、tickLo、count、quality、refVersion、focSample、offered、applied、三路duty、三路compare、flags、position_mm、speed_mm_s、pv、sv、history。完整80字仍保存在R5的`records[i].p[0..79]`，snapshot seq在`records[i].seq`，软件状态在`records[i].status`。
 
-1. 另行获准后才按既有A53 FSBL＋R5路径手动启动，显式选本次bit/ltx和匹配平台的PS初始化。Launch不自动下载PL。应用只到 `MOTOR_CONTROL 4d435401 WAIT`，不自动arm。
-2. `c`先禁止，再请求数字TEST电流校准：N16、gain65536。它只是本轮数字尺度，不是真实电流标定。当前输入来自真实ADC针脚路径，未接入的模拟信号/母线不能当传感器实测。
-3. `t`停止内部ABZ测试运动，预提交id=0、iq约0.1A、omega=0、Vdc=48V和arm。静止向量只在编码器停止后解释。等待快照参考版本/有效位，首个有效FOC结果前保持禁止。
-4. `j`预提交iq约0.2A阶跃，仍由PL反馈→FOC→模型比较值→PWM自动交接；R5不逐帧写duty。
-5. `m`显式启动原接收器前的合成ABZ源；每10us一个有效count，TEST的0.001mm/count与30mm电周期对应名义omega=20.943951rad/s（Q24=351381190）。这是声明的测试参考，不是R5把mm/s直接当rad/s或真实速度传感器测量。
-6. `r`按PL新快照轮询最多128帧，期间不打印；`p`在采集停止后导出位置/速度、FOC输入身份、参考版本、duty、比较值及实际采用身份。真实无漏帧服务能力NOT_RUN，历史不足/重复/缺帧规则沿用PR39。`s`只读一次状态。
-7. `d`通过独立禁止命令停止逻辑输出，同时取消此前已提交但尚未在P0采用的参考；恢复须在它之后重新显式提交arm，旧pending不会自动复活。不将其称作板卡/驱动器急停。重启PL/换候选须重新启动R5观察器，重新建立历史和显式提交，不能跨无法辨识的复位声称连续位置/速度。
+- 正常选样帧的sample_id为uint32，正常增量+500，50MHz tick为uint64，正常增量+5000。UART只打印tick低32位，按模2^32计算差值，完整tick由word5与word4组合。缺帧记录实际间隔，重复sample与重复seq分别说明。
+- `capture`跳过相同seq的轮询。保存records/attempts及实际打印行数，attempts还包含重复轮询。R5连续逐帧服务结论单独归档，记录最大ID/tick间隔、缺帧数、历史重建和sv情况。
+- 速度使用100us位置历史的50间隔，即51项连续位置。启动、配置变化或缺帧会影响历史有效性，重复帧保持历史。现有模型处理32位count回绕，采集核对按既有字段宽度与有效位解释。
+- 需要完整同帧字段时，在采集结束后的现有Vitis调试会话查看`recorded`及`records[i].p`，读取已保存的首/末条或相关条目。依据该ELF调试类型或map确认地址和布局，保存实际读到的80字及seq。字段未取得时在结果中标NOT_OBSERVED。
+- 同帧检查关注word42=word3、word43/44=word4/5，word45参考版本和word46–56冻结输入。word57–59为Q30 duty，word60–62为0..5000比较值，word63为提交sample，word64为最后确认采用sample，word70/71为目标谷值tick。若字段不同，保存具体条目并报告影响范围。
 
-## 字段与时间
+flags对应word41。bit0 core_started、bit1 capture_valid、bit2 hold_violation、bit3 auto_valid、bit4 auto_inhibit、bit5 lock_blocked、bit6 frame_late、bit7 foc_pi。word64/applied保留最后采用历史，判断当前许可时同时看flags及六路波形。
 
-MCT1 identity=0x4d435431、schema3，共80字；BEGIN=0x00冻结，payload从0x0c开始，最后word79在 **0x148读响应** 后释放。读/写通道分开，原电流和编码器写地址保留；不能用旧0x88/0xac释放位置。
+快照为MCT1/schema3共80字，BEGIN=0x00冻结，payload从0x0c开始，最后word79在0x148读响应后释放。现有应用负责完整读取和释放。
 
-前41字的单位沿用PR39（sample_id正常+500、tick正常+5000）。新增word41为控制标志，42–44为FOC采样ID/tick，45参考版本，46–56整组冻结九字段（theta/omega各占两字，不截成32位），57–59为unsignedQ30 duty，60–62为0..5000比较值，63本次提交采样ID，64最后已确认采用的ID，65–67为提交/晚到/无效计数，68–69为原核帧号/capture_edge，70–71目标谷值tick，72结果数。73–79保留0。
+电流和id/iq采用signed32/Q24 A，角度为signed40/Q32 rad，omega为signed40/Q24 rad/s，Vdc为unsigned32/Q24 V，duty为unsigned32/Q30。生成mapper将duty限于[0,1]后乘5000并half-up舍入。word70/71的目标谷值为capture_tick+2500个50MHz拍，名义50us。既有调度为反馈约2.2us准备完成、P128首次送入原FOC、P442附近捕获结果，随后在目标谷值整组采用。
 
-word64是最后确认的采用历史，不代表禁止后仍有当前使能输出；必须联合word41的有效/禁止/late位与采样ID/参考版本判断。预提交参考在选中phase0采用；反馈约2.2us准备好，FOC输入在固定P128接受、原核全5000使能拍继续运行，结果在P442附近捕获。比较值到100MHz域后只在sample_tick+2500（名义+50us）的目标谷值整组采用，晚到不冒充该边界成功；控制快照在该谷值确认后发布。实际相位测量见整链验证记录。
+## 局部ILA
 
-固定捕获以后发生disarm、失锁或晚到，只立即禁止/取消PWM，不在本帧中途改变已冻结的FOC输入或global reset。下一次固定捕获若仍无效，则使用零电流/参考/角度/速度、48V与PI_Reset=1；若已显式重臂且反馈有效，则继续原PI状态，不增加隐式PI恢复系统。
+PWM ILA为4096点、名义100MHz，连续窗口约40.96us。采用、死区、禁止/释放各自触发，配合原子快照判断更长时间关系。100us完整周期和采样至目标谷值的50us跨越需要多次采集和身份记录。
 
-IQ/id单位A，角度Q32 rad，omega Q24 rad/s，Vdc Q24 V；Q30映射饱和到[0,1]后乘5000、half-up舍入。母线48V、omega及AQM测试尺度均为明确测试量；旧AUM电机参数/PI不改，不能因此称为参数一致的真实机械闭环。模型不叠加第二次平均死区，实际互补和死区由原PWM RTL验证。
+现有128位probe0中，high[2:0]、low[5:3]、phase[19:6]、valley[20]、peak[21]、started[22]、accepted[23]、applied[24]、pending[25]、high_request[28:26]、use_permission[35:29]、active_seq[67:36]、active_compare[106:68]。三路compare分别在[80:68]、[93:81]、[106:94]。
 
-当前PWM ILA仍为4096点、约100MHz，连续窗口约40.96us，短于完整100us PWM周期及选样峰值到下一采用谷值的50us。后续获准采集时，分别触发观察死区、整组采用和许可/重新使能边界；同帧FOC身份与输入/结果用80字原子快照核对。不能用一次ILA窗口声称看到了完整采样→计算→采用周期。本轮未增加ILA深度。
+| 局部采集 | 触发和观察 |
+| --- | --- |
+| 三相采用 | 触发applied或active_seq变化，观察谷值与三路active_compare共同更新，记录该seq与UART/快照身份 |
+| 死区 | 在有切换的相位上观察high/low边沿，核对互补和名义100个100MHz拍的死区。记录采样分辨率及实际可见边沿 |
+| 禁止/释放 | 在采集窗口外发送`d`或新`t`，按许可/started或六路变化分别触发，保存实际窗口及对应参考版本 |
 
-外部引脚/电平、真实电流标定、AQM完整参数恢复、完整R5外环/Runtime/对齐及有功率联调均为后续任务。保留全部旧Workspace和原始输出。
+## 归档与后续Review
+
+精简板测回执使用`verification/motor_control/evidence/board_no_power_01/`，服务器SDF使用`verification/motor_control/evidence/server_sdf_20261111/`，原始大日志保留在各自新结果目录。每项填写PASS/FAIL/NOT_RUN和实际覆盖字段，R5连续性另列。现场问题先提交UART、快照/ILA及产物身份，说明受影响场景。
+
+当前状态集中在`verification/motor_control/results.json`的server_sdf_slow_max、server_sdf_fast_min、board_no_power、r5_capture_continuity。两条线证据收齐后统一Review，PR41保持Draft。
+
+## 已有数值与生成入口
+
+统一模型`simulation/motor_control/AXU5EV_Motor_Control_System.slx`及`motor_control_run`，原电流/角度库、原p3 FOC与模型生成mapper，继续沿已验收来源复用。生成和工程索引见motor_control README。既有55帧模型、19帧FOC比较、RTL、STA/CDC及R5构建证据按原结果保留，第二次固定六帧oracle历史为NOT_RUN/NOT_REQUIRED_DUPLICATE。
