@@ -24,7 +24,7 @@
 3. Launch在应用入口暂停，用户继续运行至UART出现`MOTOR_CONTROL 4d435401 WAIT; physical_link_verified=0; no automatic arm`。记录原始启动输出。串口沿用PS UART0，115200/8N1、无流控，COM号按现场端口选择。
 4. 单发`s`，应取得`MC sample=... ref=... applied=... flags=... physical=0`。应用在读取时核对MCT1 identity=0x4d435431、schema3、TEST尺度和FOC采样身份，实际BSP基址0x80000000。默认禁止位为flags bit4，首次有效结果前保持禁止。若没有MC状态输出或出现`MC schema/scale absent; stopped`，保存UART及可取得的原始字段并报告，暂停受影响场景。
 
-服务器运行进度单独记录，本地现可开展上述现场启动。
+以上为未来无功率现场启动的操作步骤，当前尚无现场执行授权；板测及R5实机采集均保持NOT_RUN。只有用户明确授权且确认现场安全条件后，才可按本手册执行。
 
 ## 分场景操作与记录
 
