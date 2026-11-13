@@ -1,0 +1,14 @@
+{
+  "status": "READY_FOR_MANUAL_WINDOWS_SERVER; NOT_SDF_PASS",
+  "original_archive": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\server_bundle_01\\AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip",
+  "original_bytes": 38281015,
+  "original_sha256": "6932398ee982936da54521c60d5bd978234c5bd55698e76de720910fb509e05b",
+  "entry_archive": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\windows_server_ready_01\\AXU5EV_Windows_SDF_Entry_20261110.zip",
+  "entry_bytes": 12654,
+  "entry_sha256": "5281edab4975a3a4c9582c657fe0902e5ad4a2d2a7f60a22728f1b3c8857fa47",
+  "checksums": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\windows_server_ready_01\\SHA256SUMS.txt",
+  "unpacked_entry_dry_run": "PASS_NOT_SDF",
+  "old_archive": "UNCHANGED",
+  "server_execution": "NOT_RUN",
+  "release_tag": "issue40-windows-sdf-20261110"
+}

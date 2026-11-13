@@ -1,0 +1,45 @@
+Native SDF first capture, inhibition, source coverage and final PASS traces. Full raw logs separately preserved.
+
+slow
+18: PWM_CUT_PERMISSION t_ns=874.200 logical_inhibit=0 physical_permission=1 ce=0 reset=0 busy=0 pending=0
+20: PWM_CUT_FIRST_EDGE t_ns=890.000 valid=0 ready=1 inhibit=0 physical_permission=1 reset=0 seq=0 pending=0 accepted=0 busy=0 capture_ce=0 dut_request=0 request=1 claimed=0 done=0 handshake=0
+21: PWM_CUT_FIRST_EDGE t_ns=910.000 valid=1 ready=1 inhibit=0 physical_permission=1 reset=0 seq=1 pending=0 accepted=0 busy=0 capture_ce=1 dut_request=0 request=1 claimed=1 done=0 handshake=1
+22: PWM_CUT_FIRST_HANDSHAKE t_ns=910.000 seq=1 retire_due_ns=910.200
+23: PWM_CUT_FIRST_RETIRE t_ns=910.200 valid=0 ready=1 inhibit=0 physical_permission=1 reset=0 seq=1 pending=0 accepted=0 busy=1 capture_ce=1 dut_request=1
+24: PWM_CUT_CAPTURE t_ns=914.000 logical_inhibit=0 physical_permission=1 valid=0 ready=0 ce=0 reset=0 busy=1 request=1 frozen_seq=1 frozen_compare=3e813883e8 pending=0
+25: PWM_CUT_FIRST_EDGE t_ns=930.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=1 pending=0 accepted=0 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+26: PWM_CUT_FIRST_PENDING t_ns=944.000 logical_inhibit=0 physical_permission=1 reset=0 busy=1 request=1 pending=1 frozen_seq=1 accepts=1
+27: PWM_CUT_FIRST_EDGE t_ns=950.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=63 pending=1 accepted=1 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+28: PWM_CUT_FIRST_EDGE t_ns=970.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=63 pending=1 accepted=1 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+29: PWM_CUT_FIRST_EDGE t_ns=990.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=63 pending=1 accepted=1 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+51: PWM_CUT_PERMISSION t_ns=1061114.200 logical_inhibit=1 physical_permission=0 ce=0 reset=1 busy=1 pending=0
+53: PWM_CUT_PERMISSION t_ns=1171294.200 logical_inhibit=0 physical_permission=1 ce=0 reset=0 busy=0 pending=0
+61: PWM_CUT_PERMISSION t_ns=1461234.200 logical_inhibit=1 physical_permission=0 ce=0 reset=1 busy=0 pending=0
+67: PWM_CUT_PERMISSION t_ns=1571434.200 logical_inhibit=0 physical_permission=1 ce=0 reset=0 busy=0 pending=0
+75: PWM_CUT_PERMISSION t_ns=1821774.200 logical_inhibit=1 physical_permission=0 ce=0 reset=1 busy=0 pending=0
+81: PWM_CUT_PERMISSION t_ns=1931974.200 logical_inhibit=0 physical_permission=1 ce=0 reset=0 busy=0 pending=0
+86: PWM_CUT_PERMISSION t_ns=2182114.200 logical_inhibit=1 physical_permission=0 ce=0 reset=1 busy=0 pending=0
+87: PWM_CUT_SOURCE_COVERAGE anchor_pulses=3 starts=3 peaks=3
+88: PWM_CUT_SDF_PASS checks=756022 offers=11 accepts=11 adoptions=8 acks=8 periods=20 h_edges=43 l_edges=41 zero=51028 full=51028 cancels=3 rearms=3 q_events=8 releases=4 min_gap_ns=1000.000 max_q_ns=0.100
+
+fast
+18: PWM_CUT_PERMISSION t_ns=874.200 logical_inhibit=0 physical_permission=1 ce=0 reset=0 busy=0 pending=0
+20: PWM_CUT_FIRST_EDGE t_ns=890.000 valid=0 ready=1 inhibit=0 physical_permission=1 reset=0 seq=0 pending=0 accepted=0 busy=0 capture_ce=0 dut_request=0 request=1 claimed=0 done=0 handshake=0
+21: PWM_CUT_FIRST_EDGE t_ns=910.000 valid=1 ready=1 inhibit=0 physical_permission=1 reset=0 seq=1 pending=0 accepted=0 busy=0 capture_ce=1 dut_request=0 request=1 claimed=1 done=0 handshake=1
+22: PWM_CUT_FIRST_HANDSHAKE t_ns=910.000 seq=1 retire_due_ns=910.200
+23: PWM_CUT_FIRST_RETIRE t_ns=910.200 valid=0 ready=1 inhibit=0 physical_permission=1 reset=0 seq=1 pending=0 accepted=0 busy=1 capture_ce=1 dut_request=1
+24: PWM_CUT_CAPTURE t_ns=914.000 logical_inhibit=0 physical_permission=1 valid=0 ready=0 ce=0 reset=0 busy=1 request=1 frozen_seq=1 frozen_compare=3e813883e8 pending=0
+25: PWM_CUT_FIRST_EDGE t_ns=930.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=1 pending=0 accepted=0 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+26: PWM_CUT_FIRST_PENDING t_ns=944.000 logical_inhibit=0 physical_permission=1 reset=0 busy=1 request=1 pending=1 frozen_seq=1 accepts=1
+27: PWM_CUT_FIRST_EDGE t_ns=950.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=63 pending=1 accepted=1 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+28: PWM_CUT_FIRST_EDGE t_ns=970.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=63 pending=1 accepted=1 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+29: PWM_CUT_FIRST_EDGE t_ns=990.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=63 pending=1 accepted=1 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+51: PWM_CUT_PERMISSION t_ns=1061114.200 logical_inhibit=1 physical_permission=0 ce=0 reset=1 busy=1 pending=0
+53: PWM_CUT_PERMISSION t_ns=1171294.200 logical_inhibit=0 physical_permission=1 ce=0 reset=0 busy=0 pending=0
+61: PWM_CUT_PERMISSION t_ns=1461234.200 logical_inhibit=1 physical_permission=0 ce=0 reset=1 busy=0 pending=0
+67: PWM_CUT_PERMISSION t_ns=1571434.200 logical_inhibit=0 physical_permission=1 ce=0 reset=0 busy=0 pending=0
+75: PWM_CUT_PERMISSION t_ns=1821774.200 logical_inhibit=1 physical_permission=0 ce=0 reset=1 busy=0 pending=0
+81: PWM_CUT_PERMISSION t_ns=1931974.200 logical_inhibit=0 physical_permission=1 ce=0 reset=0 busy=0 pending=0
+86: PWM_CUT_PERMISSION t_ns=2182114.200 logical_inhibit=1 physical_permission=0 ce=0 reset=1 busy=0 pending=0
+87: PWM_CUT_SOURCE_COVERAGE anchor_pulses=3 starts=3 peaks=3
+88: PWM_CUT_SDF_PASS checks=756022 offers=11 accepts=11 adoptions=8 acks=8 periods=20 h_edges=43 l_edges=41 zero=51028 full=51028 cancels=3 rearms=3 q_events=8 releases=4 min_gap_ns=1000.000 max_q_ns=0.100

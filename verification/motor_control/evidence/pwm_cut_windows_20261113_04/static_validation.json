@@ -1,0 +1,12 @@
+{
+  "original_baseline": "pwm_cut_sdf_20261113_1631/v1/pwm_cut_tb.sv",
+  "round4_v1_assertion_calls": 50,
+  "old_assertion_calls": 44,
+  "final_assertion_calls": 51,
+  "old_calls_preserved_in_order": true,
+  "physical_adapter": "same permission complement in v1/v2",
+  "source_driver": "unchanged",
+  "clocks_cq_anchor_deadtime": "unchanged",
+  "additional_check": "raw lookahead separately checked; original request checks use external-clock aligned logical output epoch, not an independent physical FF sampling proof",
+  "revision_limit": "one adapter plus one nonpolarity revision used; no more candidates allowed"
+}

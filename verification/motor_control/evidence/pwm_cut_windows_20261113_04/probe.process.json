@@ -1,0 +1,9 @@
+﻿{
+    "elapsed_seconds":  239.50235909999998,
+    "exit_code":  null,
+    "finished_utc":  "2026-11-13T09:39:31.4932463+00:00",
+    "timed_out":  false,
+    "limit_seconds":  600,
+    "started_utc":  "2026-11-13T09:35:31.9944891+00:00",
+    "pid":  71744
+}

@@ -1,0 +1,96 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 10-nov-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Fri Nov 13 17:35:33 2026
+# Process ID         : 72208
+# Current directory  : D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1735
+# Command line       : vivado.exe -mode batch -source D:\Weiwen Li\AXU5EV\pwm_cut_sdf_20261113_1735/probe_polarity.tcl -log D:\Weiwen Li\AXU5EV\pwm_cut_sdf_20261113_1735/probe.log -journal D:\Weiwen Li\AXU5EV\pwm_cut_sdf_20261113_1735/probe.jou
+# Log file           : D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1735/probe.log
+# Journal file       : D:\Weiwen Li\AXU5EV\pwm_cut_sdf_20261113_1735/probe.jou
+# Running On         : DESKTOP-591B4R4
+# Platform           : Windows 10
+# Operating System   : 19045
+# Processor Detail   : Intel(R) Core(TM) Ultra 9 285K
+# CPU Frequency      : 3686 MHz
+# CPU Physical cores : 24
+# CPU Logical cores  : 24
+# Host memory        : 205378 MB
+# Swap memory        : 45097 MB
+# Total Virtual      : 250475 MB
+# Available Virtual  : 89758 MB
+#-----------------------------------------------------------
+source {D:\Weiwen Li\AXU5EV\pwm_cut_sdf_20261113_1735/probe_polarity.tcl}
+# set out [file dirname [info script]]
+# proc main {} {
+#  global out
+#  open_checkpoint {D:/Weiwen Li/AXU5EV/Issue40_PWM_Cut_Handoff/pwm_adc_routed.dcp}
+#  set f [open $out/physical_cone.txt w]
+#  foreach name {design_1_i/adc_observer_0/auto_inhibit_o design_1_i/adc_observer_0/inst/auto_inhibit_o design_1_i/pwm_control_0/auto_inhibit_i design_1_i/pwm_control_0/inst/auto_inhibit_i {design_1_i/pwm_control_0/debug_o[35]}} {
+#  puts $f "BOUNDARY $name"
+#  set p [get_pins -quiet $name]
+#  puts $f "PINS $p"
+#  if {[llength $p]==0} {continue}
+#  set n [get_nets -segments -of_objects $p]
+#  puts $f "SEGMENTS $n"
+#  set leaves [get_pins -leaf -of_objects $n]
+#  puts $f "LEAF_PINS $leaves"
+#  set cs [get_cells -of_objects $leaves]
+#  foreach c $cs {
+#  puts $f [report_property -return_string $c]
+#  foreach q [get_pins -of_objects $c] {puts $f "CELL_PIN $q DIR=[get_property DIRECTION $q] NET=[get_nets -segments -of_objects $q]"}
+#  }
+#  }
+#  close $f
+#  set f [open $out/probe_status.txt w];puts $f COMPLETED_READ_ONLY_TARGETED_QUERY;close $f
+# }
+# if {[catch {main} msg opts]} {set f [open $out/probe_status.txt w];puts $f "FAILED $msg
+# [dict get $opts -errorinfo]";close $f;exit 1}
+Command: open_checkpoint {D:/Weiwen Li/AXU5EV/Issue40_PWM_Cut_Handoff/pwm_adc_routed.dcp}
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.037 . Memory (MB): peak = 336.418 ; gain = 3.797
+INFO: [Device 21-403] Loading part xczu5ev-sfvc784-2-i
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.893 . Memory (MB): peak = 1693.910 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 10817 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 4 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.626 . Memory (MB): peak = 1988.453 ; gain = 67.668
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.397 . Memory (MB): peak = 2881.301 ; gain = 0.000
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.050 . Memory (MB): peak = 2881.301 ; gain = 0.000
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2881.301 ; gain = 0.000
+Read placeStorage: Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 2949.000 ; gain = 67.699
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2949.000 ; gain = 0.000
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:11 ; elapsed = 00:00:09 . Memory (MB): peak = 3511.641 ; gain = 562.641
+Read Physdb Files: Time (s): cpu = 00:00:16 ; elapsed = 00:00:14 . Memory (MB): peak = 3511.641 ; gain = 630.340
+Restored from archive | CPU: 17.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:16 ; elapsed = 00:00:15 . Memory (MB): peak = 3511.641 ; gain = 630.340
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.090 . Memory (MB): peak = 3800.777 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 579 instances were transformed.
+  CFGLUT5 => CFGLUT5 (SRL16E, SRLC32E): 92 instances
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 433 instances
+  DSP48E2 => DSP48E2 (inverted pins: RSTA) (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 2 instances
+  DSP48E2 => DSP48E2 (inverted pins: RSTB) (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 20 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 26 instances
+  RAM32M16 => RAM32M16 (RAMD32(x14), RAMS32(x2)): 2 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 4 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:01:21 ; elapsed = 00:01:13 . Memory (MB): peak = 3800.777 ; gain = 3477.480
+# exit 0
+INFO: [Common 17-206] Exiting Vivado at Fri Nov 13 17:39:30 2026...

@@ -1,0 +1,329 @@
+{
+  "status": "PASS_ARTIFACT_CORRESPONDENCE",
+  "checked_local": "2026-11-11T13:18:40.783097+08:00",
+  "repository": "kazecode666/AXU5EV",
+  "issue": 40,
+  "pr": 41,
+  "comment": 6784312486,
+  "documentation_head_before_this_edit": "56bdd634ab7db9bad6e743636202d5a00f5799e2",
+  "candidate": {
+    "hardware": "hardware_02",
+    "workspace": "vitis_01",
+    "application": "motor_control_observer",
+    "launch": "motor_control_manual",
+    "frozen_bd_parameters": {
+      "adc_observer_0": {
+        "AUTO_CONTROL": "1",
+        "ENCODER_FEEDBACK": "1",
+        "TEST_ABZ": "1",
+        "TEST_INPUT": "0"
+      },
+      "pwm_control_0": {
+        "AUTO_FOC": "1"
+      }
+    }
+  },
+  "source_lineage": {
+    "functional_commit": "906c9a5aa414863add479b11bc49535f92f87e7d",
+    "disarm_fix_commit": "bc52d7498e1c913166b496e626ebe5e0757ce061",
+    "timing_export_commit": "d63e96f6930a865671124029a12817e694107b5d",
+    "testbench_source_commit": "0191fc773102bc4aa5d71c89e652137cce10c350",
+    "server_entry_release_target": "d376e56aa8580e5862c9d1a2534bee9af67a96c3",
+    "documentation_head_role": "Execution docs and runner history. Actual file relationships and recorded frozen package hashes establish candidate identity."
+  },
+  "selected_local_files": {
+    "bit": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/ax03b3_adc.bit",
+      "bytes": 7797907,
+      "sha256": "0b8d7533397e2d33023be55af048995697a58f804394cea99762a57e6ce7995e"
+    },
+    "ltx": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/ax03b3_adc.ltx",
+      "bytes": 26423,
+      "sha256": "18fd7165385aa76834f90fdf1b86b72f4fded3b93d1d55fed591ad9635f0b879"
+    },
+    "xsa": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/ax03b3_adc.xsa",
+      "bytes": 3193839,
+      "sha256": "defa90d6cdce74fbf0d9b01bc14e1c012e2f7c7b7f5c8d72a553a8c732a8036f"
+    },
+    "implementation_bit": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/project/ax02a_ps.runs/impl_1/design_1_wrapper.bit",
+      "bytes": 7797907,
+      "sha256": "0b8d7533397e2d33023be55af048995697a58f804394cea99762a57e6ce7995e"
+    },
+    "implementation_ltx": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/project/ax02a_ps.runs/impl_1/design_1_wrapper.ltx",
+      "bytes": 26423,
+      "sha256": "18fd7165385aa76834f90fdf1b86b72f4fded3b93d1d55fed591ad9635f0b879"
+    },
+    "implementation_debug_nets_ltx": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/project/ax02a_ps.runs/impl_1/debug_nets.ltx",
+      "bytes": 26423,
+      "sha256": "18fd7165385aa76834f90fdf1b86b72f4fded3b93d1d55fed591ad9635f0b879"
+    },
+    "platform_xsa": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_platform/hw/ax03b3_adc.xsa",
+      "bytes": 3193839,
+      "sha256": "defa90d6cdce74fbf0d9b01bc14e1c012e2f7c7b7f5c8d72a553a8c732a8036f"
+    },
+    "platform_sdt_bit": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_platform/hw/sdt/ax03b3_adc.bit",
+      "bytes": 7797907,
+      "sha256": "0b8d7533397e2d33023be55af048995697a58f804394cea99762a57e6ce7995e"
+    },
+    "r5_elf": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_observer/build/motor_control_observer.elf",
+      "bytes": 270556,
+      "sha256": "4eee8340cd76476ddfa17d4bf02ba9be23b6c212e12a73b3bbf4dc680974bb36"
+    },
+    "a53_fsbl_elf": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_platform/export/motor_control_platform/sw/boot/fsbl.elf",
+      "bytes": 341176,
+      "sha256": "23c21b87ffec5249afb05fbeb1aacc955546fdee4754291b703d44ac789a6618"
+    },
+    "application_psu_init_tcl": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_observer/_ide/psinit/psu_init.tcl",
+      "bytes": 665897,
+      "sha256": "5ddc26bf05c47e77af33a7f072cd1bcab2fc56201950dcc2b2375d5fbc81081c"
+    },
+    "platform_sdt_psu_init_tcl": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_platform/hw/sdt/psu_init.tcl",
+      "bytes": 665897,
+      "sha256": "5ddc26bf05c47e77af33a7f072cd1bcab2fc56201950dcc2b2375d5fbc81081c"
+    },
+    "hardware_generated_psu_init_tcl": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/project/ax02a_ps.gen/sources_1/bd/design_1/ip/design_1_zynq_ultra_ps_e_0_0/psu_init.tcl",
+      "bytes": 665897,
+      "sha256": "5ddc26bf05c47e77af33a7f072cd1bcab2fc56201950dcc2b2375d5fbc81081c"
+    },
+    "fsbl_psu_init_c": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_platform/zynqmp_fsbl/psu_init.c",
+      "bytes": 685137,
+      "sha256": "7315901567cba288ffc48991d5976891566787b906bd16313aaa317cf27f50af"
+    },
+    "launch": {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_observer/_ide/launch.json",
+      "bytes": 2182,
+      "sha256": "d0555fe17f790d138ff2890fb9b9d094e55f34cb4cb9468096e7257acfc4c6ff"
+    }
+  },
+  "xsa_embedded_members": {
+    "ax03b3_adc.bit": {
+      "member": "ax03b3_adc.bit",
+      "bytes": 7797907,
+      "sha256": "0b8d7533397e2d33023be55af048995697a58f804394cea99762a57e6ce7995e"
+    },
+    "psu_init.tcl": {
+      "member": "psu_init.tcl",
+      "bytes": 665897,
+      "sha256": "5ddc26bf05c47e77af33a7f072cd1bcab2fc56201950dcc2b2375d5fbc81081c"
+    },
+    "psu_init.c": {
+      "member": "psu_init.c",
+      "bytes": 685137,
+      "sha256": "7315901567cba288ffc48991d5976891566787b906bd16313aaa317cf27f50af"
+    }
+  },
+  "launch_binding": {
+    "name": "motor_control_manual",
+    "programDevice": false,
+    "resetSystem": true,
+    "enableRPUSplitMode": true,
+    "fsbl_path": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_platform/export/motor_control_platform/sw/boot/fsbl.elf",
+    "fsbl_exit_symbol": "XFsbl_Exit",
+    "fsbl_route_enabled": true,
+    "application_path": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_observer/build/motor_control_observer.elf",
+    "application_core": "psu_cortexr5_0",
+    "stopAtEntry": true,
+    "using_psu_init_tcl": false,
+    "selected_bitstream_file_in_launch": ""
+  },
+  "actual_elf_markers": {
+    "motor_control_application_id": "0x4d435401",
+    "motor_control_mmio_base": "0x80000000"
+  },
+  "bsp_mmio": {
+    "path": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_platform/export/motor_control_platform/sw/r5_standalone/include/xparameters.h",
+    "definitions": [
+      {
+        "macro": "XPAR_ADC_OBSERVER_0_BASEADDR",
+        "value": "0x80000000"
+      },
+      {
+        "macro": "XPAR_AX03B3_ADC_OBSERVER_0_BASEADDR",
+        "value": "0x80000000"
+      }
+    ]
+  },
+  "elf_architecture": {
+    "application": {
+      "machine": "ARM",
+      "elf_class": 32,
+      "byte_order": "little",
+      "entry": 60,
+      "flags": 83887104,
+      "segments": [
+        {
+          "address": 0,
+          "file_bytes": 2008,
+          "memory_bytes": 2008,
+          "flags": 7
+        },
+        {
+          "address": 1048576,
+          "file_bytes": 44060,
+          "memory_bytes": 179584,
+          "flags": 7
+        }
+      ]
+    },
+    "fsbl": {
+      "processor": "psu_cortexa53_0",
+      "machine": "AArch64",
+      "elf_class": 64,
+      "byte_order": "little",
+      "entry": 4294705152
+    }
+  },
+  "platform_configuration": {
+    "xsa": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/ax03b3_adc.xsa",
+    "xsaPathInPlatform": "motor_control_platform/hw/ax03b3_adc.xsa",
+    "domains": [
+      {
+        "name": "zynqmp_fsbl",
+        "processor": "psu_cortexa53_0"
+      },
+      {
+        "name": "r5_standalone",
+        "processor": "psu_cortexr5_0"
+      }
+    ]
+  },
+  "server_release": {
+    "url": "https://github.com/kazecode666/AXU5EV/releases/tag/issue40-windows-sdf-20261110",
+    "draft": false,
+    "prerelease": true,
+    "target": "d376e56aa8580e5862c9d1a2534bee9af67a96c3"
+  },
+  "server_archives": [
+    {
+      "name": "AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip",
+      "local_path": "D:/Project/AXU5EV/.runtime/motor_control/server_bundle_01/AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip",
+      "local_exists": false,
+      "expected_bytes": 38281015,
+      "expected_sha256": "6932398ee982936da54521c60d5bd978234c5bd55698e76de720910fb509e05b",
+      "release_bytes": 38281015,
+      "release_digest": "sha256:6932398ee982936da54521c60d5bd978234c5bd55698e76de720910fb509e05b",
+      "download_url": "https://github.com/kazecode666/AXU5EV/releases/download/issue40-windows-sdf-20261110/AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip",
+      "release_matches_recorded_identity": true,
+      "local_archive_action": "not restored or repacked; current published asset digest checked"
+    },
+    {
+      "name": "AXU5EV_Windows_SDF_Entry_20261110.zip",
+      "local_path": "D:/Project/AXU5EV/.runtime/motor_control/windows_server_ready_01/AXU5EV_Windows_SDF_Entry_20261110.zip",
+      "local_exists": true,
+      "expected_bytes": 12654,
+      "expected_sha256": "5281edab4975a3a4c9582c657fe0902e5ad4a2d2a7f60a22728f1b3c8857fa47",
+      "release_bytes": 12654,
+      "release_digest": "sha256:5281edab4975a3a4c9582c657fe0902e5ad4a2d2a7f60a22728f1b3c8857fa47",
+      "download_url": "https://github.com/kazecode666/AXU5EV/releases/download/issue40-windows-sdf-20261110/AXU5EV_Windows_SDF_Entry_20261110.zip",
+      "release_matches_recorded_identity": true,
+      "local_file": {
+        "path": "D:/Project/AXU5EV/.runtime/motor_control/windows_server_ready_01/AXU5EV_Windows_SDF_Entry_20261110.zip",
+        "bytes": 12654,
+        "sha256": "5281edab4975a3a4c9582c657fe0902e5ad4a2d2a7f60a22728f1b3c8857fa47"
+      },
+      "local_matches_release": true
+    }
+  ],
+  "server_input_manifest_source": "verification/motor_control/evidence/server_bundle_20261110/SHA256SUMS",
+  "server_package_input_correspondence": [
+    {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/timing_pl/motor_routed.v",
+      "bytes": 95227427,
+      "sha256": "387e763dc541102a173bb76d780c6e1fb41b3060c0e9da137a1f6d8e34921644",
+      "package_relative_path": "inputs/hardware_02/timing_pl/motor_routed.v",
+      "recorded_package_sha256": "387e763dc541102a173bb76d780c6e1fb41b3060c0e9da137a1f6d8e34921644",
+      "matches_recorded_package_manifest": true
+    },
+    {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/timing_pl/motor_slow.sdf",
+      "bytes": 485670050,
+      "sha256": "a862a414c51838581be44689dfb9fdcfc118edfd5c1daafd11e0044c4753d466",
+      "package_relative_path": "inputs/hardware_02/timing_pl/motor_slow.sdf",
+      "recorded_package_sha256": "a862a414c51838581be44689dfb9fdcfc118edfd5c1daafd11e0044c4753d466",
+      "matches_recorded_package_manifest": true
+    },
+    {
+      "path": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/timing_pl/motor_fast.sdf",
+      "bytes": 489460046,
+      "sha256": "34df642912c1c629426ae5d5c2af68c8e2f9a0d6d7a3b9713def12a4b3408237",
+      "package_relative_path": "inputs/hardware_02/timing_pl/motor_fast.sdf",
+      "recorded_package_sha256": "34df642912c1c629426ae5d5c2af68c8e2f9a0d6d7a3b9713def12a4b3408237",
+      "matches_recorded_package_manifest": true
+    },
+    {
+      "path": "D:/Project/AXU5EV/verification/motor_control/timing_tb.sv",
+      "bytes": 27225,
+      "sha256": "0656ea93a16af31e34c1f7f21743ec5f9189c843939dbf72bc6e9c131111c129",
+      "package_relative_path": "verification/motor_control/timing_tb.sv",
+      "recorded_package_sha256": "0656ea93a16af31e34c1f7f21743ec5f9189c843939dbf72bc6e9c131111c129",
+      "matches_recorded_package_manifest": true
+    }
+  ],
+  "small_entry_manifest_checks": {
+    "README_ZH.md": true,
+    "sdf_runner.py": true,
+    "START_SDF_WINDOWS.ps1": true
+  },
+  "relations": {
+    "selected_bit_matches_implementation_bit": true,
+    "selected_ltx_matches_implementation_ltx": true,
+    "selected_ltx_matches_implementation_debug_nets": true,
+    "xsa_included_bit_matches_selected_bit": true,
+    "platform_xsa_matches_selected_xsa": true,
+    "platform_sdt_bit_matches_selected_bit": true,
+    "launch_elf_matches_selected_elf": true,
+    "launch_fsbl_matches_selected_fsbl": true,
+    "application_psu_init_tcl_matches_xsa": true,
+    "platform_sdt_psu_init_tcl_matches_xsa": true,
+    "hardware_generated_psu_init_tcl_matches_xsa": true,
+    "fsbl_psu_init_c_matches_xsa": true,
+    "elf_application_id_matches": true,
+    "elf_mmio_matches_bsp": true
+  },
+  "checks": {
+    "local_hardware_and_launch_relations": true,
+    "server_release_matches_recorded_assets": true,
+    "available_local_archives_match_release": true,
+    "hardware_and_tb_match_recorded_server_manifest": true,
+    "small_entry_members_match_manifest": true
+  },
+  "tool_version_evidence": {
+    "vivado": "2026.1 SW6511674 / IP6504888 / SharedData6501428 from existing hardware_02.pl_sdf_02.log",
+    "vitis": "2026.1 path in existing app/platform compile_commands and CMakeCache",
+    "python": "3.14.6 and PowerShell7.6.9 from existing Windows runner evidence; no re-test",
+    "additional_patch": "not identified in prior export log",
+    "new_tool_processes_started": false
+  },
+  "limits": [
+    "Original local large zip is absent at its recorded path. Current GitHub asset size/digest matches the published receipt. Local netlist/SDF/TB hashes match the versioned package manifest. No archive was restored or repacked.",
+    "Server copies and actual server run state await the user receipt.",
+    "LTX matches the retained implementation output. ILA debug-core behavior awaits board measurement.",
+    "FSBL/PS-init correspondence derives from actual selected files, XSA/platform copies, launch bindings and ELF architecture. No target was executed."
+  ],
+  "execution_states": {
+    "server_sdf_slow_max": "NOT_RUN",
+    "server_sdf_fast_min": "NOT_RUN",
+    "board_no_power": "NOT_RUN",
+    "r5_capture_continuity": "NOT_RUN"
+  },
+  "actions": {
+    "hardware_build": "NOT_RUN",
+    "r5_build": "NOT_RUN",
+    "old_regression": "NOT_RUN",
+    "board_discovery_connection_download_execution": "NOT_RUN",
+    "archive_restore_or_repack": "NOT_RUN"
+  }
+}

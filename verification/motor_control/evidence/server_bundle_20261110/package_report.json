@@ -1,0 +1,46 @@
+{
+  "status": "PASS_PACKAGE_AND_UNPACK_CHECKS_ONLY",
+  "archive": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\server_bundle_01\\AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip",
+  "archive_bytes": 38281015,
+  "archive_sha256": "6932398ee982936da54521c60d5bd978234c5bd55698e76de720910fb509e05b",
+  "archive_sha256_file": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\server_bundle_01\\AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip.sha256",
+  "unpacked_root": "C:\\Users\\lww\\AppData\\Local\\Temp\\AXU5EV_Issue40_unpack_20261110_01\\AXU5EV_Issue40_SDF_hardware_02_0bd081a",
+  "check_directory": "C:\\Users\\lww\\AppData\\Local\\Temp\\AXU5EV_Issue40_unpack_20261110_01",
+  "checked_from": "C:\\Users\\lww\\AppData\\Local\\Temp\\AXU5EV_Issue40_unpack_20261110_01\\outside_cwd",
+  "runner_fix_commit": "0bd081a902397d5365f0b608f1678c6d4ce04d0a",
+  "testbench_commit": "0191fc773102bc4aa5d71c89e652137cce10c350",
+  "package_file_count": 10,
+  "source_file_bytes": {
+    "inputs/hardware_02/timing_pl/motor_routed.v": 95227427,
+    "inputs/hardware_02/timing_pl/motor_slow.sdf": 485670050,
+    "inputs/hardware_02/timing_pl/motor_fast.sdf": 489460046,
+    "verification/motor_control/timing_tb.sv": 27225,
+    "scripts/sdf_runner.py": 22048,
+    "scripts/motor_control_sdf_inputs.py": 4636,
+    "README_ZH.md": 5653
+  },
+  "input_check": "PASS_BUNDLE_INPUTS_NOT_SDF",
+  "checksum_files": 9,
+  "extra_project_file_inputs": [],
+  "dry_runs": {
+    "slow": "DRY_RUN_PASS_NOT_SDF",
+    "fast": "DRY_RUN_PASS_NOT_SDF"
+  },
+  "mock_portable_entry": {
+    "normal": {
+      "status": "PASS",
+      "scope": "MOCK_ONLY_NOT_SDF"
+    },
+    "fail": {
+      "status": "FAILED_EXIT",
+      "scope": "MOCK_ONLY_NOT_SDF"
+    }
+  },
+  "platform_executed": "win32",
+  "server_execution": "NOT_RUN",
+  "real_vivado_launches": 0,
+  "O0": "NOT_SET_NOT_RUN",
+  "slow_annotation": "NOT_COMPLETED",
+  "slow_dynamic": "NOT_RUN",
+  "fast_dynamic": "NOT_RUN"
+}

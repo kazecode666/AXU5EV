@@ -1,4 +1,23 @@
 # Existing PS/AXI/ADC/ILA wiring, unchanged by source consolidation.
+proc mc_sources {root kind} {
+    set f [open $root/hardware/axu5ev/motor_control/sources.list r]
+    set sources [list]
+    foreach line [split [read $f] "\n"] {
+        set fields [split [string trim $line] |]
+        if {[lindex $fields 0] eq $kind} {
+            lappend sources [file normalize [file join $root [lindex $fields 1]]]
+        }
+    }
+    close $f
+    return $sources
+}
+proc mc_hdl_sources {root with_auto} {
+    # Register declarations and their consumers together, packages first.
+    # Splitting registration can leave module-reference discovery incomplete.
+    set files [mc_sources $root generated]
+    if {$with_auto} {set files [concat $files [mc_sources $root generated_foc]]}
+    return [concat $files [mc_sources $root handwritten]]
+}
 proc mc_integrate {root out} {
     open_project $out/project/ax02a_ps.xpr
     open_bd_design [get_files */design_1.bd]
@@ -7,8 +26,8 @@ proc mc_integrate {root out} {
         CONFIG.PSU__FPGA_PL0_ENABLE 1 CONFIG.PSU__CRL_APB__PL0_REF_CTRL__SRCSEL IOPLL \
         CONFIG.PSU__CRL_APB__PL0_REF_CTRL__FREQMHZ 50] $ps
     set_property CONFIG.PSU__NUM_FABRIC_RESETS 1 $ps
-    add_files -norecurse [mc_sources $root handwritten]
-    add_files -norecurse [mc_sources $root generated]
+    set with_auto [expr {[info exists ::env(MC_AUTO)] && $::env(MC_AUTO)==1}]
+    add_files -norecurse [mc_hdl_sources $root $with_auto]
     update_compile_order -fileset sources_1
     update_ip_catalog -update_module_ref
     create_bd_cell -type module -reference ax03b3_adc_observer adc_observer_0
@@ -17,9 +36,11 @@ proc mc_integrate {root out} {
     if {$with_encoder} {
         set_property -dict [list CONFIG.ENCODER_FEEDBACK 1 CONFIG.TEST_ABZ 1] [get_bd_cells adc_observer_0]
     }
+    if {$with_auto} {set_property CONFIG.AUTO_CONTROL 1 [get_bd_cells adc_observer_0]}
     puts "ADC_MREF_CLOCK_HZ=[get_property CONFIG.FREQ_HZ [get_bd_pins adc_observer_0/s_axi_aclk]]"
     create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect axi_adc
     set with_pwm [expr {[info exists ::env(MC_PWM)] && $::env(MC_PWM)==1}]
+    if {$with_auto && (!$with_pwm || !$with_encoder)} {error "MC_AUTO requires the existing encoder and PWM paths"}
     set_property -dict [list CONFIG.NUM_SI 1 CONFIG.NUM_MI [expr {$with_pwm?2:1}] CONFIG.NUM_CLKS 1] [get_bd_cells axi_adc]
     create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset rst_pl0
     create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant zero
@@ -44,6 +65,10 @@ proc mc_integrate {root out} {
         set_property name $name [get_bd_ports ${name}_0]
     }
     if {!$with_pwm} {
+        create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant zero_seq
+        set_property -dict [list CONFIG.CONST_VAL 0 CONFIG.CONST_WIDTH 32] [get_bd_cells zero_seq]
+        connect_bd_net [get_bd_pins zero_seq/dout] [get_bd_pins adc_observer_0/auto_applied_seq_i]
+        connect_bd_net [get_bd_pins zero/dout] [get_bd_pins adc_observer_0/auto_ready_i] [get_bd_pins adc_observer_0/auto_online_i]
         create_bd_cell -type ip -vlnv xilinx.com:ip:ila adc_ila
         set_property -dict [list CONFIG.C_MONITOR_TYPE Native CONFIG.C_NUM_OF_PROBES 1 CONFIG.C_PROBE0_WIDTH 64 \
             CONFIG.C_DATA_DEPTH 1024 CONFIG.C_EN_STRG_QUAL 1] [get_bd_cells adc_ila]
@@ -68,7 +93,7 @@ proc mc_integrate {root out} {
     puts $f "part=[get_property PART [current_project]]\nVivado=[version -short]"
     puts $f "pl_clock_pin_hz=[get_property CONFIG.FREQ_HZ [get_bd_pins $ps/pl_clk0]]"
     puts $f "actual_freq_mhz=[get_property CONFIG.PSU__CRL_APB__PL0_REF_CTRL__ACT_FREQMHZ $ps]"
-    puts $f "aux_reset_in=1;mb_debug_sys_rst=0;ABZ_TEST=$with_encoder;physical_ABZ=not_connected;current_calibration=explicit_command"
+    puts $f "aux_reset_in=1;mb_debug_sys_rst=0;ABZ_TEST=$with_encoder;AUTO_FOC=$with_auto;physical_ABZ=not_connected;current_calibration=explicit_command"
     foreach seg [get_bd_addr_segs -of_objects [get_bd_addr_spaces $ps/Data]] {
         puts $f "segment=$seg offset=[get_property OFFSET $seg] range=[get_property RANGE $seg]"
     }

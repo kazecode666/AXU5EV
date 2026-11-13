@@ -1,0 +1,252 @@
+[
+  {
+    "case": "normal",
+    "process": {
+      "stage": "mock",
+      "status": "EXITED_OK",
+      "command": [
+        "D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\fake tool 空格\\bin\\normal.bat"
+      ],
+      "cwd": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\normal",
+      "supervisor_pid": 10688,
+      "started_utc": "2026-11-10T04:18:37.066691+00:00",
+      "timeout_ms": 8000,
+      "natural_exit_code": 0,
+      "remaining_pids": [],
+      "processes": [
+        {
+          "pid": 31336,
+          "creation_filetime": 134387579170707577,
+          "created_utc": "2026-11-10T04:18:37.070758+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": 0
+        },
+        {
+          "pid": 3312,
+          "creation_filetime": 134387579170813215,
+          "created_utc": "2026-11-10T04:18:37.081321+00:00",
+          "image": "C:\\Windows\\System32\\conhost.exe",
+          "natural_exit_code": 0
+        },
+        {
+          "pid": 32224,
+          "creation_filetime": 134387579171377496,
+          "created_utc": "2026-11-10T04:18:37.137750+00:00",
+          "image": "C:\\Windows\\System32\\cmd.exe",
+          "natural_exit_code": 0
+        },
+        {
+          "pid": 25840,
+          "creation_filetime": 134387579171569047,
+          "created_utc": "2026-11-10T04:18:37.156905+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": 0
+        },
+        {
+          "pid": 5580,
+          "creation_filetime": 134387579172068528,
+          "created_utc": "2026-11-10T04:18:37.206853+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": 0
+        }
+      ],
+      "launch_command": "\"C:\\WINDOWS\\system32\\cmd.exe\" /d /s /c \"\"D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\fake tool 空格\\bin\\normal.bat\"\"",
+      "root_pid": 31336,
+      "root_observed_exit_code": 0,
+      "finished_utc": "2026-11-10T04:18:38.103424+00:00"
+    },
+    "stdout": "native_OUT_BEGIN\nleaf_OUT_BEGIN\nLEAF_MID\nNATIVE_BEFORE_WAIT\nleaf_OUT_END\nnative_OUT_END\n",
+    "stderr": "native_ERR_BEGIN\nleaf_ERR_BEGIN\nLEAF_ERR_MID\nNATIVE_ERR_BEFORE_WAIT\nleaf_ERR_END\nnative_ERR_END\n"
+  },
+  {
+    "case": "failure",
+    "process": {
+      "stage": "mock",
+      "status": "FAILED_EXIT",
+      "command": [
+        "D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\fake tool 空格\\bin\\failure.bat"
+      ],
+      "cwd": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\failure",
+      "supervisor_pid": 32412,
+      "started_utc": "2026-11-10T04:18:38.168716+00:00",
+      "timeout_ms": 8000,
+      "natural_exit_code": 7,
+      "remaining_pids": [],
+      "processes": [
+        {
+          "pid": 26096,
+          "creation_filetime": 134387579181721458,
+          "created_utc": "2026-11-10T04:18:38.172146+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": 7
+        },
+        {
+          "pid": 26696,
+          "creation_filetime": 134387579181830027,
+          "created_utc": "2026-11-10T04:18:38.183003+00:00",
+          "image": "C:\\Windows\\System32\\conhost.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        },
+        {
+          "pid": 32576,
+          "creation_filetime": 134387579182462487,
+          "created_utc": "2026-11-10T04:18:38.246249+00:00",
+          "image": "C:\\Windows\\System32\\cmd.exe",
+          "natural_exit_code": 7
+        },
+        {
+          "pid": 31804,
+          "creation_filetime": 134387579182657397,
+          "created_utc": "2026-11-10T04:18:38.265740+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": 7
+        },
+        {
+          "pid": 25944,
+          "creation_filetime": 134387579183224843,
+          "created_utc": "2026-11-10T04:18:38.322484+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        }
+      ],
+      "launch_command": "\"C:\\WINDOWS\\system32\\cmd.exe\" /d /s /c \"\"D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\fake tool 空格\\bin\\failure.bat\"\"",
+      "root_pid": 26096,
+      "root_observed_exit_code": 7,
+      "finished_utc": "2026-11-10T04:18:38.614493+00:00"
+    },
+    "stdout": "native_OUT_BEGIN\nleaf_OUT_BEGIN\nLEAF_MID\nNATIVE_BEFORE_WAIT\nNATIVE_END_NONZERO\n",
+    "stderr": "native_ERR_BEGIN\nleaf_ERR_BEGIN\nLEAF_ERR_MID\nNATIVE_ERR_BEFORE_WAIT\nNATIVE_ERR_END_NONZERO\n"
+  },
+  {
+    "case": "timeout",
+    "process": {
+      "stage": "mock",
+      "status": "TIMED_OUT",
+      "command": [
+        "D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\fake tool 空格\\bin\\timeout.bat"
+      ],
+      "cwd": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\timeout",
+      "supervisor_pid": 33056,
+      "started_utc": "2026-11-10T04:18:38.673830+00:00",
+      "timeout_ms": 900,
+      "natural_exit_code": null,
+      "remaining_pids": [],
+      "processes": [
+        {
+          "pid": 23468,
+          "creation_filetime": 134387579186772089,
+          "created_utc": "2026-11-10T04:18:38.677209+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        },
+        {
+          "pid": 13968,
+          "creation_filetime": 134387579186869308,
+          "created_utc": "2026-11-10T04:18:38.686931+00:00",
+          "image": "C:\\Windows\\System32\\conhost.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        },
+        {
+          "pid": 18296,
+          "creation_filetime": 134387579187447979,
+          "created_utc": "2026-11-10T04:18:38.744798+00:00",
+          "image": "C:\\Windows\\System32\\cmd.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        },
+        {
+          "pid": 23880,
+          "creation_filetime": 134387579187623563,
+          "created_utc": "2026-11-10T04:18:38.762356+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        },
+        {
+          "pid": 9468,
+          "creation_filetime": 134387579188129295,
+          "created_utc": "2026-11-10T04:18:38.812929+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        }
+      ],
+      "launch_command": "\"C:\\WINDOWS\\system32\\cmd.exe\" /d /s /c \"\"D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\fake tool 空格\\bin\\timeout.bat\"\"",
+      "root_pid": 23468,
+      "reason": "stage wall-clock limit",
+      "root_observed_exit_code": 125,
+      "finished_utc": "2026-11-10T04:18:39.594959+00:00"
+    },
+    "stdout": "native_OUT_BEGIN\nleaf_OUT_BEGIN\nLEAF_MID\nNATIVE_BEFORE_WAIT\n",
+    "stderr": "native_ERR_BEGIN\nleaf_ERR_BEGIN\nLEAF_ERR_MID\nNATIVE_ERR_BEFORE_WAIT\n"
+  },
+  {
+    "case": "cancel",
+    "process": {
+      "stage": "mock",
+      "status": "CANCELLED",
+      "command": [
+        "D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\fake tool 空格\\bin\\cancel.bat"
+      ],
+      "cwd": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\cancel",
+      "supervisor_pid": 31196,
+      "started_utc": "2026-11-10T04:18:39.657779+00:00",
+      "timeout_ms": 8000,
+      "natural_exit_code": null,
+      "remaining_pids": [],
+      "processes": [
+        {
+          "pid": 23848,
+          "creation_filetime": 134387579196610192,
+          "created_utc": "2026-11-10T04:18:39.661019+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        },
+        {
+          "pid": 8064,
+          "creation_filetime": 134387579196708958,
+          "created_utc": "2026-11-10T04:18:39.670896+00:00",
+          "image": "C:\\Windows\\System32\\conhost.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        },
+        {
+          "pid": 8040,
+          "creation_filetime": 134387579197305913,
+          "created_utc": "2026-11-10T04:18:39.730591+00:00",
+          "image": "C:\\Windows\\System32\\cmd.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        },
+        {
+          "pid": 30896,
+          "creation_filetime": 134387579197495473,
+          "created_utc": "2026-11-10T04:18:39.749547+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        },
+        {
+          "pid": 31188,
+          "creation_filetime": 134387579198012211,
+          "created_utc": "2026-11-10T04:18:39.801221+00:00",
+          "image": "C:\\Users\\lww\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+          "natural_exit_code": null,
+          "termination": "stage supervisor; not a natural tool exit"
+        }
+      ],
+      "launch_command": "\"C:\\WINDOWS\\system32\\cmd.exe\" /d /s /c \"\"D:\\Project\\AXU5EV\\.runtime\\motor_control\\runner_fix_02\\fake tool 空格\\bin\\cancel.bat\"\"",
+      "root_pid": 23848,
+      "reason": "signal or explicit cancel file",
+      "root_observed_exit_code": 125,
+      "finished_utc": "2026-11-10T04:18:40.086829+00:00"
+    },
+    "stdout": "native_OUT_BEGIN\nleaf_OUT_BEGIN\nLEAF_MID\nNATIVE_BEFORE_WAIT\n",
+    "stderr": "native_ERR_BEGIN\nleaf_ERR_BEGIN\nLEAF_ERR_MID\nNATIVE_ERR_BEFORE_WAIT\n"
+  }
+]

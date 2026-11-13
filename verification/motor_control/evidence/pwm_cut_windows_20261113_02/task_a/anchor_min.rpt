@@ -1,0 +1,80 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date              : Fri Nov 13 15:25:04 2026
+| Host              : DESKTOP-591B4R4 running 64-bit major release  (build 9200)
+| Command           : report_timing -from [get_pins -leaf -of_objects [get_nets -segments -of_objects [get_pins design_1_i/pwm_control_0/inst/adc_anchor]] -filter {DIRECTION == OUT}] -to [get_pins -of_objects [get_cells design_1_i/pwm_control_0/inst/pwm/timebase/anchor_delayed_reg] -filter {REF_PIN_NAME == D}] -delay_type min -max_paths 1 -path_type full_clock_expanded -file {D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/anchor_min.rpt}
+| Design            : design_1_wrapper
+| Device            : xczu5ev-sfvc784
+| Speed File        : -2  PRODUCTION 1.31 12-08-2025
+| Design State      : Routed
+| Temperature Grade : I
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             0.244ns  (arrival time - required time)
+  Source:                 design_1_i/adc_observer_0/inst/pwm_anchor_o_reg/C
+                            (rising edge-triggered cell FDRE clocked by clk_pl_0  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            design_1_i/pwm_control_0/inst/pwm/timebase/anchor_delayed_reg/D
+                            (rising edge-triggered cell FDPE clocked by clk_out1_design_1_pwm_clock_0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk_out1_design_1_pwm_clock_0
+  Path Type:              Hold (Min at Slow Process Corner)
+  Requirement:            0.000ns  (clk_out1_design_1_pwm_clock_0 rise@0.000ns - clk_pl_0 rise@0.000ns)
+  Data Path Delay:        1.788ns  (logic 0.058ns (3.244%)  route 1.730ns (96.756%))
+  Logic Levels:           0  
+  Clock Path Skew:        1.243ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    3.699ns
+    Source Clock Delay      (SCD):    2.308ns
+    Clock Pessimism Removal (CPR):    0.148ns
+  Clock Uncertainty:      0.241ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.156ns
+    Phase Error              (PE):    0.155ns
+  Clock Net Delay (Source):      2.148ns (routing 1.095ns, distribution 1.053ns)
+  Clock Net Delay (Destination): 1.326ns (routing 0.171ns, distribution 1.155ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk_pl_0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    PS8_X0Y0             PS8                          0.000     0.000 r  design_1_i/zynq_ultra_ps_e_0/inst/PS8_i/PLCLK[0]
+                         net (fo=1, routed)           0.135     0.135    design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0
+    BUFG_PS_X0Y77        BUFG_PS (Prop_BUFG_PS_I_O)
+                                                      0.025     0.160 r  design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0_BUFG_inst/O
+    X1Y1 (CLOCK_ROOT)    net (fo=98304, routed)       2.148     2.308    design_1_i/adc_observer_0/inst/s_axi_aclk
+    SLICE_X17Y187        FDRE                                         r  design_1_i/adc_observer_0/inst/pwm_anchor_o_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X17Y187        FDRE (Prop_DFF_SLICEM_C_Q)
+                                                      0.058     2.366 r  design_1_i/adc_observer_0/inst/pwm_anchor_o_reg/Q
+                         net (fo=2, routed)           1.730     4.096    design_1_i/pwm_control_0/inst/pwm/timebase/adc_anchor
+    SLICE_X17Y187        FDPE                                         r  design_1_i/pwm_control_0/inst/pwm/timebase/anchor_delayed_reg/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk_out1_design_1_pwm_clock_0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    PS8_X0Y0             PS8                          0.000     0.000 r  design_1_i/zynq_ultra_ps_e_0/inst/PS8_i/PLCLK[0]
+                         net (fo=1, routed)           0.171     0.171    design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0
+    BUFG_PS_X0Y77        BUFG_PS (Prop_BUFG_PS_I_O)
+                                                      0.028     0.199 r  design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0_BUFG_inst/O
+                         net (fo=98304, routed)       2.029     2.228    design_1_i/pwm_clock/inst/clk_in1
+    MMCM_X0Y1            MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                     -0.127     2.101 r  design_1_i/pwm_clock/inst/mmcme4_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.244     2.345    design_1_i/pwm_clock/inst/clk_out1_design_1_pwm_clock_0
+    BUFGCE_X0Y38         BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.028     2.373 r  design_1_i/pwm_clock/inst/clkout1_buf/O
+    X1Y1 (CLOCK_ROOT)    net (fo=2521, routed)        1.326     3.699    design_1_i/pwm_control_0/inst/pwm/timebase/pwm_clk
+    SLICE_X17Y187        FDPE                                         r  design_1_i/pwm_control_0/inst/pwm/timebase/anchor_delayed_reg/C
+                         clock pessimism             -0.148     3.551    <hidden>
+                         clock uncertainty            0.241     3.791    <hidden>
+    SLICE_X17Y187        FDPE (Hold_EFF_SLICEM_C_D)
+                                                      0.060     3.851    design_1_i/pwm_control_0/inst/pwm/timebase/anchor_delayed_reg
+  -------------------------------------------------------------------
+                         required time                         -3.851    <hidden>
+                         arrival time                           4.096    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.244    <hidden>
+
+
+
+

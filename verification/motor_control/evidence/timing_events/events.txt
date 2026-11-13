@@ -1,0 +1,22 @@
+MOTOR_TIMING_FRAME event=1 id=0 ref=0 valid=0 inhibit=1 late=0 applied=0 t=55820000
+MOTOR_TIMING_FRAME event=2 id=500 ref=0 valid=0 inhibit=1 late=0 applied=0 t=155820000
+MOTOR_ACTUAL_ADOPT id=1000 pwm_event=25051 peak_event=20051 pad_to_settled_ns=50004.000 compare=2428/2572/2568
+MOTOR_TIMING_FRAME event=3 id=1000 ref=1 valid=1 inhibit=0 late=0 applied=1000 t=255820000
+MOTOR_ACTUAL_ADOPT id=1500 pwm_event=35051 peak_event=30051 pad_to_settled_ns=50004.000 compare=2350/2650/2646
+MOTOR_TIMING_FRAME event=4 id=1500 ref=2 valid=1 inhibit=0 late=0 applied=1500 t=355820000
+MOTOR_TIMING_FRAME event=5 id=2000 ref=2 valid=0 inhibit=1 late=0 applied=1500 t=455820000
+MOTOR_ACTUAL_ADOPT id=2500 pwm_event=55051 peak_event=50051 pad_to_settled_ns=50004.000 compare=2360/2640/2636
+MOTOR_TIMING_FRAME event=6 id=2500 ref=2 valid=1 inhibit=0 late=0 applied=2500 t=555820000
+MOTOR_TIMING_FRAME event=7 id=3000 ref=2 valid=1 inhibit=1 late=1 applied=2500 t=655820000
+MOTOR_TIMING_FRAME event=8 id=3500 ref=2 valid=0 inhibit=1 late=0 applied=2500 t=755820000
+MOTOR_ACTUAL_ADOPT id=4000 pwm_event=85051 peak_event=80051 pad_to_settled_ns=50004.000 compare=2428/2572/2568
+MOTOR_TIMING_FRAME event=9 id=4000 ref=3 valid=1 inhibit=0 late=0 applied=4000 t=855820000
+MOTOR_TIMING_FRAME event=10 id=4500 ref=3 valid=1 inhibit=1 late=0 applied=4000 t=955820000
+MOTOR_TIMING_FRAME event=11 id=5000 ref=3 valid=0 inhibit=1 late=0 applied=4000 t=1055820000
+MOTOR_ACTUAL_ADOPT id=5500 pwm_event=115051 peak_event=110051 pad_to_settled_ns=50004.000 compare=2428/2572/2568
+MOTOR_TIMING_FRAME event=12 id=5500 ref=4 valid=1 inhibit=0 late=0 applied=5500 t=1155820000
+MOTOR_TIMING_FRAME event=13 id=6000 ref=5 valid=0 inhibit=1 late=0 applied=5500 t=1255820000
+MOTOR_TIMING_FRAME event=14 id=6500 ref=5 valid=0 inhibit=1 late=0 applied=5500 t=1355820000
+MOTOR_ACTUAL_ADOPT id=7000 pwm_event=145051 peak_event=140051 pad_to_settled_ns=50004.000 compare=2428/2572/2568
+MOTOR_TIMING_FRAME event=15 id=7000 ref=6 valid=1 inhibit=0 late=0 applied=7000 t=1455820000
+MOTOR_TIMING_RTL_PASS checks=3035 samples=14 edges=36 periods=11 frames=15 valid=8 invalid=7 publications=15 adoptions=6 q_events=6 offers=7 distinct=5 late=1 lock=1 rearm=2 disarm=2 p0=1 release=5 snapshots=15 min_dead_ns=1000.000 max_switch_dead_ns=1000.000 q_delay_ns=[0.000,0.000] sample_to_publish_ns=[50200.000,50200.000] adc_minus_peak_ns=[0.000,0.000]

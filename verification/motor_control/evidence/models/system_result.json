@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "model": "AXU5EV_Motor_Control_System",
+  "frames": 55,
+  "physical_timing": "SIM_ONLY logical reference is shifted one frame; RTL uses P128 capture/target valley",
+  "source_relation": "dependencies/source_relation.json",
+  "r5_history_entries": 51,
+  "board": "NOT_RUN"
+}

@@ -1,0 +1,8 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1404/pwm_cut.v" into library work
+INFO: [VRFC 10-311] analyzing module pwm_cut
+INFO: [VRFC 10-311] analyzing module design_1_pwm_control_0_0_pwm_three_phase
+INFO: [VRFC 10-311] analyzing module design_1_pwm_control_0_0_pwm_timebase
+INFO: [VRFC 10-311] analyzing module glbl
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1404/pwm_cut_tb.sv" into library work
+INFO: [VRFC 10-311] analyzing module pwm_cut_tb
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Software/2026.1/data/verilog/src/glbl.v" into library work

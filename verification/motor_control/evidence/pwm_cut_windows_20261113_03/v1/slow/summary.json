@@ -1,0 +1,150 @@
+{
+  "runner_schema": 2,
+  "corner": "slow",
+  "status": "RUNNING",
+  "input_paths": {
+    "netlist": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1631\\v1\\pwm_cut.v",
+    "sdf": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1631\\v1\\pwm_cut_slow.sdf",
+    "tb": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1631\\v1\\pwm_cut_tb.sv",
+    "glbl": "D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v"
+  },
+  "mode": "corner",
+  "run_directory": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1631\\v1\\slow",
+  "stages": [
+    {
+      "stage": "xvlog",
+      "argv": [
+        "D:\\Software\\2026.1\\Vivado\\bin\\xvlog.bat",
+        "-sv",
+        "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1631\\v1\\pwm_cut.v",
+        "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1631\\v1\\pwm_cut_tb.sv",
+        "D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v"
+      ],
+      "command": "\"C:\\Windows\\system32\\cmd.exe\" /d /s /c \"D:\\Software\\2026.1\\Vivado\\bin\\xvlog.bat -sv \"D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1631\\v1\\pwm_cut.v\" \"D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1631\\v1\\pwm_cut_tb.sv\" D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v\"",
+      "limit_seconds": 600,
+      "started_epoch": 1794558884.332603,
+      "supervisor_stop": null,
+      "natural_exit": true,
+      "exit_code": 0,
+      "elapsed_seconds": 0.7659999999741558,
+      "exit_classification": "natural_exit",
+      "diagnostics": [],
+      "reviewed_warnings": [],
+      "annotation_markers": [],
+      "pass_markers": [],
+      "last_scenario": null,
+      "last_simulation_time": null,
+      "last_progress_line": null,
+      "log_files": [
+        "xvlog.stdout.log",
+        "xvlog.stderr.log",
+        "xvlog.log"
+      ],
+      "pid": 13976,
+      "failure_reason": null
+    },
+    {
+      "stage": "xelab",
+      "argv": [
+        "D:\\Software\\2026.1\\Vivado\\bin\\xelab.bat",
+        "work.pwm_cut_tb",
+        "work.glbl",
+        "-s",
+        "pwm_cut_timing",
+        "-debug",
+        "off",
+        "-timescale",
+        "1ns/1ps",
+        "-L",
+        "simprims_ver",
+        "-L",
+        "unisims_ver",
+        "-L",
+        "secureip",
+        "-transport_int_delays",
+        "-pulse_r",
+        "0",
+        "-pulse_int_r",
+        "0",
+        "-pulse_e",
+        "0",
+        "-pulse_int_e",
+        "0",
+        "-sdfmax",
+        "/pwm_cut_tb/dut=D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1631/v1/pwm_cut_slow.sdf",
+        "--O2"
+      ],
+      "command": "\"C:\\Windows\\system32\\cmd.exe\" /d /s /c \"D:\\Software\\2026.1\\Vivado\\bin\\xelab.bat work.pwm_cut_tb work.glbl -s pwm_cut_timing -debug off -timescale 1ns/1ps -L simprims_ver -L unisims_ver -L secureip -transport_int_delays -pulse_r 0 -pulse_int_r 0 -pulse_e 0 -pulse_int_e 0 -sdfmax \"/pwm_cut_tb/dut=D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1631/v1/pwm_cut_slow.sdf\" --O2\"",
+      "limit_seconds": 600,
+      "started_epoch": 1794558885.1016119,
+      "supervisor_stop": null,
+      "natural_exit": true,
+      "exit_code": 0,
+      "elapsed_seconds": 10.25,
+      "exit_classification": "natural_exit",
+      "diagnostics": [],
+      "reviewed_warnings": [],
+      "annotation_markers": [
+        {
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1631\\v1\\slow\\xelab.stdout.log",
+          "line": "INFO: [XSIM 43-3452] SDF backannotation was successful for SDF file \"D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1631/v1/pwm_cut_slow.sdf\", for root module \"/pwm_cut_tb/dut\"."
+        },
+        {
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1631\\v1\\slow\\xelab.log",
+          "line": "INFO: [XSIM 43-3452] SDF backannotation was successful for SDF file \"D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1631/v1/pwm_cut_slow.sdf\", for root module \"/pwm_cut_tb/dut\"."
+        }
+      ],
+      "pass_markers": [],
+      "last_scenario": null,
+      "last_simulation_time": null,
+      "last_progress_line": null,
+      "log_files": [
+        "xelab.stdout.log",
+        "xelab.stderr.log",
+        "xelab.log"
+      ],
+      "pid": 44576,
+      "failure_reason": null
+    },
+    {
+      "stage": "xsim",
+      "argv": [
+        "D:\\Software\\2026.1\\Vivado\\bin\\xsim.bat",
+        "pwm_cut_timing",
+        "-runall"
+      ],
+      "command": "\"C:\\Windows\\system32\\cmd.exe\" /d /s /c \"D:\\Software\\2026.1\\Vivado\\bin\\xsim.bat pwm_cut_timing -runall\"",
+      "limit_seconds": 3600,
+      "started_epoch": 1794558895.3545651,
+      "supervisor_stop": null,
+      "natural_exit": false,
+      "exit_code": null,
+      "elapsed_seconds": 84.46900000001187,
+      "exit_classification": "not_started",
+      "diagnostics": [],
+      "reviewed_warnings": [],
+      "annotation_markers": [],
+      "pass_markers": [],
+      "last_scenario": "PWM_CUT_PROGRESS t_ns=500000.000 cycle=49999 phase=4916 offers=1 accepts=0 adoptions=0 acks=0 starts=1 peaks=1",
+      "last_simulation_time": "500000.000 ns",
+      "last_progress_line": "PWM_CUT_PROGRESS t_ns=500000.000 cycle=49999 phase=4916 offers=1 accepts=0 adoptions=0 acks=0 starts=1 peaks=1",
+      "log_files": [
+        "xsim.stdout.log",
+        "xsim.stderr.log",
+        "xsim.log",
+        "xsim.dir\\pwm_cut_timing\\xsimcrash.log",
+        "xsim.dir\\pwm_cut_timing\\xsimkernel.log"
+      ],
+      "pid": 52548
+    }
+  ],
+  "limits_seconds": {
+    "xvlog": 600,
+    "xelab": 600,
+    "xsim": 3600
+  },
+  "optimization": "O2 only; one attempt",
+  "timing_checks_disabled": false,
+  "board": "NOT_RUN",
+  "stop_reason": null
+}

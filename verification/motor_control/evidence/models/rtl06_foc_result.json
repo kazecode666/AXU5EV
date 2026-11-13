@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "frames": 19,
+  "duty_words_compared": 57,
+  "source": "baselines/pr53_p3/source/PMLSM_FOC_FixedPoint.slx",
+  "trace": "D:/Project/AXU5EV/.runtime/motor_control/rtl_06/foc_frames.txt",
+  "stateful_single_run": true,
+  "board": "NOT_RUN"
+}

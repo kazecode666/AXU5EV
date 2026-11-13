@@ -7,6 +7,15 @@ proc mc_pwm_integrate {out ps} {
         CONFIG.PRIM_SOURCE No_buffer CONFIG.USE_RESET true CONFIG.RESET_TYPE ACTIVE_LOW \
         CONFIG.USE_LOCKED true] [get_bd_cells pwm_clock]
     create_bd_cell -type module -reference pwm_config_bridge pwm_control_0
+    if {[info exists ::env(MC_AUTO)] && $::env(MC_AUTO)==1} {
+        set_property CONFIG.AUTO_FOC 1 [get_bd_cells pwm_control_0]
+    }
+    foreach {source target} {auto_valid_o auto_valid_i auto_compare_o auto_compare_i auto_seq_o auto_seq_i auto_inhibit_o auto_inhibit_i} {
+        connect_bd_net [get_bd_pins adc_observer_0/$source] [get_bd_pins pwm_control_0/$target]
+    }
+    foreach {source target} {auto_ready_o auto_ready_i auto_online_o auto_online_i auto_applied_seq_o auto_applied_seq_i} {
+        connect_bd_net [get_bd_pins pwm_control_0/$source] [get_bd_pins adc_observer_0/$target]
+    }
     connect_bd_net [get_bd_pins $ps/pl_clk0] [get_bd_pins pwm_clock/clk_in1] [get_bd_pins pwm_control_0/s_axi_aclk]
     connect_bd_net [get_bd_pins rst_pl0/peripheral_aresetn] [get_bd_pins pwm_clock/resetn] [get_bd_pins pwm_control_0/s_axi_aresetn]
     connect_bd_net [get_bd_pins pwm_clock/clk_out1] [get_bd_pins pwm_control_0/pwm_clk]

@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "vectors": 31,
+  "outputs": 3,
+  "registered_latency_clocks": 1,
+  "rounding": "unsigned Q30 clamp then round half up to 0..5000",
+  "source": "duty_to_compare.m",
+  "board": "NOT_RUN"
+}

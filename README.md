@@ -1,5 +1,7 @@
 # AXU5EV — R5F/PL 永磁直线电机研究平台
 
+> Issue40 当前入口：在包含PR39的main基线上整合原ADC/QEP→模型生成电流/电角度→原FOC→原PWM自动通路。统一数值模型为 `simulation/motor_control/AXU5EV_Motor_Control_System.slx`，用 `motor_control_run(新结果目录)` 安全运行；见[模型入口](simulation/motor_control/README.md)、[同一个PL工程](hardware/axu5ev/motor_control/README.md)、[简短操作说明](firmware/r5/motor_control/FIRST_RUN_ZH.md)与[当前交接](coordination/HANDOFF.md)。R5保留位置/测速及预提交参考；完整外环/Runtime/自动对齐未接入，板卡操作NOT_RUN。以下旧阶段“当前”及关机措辞为历史。
+
 > 当前PR24：perf_r1已由用户单次完整实板PASS，64536条Runtime数值、193608个duty位串、帧/序号及完整停止通过，身份0x43324302。实际提交窗口最大86.017us，计入COMMIT后328B日志的完整软件窗口最大95.617us；不宣称WCET或同帧50us签核。[实板证据](verification/ax02c2/board_perf_r1_01/README.md)、[耗时及原失败对照](coordination/reports/ax02c2_runtime_pl_replay.md)、[唯一指南](firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)已更新。原数据/Workspace保留，本轮只归档，无构建或板卡操作；等待用户最终Review，不自动合并。以下候选NOT_RUN与关机交接均为历史。
 
 > 最新交付：[AX-02C2 Draft PR24](https://github.com/kazecode666/AXU5EV/pull/24)已提交推送，必要离线验证与目标构建PASS。按用户最新“完成离线实现后关闭计算机”要求，本轮不执行新板测，BOARD_NOT_RUN，交接后正常关机；后续从[唯一指南](firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)继续，等待Review、不自动合并。

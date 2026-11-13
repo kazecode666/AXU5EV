@@ -25,13 +25,15 @@ module ax03b1_adc_receiver #(
     output reg [11:0] pair_b,
     output reg [1:0] pair_otr,
     output reg [31:0] pair_id,
-    output reg [META_WIDTH-1:0] pair_meta
+    output reg [META_WIDTH-1:0] pair_meta,
+    output wire [31:0] next_sample_id_o
 );
     reg [META_WIDTH-1:0] meta_pipe [0:PIPELINE_EVENTS-1];
     reg [31:0] id_pipe [0:PIPELINE_EVENTS-1];
     reg [PIPELINE_EVENTS-1:0] present_pipe;
     reg [PIPELINE_EVENTS-1:0] select_pipe;
     reg [31:0] next_id;
+    assign next_sample_id_o=next_id;
     integer i;
 
     always @(posedge clk) begin

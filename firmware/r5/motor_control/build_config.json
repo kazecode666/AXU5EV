@@ -1,0 +1,6 @@
+{
+  "xsa": ".runtime/motor_control/hardware_02/ax03b3_adc.xsa",
+  "bitstream": ".runtime/motor_control/hardware_02/ax03b3_adc.bit",
+  "ltx": ".runtime/motor_control/hardware_02/ax03b3_adc.ltx",
+  "workspace": ".runtime/motor_control/vitis_01"
+}
