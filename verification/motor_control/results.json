@@ -1,6 +1,6 @@
 {
   "issue": "kazecode666/AXU5EV#40",
-  "status": "PARALLEL_EXECUTION_PREPARED; DRAFT; SDF_AND_BOARD_ACCEPTANCE_OPEN",
+  "status": "PWM_CUT_TWO_CORNER_PASS; DRAFT; FULL_CHAIN_SDF_AND_BOARD_ACCEPTANCE_OPEN",
   "base": "ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13",
   "branch": "codex/motor-control-chain",
   "functional_commit": "906c9a5aa414863add479b11bc49535f92f87e7d",
@@ -9,6 +9,7 @@
   "timing_export_test_commit": "d63e96f6930a865671124029a12817e694107b5d",
   "scope": "precommitted references; ADC/QEP to original model algorithms/FOC to original PWM; no power",
   "parallel_execution": {
+    "historical_record": true,
     "authorization_comment": 6784312486,
     "documentation_base_commit": "56bdd634ab7db9bad6e743636202d5a00f5799e2",
     "prepared_date": "2026-11-11",
@@ -21,26 +22,70 @@
     "review": "combine server SDF and finite board evidence in PR41 after each completes"
   },
   "server_sdf_slow_max": {
-    "status": "NOT_RUN",
-    "receipt_status": "AWAITING_USER_SERVER_START_OR_RESULT_RECEIPT",
+    "status": "NOT_COMPLETED",
+    "receipt_status": "FULL_NETLIST_ATTEMPTS_ENDED; SERVER_PAUSED_PER_6850181652",
     "operator": "user on Windows server",
     "tool_timeout_ms": 86400000,
-    "compilation": "existing --O0 and default verbosity",
+    "compilation": "full netlist O0 backend compiler ICE; O2 xelab 24h timeout; no dynamic acceptance",
     "input_release": "issue40-windows-sdf-20261110",
-    "annotation": "NOT_RUN",
+    "annotation": "NOT_COMPLETED",
     "dynamic": "NOT_RUN",
     "planned_evidence_path": "evidence/server_sdf_20261111/slow_max",
-    "guide": "firmware/r5/motor_control/WINDOWS_SERVER_SDF_ZH.md"
+    "guide": "firmware/r5/motor_control/WINDOWS_SERVER_SDF_ZH.md",
+    "historical_plan": "tool_timeout_ms and planned_evidence_path retain the old plan; no pending execution",
+    "evidence": "evidence/pwm_cut_windows_20261113_01/RESULT_REPORT.md",
+    "decision_comment": "https://github.com/kazecode666/AXU5EV/pull/41#issuecomment-6850181652"
   },
   "server_sdf_fast_min": {
     "status": "NOT_RUN",
-    "receipt_status": "AWAITING_USER_RECEIPT",
+    "receipt_status": "NOT_STARTED; SERVER_PAUSED_PER_6850181652",
     "operator": "user on Windows server after slow complete PASS",
     "tool_timeout_ms": 86400000,
-    "requires": "slow/max status PASS, O0, same hardware inputs",
+    "requires": "historical full-netlist plan required slow/max PASS; prerequisite not met; no pending execution",
     "annotation": "NOT_RUN",
     "dynamic": "NOT_RUN",
     "planned_evidence_path": "evidence/server_sdf_20261111/fast_min"
+  },
+  "FULL_CHAIN_SDF": {
+    "status": "NOT_COMPLETED",
+    "slow_max": "server_sdf_slow_max",
+    "fast_min": "server_sdf_fast_min",
+    "dynamic": "NOT_RUN",
+    "reason": "Windows full netlist O0 backend ICE and O2 24h xelab timeout; no DUT failure classification",
+    "server": "PAUSED; PWM cut workline closed per PR41 comment6850181652",
+    "acceptance_exception": "PENDING_USER_DECISION",
+    "evidence": "evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md"
+  },
+  "PWM_CUT_SDF_SLOW": {
+    "status": "PASS",
+    "corner": "slow/max",
+    "source_commit": "a392af056ae19ab18a975203b39e86f6d98a6763",
+    "scope": "hardware_02 routed PWM cut and declared local source-boundary model",
+    "boundary_mapping": "PROVEN_PERMISSION_COMPLEMENT; TB cut_permission = !logical_inhibit",
+    "evidence": "evidence/pwm_cut_windows_20261113_04/v2/slow/summary.json",
+    "report": "evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md"
+  },
+  "PWM_CUT_SDF_FAST": {
+    "status": "PASS",
+    "corner": "fast/min",
+    "source_commit": "a392af056ae19ab18a975203b39e86f6d98a6763",
+    "scope": "hardware_02 routed PWM cut and declared local source-boundary model",
+    "evidence": "evidence/pwm_cut_windows_20261113_04/v2/fast/summary.json",
+    "report": "evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md"
+  },
+  "current_acceptance": {
+    "date": "2026-11-13",
+    "task_comment": "https://github.com/kazecode666/AXU5EV/pull/41#issuecomment-6850181652",
+    "FULL_DESIGN_STA": "existing hardware.routed_sta PASS; not rerun",
+    "FULL_CHAIN_RTL": "existing chain_rtl PASS; not rerun",
+    "sta_evidence": "evidence/routed/hardware_02_audit.json",
+    "rtl_evidence": "evidence/rtl06/summary.json",
+    "polarity_proof": "evidence/pwm_cut_windows_20261113_04/POLARITY_PROOF.md",
+    "testbench": "evidence/pwm_cut_windows_20261113_04/v2/pwm_cut_tb.sv",
+    "fast_inhibit_independent_dynamic": "N/A_BD_CONSTANT_ZERO",
+    "coverage_limits": "cut excludes original FOC/ADC computation and same-frame snapshot, complete 50MHz source-to-cut interconnect/clock tree, full late/disarm/reference rearm strategy, 80-word readback and board/power output",
+    "board_authorization": "NONE; future no-power execution requires explicit authorization",
+    "prior_records": "older execution sections retain their historical status and original evidence"
   },
   "board_no_power": {
     "status": "NOT_RUN",
@@ -347,14 +392,14 @@
     "draft": true,
     "base_branch": "main",
     "branch_pushed": true,
-    "review_status": "PARALLEL_SERVER_AND_BOARD_PREPARED; BOTH_ACCEPTANCES_OPEN",
+    "review_status": "TASK1_STATUS_SYNC; PWM_CUT_PASS; FULL_CHAIN_SDF_AND_BOARD_ACCEPTANCE_OPEN",
     "review_target": "Issue40 and existing ChatGPT chat: Review DraftPR33",
     "review_issue_comment": "https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6739546511",
     "review_source_commit": "6731492716f5c21b1864d39cb2ad299c4e26172d",
     "review_chatgpt_thread": "6af03b57-7910-83e8-a39c-bd281805c2f7",
-    "review_dispatch": "6784312486 authorizes independent server full SDF and user-operated finite no-power board line; artifact correspondence and execution guides prepared",
+    "review_dispatch": "6850181652 requests Task1 documentation/status only; server paused; no current board execution authorization",
     "development_resume_authorized": false,
-    "remaining": "user server slow/max then fast/min; independent local finite no-power board measurement and R5 capture continuity; archive each line and combine Review",
+    "remaining": "Review Task1; user decides full-chain SDF acceptance exception and merge; board_no_power and R5 continuity NOT_RUN; later tasks require separate authorization",
     "resume_entry": "coordination/HANDOFF.md first section"
   },
   "r5": {

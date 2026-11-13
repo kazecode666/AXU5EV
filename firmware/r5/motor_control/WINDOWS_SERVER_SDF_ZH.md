@@ -1,5 +1,7 @@
 # Issue40 / PR41：Windows服务器手动SDF
 
+> 2026-11-13当前状态按[PR41 Task 1](https://github.com/kazecode666/AXU5EV/pull/41#issuecomment-6850181652)整理。本页归档已结束的完整SDF尝试，以下O0/24h计划和命令均属历史。完整网表O0后端编译ICE、O2 xelab 24h超时，FULL_CHAIN_SDF=NOT_COMPLETED，完整fast/min仍NOT_RUN。最终PWM cut局部slow/max与fast/min均PASS，见[结果报告](../../../verification/motor_control/evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md)。服务器暂停，局部SDF工作线收口，当前没有待执行的仿真命令。板测与R5采集连续性仍NOT_RUN，尚无现场执行授权；当前验收见[HANDOFF](../../../coordination/HANDOFF.md)。
+
 按PR41评论6784312486执行并行计划。用户在Windows服务器运行hardware_02完整功能PL的两角SDF，本地同时按FIRST_RUN_ZH.md准备现有产物的有限无功率板测。两条线各自推进并归档，最后统一Review，PR41保持Draft。
 
 2026-11-10 14:18本机O0候选停止及所属进程剩余0的记录保留为历史，注释和动态尚未完成。本指南由用户在服务器手动执行，服务器状态依据实际启动和结果回执更新。GitHub Release继续提供既有运行包，产物对应关系以本轮HANDOFF/results核对记录为准。

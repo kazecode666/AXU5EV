@@ -1,5 +1,7 @@
 # 统一无功率数字链与本地有限板测
 
+> 2026-11-13当前状态按[PR41 Task 1](https://github.com/kazecode666/AXU5EV/pull/41#issuecomment-6850181652)整理。本页作为未来无功率现场操作手册，当前尚无现场执行授权，board_no_power与R5采集连续性均NOT_RUN。PWM cut局部两角SDF已PASS，全链SDF仍NOT_COMPLETED，服务器暂停；本页以下并行计划及SDF预算说明保留为历史。最新证据见[结果报告](../../../verification/motor_control/evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md)，验收状态见[HANDOFF](../../../coordination/HANDOFF.md)。
+
 2026-11-11按PR41评论6784312486接续Issue40。服务器执行完整功能PL两角SDF，本地使用hardware_02与vitis_01开展有限无功率板测，两条工作线独立推进，最后统一Review。当前板测和R5采集连续性均为NOT_RUN。用户已确认现场具备接线确认的ADC模块及可靠输入。
 
 ## 冻结候选与启动

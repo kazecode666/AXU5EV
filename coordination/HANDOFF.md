@@ -1,5 +1,13 @@
 # AXU5EV — 当前交接
 
+## 2026-11-13 PR41当前结论
+
+按[Task 1评论6850181652](https://github.com/kazecode666/AXU5EV/pull/41#issuecomment-6850181652)接续服务器交付 `a392af056ae19ab18a975203b39e86f6d98a6763`。PWM_CUT_SDF_SLOW=PASS、PWM_CUT_SDF_FAST=PASS，仅覆盖hardware_02已布线PWM cut及声明的源边界模型。[最新报告](../verification/motor_control/evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md)、[slow/max](../verification/motor_control/evidence/pwm_cut_windows_20261113_04/v2/slow/summary.json)、[fast/min](../verification/motor_control/evidence/pwm_cut_windows_20261113_04/v2/fast/summary.json)。[极性证明](../verification/motor_control/evidence/pwm_cut_windows_20261113_04/POLARITY_PROOF.md)确认物理cut输入为permission = !logical_inhibit，v2测试台在接口适配该极性，生产RTL无需据此修改。
+
+FULL_CHAIN_SDF=NOT_COMPLETED，完整Windows O0后端编译ICE、O2 xelab 24h超时，全链动态未运行。FULL_DESIGN_STA与FULL_CHAIN_RTL沿用[原STA](../verification/motor_control/evidence/routed/hardware_02_audit.json)及[整链RTL06](../verification/motor_control/evidence/rtl06/summary.json)独立PASS证据，本轮未重跑。局部cut覆盖之外仍有FOC/ADC计算与同帧快照、源至cut的完整实际互连/时钟树、完整late/disarm/reference重臂策略和80字读回；fast_inhibit在原BD接常量0，独立动态N/A。
+
+board_no_power与r5_capture_continuity均NOT_RUN，当前尚无现场执行授权。服务器暂停，PWM局部SDF工作线收口；下方O0/24h命令及各轮FAIL/中断记录均为历史。当前状态见[聚合结果](../verification/motor_control/results.json)。本次仅整理文档/状态，PR41保持Draft、Issue40开放，全链动态SDF验收例外与合并等待用户决定，停在Review。
+
 ## 2026-11-13 第三轮：Review6847609985原生cut边界疑点硬停止
 
 v1统一唯一同步源驱动，语法预检通过；slow xvlog0.766s/xelab10.250s正常退出且SDF注释成功。实际910ns握手、910.2ns撤销valid，930ns无重复源握手，但native capture_ce=0、busy/request=0，模拟推进至500us仍offers1/accepts0。只读native LUT5 INIT08000000及reset LUT2 INIT7对cut端口auto_inhibit的直接解释与RTL !inhibit接受条件不符；可能涉及RETARGET/跨层pin inversion/导出模型语义，未确认硅DUT或RTL有错。已触疑似DUT/无法归类硬停止，不反相输入、不改CQ/相位，不创建v2/v3（1/3候选）。
