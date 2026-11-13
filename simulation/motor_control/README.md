@@ -1,5 +1,7 @@
 # 统一电机控制数值入口
 
+> **当前项目结论（PR41）：** 统一数值模型和整链RTL已有离线PASS证据，PWM局部已布线slow/max及fast/min SDF均PASS；完整功能PL动态SDF仍NOT_COMPLETED，无功率板测和R5实机采集NOT_RUN。现行入口：[HANDOFF](../../coordination/HANDOFF.md)、[结果矩阵](../../verification/motor_control/results.json)。下文模型运行方法描述算法数值仿真，不表示板上控制或全链物理动态已经验收。
+
 打开 `AXU5EV_Motor_Control_System.slx` 查看并跟随实际数值路径：
 
 `SIM_ONLY_ADC_QEP_References → Current_Preprocess / Encoder_Angle → Same_Frame_Hold → Accepted_P3_FOC → Generated_Duty_Compare → SIM_ONLY_PWM_Valley_Hold`。
@@ -16,11 +18,11 @@ motor_control_run('D:/Project/AXU5EV/.runtime/motor_control/<另一个新目录>
   'D:/Project/AXU5EV/.runtime/motor_control/<RTL结果目录>');
 ```
 
-默认同步等待；第三参数false仅用于异步启动，结果必须以新目录的JSON状态判断，不能把RUNNING视为PASS。运行器通过MATLAB原生.NET进程接口隐藏启动独立 `-batch` 进程，保留交互进程的模型、基础工作区及用户参数。它从包含PR39的固定基线 `ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13` 获取同名受控依赖到本次新目录，记录source_relation.json，不覆盖用户磁盘模型，也不建立第二套公式。
+默认同步等待；第三参数false仅用于异步启动，结果必须以新目录的JSON状态判断，不能把RUNNING视为PASS。运行器通过MATLAB原生.NET进程接口隐藏启动独立 `-batch` 进程，保留交互进程的模型、基础工作区及用户参数。它复用PR39已接受的受控模型依赖到本次新目录，记录source_relation.json，不覆盖用户磁盘模型，也不建立第二套公式。历史来源可在原始依赖记录中追溯，但现行交接不新增冗长版本标识。
 
 这是必要的真实来源隔离：用户现有Current共享库与ADC壳有本地修改。系统SLX仍引用原 `AXU5EV_PL_Algorithm_Library/Current_Preprocess` 和 `AXU5EV_Encoder_Components/Encoder_Angle` 库链接，FOC是原 `baselines/pr53_p3/source/PMLSM_FOC_FixedPoint.slx` 的Model Reference。独立进程解析这些已接受的依赖；没有让部署暗中使用交互进程的未审查模型。直接在用户原会话按Run可能解析当前用户修改，不能当作本轮接受的复现结果。
 
-系统模型每20ns运行电流/角度组件，并在事件处保持同帧反馈。原FOC数学模型保持原100us采样及原PI/AW状态，以完整连续仿真运行；ZOH在下一个逻辑帧消费已完成反馈。因此系统模型的FOC帧表比ADC采样表固定后移一帧，端口sample_id/reference_version用于对齐，绝不把这一个SIM_ONLY参考调度延迟宣称为真实PL延迟。实际板级通路在采样后P128捕获输入、目标谷值采用，完整5000使能拍与实际跨频由RTL/SDF验证。
+系统模型每20ns运行电流/角度组件，并在事件处保持同帧反馈。原FOC数学模型保持原100us采样及原PI/AW状态，以完整连续仿真运行；ZOH在下一个逻辑帧消费已完成反馈。因此系统模型的FOC帧表比ADC采样表固定后移一帧，端口sample_id/reference_version用于对齐，绝不把这一个SIM_ONLY参考调度延迟宣称为真实PL延迟。实际板级通路在采样后P128捕获输入、目标谷值采用；完整5000使能拍与跨频功能有整链RTL及完整STA证据，PWM桥有局部两角SDF证据，但全链路动态SDF仍未完成。
 
 无效反馈也推进完整FOC帧，九字段明确使用零电流/参考/角度/速度、TEST48V及PI_Reset=1；与RTL捕获策略一致。送往SIM_ONLY谷值保持的许可使用与FOC相同100us边界冻结的valid，避免用下一帧刚更新的许可采用上一帧数值。
 
