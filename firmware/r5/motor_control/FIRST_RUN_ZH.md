@@ -1,12 +1,12 @@
 # 统一无功率数字链与本地有限板测
 
-> 2026-11-13当前状态按[PR41 Task 1](https://github.com/kazecode666/AXU5EV/pull/41#issuecomment-6850181652)整理。本页作为未来无功率现场操作手册，当前尚无现场执行授权，board_no_power与R5采集连续性均NOT_RUN。PWM cut局部两角SDF已PASS，全链SDF仍NOT_COMPLETED，服务器暂停；本页以下并行计划及SDF预算说明保留为历史。最新证据见[结果报告](../../../verification/motor_control/evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md)，验收状态见[HANDOFF](../../../coordination/HANDOFF.md)。
+> **当前状态（2026-11-13）：本文件是未来的无功率现场操作手册，不是自动执行授权。** 板测和R5实机连续采集均为NOT_RUN；已布线PWM局部slow/max、fast/min SDF均PASS，但完整链路动态SDF为NOT_COMPLETED。服务器SDF工作线已收口，当前不应执行旧的长跑命令。唯一现行状态入口：[HANDOFF](../../../coordination/HANDOFF.md) / [聚合结果](../../../verification/motor_control/results.json)。
 
-2026-11-11按PR41评论6784312486接续Issue40。服务器执行完整功能PL两角SDF，本地使用hardware_02与vitis_01开展有限无功率板测，两条工作线独立推进，最后统一Review。当前板测和R5采集连续性均为NOT_RUN。用户已确认现场具备接线确认的ADC模块及可靠输入。
+本手册基于已经冻结的 hardware_02 / vitis_01 候选描述未来操作。2026-11-11的服务器全量SDF与本地板测并行计划已经结束；实际板测尚未启动。用户过去报告具有ADC模块和测试输入，但具体接线、供电及安全条件仍须在每次现场操作前重新确认。
 
 ## 冻结候选与启动
 
-产物路径和本次SHA256见 [artifact_correspondence.json](../../../verification/motor_control/evidence/parallel_plan_20261111/artifact_correspondence.json)。硬件生成来源、服务器入口来源和当前文档head分别记录，现场使用下表的实际产物。
+以下是原冻结候选的已记录路径；现场先核对文件存在、板型和文件之间的对应关系，不新增文件摘要或校验流程。若路径已变化，先报告实际路径，不重建产物。
 
 | 项目 | 本机实际入口 |
 | --- | --- |
@@ -15,7 +15,7 @@
 | R5应用 | `motor_control_observer/build/motor_control_observer.elf`，相对Workspace |
 | A53 FSBL | `motor_control_platform/export/motor_control_platform/sw/boot/fsbl.elf`，相对Workspace |
 | Launch配置 | `motor_control_observer/_ide/launch.json`中的`motor_control_manual` |
-| 服务器SDF | [WINDOWS_SERVER_SDF_ZH.md](WINDOWS_SERVER_SDF_ZH.md)，slow与fast均显式24h/工具预算 |
+| SDF验收状态 | [PWM局部两角SDF结果](../../../verification/motor_control/evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md)已PASS；完整功能PL动态SDF未完成，不再执行旧24小时计划 |
 
 现场由用户操作板卡。需要Codex协助下载或采集时，由用户明确授权相应动作。执行前记录板型、ADC模块/接线和可靠输入条件，确认功率驱动及电机处于断开状态。六路PWM为内部观察，physical_link_verified=0，Vdc=48V为数字测试量。
 
@@ -39,7 +39,7 @@
 | 禁止及显式重臂 | 采集结束后`d`，再`s → r → p`，随后`t`，等候新版本，再`r → p`，最后`d → s` | 禁止持续、旧参考保持取消、新参考版本显式重臂。联合flags与applied历史解释结果。保存禁止前、禁止后及重臂后三组记录 |
 | 局部ILA | 按下节分别触发 | 三相采用、互补死区、禁止和释放分别归档 |
 
-`r`是阻塞式采集，最多128条新seq，结束时打印records和attempts，随后`p`打印已保存数据。采集期间到达的UART命令会等待主循环处理，测试用`d`在采集结束后发送。精确P0禁止、ready晚到和失锁注入继续由原SDF/RTL事件测试台覆盖。
+`r`是阻塞式采集，最多128条新seq，结束时打印records和attempts，随后`p`打印已保存数据。采集期间到达的UART命令会等待主循环处理，测试用`d`在采集结束后发送。精确P0禁止、ready晚到和失锁注入的整链功能证据来自既有RTL事件测试；PWM局部SDF不能替代全链路动态SDF。
 
 电流、参考、位置和duty均按本轮数字尺度解读。校准记录为N16数字流程结果，参考给定和实际反馈分别观察。若compare达到0或5000造成持续电平，ILA切换场景记录实际未观察项。
 
@@ -73,9 +73,9 @@ PWM ILA为4096点、名义100MHz，连续窗口约40.96us。采用、死区、�
 
 ## 归档与后续Review
 
-精简板测回执使用`verification/motor_control/evidence/board_no_power_01/`，服务器SDF使用`verification/motor_control/evidence/server_sdf_20261111/`，原始大日志保留在各自新结果目录。每项填写PASS/FAIL/NOT_RUN和实际覆盖字段，R5连续性另列。现场问题先提交UART、快照/ILA及产物身份，说明受影响场景。
+未来无功率现场证据归档到`verification/motor_control/evidence/board_no_power_01/`，已经完成的PWM局部两角SDF证据位于`verification/motor_control/evidence/pwm_cut_windows_20261113_04/`；旧全量SDF日志仅作为历史。每项填写PASS/FAIL/NOT_RUN和实际覆盖字段，R5连续性另列。现场问题先提交UART、快照/ILA及产物身份，说明受影响场景。
 
-当前状态集中在`verification/motor_control/results.json`的server_sdf_slow_max、server_sdf_fast_min、board_no_power、r5_capture_continuity。两条线证据收齐后统一Review，PR41保持Draft。
+当前状态以`verification/motor_control/results.json`的`current_status`为准：PWM局部slow/fast均PASS，全链SDF为NOT_COMPLETED，board_no_power与r5_capture_continuity仍NOT_RUN。现场结果仅在用户明确授权执行后填写，PR41保持Draft。
 
 ## 已有数值与生成入口
 
