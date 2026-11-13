@@ -1,5 +1,11 @@
 # AXU5EV — 当前交接
 
+## 2026-11-13 第二轮：按PR41 Review6846401773执行后停止
+
+已实际完成定向DCP anchor查询（154.5s，hold+.244ns/setup+8.759ns），修复局部TB源posedge寄存器/20ns anchor与WARNING分类，复用已导出网表和SDF。前置xvlog声明顺序错误原样归档，仅修声明顺序后，唯一slow xelab10.25s exit0且注释成功；唯一动态xsim3.468s运行到930ns，首次20ns anchor与4997→5000启动已观察，但首笔seq1触发unique source offer断言，按规则停止，fast未启动。新增源寄存器与旧task撤销语义未闭合，actual valid又暴露一个源沿；属于本轮TB源驱动/监视契约失败，不据此判生产DUT失败。未删断言、调相位或重跑动态。
+
+结果PWM_CUT_SDF_SLOW=FAIL、FAST=NOT_RUN、FULL_CHAIN_SDF=NOT_COMPLETED；完整动态覆盖未完成，原STA/RTL证据独立保留。[第二轮证据与限制](<../verification/motor_control/evidence/pwm_cut_windows_20261113_02/README.md>)、[报告](<../verification/motor_control/evidence/pwm_cut_windows_20261113_02/RESULT_REPORT.md>)、[真实日志](<../verification/motor_control/evidence/pwm_cut_windows_20261113_02/slow/xsim.stdout.log>)。0.2ns仅本地边界模型，非物理跨层SDF。1404旧hold失败、1522编译失败和本次动态失败均保留。未修改生产RTL/参数/约束、重建硬件或操作板卡；不打包/同步/哈希验证、不恢复全量24h xelab。PR41继续Draft、Issue40开放，等待Review。
+
 ## 2026-11-13 补充：Windows PWM cut SDF 一次性执行已停止
 
 服务器本轮既有hardware_02 DCP在指定PWM桥切点原生导出228.6s完成，196766→1204 primitives；slow/max xelab14.20s exit0且SDF注释成功。首次xsim检出anchor_delayed_reg在760/820ns的60ps hold违例，按停止规则终止，未重跑或启动fast。已识别本轮TB的anchor与PWM采样沿重合、零保持裕量边界缺陷，不能据此认定生产DUT失败；未完成整组/谷值/取消/死区等动态场景。PWM_CUT_SDF_SLOW=FAIL、PWM_CUT_SDF_FAST=NOT_RUN；FULL_CHAIN_SDF继续NOT_COMPLETED，既有全设计STA及整链RTL证据不变。

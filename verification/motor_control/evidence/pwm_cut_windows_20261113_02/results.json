@@ -1,0 +1,41 @@
+{
+  "review": "https://github.com/kazecode666/AXU5EV/pull/41#issuecomment-6846401773",
+  "PWM_CUT_SDF_SLOW": "FAIL",
+  "PWM_CUT_SDF_FAST": "NOT_RUN",
+  "FULL_CHAIN_SDF": "NOT_COMPLETED",
+  "FULL_DESIGN_STA": "PRIOR_EVIDENCE_UNCHANGED_NOT_RERUN",
+  "FULL_CHAIN_RTL": "PRIOR_EVIDENCE_UNCHANGED_NOT_RERUN",
+  "task_a": {
+    "status": "COMPLETED_TARGETED_READ_ONLY_QUERY",
+    "seconds": 154.5123012,
+    "hold_slack_ns": 0.244,
+    "setup_slack_ns": 8.759
+  },
+  "preflight": {
+    "directory": "../pwm_cut_sdf_20261113_1522",
+    "xvlog_seconds": 0.781,
+    "status": "COMPILE_FAILED_DECLARATION_ORDER",
+    "xelab_started": false,
+    "xsim_started": false
+  },
+  "execution": {
+    "directory": "../pwm_cut_sdf_20261113_1522_buildfix",
+    "xvlog_seconds": 0.782,
+    "xelab_seconds": 10.25,
+    "xsim_seconds": 3.468,
+    "annotation_confirmed": true,
+    "last_simulation_ns": 930,
+    "stop": "PWM_CUT_FAIL unique source offer",
+    "pass_marker_count": 0,
+    "first_anchor_pulses_observed": 1,
+    "first_start_phase": 4997,
+    "first_peak_phase": 5000,
+    "first_start_and_peak_checks": 1,
+    "timing_diagnostics_before_stop": 0,
+    "complete_dynamic_coverage": false
+  },
+  "boundary": "Fixed same-phase related2:1; explicit0.2ns local source-Q model, NOT physical extracted cross-boundary SDF",
+  "no_dynamic_retry": true,
+  "fast_not_started": true,
+  "board": "NOT_RUN"
+}
