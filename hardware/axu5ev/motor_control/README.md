@@ -1,8 +1,10 @@
 # motor_control 统一模型与 PL 工程入口
 
+> **当前验收状态（2026-11-13，Issue40 / Draft PR41）：** 统一模型、数值对照、完整ADC/QEP→FOC→PWM整链RTL和原冻结候选的完整STA已有独立PASS证据。已布线PWM桥局部切点的slow/max与fast/min门级SDF均PASS；**完整功能PL动态SDF仍NOT_COMPLETED**。本轮无功率板测、R5实机采集、真实PWM驱动输出均NOT_RUN。现行入口：[HANDOFF](../../../coordination/HANDOFF.md)、[聚合结果](../../../verification/motor_control/results.json)、[PWM局部两角SDF最终报告](../../../verification/motor_control/evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md)。历史SDF长跑计划不再执行；PR41是否按限定范围合并等待用户决定。
+
 ## Issue40：同帧反馈到 FOC/PWM 的自动通路
 
-从已合并PR39的main `ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13` 建立 `codex/motor-control-chain`。本轮不复制ADC/QEP/PWM工程，不接完整外环、Runtime或自动对齐。原始ADC针脚/ABZ接收器→原电流/角度生成HDL→原p3 FOC→新模型生成比较值→原整组三相PWM的路径实际连通。六路仍只在内部观察，physical_link_verified=0，板卡操作NOT_RUN。
+从PR39已合并的项目基础继续开发，当前工作分支为 `codex/motor-control-chain`。本轮不复制ADC/QEP/PWM工程，不接完整外环、Runtime或自动对齐。原始ADC针脚/ABZ接收器→原电流/角度生成HDL→原p3 FOC→新模型生成比较值→原整组三相PWM的路径实际连通。六路仍只在内部观察，physical_link_verified=0，板卡操作NOT_RUN。
 
 | 工作 | 唯一入口/来源 |
 |---|---|
@@ -45,7 +47,7 @@ ADC原基址0x80000000不变。参考shadow写0x180/184=id/iq signedQ24，0x188/
 
 新快照MCT1（0x4d435431）/schema3/epoch0x4d430003为80字；BEGIN、冻结及原前41字单位保留，最后word79 **0x148读响应** 才释放。原写寄存器与读取空间独立，不能沿用0x88或0xac作为新候选释放位置。word41为控制标志，42–44=FOC采样ID/tick，45=参考版本，46–56=完整冻结九字段，57–59=Q30 duty，60–62=比较值，63=提交采样ID，64=最后确认采用ID，65–67=提交/晚到/无效计数，68/69=原核帧号/capture_edge，70–71=目标tick，72=结果数；73–79保留0。word64是采用历史，须与禁止/有效/late位联合判断，不能表示禁止后仍有输出。
 
-最终候选、模型/RTL逐位对比、完整STA/CDC、定向SDF及R5构建结果见 `verification/motor_control/results.json` 和HANDOFF首节。所有旧结果目录/Workspace、用户8个模型/参数修改及未跟踪文件均保留。以下段落是PR39及先前工程的历史入口说明，不能用其旧“未接FOC”或旧时序证据替代本轮结果。
+最终候选、模型/RTL逐位对比、完整STA/CDC、PWM局部两角SDF及R5构建结果见 `verification/motor_control/results.json` 和HANDOFF首节。所有旧结果目录/Workspace、用户8个模型/参数修改及未跟踪文件均保留。以下段落是PR39及先前工程的历史入口说明，不能用其旧“未接FOC”或旧时序证据替代本轮结果。
 
 本轮MC_AUTO时序仿真视图只将不支持仿真的PWM ILA黑盒化，保留结构dbg_hub；同时黑盒两个debug对象会在此大设计上触发Vivado内部NULL ParentLH异常，完整原始导出与ILA-only对照已用于定位。旧非AUTO导出策略保持原样。原路由DCP、bit和完整STA包含实际调试IP，仿真视图不写回检查点、不重布局布线、不手改网表/SDF；PS时钟、复位和AXI事务源由测试台替代。ILA/JTAG采集功能和ARM执行不由该仿真证明。
 
