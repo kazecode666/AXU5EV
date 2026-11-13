@@ -1,5 +1,11 @@
 # AXU5EV — 当前交接
 
+## 2026-11-13 补充：Windows PWM cut SDF 一次性执行已停止
+
+服务器本轮既有hardware_02 DCP在指定PWM桥切点原生导出228.6s完成，196766→1204 primitives；slow/max xelab14.20s exit0且SDF注释成功。首次xsim检出anchor_delayed_reg在760/820ns的60ps hold违例，按停止规则终止，未重跑或启动fast。已识别本轮TB的anchor与PWM采样沿重合、零保持裕量边界缺陷，不能据此认定生产DUT失败；未完成整组/谷值/取消/死区等动态场景。PWM_CUT_SDF_SLOW=FAIL、PWM_CUT_SDF_FAST=NOT_RUN；FULL_CHAIN_SDF继续NOT_COMPLETED，既有全设计STA及整链RTL证据不变。
+
+本轮精简证据与完整限定见[索引](<../verification/motor_control/evidence/pwm_cut_windows_20261113_01/README.md>)、[报告](<../verification/motor_control/evidence/pwm_cut_windows_20261113_01/RESULT_REPORT.md>)、[原始动态日志](<../verification/motor_control/evidence/pwm_cut_windows_20261113_01/slow/xsim.stdout.log>)。大DCP/网表/SDF/缓存留服务器原目录，不进Git。未改生产RTL/参数/约束，未重建硬件、未操作板卡；本次只归档，不启动新的验证轮。PR41继续Draft、Issue40开放，等待Review。以下2026-11-11计划及更早记录原样保留，不能当作本轮自动长跑授权。
+
 更新：2026-11-11，仓库kazecode666/AXU5EV，本地D:/Project/AXU5EV。
 
 ## 当前：服务器完整SDF与本地有限无功率板测并行
