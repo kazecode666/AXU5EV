@@ -1,0 +1,81 @@
+--- round3/pwm_cut_tb.sv
++++ round4/v1/pwm_cut_tb.sv
+@@ -40,6 +40,9 @@
+  wire [0:0] axi_rresp,axi_bresp;
+  wire [31:0] axi_rdata;
+  wire axi_rvalid,axi_bvalid,axi_awready,axi_wready,axi_arready;
++ // PROVEN from original routed DCP + full timesim: physical port is permission.
++ // Keep producer inhibit and all checks logical; adapt at this sole interface.
++ wire cut_permission=~inhibit;
+  pwm_cut dut(.s_axi_rresp(axi_rresp),.s_axi_rdata(axi_rdata),
+  .s_axi_rvalid_reg_0(axi_rvalid),.s_axi_bvalid_reg_0(axi_bvalid),
+  .s_axi_bresp(axi_bresp),.s_axi_awready(axi_awready),
+@@ -47,7 +50,7 @@
+  .\peripheral_aresetn[0]_bufg_place (rstn),
+  .\peripheral_aresetn[0]_bufg_place_replica (rstn),
+  .locked(locked),.fast_inhibit(fast_inhibit),.adc_anchor(anchor),
+- .auto_valid_i(valid),.auto_compare_i(compare),.auto_seq_i(seq),.auto_inhibit_i(inhibit),
++ .auto_valid_i(valid),.auto_compare_i(compare),.auto_seq_i(seq),.auto_inhibit_i(cut_permission),
+  .auto_ready_o(ready),.auto_online_o(online),.auto_applied_seq_o(adopted_seq),
+  .started_reg(started),.pending_reg(pending),.accepted_reg(accepted),.debug_o(dbg),
+  .s_axi_awaddr(12'd0),.s_axi_awvalid(1'b0),.s_axi_wvalid(1'b0),.s_axi_wstrb(4'hf),
+@@ -79,7 +82,7 @@
+   // OLD boundary values match the bridge and real FOC producer.
+   source_handshake=(valid===1 && ready===1 && inhibit===0);
+   if(monitor && ((offer_request>0 && seq_request==1 && offer_done==0) || trace_tail>0))begin
+-   $display("PWM_CUT_FIRST_EDGE t_ns=%0.3f valid=%b ready=%b inhibit=%b seq=%0d pending=%b accepted=%b busy=%b capture_ce=%b dut_request=%b request=%0d claimed=%0d done=%0d handshake=%b",$realtime,valid,ready,inhibit,seq,pending,accepted,dut.busy,dut.frozen_compare0,dut.request_reg_n_0,offer_request,offer_claimed,offer_done,source_handshake);
++   $display("PWM_CUT_FIRST_EDGE t_ns=%0.3f valid=%b ready=%b inhibit=%b physical_permission=%b reset=%b seq=%0d pending=%b accepted=%b busy=%b capture_ce=%b dut_request=%b request=%0d claimed=%0d done=%0d handshake=%b",$realtime,valid,ready,inhibit,cut_permission,dut.request,seq,pending,accepted,dut.busy,dut.frozen_compare0,dut.request_reg_n_0,offer_request,offer_claimed,offer_done,source_handshake);
+    if(trace_tail>0)trace_tail--;
+   end
+   if(!rstn || !locked || inhibit_request)begin
+@@ -106,7 +109,7 @@
+  end
+  // Actual retirement timestamp; read-only observer, never another driver.
+  always @(negedge valid)if(monitor && seq==1)
+-  $display("PWM_CUT_FIRST_RETIRE t_ns=%0.3f valid=%b ready=%b inhibit=%b seq=%0d pending=%b accepted=%b busy=%b capture_ce=%b dut_request=%b",$realtime,valid,ready,inhibit,seq,pending,accepted,dut.busy,dut.frozen_compare0,dut.request_reg_n_0);
++  $display("PWM_CUT_FIRST_RETIRE t_ns=%0.3f valid=%b ready=%b inhibit=%b physical_permission=%b reset=%b seq=%0d pending=%b accepted=%b busy=%b capture_ce=%b dut_request=%b",$realtime,valid,ready,inhibit,cut_permission,dut.request,seq,pending,accepted,dut.busy,dut.frozen_compare0,dut.request_reg_n_0);
+  // Check actual boundary transitions, not merely task request scheduling.
+  always @(valid or compare or seq or inhibit)if(monitor)begin
+   check($realtime-source_rise>=SOURCE_CQ-0.001 &&
+@@ -280,6 +283,33 @@
+   offer(id+1,1800,2900,4100);finish_offer(id+1);
+   hold_cycles(11000);check(active_seq==id+1,"fresh request rearms only new group");rearms++;
+  end endtask
++ // Tightening-only first transaction gate; no stimulus ownership.
++ reg first_capture_ok=0,first_pending_ok=0;
++ reg [38:0] first_compare;reg [31:0] first_seq;
++ initial begin
++  do @(posedge aclk); while(!(monitor && valid===1 && ready===1 && inhibit===0 && seq==1));
++  first_compare=compare;first_seq=seq;
++  check(cut_permission===1 && dut.frozen_compare0===1 && dut.busy===0 && dut.request_reg_n_0===0,"first capture preedge physical permission and CE");
++  #4;
++  $display("PWM_CUT_CAPTURE t_ns=%0.3f logical_inhibit=%b physical_permission=%b valid=%b ready=%b ce=%b reset=%b busy=%b request=%b frozen_seq=%0d frozen_compare=%h pending=%b",$realtime,inhibit,cut_permission,valid,ready,dut.frozen_compare0,dut.request,dut.busy,dut.request_reg_n_0,dut.frozen_seq,dut.frozen_compare,pending);
++  check(valid===0 && dut.busy===1 && dut.request_reg_n_0===1 && dut.frozen_seq===first_seq && dut.frozen_compare===first_compare,"first capture settled actual frozen busy request");
++  first_capture_ok=1;
++  // 40 PWM edges is only a diagnostic liveness cap, not extracted CDC timing.
++  for(integer n=0;n<40 && !first_pending_ok;n++)begin
++   @(posedge pclk);#4;
++   if(pending===1)begin
++    check(dut.frozen_seq===first_seq && dut.frozen_compare===first_compare,"first pending preserves actual frozen source");first_pending_ok=1;
++    $display("PWM_CUT_FIRST_PENDING t_ns=%0.3f logical_inhibit=%b physical_permission=%b reset=%b busy=%b request=%b pending=%b frozen_seq=%0d accepts=%0d",$realtime,inhibit,cut_permission,dut.request,dut.busy,dut.request_reg_n_0,pending,dut.frozen_seq,accepts);
++   end
++  end
++  check(first_pending_ok,"first actual request reaches pending within diagnostic cap");
++ end
++ always @(posedge aclk)if(monitor && inhibit===1)begin
++  #4;if(inhibit===1)check(cut_permission===0 && dut.frozen_compare0===0 && dut.request===1,"inhibited physical interface cannot capture");
++ end
++ always @(inhibit)if(monitor)begin
++  #4;$display("PWM_CUT_PERMISSION t_ns=%0.3f logical_inhibit=%b physical_permission=%b ce=%b reset=%b busy=%b pending=%b",$realtime,inhibit,cut_permission,dut.frozen_compare0,dut.request,dut.busy,pending);
++ end
+  initial begin
+   for(integer i=0;i<64;i++)begin seen[i]=0;banned[i]=0;offered[i]=0;target_cycle[i]=0;end
+   for(integer i=0;i<3;i++)begin off_h[i]=-10000;off_l[i]=-10000;end
+@@ -305,6 +335,7 @@
+   check(zero_checks>=30000 && full_checks>=30000,"all boundary scenarios exercised");
+   check(anchor_pulses==3 && start_checks==3 && peak_checks==3,"nonempty registered anchor and startup peak coverage");
+   check(q_events>0 && release_checks>=4,"real routed Q and release events observed");
++  check(first_capture_ok && first_pending_ok,"nonvacuous first actual capture gate");
+   $display("PWM_CUT_SOURCE_COVERAGE anchor_pulses=%0d starts=%0d peaks=%0d",anchor_pulses,start_checks,peak_checks);
+   $display("PWM_CUT_SDF_PASS checks=%0d offers=%0d accepts=%0d adoptions=%0d acks=%0d periods=%0d h_edges=%0d l_edges=%0d zero=%0d full=%0d cancels=%0d rearms=%0d q_events=%0d releases=%0d min_gap_ns=%0.3f max_q_ns=%0.3f",checks,offers,accepts,adoptions,acks,periods,h_edges,l_edges,zero_checks,full_checks,cancel_checks,rearms,q_events,release_checks,min_gap,max_q);
+   $finish;
