@@ -1,0 +1,45 @@
+#-----------------------------------------------------------
+# xsim v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Fri Nov 13 16:34:56 2026
+# Process ID         : 3248
+# Current directory  : D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1631/v1/slow
+# Command line       : xsim.exe -mode tcl -source {xsim.dir/pwm_cut_timing/xsim_script.tcl}
+# Log file           : D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1631/v1/slow/xsim.log
+# Journal file       : D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1631/v1/slow\xsim.jou
+# Running On         : DESKTOP-591B4R4
+# Platform           : Windows 10
+# Operating System   : 19045
+# Processor Detail   : Intel(R) Core(TM) Ultra 9 285K
+# CPU Frequency      : 3686 MHz
+# CPU Physical cores : 24
+# CPU Logical cores  : 24
+# Host memory        : 205378 MB
+# Swap memory        : 45097 MB
+# Total Virtual      : 250475 MB
+# Available Virtual  : 118020 MB
+#-----------------------------------------------------------
+source xsim.dir/pwm_cut_timing/xsim_script.tcl
+# xsim {pwm_cut_timing} -autoloadwcfg -runall
+Time resolution is 1 ps
+run -all
+PWM_CUT_SCENARIO anchor/restart t_ns=700.200
+PWM_CUT_START t_ns=804.000 cycle=80 phase=4997 anchor_to_edge_ns=9.800
+PWM_CUT_ANCHOR t_ns=810.200 width_ns=20.000 pulses=1
+PWM_CUT_PEAK t_ns=834.000 cycle=83 phase=5000
+PWM_CUT_SCENARIO offer t_ns=880.200 seq=1 abc=1000/2500/4000
+PWM_CUT_FIRST_EDGE t_ns=890.000 valid=0 ready=1 inhibit=0 seq=0 pending=0 accepted=0 busy=0 capture_ce=0 dut_request=0 request=1 claimed=0 done=0 handshake=0
+PWM_CUT_FIRST_EDGE t_ns=910.000 valid=1 ready=1 inhibit=0 seq=1 pending=0 accepted=0 busy=0 capture_ce=0 dut_request=0 request=1 claimed=1 done=0 handshake=1
+PWM_CUT_FIRST_HANDSHAKE t_ns=910.000 seq=1 retire_due_ns=910.200
+PWM_CUT_FIRST_RETIRE t_ns=910.200 valid=0 ready=1 inhibit=0 seq=1 pending=0 accepted=0 busy=0 capture_ce=0 dut_request=0
+PWM_CUT_FIRST_EDGE t_ns=930.000 valid=0 ready=1 inhibit=0 seq=1 pending=0 accepted=0 busy=0 capture_ce=0 dut_request=0 request=1 claimed=1 done=1 handshake=0
+PWM_CUT_FIRST_EDGE t_ns=950.000 valid=0 ready=1 inhibit=0 seq=63 pending=0 accepted=0 busy=0 capture_ce=0 dut_request=0 request=1 claimed=1 done=1 handshake=0
+PWM_CUT_FIRST_EDGE t_ns=970.000 valid=0 ready=1 inhibit=0 seq=63 pending=0 accepted=0 busy=0 capture_ce=0 dut_request=0 request=1 claimed=1 done=1 handshake=0
+PWM_CUT_FIRST_EDGE t_ns=990.000 valid=0 ready=1 inhibit=0 seq=63 pending=0 accepted=0 busy=0 capture_ce=0 dut_request=0 request=1 claimed=1 done=1 handshake=0
+PWM_CUT_PROGRESS t_ns=100000.000 cycle=9999 phase=4916 offers=1 accepts=0 adoptions=0 acks=0 starts=1 peaks=1
+PWM_CUT_PROGRESS t_ns=200000.000 cycle=19999 phase=4916 offers=1 accepts=0 adoptions=0 acks=0 starts=1 peaks=1
+PWM_CUT_PROGRESS t_ns=300000.000 cycle=29999 phase=4916 offers=1 accepts=0 adoptions=0 acks=0 starts=1 peaks=1
+PWM_CUT_PROGRESS t_ns=400000.000 cycle=39999 phase=4916 offers=1 accepts=0 adoptions=0 acks=0 starts=1 peaks=1
+PWM_CUT_PROGRESS t_ns=500000.000 cycle=49999 phase=4916 offers=1 accepts=0 adoptions=0 acks=0 starts=1 peaks=1

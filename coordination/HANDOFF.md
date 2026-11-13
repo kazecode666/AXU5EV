@@ -1,5 +1,11 @@
 # AXU5EV — 当前交接
 
+## 2026-11-13 第三轮：Review6847609985原生cut边界疑点硬停止
+
+v1统一唯一同步源驱动，语法预检通过；slow xvlog0.766s/xelab10.250s正常退出且SDF注释成功。实际910ns握手、910.2ns撤销valid，930ns无重复源握手，但native capture_ce=0、busy/request=0，模拟推进至500us仍offers1/accepts0。只读native LUT5 INIT08000000及reset LUT2 INIT7对cut端口auto_inhibit的直接解释与RTL !inhibit接受条件不符；可能涉及RETARGET/跨层pin inversion/导出模型语义，未确认硅DUT或RTL有错。已触疑似DUT/无法归类硬停止，不反相输入、不改CQ/相位，不创建v2/v3（1/3候选）。
+
+[第三轮集中证据](<../verification/motor_control/evidence/pwm_cut_windows_20261113_03/README.md>)、[报告](<../verification/motor_control/evidence/pwm_cut_windows_20261113_03/RESULT_REPORT.md>)、[原生cone只读摘录](<../verification/motor_control/evidence/pwm_cut_windows_20261113_03/native_cone_excerpt.txt>)。SLOW=FAIL_HARD_STOP、FAST=NOT_RUN、FULL_CHAIN_SDF=NOT_COMPLETED；旧结构保留检查不等于cut逻辑极性功能等价。全部旧FAIL/原始RUNNING停机快照保留，HARD_STOP另记最终判定。原STA/RTL证据不变，无DCP重查/导出/实现、RTL/约束/参数变更、SHA核查或板卡操作。PR41仍Draft、Issue40开放，等待Review边界语义。
+
 ## 2026-11-13 第二轮：按PR41 Review6846401773执行后停止
 
 已实际完成定向DCP anchor查询（154.5s，hold+.244ns/setup+8.759ns），修复局部TB源posedge寄存器/20ns anchor与WARNING分类，复用已导出网表和SDF。前置xvlog声明顺序错误原样归档，仅修声明顺序后，唯一slow xelab10.25s exit0且注释成功；唯一动态xsim3.468s运行到930ns，首次20ns anchor与4997→5000启动已观察，但首笔seq1触发unique source offer断言，按规则停止，fast未启动。新增源寄存器与旧task撤销语义未闭合，actual valid又暴露一个源沿；属于本轮TB源驱动/监视契约失败，不据此判生产DUT失败。未删断言、调相位或重跑动态。
