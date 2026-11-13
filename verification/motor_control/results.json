@@ -1,17 +1,11 @@
 {
   "issue": "kazecode666/AXU5EV#40",
-  "status": "PWM_CUT_TWO_CORNER_PASS; DRAFT; FULL_CHAIN_SDF_AND_BOARD_ACCEPTANCE_OPEN",
-  "base": "ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13",
+  "status": "DIGITAL_CHAIN_OFFLINE_VERIFIED; PWM_CUT_SDF_TWO_CORNERS_PASS; FULL_CHAIN_SDF_NOT_COMPLETED; BOARD_NOT_RUN; DRAFT",
   "branch": "codex/motor-control-chain",
-  "functional_commit": "906c9a5aa414863add479b11bc49535f92f87e7d",
-  "disarm_fix_commit": "bc52d7498e1c913166b496e626ebe5e0757ce061",
-  "source_entry_commit": "af73f437e0035b3f3c9da4de014762c702413571",
-  "timing_export_test_commit": "d63e96f6930a865671124029a12817e694107b5d",
   "scope": "precommitted references; ADC/QEP to original model algorithms/FOC to original PWM; no power",
   "parallel_execution": {
     "historical_record": true,
     "authorization_comment": 6784312486,
-    "documentation_base_commit": "56bdd634ab7db9bad6e743636202d5a00f5799e2",
     "prepared_date": "2026-11-11",
     "candidate": "hardware_02 / vitis_01",
     "artifact_correspondence": "PASS_14_RELATIONSHIPS",
@@ -19,7 +13,7 @@
     "local_original_large_zip": "ABSENT_AT_RECORDED_PATH; public Release digest and frozen input manifest verified",
     "user_adc_input_confirmation": "connected ADC module and reliable input confirmed by user on 2026-11-11",
     "execution_dependency": "server and board independent; server fast requires server slow PASS",
-    "review": "combine server SDF and finite board evidence in PR41 after each completes"
+    "review": "HISTORICAL plan only; current decision in current_status and coordination/HANDOFF.md"
   },
   "server_sdf_slow_max": {
     "status": "NOT_COMPLETED",
@@ -33,12 +27,16 @@
     "planned_evidence_path": "evidence/server_sdf_20261111/slow_max",
     "guide": "firmware/r5/motor_control/WINDOWS_SERVER_SDF_ZH.md",
     "historical_plan": "tool_timeout_ms and planned_evidence_path retain the old plan; no pending execution",
-    "evidence": "evidence/pwm_cut_windows_20261113_01/RESULT_REPORT.md",
-    "decision_comment": "https://github.com/kazecode666/AXU5EV/pull/41#issuecomment-6850181652"
+    "evidence": "evidence/full_sdf_20261110/README.md",
+    "decision_comment": "https://github.com/kazecode666/AXU5EV/pull/41#issuecomment-6850181652",
+    "remote_result_notes": [
+      "PR41 #issuecomment-6801862540: O0 compiler tool error",
+      "PR41 #issuecomment-6844442026: O2 24h elaboration timeout"
+    ]
   },
   "server_sdf_fast_min": {
     "status": "NOT_RUN",
-    "receipt_status": "NOT_STARTED; SERVER_PAUSED_PER_6850181652",
+    "receipt_status": "NOT_STARTED; full slow did not pass and full-netlist SDF line is paused",
     "operator": "user on Windows server after slow complete PASS",
     "tool_timeout_ms": 86400000,
     "requires": "historical full-netlist plan required slow/max PASS; prerequisite not met; no pending execution",
@@ -54,24 +52,25 @@
     "reason": "Windows full netlist O0 backend ICE and O2 24h xelab timeout; no DUT failure classification",
     "server": "PAUSED; PWM cut workline closed per PR41 comment6850181652",
     "acceptance_exception": "PENDING_USER_DECISION",
-    "evidence": "evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md"
+    "evidence": "evidence/full_sdf_20261110/README.md"
   },
   "PWM_CUT_SDF_SLOW": {
     "status": "PASS",
     "corner": "slow/max",
-    "source_commit": "a392af056ae19ab18a975203b39e86f6d98a6763",
     "scope": "hardware_02 routed PWM cut and declared local source-boundary model",
-    "boundary_mapping": "PROVEN_PERMISSION_COMPLEMENT; TB cut_permission = !logical_inhibit",
+    "boundary_mapping": "PROVEN_PERMISSION_COMPLEMENT; physical cut input P = !logical inhibit",
     "evidence": "evidence/pwm_cut_windows_20261113_04/v2/slow/summary.json",
-    "report": "evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md"
+    "report": "evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md",
+    "coverage": "756022 dynamic checks; 11 offers/accepts, 8 adoptions/acks, 3 cancel/rearm, 3 anchor/start/peak; native slow/max annotation"
   },
   "PWM_CUT_SDF_FAST": {
     "status": "PASS",
     "corner": "fast/min",
-    "source_commit": "a392af056ae19ab18a975203b39e86f6d98a6763",
     "scope": "hardware_02 routed PWM cut and declared local source-boundary model",
     "evidence": "evidence/pwm_cut_windows_20261113_04/v2/fast/summary.json",
-    "report": "evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md"
+    "report": "evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md",
+    "boundary_mapping": "PROVEN_PERMISSION_COMPLEMENT; physical cut input P = !logical inhibit",
+    "coverage": "756022 dynamic checks; same final v2 testbench; native fast/min annotation"
   },
   "current_acceptance": {
     "date": "2026-11-13",
@@ -83,8 +82,8 @@
     "polarity_proof": "evidence/pwm_cut_windows_20261113_04/POLARITY_PROOF.md",
     "testbench": "evidence/pwm_cut_windows_20261113_04/v2/pwm_cut_tb.sv",
     "fast_inhibit_independent_dynamic": "N/A_BD_CONSTANT_ZERO",
-    "coverage_limits": "cut excludes original FOC/ADC computation and same-frame snapshot, complete 50MHz source-to-cut interconnect/clock tree, full late/disarm/reference rearm strategy, 80-word readback and board/power output",
-    "board_authorization": "NONE; future no-power execution requires explicit authorization",
+    "coverage_limits": "PWM cut SDF excludes FOC/ADC gate-level dynamics, complete source-to-cut interconnect and clock tree, full upstream reference policy and board 80-word readback",
+    "board_authorization": "NONE; manual site operation requires independent user approval",
     "prior_records": "older execution sections retain their historical status and original evidence"
   },
   "board_no_power": {
@@ -123,29 +122,44 @@
   },
   "manual_windows_server_delivery": {
     "status": "PUBLISHED_AND_PUBLIC_DOWNLOAD_VERIFIED_NOT_SDF",
-    "source_commit": "d376e56aa8580e5862c9d1a2534bee9af67a96c3",
     "release": "https://github.com/kazecode666/AXU5EV/releases/tag/issue40-windows-sdf-20261110",
     "release_kind": "artifact distribution prerelease; not acceptance",
     "entry_bytes": 12654,
-    "entry_sha256": "5281edab4975a3a4c9582c657fe0902e5ad4a2d2a7f60a22728f1b3c8857fa47",
     "server_entry_cases": 5,
     "unpacked_entry_dry_run": "PASS_NOT_SDF",
-    "server_execution": "NOT_RUN_USER_MANUAL",
+    "server_execution": "HISTORICAL_PACKAGE_PUBLICATION_ONLY; subsequent full-netlist attempts not completed; refer to current_status",
     "linux_tests": "DEFERRED_NOT_RUN",
-    "guide": "firmware/r5/motor_control/WINDOWS_SERVER_SDF_ZH.md"
+    "guide": "firmware/r5/motor_control/WINDOWS_SERVER_SDF_ZH.md",
+    "historical_record": true
   },
   "windows_o0_sdf": {
-    "authorization": [6759938887, 6759942425],
+    "authorization": [
+      6759938887,
+      6759942425
+    ],
     "review_route": 5835164071,
-    "source_base_commit": "1eba7545a662930133c09cdf8ea856c1a5194285",
     "status": "CANCELLED_BY_USER_FOR_MANUAL_WINDOWS_SERVER_HANDOFF",
     "platform": "Windows local; server deferred; Linux tests deferred",
     "compilation_variable": "--O0 (actual local 2026.1 help spelling)",
-    "logging_options": ["--stats", "--verbose", "1"],
+    "logging_options": [
+      "--stats",
+      "--verbose",
+      "1"
+    ],
     "mt_debug_timing_checks": "unchanged",
     "tool_timeout_ms": 3600000,
-    "slow_max": {"run": ".runtime/motor_control/sdf_o0_slow_01", "annotation": "NOT_COMPLETED", "dynamic": "NOT_RUN", "stopped_local": "2026-11-10T14:18:11.8109714+08:00", "remaining_owned_processes": 0, "natural_tool_exit": null, "kernel": "NOT_GENERATED"},
-    "fast_min": {"status": "NOT_RUN"},
+    "slow_max": {
+      "run": ".runtime/motor_control/sdf_o0_slow_01",
+      "annotation": "NOT_COMPLETED",
+      "dynamic": "NOT_RUN",
+      "stopped_local": "2026-11-10T14:18:11.8109714+08:00",
+      "remaining_owned_processes": 0,
+      "natural_tool_exit": null,
+      "kernel": "NOT_GENERATED"
+    },
+    "fast_min": {
+      "status": "NOT_RUN"
+    },
     "retry": false,
     "old_archive": "server_bundle_01 retained unchanged; no repack",
     "evidence": "evidence/windows_o0_20261110/README.md",
@@ -156,12 +170,16 @@
   },
   "sdf_runner_fix": {
     "authorization": 6757750944,
-    "separate_commit": "0bd081a902397d5365f0b608f1678c6d4ce04d0a",
     "status": "PASS_SHORT_MOCK_TESTS_ONLY",
     "run": ".runtime/motor_control/runner_fix_02",
     "cases": 12,
     "platform": "Windows 11; PowerShell 7.6.9; Python 3.14.6",
-    "tree_cases": ["normal", "nonzero_exit", "timeout", "explicit_cancel_file"],
+    "tree_cases": [
+      "normal",
+      "nonzero_exit",
+      "timeout",
+      "explicit_cancel_file"
+    ],
     "remaining_owned_processes_each": 0,
     "live_stdout_stderr": "PASS",
     "unrelated_process_unchanged": true,
@@ -178,7 +196,6 @@
     "local_archive_present_20261111": false,
     "current_download_source": "published Release, size and digest checked in parallel artifact correspondence",
     "bytes": 38281015,
-    "sha256": "6932398ee982936da54521c60d5bd978234c5bd55698e76de720910fb509e05b",
     "unpacked_root": "C:/Users/lww/AppData/Local/Temp/AXU5EV_Issue40_unpack_20261110_01/AXU5EV_Issue40_SDF_hardware_02_0bd081a",
     "package_files": 10,
     "checksum_files": 9,
@@ -193,13 +210,16 @@
     "uploaded_release": "https://github.com/kazecode666/AXU5EV/releases/tag/issue40-windows-sdf-20261110",
     "committed_archive_in_git_history": false,
     "evidence": "evidence/server_bundle_20261110/README.md",
-    "guide": "firmware/r5/motor_control/SDF_SERVER_ZH.md"
+    "guide": "firmware/r5/motor_control/SDF_SERVER_ZH.md",
+    "historical_record": true
   },
   "full_functional_sdf": {
     "historical_record": true,
     "current_results": "windows_o0_sdf",
-    "authorization": [6745328232, 6745337679],
-    "source_commit": "0191fc773102bc4aa5d71c89e652137cce10c350",
+    "authorization": [
+      6745328232,
+      6745337679
+    ],
     "hardware": ".runtime/motor_control/hardware_02",
     "view": "existing full functional PL; only ILA black box; structural dbg_hub retained; PS clock/reset and AXI stimulus replaced",
     "testbench": "verification/motor_control/timing_tb.sv netlist branch; MC_TIMING_RTL not defined",
@@ -209,8 +229,28 @@
     "same_native_pid_watch_limit_ms": 21600000,
     "wait_extension_note": "original slow wrapper already waiting at 3h; read-only handle observes same native PID, no restart; wrapper timeout does not itself prove native success and closing output pipes is a risk; require actual exit0 and complete annotation/log checks",
     "status": "STOPPED_AT_EXTENDED_6H_LIMIT; ACCEPTANCE_OPEN",
-    "slow_max": {"run": ".runtime/motor_control/sdf_full_slow_01", "status": "ELABORATION_TIMEOUT_NOT_COMPLETED", "wrapper": "TIMED_OUT_AFTER_3H", "same_native_pid": 8028, "native_restart_count": 0, "native_deadline_local": "2026-11-10T06:32:48.5420411+08:00", "stopped_local": "2026-11-10T06:34:15.8282873+08:00", "natural_exit_code": null, "supervisor_termination_exit_code": -1, "xvlog": "PASS", "static_elaboration": "COMPLETED", "kernel": "NOT_GENERATED", "successful_annotation_confirmation": false, "annotation": "NOT_COMPLETED", "dynamic": "NOT_RUN", "remaining_task_processes": 0},
-    "fast_min": {"status": "NOT_RUN", "reason": "slow/max did not complete; not started"},
+    "slow_max": {
+      "run": ".runtime/motor_control/sdf_full_slow_01",
+      "status": "ELABORATION_TIMEOUT_NOT_COMPLETED",
+      "wrapper": "TIMED_OUT_AFTER_3H",
+      "same_native_pid": 8028,
+      "native_restart_count": 0,
+      "native_deadline_local": "2026-11-10T06:32:48.5420411+08:00",
+      "stopped_local": "2026-11-10T06:34:15.8282873+08:00",
+      "natural_exit_code": null,
+      "supervisor_termination_exit_code": -1,
+      "xvlog": "PASS",
+      "static_elaboration": "COMPLETED",
+      "kernel": "NOT_GENERATED",
+      "successful_annotation_confirmation": false,
+      "annotation": "NOT_COMPLETED",
+      "dynamic": "NOT_RUN",
+      "remaining_task_processes": 0
+    },
+    "fast_min": {
+      "status": "NOT_RUN",
+      "reason": "slow/max did not complete; not started"
+    },
     "evidence": "evidence/full_sdf_20261110/README.md",
     "failure_scope": "elaboration timeout; no dynamic assertion or timing result; absence of an explicit error in the available log does not prove success",
     "automatic_retry": false,
@@ -219,7 +259,10 @@
   },
   "finite_finish": {
     "historical_record": true,
-    "review_comments": [6740612318, 6740096397],
+    "review_comments": [
+      6740612318,
+      6740096397
+    ],
     "dut_algorithm_constraints_changed": false,
     "new_timing_test_preflight": {
       "status": "PASS_NOT_SDF",
@@ -252,7 +295,14 @@
       "evidence": "evidence/routed/BOUNDED_VIEW_CHECK.md",
       "next": "stop; no retries or full-netlist fallback without a new user decision"
     },
-    "reused_without_rerun": ["system_04", "combined_oracle_02", "rtl_06", "mapper_01", "hardware_02", "vitis_01"]
+    "reused_without_rerun": [
+      "system_04",
+      "combined_oracle_02",
+      "rtl_06",
+      "mapper_01",
+      "hardware_02",
+      "vitis_01"
+    ]
   },
   "model": {
     "status": "PASS",
@@ -327,7 +377,7 @@
       "status": "PASS",
       "wns_ns": 1.272,
       "whs_ns": 0.011,
-      "wpws_ns": 4.000,
+      "wpws_ns": 4,
       "tns_ns": 0,
       "ths_ns": 0,
       "tpws_ns": 0,
@@ -385,22 +435,21 @@
     "full_chain_dynamic": "NOT_RUN",
     "remaining_task_processes": 0,
     "pause_evidence": "evidence/sdf_pause_20261109.json",
-    "resume": "user must decide next verification route or explicit deferral; no safe directed view selected in the one bounded check; do not rebuild hardware or R5"
+    "resume": "HISTORICAL stopping point only. No automatic resumption; current decision and scope in current_status."
   },
   "delivery": {
     "draft_pr": "https://github.com/kazecode666/AXU5EV/pull/41",
     "draft": true,
     "base_branch": "main",
     "branch_pushed": true,
-    "review_status": "TASK1_STATUS_SYNC; PWM_CUT_PASS; FULL_CHAIN_SDF_AND_BOARD_ACCEPTANCE_OPEN",
-    "review_target": "Issue40 and existing ChatGPT chat: Review DraftPR33",
+    "review_status": "CURRENT_EVIDENCE_RECONCILED; PWM_CUT_TWO_CORNERS_PASS; FULL_CHAIN_SDF_NOT_COMPLETED; BOARD_NOT_RUN",
+    "review_target": "PR41 / Issue40 current digital-chain scope",
     "review_issue_comment": "https://github.com/kazecode666/AXU5EV/issues/40#issuecomment-6739546511",
-    "review_source_commit": "6731492716f5c21b1864d39cb2ad299c4e26172d",
     "review_chatgpt_thread": "6af03b57-7910-83e8-a39c-bd281805c2f7",
-    "review_dispatch": "6850181652 requests Task1 documentation/status only; server paused; no current board execution authorization",
+    "review_dispatch": "Current scope in coordination/HANDOFF.md; no new server SDF or board action without user authorization",
     "development_resume_authorized": false,
-    "remaining": "Review Task1; user decides full-chain SDF acceptance exception and merge; board_no_power and R5 continuity NOT_RUN; later tasks require separate authorization",
-    "resume_entry": "coordination/HANDOFF.md first section"
+    "remaining": "User decides scope-limited acceptance and PR merge; no-power board and R5 capture remain NOT_RUN; future motor controller Runtime/outer loop independent",
+    "resume_entry": "coordination/HANDOFF.md"
   },
   "r5": {
     "status": "BUILD_AND_PASSIVE_STARTUP_PASS",
@@ -430,5 +479,33 @@
   "old_full_regression": "NOT_RUN",
   "full_outer_loop_runtime_alignment": "NOT_INTEGRATED",
   "physical_link_verified": 0,
-  "board_driver_motor": "NOT_RUN"
+  "board_driver_motor": "NOT_RUN",
+  "current_status": {
+    "authoritative": true,
+    "updated_on": "2026-11-13",
+    "scope": "AXU5EV Issue40 / Draft PR41; hardware_02 / vitis_01",
+    "model": "PASS_55_FRAMES_OFFLINE",
+    "same_frame_numeric": "PASS_FOC_19_FRAMES_57_WORDS_ZERO_DIFF",
+    "full_chain_rtl": "PASS_370245_CHECKS_OFFLINE",
+    "full_design_sta": "PASS_ROUTED_WNS_PLUS_1_272NS_WHS_PLUS_0_011NS",
+    "pwm_cut_sdf_slow_max": "PASS_NATIVE_SDF_BOUNDARY_MODEL",
+    "pwm_cut_sdf_fast_min": "PASS_NATIVE_SDF_BOUNDARY_MODEL",
+    "full_chain_sdf": "NOT_COMPLETED",
+    "server_full_sdf_slow_max": "NOT_COMPLETED_TOOL_FAILURE_OR_TIMEOUT",
+    "server_full_sdf_fast_min": "NOT_RUN",
+    "r5_build": "PASS_BUILD_AND_PASSIVE_STARTUP_ONLY",
+    "board_no_power": "NOT_RUN",
+    "r5_on_board_capture_continuity": "NOT_RUN",
+    "power_stage": "NOT_RUN",
+    "full_outer_loop_runtime_alignment": "NOT_INTEGRATED",
+    "cut_boundary": "Physical permission = !logical inhibit; adapter exists in local gate-level testbench only",
+    "cut_dynamic_evidence": "evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md",
+    "cut_slow_evidence": "evidence/pwm_cut_windows_20261113_04/v2/slow/summary.json",
+    "cut_fast_evidence": "evidence/pwm_cut_windows_20261113_04/v2/fast/summary.json",
+    "sta_evidence": "evidence/routed/hardware_02_audit.json",
+    "rtl_evidence": "evidence/rtl06/summary.json",
+    "source_boundary_note": "The 0.2ns local source propagation model is not a complete extracted path delay. This is PWM cut dynamic SDF, not full-chain SDF.",
+    "execution_plan": "No new server SDF runs; no board action unless separately authorized; user decides acceptance exception and merge.",
+    "current_handoff": "coordination/HANDOFF.md"
+  }
 }
