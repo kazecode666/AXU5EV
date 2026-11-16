@@ -132,13 +132,8 @@ def build(args):
     fake = mock / "fake_tool.py"
     fake.write_bytes(b"import os,sys,time\nstage=sys.argv[1]\nprint('MOCK_TOOL',stage,flush=True)\nprint('MOCK_STDERR',file=sys.stderr,flush=True)\ntime.sleep(0.1)\nif stage=='xelab' and os.environ.get('BUNDLE_MOCK_FAIL')=='1': sys.exit(7)\nif stage=='xelab': print('INFO: [XSIM 43-3452] MOCK',flush=True)\nif stage=='xsim': print('PWM_SDF_PASS MOCK_ONLY_NO_HDL',flush=True)\n")
     for stage in ("xvlog", "xelab", "xsim"):
-        if os.name == "nt":
-            (bins / (stage + ".bat")).write_bytes(
-                ('@echo off\n"' + sys.executable + '" "' + str(fake) + '" ' + stage + '\nexit /b %errorlevel%\n').encode("utf-8"))
-        else:
-            launcher = bins / stage
-            launcher.write_text('#!/bin/sh\nexec "' + sys.executable + '" "' + str(fake) + '" ' + stage + '\n')
-            launcher.chmod(0o755)
+        (bins / (stage + ".bat")).write_bytes(
+            ('@echo off\n"' + sys.executable + '" "' + str(fake) + '" ' + stage + '\nexit /b %errorlevel%\n').encode("utf-8"))
     mock_results = {}
     for mode in ("normal", "fail"):
         run = check / ("mock_" + mode)

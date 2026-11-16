@@ -128,7 +128,6 @@
     "server_entry_cases": 5,
     "unpacked_entry_dry_run": "PASS_NOT_SDF",
     "server_execution": "HISTORICAL_PACKAGE_PUBLICATION_ONLY; subsequent full-netlist attempts not completed; refer to current_status",
-    "linux_tests": "DEFERRED_NOT_RUN",
     "guide": "firmware/r5/motor_control/WINDOWS_SERVER_SDF_ZH.md",
     "historical_record": true
   },
@@ -139,7 +138,7 @@
     ],
     "review_route": 5835164071,
     "status": "CANCELLED_BY_USER_FOR_MANUAL_WINDOWS_SERVER_HANDOFF",
-    "platform": "Windows local; server deferred; Linux tests deferred",
+    "platform": "Windows local; server deferred",
     "compilation_variable": "--O0 (actual local 2026.1 help spelling)",
     "logging_options": [
       "--stats",
@@ -203,7 +202,7 @@
     "dry_run_slow_max": "PASS_NOT_SDF",
     "dry_run_fast_min": "PASS_NOT_SDF",
     "portable_entry_mock_normal_and_failure": "PASS_NOT_SDF",
-    "executed_platform": "Windows only; Linux/server NOT_RUN",
+    "executed_platform": "Windows only; server NOT_RUN",
     "real_vivado_launches": 0,
     "server_execution": "NOT_RUN",
     "uploaded_or_committed_archive": true,

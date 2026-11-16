@@ -10,7 +10,7 @@
 
 随后实际包 `.runtime/motor_control/server_bundle_01/AXU5EV_Issue40_SDF_hardware_02_0bd081a.zip` 为38,281,015字节，SHA256 `6932398ee982936da54521c60d5bd978234c5bd55698e76de720910fb509e05b`。包含原网表/两角SDF、0191fc7事件TB、修复入口、输入校验、中文说明和来源/清单，共10文件；不含工具安装/许可证、Workspace、DCP/bit/XSA/ELF。可见源无额外项目输入，厂商保护块原样保留，匹配库/glbl由配置工具提供。
 
-已解压到C:/Users/lww/AppData/Local/Temp/AXU5EV_Issue40_unpack_20261110_01，从原仓库及包外工作目录运行实际解包入口：CRC/9项SHA256/清单、依赖、slow/max与fast/min命令dry-run，以及新短假工具正常/非零传播全部PASS_NOT_SDF。实际仅Windows，Linux/服务器未执行；zip未提交Git或上传。精简证据分别为 `evidence/runner_fix_20261110` 与 `evidence/server_bundle_20261110`；唯一服务器操作说明 `firmware/r5/motor_control/SDF_SERVER_ZH.md`（包内README_ZH.md）。本轮无本机长SDF、-O0、重建、裁剪、DUT/算法/约束更改或板卡/服务器操作，不关机，停在Draft Review。两角实际注释/动态仍NOT_COMPLETED/NOT_RUN，不因本轮自检关闭验收。
+已解压到C:/Users/lww/AppData/Local/Temp/AXU5EV_Issue40_unpack_20261110_01，从原仓库及包外工作目录运行实际解包入口：CRC/9项SHA256/清单、依赖、slow/max与fast/min命令dry-run，以及新短假工具正常/非零传播全部PASS_NOT_SDF。实际仅Windows，服务器未执行；zip未提交Git或上传。精简证据分别为 `evidence/runner_fix_20261110` 与 `evidence/server_bundle_20261110`；唯一服务器操作说明 `firmware/r5/motor_control/SDF_SERVER_ZH.md`（包内README_ZH.md）。本轮无本机长SDF、-O0、重建、裁剪、DUT/算法/约束更改或板卡/服务器操作，不关机，停在Draft Review。两角实际注释/动态仍NOT_COMPLETED/NOT_RUN，不因本轮自检关闭验收。
 
 ## 前轮完整网表尝试（保留现场）
 

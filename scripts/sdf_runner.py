@@ -1,7 +1,7 @@
-"""SDF-only process ownership and the existing xvlog/xelab/xsim flow.
+"""Windows SDF-only process ownership and the existing xvlog/xelab/xsim flow.
 
 Windows: a waiting bootstrap is assigned to a kill-on-close Job before it may
-start cmd/bat/native children. Linux: one new process group. No name-based kill.
+start cmd/bat/native children. No name-based kill.
 https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects
 """
 from __future__ import annotations
@@ -150,53 +150,8 @@ class WindowsJob:
             self.handle = None
 
 
-class LinuxGroup:
-    def __init__(self, pid):
-        self.pid = pid
-        self.records = {}
-
-    def observe(self):
-        active = []
-        boot = int(next(line.split()[1] for line in Path("/proc/stat").read_text().splitlines()
-                        if line.startswith("btime ")))
-        for item in Path("/proc").iterdir():
-            if not item.name.isdecimal():
-                continue
-            try:
-                fields = (item / "stat").read_text().rsplit(")", 1)[1].split()
-                if int(fields[2]) != self.pid or fields[0] == "Z":
-                    continue
-                pid = int(item.name)
-                active.append(pid)
-                if pid not in self.records:
-                    self.records[pid] = {"pid": pid, "creation_ticks": int(fields[19]),
-                        "created_utc": dt.datetime.fromtimestamp(
-                            boot + int(fields[19]) / os.sysconf("SC_CLK_TCK"), dt.timezone.utc).isoformat(),
-                        "image": os.readlink(item / "exe"), "natural_exit_code": None}
-            except (FileNotFoundError, ProcessLookupError, PermissionError):
-                continue
-        return active
-
-    def stop(self):
-        for pid in self.observe():
-            self.records[pid]["termination"] = "stage supervisor; not a natural tool exit"
-        for sig in (signal.SIGTERM, signal.SIGKILL):
-            try:
-                os.killpg(self.pid, sig)
-            except ProcessLookupError:
-                break
-            deadline = time.monotonic() + 0.5
-            while self.observe() and time.monotonic() < deadline:
-                time.sleep(0.02)
-            if not self.observe():
-                break
-
-    def close(self):
-        pass
-
-
 def tool_command(argv):
-    if os.name == "nt" and Path(argv[0]).suffix.lower() in (".bat", ".cmd"):
+    if Path(argv[0]).suffix.lower() in (".bat", ".cmd"):
         # Keep CMD's /s /c quoting separate from native Windows argv quoting.
         if any(re.search(r'["&|<>^%!\r\n]', word) for word in argv):
             raise ValueError("Unsupported CMD argument metacharacter")
@@ -206,6 +161,8 @@ def tool_command(argv):
 
 def run_tool(stage, argv, directory, timeout_ms, cancel_file=None):
     """Save output as it arrives; always stop/reap our tree before closing pipes."""
+    if os.name != "nt":
+        raise OSError("The project SDF runner requires Windows")
     directory = Path(directory)
     record_path = directory / (stage + ".process.json")
     console_path = directory / (stage + ".console.log")
@@ -244,22 +201,15 @@ def run_tool(stage, argv, directory, timeout_ms, cancel_file=None):
             record.update(status="CANCELLED", reason="explicit cancel file before launch")
         else:
             start = time.monotonic()
-            if os.name == "nt":
-                group = WindowsJob()
-                # This process cannot start CMD until assignment to our Job succeeds.
-                process = subprocess.Popen(
-                    [sys.executable, str(Path(__file__).resolve()), "_bootstrap",
-                     json.dumps(record["launch_command"]), str(directory / (stage + ".launch.json"))],
-                    cwd=directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW)
-                group.assign(process.pid)
-                assigned = True
-            else:
-                if not Path("/proc/stat").is_file():
-                    raise RuntimeError("This process-group observer requires Linux /proc")
-                process = subprocess.Popen(argv, cwd=directory, stdin=subprocess.DEVNULL,
-                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
-                group = LinuxGroup(process.pid)
+            group = WindowsJob()
+            # This process cannot start CMD until assignment to our Job succeeds.
+            process = subprocess.Popen(
+                [sys.executable, str(Path(__file__).resolve()), "_bootstrap",
+                 json.dumps(record["launch_command"]), str(directory / (stage + ".launch.json"))],
+                cwd=directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW)
+            group.assign(process.pid)
+            assigned = True
             record.update(status="RUNNING", root_pid=process.pid)
             for pipe, destination in ((process.stdout, logs[1]), (process.stderr, logs[2])):
                 thread = threading.Thread(target=drain, args=(pipe, destination), daemon=True)
@@ -268,9 +218,8 @@ def run_tool(stage, argv, directory, timeout_ms, cancel_file=None):
             group.observe()
             record["processes"] = list(group.records.values())
             save(record_path, record)
-            if os.name == "nt":
-                process.stdin.write(b"GO\n")
-                process.stdin.close()
+            process.stdin.write(b"GO\n")
+            process.stdin.close()
             last_save = 0
             while True:
                 group.observe()
@@ -295,7 +244,7 @@ def run_tool(stage, argv, directory, timeout_ms, cancel_file=None):
                       reason=repr(error))
     finally:
         try:
-            if process and os.name == "nt" and not assigned:
+            if process and not assigned:
                 process.kill()  # Never received GO; no CMD/native descendants exist.
                 process.wait(timeout=5)
             if group:
@@ -365,8 +314,7 @@ def check_sdf(directory):
 
 
 def commands(hardware, testbench, vivado_bin, corner, xelab_o0=False, xelab_diagnostics=False):
-    suffix = ".bat" if os.name == "nt" else ""
-    tools = {name: vivado_bin / (name + suffix) for name in ("xvlog", "xelab", "xsim")}
+    tools = {name: vivado_bin / (name + ".bat") for name in ("xvlog", "xelab", "xsim")}
     netdir = hardware / "timing_pl"
     glbl = (vivado_bin / "../data/verilog/src/glbl.v").resolve()
     for source in (netdir / "motor_routed.v", netdir / ("motor_" + corner + ".sdf"), testbench, glbl, *tools.values()):

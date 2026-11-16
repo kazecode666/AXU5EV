@@ -17,25 +17,19 @@ spec.loader.exec_module(runner)
 
 
 def alive(pid):
-    if os.name == "nt":
-        from ctypes import wintypes as w
-        k = ctypes.WinDLL("kernel32", use_last_error=True)
-        k.OpenProcess.argtypes = [w.DWORD, w.BOOL, w.DWORD]
-        k.OpenProcess.restype = w.HANDLE
-        k.WaitForSingleObject.argtypes = [w.HANDLE, w.DWORD]
-        k.CloseHandle.argtypes = [w.HANDLE]
-        handle = k.OpenProcess(0x100000, False, pid)
-        if not handle:
-            return False
-        try:
-            return k.WaitForSingleObject(handle, 0) == 258
-        finally:
-            k.CloseHandle(handle)
-    try:
-        os.kill(pid, 0)
-        return True
-    except ProcessLookupError:
+    from ctypes import wintypes as w
+    k = ctypes.WinDLL("kernel32", use_last_error=True)
+    k.OpenProcess.argtypes = [w.DWORD, w.BOOL, w.DWORD]
+    k.OpenProcess.restype = w.HANDLE
+    k.WaitForSingleObject.argtypes = [w.HANDLE, w.DWORD]
+    k.CloseHandle.argtypes = [w.HANDLE]
+    handle = k.OpenProcess(0x100000, False, pid)
+    if not handle:
         return False
+    try:
+        return k.WaitForSingleObject(handle, 0) == 258
+    finally:
+        k.CloseHandle(handle)
 
 
 def fixture(role, mode, stage):
@@ -123,9 +117,8 @@ def tests(output):
             assert result["natural_exit_code"] == code, result
             assert result["remaining_pids"] == [], result
             assert result["processes"] and all(p.get("created_utc") for p in result["processes"]), result
-            if os.name == "nt":
-                assert any(p["image"] and p["image"].lower().endswith("cmd.exe") for p in result["processes"]), result
-                assert len(result["processes"]) >= 4, result  # bootstrap -> cmd/bat -> native Python -> leaf
+            assert any(p["image"] and p["image"].lower().endswith("cmd.exe") for p in result["processes"]), result
+            assert len(result["processes"]) >= 4, result  # bootstrap -> cmd/bat -> native Python -> leaf
             assert not alive(int((directory / "leaf.pid").read_text())), mode
             assert unrelated.poll() is None, "unrelated same-name Python process was affected"
             out = (directory / "mock.stdout.log").read_text(encoding="utf-8")
