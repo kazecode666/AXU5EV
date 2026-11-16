@@ -1,0 +1,67 @@
+Read-only native netlist evidence excerpt. NOT executable simulation input; original netlist unchanged and local only.
+Source: v1/pwm_cut.v
+
+1143:   (* OPT_MODIFIED = "RETARGET" *) 
+1144:   LUT4 #(
+1145:     .INIT(16'h4000)) 
+1146:     auto_ready_o_INST_0
+1147:        (.I0(busy),
+1148:         .I1(locked),
+1149:         .I2(\peripheral_aresetn[0]_bufg_place_replica ),
+1150:         .I3(p_0_in12_in),
+1151:         .O(auto_ready_o));
+
+1333:   (* OPT_MODIFIED = "RETARGET" *) 
+1334:   LUT6 #(
+1335:     .INIT(64'hFFFFFFFFAAA80000)) 
+1336:     busy_i_1
+1337:        (.I0(p_0_in12_in),
+1338:         .I1(request_reg_n_0),
+1339:         .I2(p_0_in8_in),
+1340:         .I3(p_1_in_1),
+1341:         .I4(busy),
+1342:         .I5(frozen_compare0),
+1343:         .O(busy_i_1_n_0));
+1344:   FDRE #(
+1345:     .INIT(1'b0)) 
+1346:     busy_reg
+1347:        (.C(s_axi_aclk),
+1348:         .CE(1'b1),
+1349:         .D(busy_i_1_n_0),
+1350:         .Q(busy),
+1351:         .R(request));
+
+2151:   (* OPT_MODIFIED = "RETARGET" *) 
+2152:   LUT5 #(
+2153:     .INIT(32'h08000000)) 
+2154:     \frozen_seq[31]_i_1 
+2155:        (.I0(p_15_in),
+2156:         .I1(auto_valid_i),
+2157:         .I2(busy),
+2158:         .I3(auto_inhibit_i),
+2159:         .I4(p_0_in12_in),
+2160:         .O(frozen_compare0));
+2161:   LUT2 #(
+2162:     .INIT(4'h8)) 
+2163:     \frozen_seq[31]_i_2 
+2164:        (.I0(locked),
+2165:         .I1(\peripheral_aresetn[0]_bufg_place_replica ),
+2166:         .O(p_15_in));
+
+3280:   (* OPT_MODIFIED = "RETARGET" *) 
+3281:   LUT2 #(
+3282:     .INIT(4'h7)) 
+3283:     request_i_1
+3284:        (.I0(auto_inhibit_i),
+3285:         .I1(\peripheral_aresetn[0]_bufg_place_replica ),
+3286:         .O(request));
+
+3327:         .Q(request_pipe[1]));
+3328:   FDRE #(
+3329:     .INIT(1'b0)) 
+3330:     request_reg
+3331:        (.C(s_axi_aclk),
+3332:         .CE(1'b1),
+3333:         .D(request_i_2_n_0),
+3334:         .Q(request_reg_n_0),
+3335:         .R(request));

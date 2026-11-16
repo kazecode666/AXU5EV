@@ -1,0 +1,7 @@
+Running: xsim.dir/pwm_cut_timing/xsimk.exe -runall -simmode gui -wdb pwm_cut_timing.wdb -simrunnum 0 -socket 49811
+Design successfully loaded
+Design Loading Memory Usage: 37572 KB (Peak: 37572 KB)
+Design Loading CPU Usage: 77 ms
+Simulation completed
+Simulation Memory Usage: 45056 KB (Peak: 45056 KB)
+Simulation CPU Usage: 270952 ms

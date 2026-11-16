@@ -1,0 +1,1 @@
+前置候选1522的xvlog在0.781s因VRFC10-3380 anchor先使用后声明而退出1；没有xelab或xsim。原候选及summary原样保留。buildfix候选只移动source always到相关reg声明之后，刺激相位、0.2ns模型、脉冲、断言均不变。runner只修诊断分类：不以附加文件路径pwm_cut_sdf字符串作为SDF错误依据。该前置构建缺陷修正不是时序失败后改phase重试；本轮仍只启动一个新xelab/动态尝试每角。若新真实时序违例、断言或预算未完成则停止。

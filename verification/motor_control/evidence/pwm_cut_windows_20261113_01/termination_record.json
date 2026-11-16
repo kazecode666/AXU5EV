@@ -1,0 +1,15 @@
+{
+  "reason": "Stop on first confirmed real slow SDF timing violations",
+  "root_pid": 65780,
+  "confirmed_command": "cmd.exe /d /s /c D:/Software/2026.1/Vivado/bin/xsim.bat pwm_cut_timing -runall",
+  "method": "taskkill /PID 65780 /T /F",
+  "terminated_pids": [
+    6156,
+    20160,
+    66924,
+    65780
+  ],
+  "verification": "Get-CimInstance Win32_Process found none of run PIDs 66780/65780/66924/20160/6156 remaining",
+  "kernel_crash_log": "empty; not evidence of a simulator crash",
+  "no_other_processes_killed": true
+}

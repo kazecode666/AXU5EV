@@ -1,0 +1,30 @@
+--- v1/pwm_cut_tb.sv
++++ v2/pwm_cut_tb.sv
+@@ -56,7 +56,11 @@
+  .s_axi_awaddr(12'd0),.s_axi_awvalid(1'b0),.s_axi_wvalid(1'b0),.s_axi_wstrb(4'hf),
+  .s_axi_bready(1'b1),.s_axi_araddr(12'd0),.s_axi_arvalid(1'b0),.s_axi_rready(1'b1));
+  // pins.tsv mapping, NOT the original 128-bit RTL debug packing.
+- wire [2:0] h=dbg[2:0],l=dbg[5:3],req=dbg[25:23];
++ wire [2:0] h=dbg[2:0],l=dbg[5:3],raw_req=dbg[25:23];
++ // Debug request is lookahead. Observe the value actually sampled by output FFs.
++ reg [2:0] req=0;
++ always @(posedge pclk)req=raw_req;
++ reg [38:0] lookahead_compare;integer lookahead_phase;reg [2:0] lookahead_expected;
+  wire [13:0] phase=dbg[19:6];
+  wire [31:0] active_seq=dbg[57:26];
+  wire [38:0] active_compare=dbg[96:58];
+@@ -201,6 +205,14 @@
+     check(last_q>=last_rise && last_q-last_rise<4,"real Q event observed before settled check");
+     adoptions++;
+     $display("PWM_CUT_ADOPT seq=%0d cycle=%0d abc=%0d/%0d/%0d",active_seq,cycle,active_compare[12:0],active_compare[25:13],active_compare[38:26]);
++   end
++   if(safe && started)begin
++    lookahead_phase=(phase==9999)?0:phase+1;
++    lookahead_compare=(phase==9999 && pending)?offered[live_id]:active_compare;
++    for(integer z=0;z<3;z++)begin
++     lookahead_expected[z]=(lookahead_compare[z*13+:13]==5000) || ((lookahead_compare[z*13+:13]!=0) && ((lookahead_phase<lookahead_compare[z*13+:13]) || (lookahead_phase>=10000-lookahead_compare[z*13+:13])));
++    end
++    check(raw_req===lookahead_expected,"raw lookahead request matches next phase and eligible bank");
+    end
+    if(safe && active_seq>0)begin
+     check(active_seq<64 && !banned[active_seq],"no resurrection at any subsequent cycle");

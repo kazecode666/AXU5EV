@@ -1,0 +1,166 @@
+{
+  "runner_schema": 2,
+  "corner": "slow",
+  "status": "FAIL",
+  "input_paths": {
+    "netlist": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\pwm_cut.v",
+    "sdf": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\pwm_cut_slow.sdf",
+    "tb": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\pwm_cut_tb.sv",
+    "glbl": "D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v"
+  },
+  "mode": "corner",
+  "run_directory": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\slow",
+  "stages": [
+    {
+      "stage": "xvlog",
+      "argv": [
+        "D:\\Software\\2026.1\\Vivado\\bin\\xvlog.bat",
+        "-sv",
+        "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\pwm_cut.v",
+        "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\pwm_cut_tb.sv",
+        "D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v"
+      ],
+      "command": "\"C:\\Windows\\system32\\cmd.exe\" /d /s /c \"D:\\Software\\2026.1\\Vivado\\bin\\xvlog.bat -sv \"D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\pwm_cut.v\" \"D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\pwm_cut_tb.sv\" D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v\"",
+      "limit_seconds": 600,
+      "started_epoch": 1794562865.7754388,
+      "supervisor_stop": null,
+      "natural_exit": true,
+      "exit_code": 0,
+      "elapsed_seconds": 0.764999999984866,
+      "exit_classification": "natural_exit",
+      "diagnostics": [],
+      "reviewed_warnings": [],
+      "annotation_markers": [],
+      "pass_markers": [],
+      "last_scenario": null,
+      "last_simulation_time": null,
+      "last_progress_line": null,
+      "log_files": [
+        "xvlog.stdout.log",
+        "xvlog.stderr.log",
+        "xvlog.log"
+      ],
+      "pid": 72544,
+      "failure_reason": null
+    },
+    {
+      "stage": "xelab",
+      "argv": [
+        "D:\\Software\\2026.1\\Vivado\\bin\\xelab.bat",
+        "work.pwm_cut_tb",
+        "work.glbl",
+        "-s",
+        "pwm_cut_timing",
+        "-debug",
+        "off",
+        "-timescale",
+        "1ns/1ps",
+        "-L",
+        "simprims_ver",
+        "-L",
+        "unisims_ver",
+        "-L",
+        "secureip",
+        "-transport_int_delays",
+        "-pulse_r",
+        "0",
+        "-pulse_int_r",
+        "0",
+        "-pulse_e",
+        "0",
+        "-pulse_int_e",
+        "0",
+        "-sdfmax",
+        "/pwm_cut_tb/dut=D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1735/v1/pwm_cut_slow.sdf",
+        "--O2"
+      ],
+      "command": "\"C:\\Windows\\system32\\cmd.exe\" /d /s /c \"D:\\Software\\2026.1\\Vivado\\bin\\xelab.bat work.pwm_cut_tb work.glbl -s pwm_cut_timing -debug off -timescale 1ns/1ps -L simprims_ver -L unisims_ver -L secureip -transport_int_delays -pulse_r 0 -pulse_int_r 0 -pulse_e 0 -pulse_int_e 0 -sdfmax \"/pwm_cut_tb/dut=D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1735/v1/pwm_cut_slow.sdf\" --O2\"",
+      "limit_seconds": 600,
+      "started_epoch": 1794562866.5446298,
+      "supervisor_stop": null,
+      "natural_exit": true,
+      "exit_code": 0,
+      "elapsed_seconds": 9.985000000015134,
+      "exit_classification": "natural_exit",
+      "diagnostics": [],
+      "reviewed_warnings": [],
+      "annotation_markers": [
+        {
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\slow\\xelab.stdout.log",
+          "line": "INFO: [XSIM 43-3452] SDF backannotation was successful for SDF file \"D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1735/v1/pwm_cut_slow.sdf\", for root module \"/pwm_cut_tb/dut\"."
+        },
+        {
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\slow\\xelab.log",
+          "line": "INFO: [XSIM 43-3452] SDF backannotation was successful for SDF file \"D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1735/v1/pwm_cut_slow.sdf\", for root module \"/pwm_cut_tb/dut\"."
+        }
+      ],
+      "pass_markers": [],
+      "last_scenario": null,
+      "last_simulation_time": null,
+      "last_progress_line": null,
+      "log_files": [
+        "xelab.stdout.log",
+        "xelab.stderr.log",
+        "xelab.log"
+      ],
+      "pid": 29260,
+      "failure_reason": null
+    },
+    {
+      "stage": "xsim",
+      "argv": [
+        "D:\\Software\\2026.1\\Vivado\\bin\\xsim.bat",
+        "pwm_cut_timing",
+        "-runall"
+      ],
+      "command": "\"C:\\Windows\\system32\\cmd.exe\" /d /s /c \"D:\\Software\\2026.1\\Vivado\\bin\\xsim.bat pwm_cut_timing -runall\"",
+      "limit_seconds": 3600,
+      "started_epoch": 1794562876.5206528,
+      "supervisor_stop": "tool_or_testbench_error: Fatal: PWM_CUT_FAIL C=0 has no high request/output t=750824000 phase=9999 seq=3",
+      "natural_exit": false,
+      "exit_code": 0,
+      "elapsed_seconds": 101.125,
+      "exit_classification": "stop_requested_taskkill_128_possible_exit_race",
+      "diagnostics": [
+        {
+          "category": "tool_or_testbench_error",
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\slow\\xsim.stdout.log",
+          "line": "Fatal: PWM_CUT_FAIL C=0 has no high request/output t=750824000 phase=9999 seq=3"
+        },
+        {
+          "category": "tool_or_testbench_error",
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v1\\slow\\xsim.log",
+          "line": "Fatal: PWM_CUT_FAIL C=0 has no high request/output t=750824000 phase=9999 seq=3"
+        }
+      ],
+      "reviewed_warnings": [],
+      "annotation_markers": [],
+      "pass_markers": [],
+      "last_scenario": "PWM_CUT_PROGRESS t_ns=700000.000 cycle=69999 phase=4916 offers=4 accepts=4 adoptions=3 acks=3 starts=1 peaks=1",
+      "last_simulation_time": "750824 ns",
+      "last_progress_line": "$finish called at time : 750824 ns",
+      "log_files": [
+        "xsim.stdout.log",
+        "xsim.stderr.log",
+        "xsim.log",
+        "xsim.dir\\pwm_cut_timing\\xsimcrash.log",
+        "xsim.dir\\pwm_cut_timing\\xsimkernel.log"
+      ],
+      "pid": 44100,
+      "taskkill_exit_code": 128,
+      "failure_reason": "tool_or_testbench_error: Fatal: PWM_CUT_FAIL C=0 has no high request/output t=750824000 phase=9999 seq=3"
+    }
+  ],
+  "limits_seconds": {
+    "xvlog": 600,
+    "xelab": 600,
+    "xsim": 3600
+  },
+  "optimization": "O2 only; one attempt",
+  "timing_checks_disabled": false,
+  "board": "NOT_RUN",
+  "stop_reason": "RuntimeError: tool_or_testbench_error: Fatal: PWM_CUT_FAIL C=0 has no high request/output t=750824000 phase=9999 seq=3",
+  "last_scenario": "PWM_CUT_PROGRESS t_ns=700000.000 cycle=69999 phase=4916 offers=4 accepts=4 adoptions=3 acks=3 starts=1 peaks=1",
+  "last_simulation_time": "750824 ns",
+  "total_stage_wall_seconds": 111.875
+}

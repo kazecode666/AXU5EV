@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "scope": "ADC_QEP_FOC_PWM",
+  "pass_marker": "MOTOR_CHAIN_PASS checks=370245 foc_frames=19 publications=19 adoptions=9 invalid_frames=9 phases=18 triplets=9 ce_clocks=92386 late=1 clock_rearm=1 disarm=2",
+  "run_dir": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\rtl_06",
+  "board": "NOT_RUN",
+  "old_pr24_b1_regression": "NOT_RUN"
+}

@@ -1,0 +1,68 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date              : Fri Nov 13 15:24:01 2026
+| Host              : DESKTOP-591B4R4 running 64-bit major release  (build 9200)
+| Command           : report_clocks -file {D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/clock_relationships.rpt}
+| Design            : design_1_wrapper
+| Device            : xczu5ev-sfvc784
+| Speed File        : -2  PRODUCTION 1.31 12-08-2025
+| Design State      : Routed
+| Temperature Grade : I
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+Clock Report
+
+
+Attributes
+  P: Propagated
+  G: Generated
+  A: Auto-derived
+  R: Renamed
+  V: Virtual
+  I: Inverted
+  S: Pin phase-shifted with Latency mode
+
+Clock                                                                                                Period(ns)  Waveform(ns)     Attributes  Sources
+clk_pl_0                                                                                             20.000      {0.000 10.000}   P           {design_1_i/zynq_ultra_ps_e_0/inst/PS8_i/PLCLK[0]}
+dbg_hub/inst/BSCANID.u_xsdbm_id/SWITCH_N_EXT_BSCAN.bscan_inst/SERIES7_BSCAN.bscan_inst/INTERNAL_TCK  50.000      {0.000 25.000}   P           {dbg_hub/inst/BSCANID.u_xsdbm_id/SWITCH_N_EXT_BSCAN.bscan_inst/SERIES7_BSCAN.bscan_inst/INTERNAL_TCK}
+an9238_clk_a                                                                                         200.000     {0.000 100.000}  P,G         {adc_clk_a_o}
+an9238_clk_b                                                                                         200.000     {0.000 100.000}  P,G         {adc_clk_b_o}
+clk_out1_design_1_pwm_clock_0                                                                        10.000      {0.000 5.000}    P,G,A       {design_1_i/pwm_clock/inst/mmcme4_adv_inst/CLKOUT0}
+
+
+====================================================
+Generated Clocks
+====================================================
+
+Generated Clock     : an9238_clk_a
+Master Source       : design_1_i/adc_observer_0/s_axi_aclk
+Master Clock        : clk_pl_0
+Divide By           : 10
+Generated Sources   : {adc_clk_a_o}
+
+Generated Clock     : an9238_clk_b
+Master Source       : design_1_i/adc_observer_0/s_axi_aclk
+Master Clock        : clk_pl_0
+Divide By           : 10
+Generated Sources   : {adc_clk_b_o}
+
+Generated Clock     : clk_out1_design_1_pwm_clock_0
+Master Source       : design_1_i/pwm_clock/inst/mmcme4_adv_inst/CLKIN1
+Master Clock        : clk_pl_0
+Multiply By         : 2
+Generated Sources   : {design_1_i/pwm_clock/inst/mmcme4_adv_inst/CLKOUT0}
+
+
+
+====================================================
+User Uncertainty
+====================================================
+
+
+
+====================================================
+User Jitter
+====================================================
+
+

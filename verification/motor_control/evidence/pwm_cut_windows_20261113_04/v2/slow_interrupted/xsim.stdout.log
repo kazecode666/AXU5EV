@@ -1,0 +1,47 @@
+
+****** xsim v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Fri Nov 13 17:44:08 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source xsim.dir/pwm_cut_timing/xsim_script.tcl
+# xsim {pwm_cut_timing} -autoloadwcfg -runall
+Time resolution is 1 ps
+run -all
+PWM_CUT_SCENARIO anchor/restart t_ns=700.200
+PWM_CUT_START t_ns=804.000 cycle=80 phase=4997 anchor_to_edge_ns=9.800
+PWM_CUT_ANCHOR t_ns=810.200 width_ns=20.000 pulses=1
+PWM_CUT_PEAK t_ns=834.000 cycle=83 phase=5000
+PWM_CUT_PERMISSION t_ns=874.200 logical_inhibit=0 physical_permission=1 ce=0 reset=0 busy=0 pending=0
+PWM_CUT_SCENARIO offer t_ns=880.200 seq=1 abc=1000/2500/4000
+PWM_CUT_FIRST_EDGE t_ns=890.000 valid=0 ready=1 inhibit=0 physical_permission=1 reset=0 seq=0 pending=0 accepted=0 busy=0 capture_ce=0 dut_request=0 request=1 claimed=0 done=0 handshake=0
+PWM_CUT_FIRST_EDGE t_ns=910.000 valid=1 ready=1 inhibit=0 physical_permission=1 reset=0 seq=1 pending=0 accepted=0 busy=0 capture_ce=1 dut_request=0 request=1 claimed=1 done=0 handshake=1
+PWM_CUT_FIRST_HANDSHAKE t_ns=910.000 seq=1 retire_due_ns=910.200
+PWM_CUT_FIRST_RETIRE t_ns=910.200 valid=0 ready=1 inhibit=0 physical_permission=1 reset=0 seq=1 pending=0 accepted=0 busy=1 capture_ce=1 dut_request=1
+PWM_CUT_CAPTURE t_ns=914.000 logical_inhibit=0 physical_permission=1 valid=0 ready=0 ce=0 reset=0 busy=1 request=1 frozen_seq=1 frozen_compare=3e813883e8 pending=0
+PWM_CUT_FIRST_EDGE t_ns=930.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=1 pending=0 accepted=0 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+PWM_CUT_FIRST_PENDING t_ns=944.000 logical_inhibit=0 physical_permission=1 reset=0 busy=1 request=1 pending=1 frozen_seq=1 accepts=1
+PWM_CUT_FIRST_EDGE t_ns=950.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=63 pending=1 accepted=1 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+PWM_CUT_FIRST_EDGE t_ns=970.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=63 pending=1 accepted=1 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+PWM_CUT_FIRST_EDGE t_ns=990.000 valid=0 ready=0 inhibit=0 physical_permission=1 reset=0 seq=63 pending=1 accepted=1 busy=1 capture_ce=0 dut_request=1 request=1 claimed=1 done=1 handshake=0
+PWM_CUT_ADOPT seq=1 cycle=5083 abc=1000/2500/4000
+PWM_CUT_PROGRESS t_ns=100000.000 cycle=9999 phase=4916 offers=1 accepts=1 adoptions=1 acks=1 starts=1 peaks=1
+PWM_CUT_PROGRESS t_ns=200000.000 cycle=19999 phase=4916 offers=1 accepts=1 adoptions=1 acks=1 starts=1 peaks=1
+PWM_CUT_SCENARIO offer t_ns=261020.200 seq=2 abc=1300/2700/4300
+PWM_CUT_PROGRESS t_ns=300000.000 cycle=29999 phase=4916 offers=2 accepts=2 adoptions=1 acks=1 starts=1 peaks=1
+PWM_CUT_ADOPT seq=2 cycle=35083 abc=1300/2700/4300
+PWM_CUT_PROGRESS t_ns=400000.000 cycle=39999 phase=4916 offers=2 accepts=2 adoptions=2 acks=2 starts=1 peaks=1
+PWM_CUT_SCENARIO offer t_ns=461020.200 seq=3 abc=0/5000/2500
+PWM_CUT_PROGRESS t_ns=500000.000 cycle=49999 phase=4916 offers=3 accepts=3 adoptions=2 acks=2 starts=1 peaks=1
+PWM_CUT_ADOPT seq=3 cycle=55083 abc=0/5000/2500
+PWM_CUT_PROGRESS t_ns=600000.000 cycle=59999 phase=4916 offers=3 accepts=3 adoptions=3 acks=3 starts=1 peaks=1
+PWM_CUT_SCENARIO offer t_ns=661020.200 seq=4 abc=5000/2500/0
+PWM_CUT_PROGRESS t_ns=700000.000 cycle=69999 phase=4916 offers=4 accepts=4 adoptions=3 acks=3 starts=1 peaks=1
+PWM_CUT_ADOPT seq=4 cycle=75083 abc=5000/2500/0
+PWM_CUT_PROGRESS t_ns=800000.000 cycle=79999 phase=4916 offers=4 accepts=4 adoptions=4 acks=4 starts=1 peaks=1
+PWM_CUT_SCENARIO offer t_ns=861020.200 seq=5 abc=2500/0/5000
+PWM_CUT_PROGRESS t_ns=900000.000 cycle=89999 phase=4916 offers=5 accepts=5 adoptions=4 acks=4 starts=1 peaks=1
+PWM_CUT_ADOPT seq=5 cycle=95083 abc=2500/0/5000

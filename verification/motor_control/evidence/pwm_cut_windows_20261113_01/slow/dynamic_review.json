@@ -1,0 +1,27 @@
+{
+  "status": "FAIL",
+  "review": "Initial supervisor rejected non-SDF/non-timing TB warnings. First xsim of same successful snapshot; no re-elaboration or timing suppression.",
+  "reviewed_warnings": [
+    "WARNING: [VRFC 10-3645] port 's_axi_rresp' remains unconnected for this instance [D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1404/pwm_cut_tb.sv:13]",
+    "WARNING: [XSIM 43-4328] File: D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1404/pwm_cut_tb.sv Line: 136 : Sensitivity on input argument \"id\" of task \"finish_offer\" may never get triggered.",
+    "WARNING: [XSIM 43-4328] File: D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1404/pwm_cut_tb.sv Line: 137 : Sensitivity on input argument \"id\" of task \"finish_offer\" may never get triggered."
+  ],
+  "started_epoch": 1794550983.7332315,
+  "limit_seconds": 3600,
+  "xelab_seconds": 14.197861433029175,
+  "argv": [
+    "D:/Software/2026.1/Vivado/bin/xsim.bat",
+    "pwm_cut_timing",
+    "-runall"
+  ],
+  "pid": 65780,
+  "exit_code": 1,
+  "elapsed_seconds": 142.6692340373993,
+  "diagnostics": [
+    "WARNING: \"D:\\Software\\2026.1\\Vivado\\data/verilog/src/unisims/FDPE.v\" Line 170: Timing violation in scope /pwm_cut_tb/dut/pwm/timebase/anchor_delayed_reg/TChk170_22733 at time 760 ns $setuphold (posedge C,posedge D,(0:0:0),(0:0:0),notifier,in_clk_enable_p,in_clk_enable_p,C_dly,D_dly)  $hold violation detected. Time: 760000 ps, Ref Event Time Stamp: 760000 ps, Data Event Time Stamp: 760000 ps, Limit: 60 ps",
+    "WARNING: \"D:\\Software\\2026.1\\Vivado\\data/verilog/src/unisims/FDPE.v\" Line 168: Timing violation in scope /pwm_cut_tb/dut/pwm/timebase/anchor_delayed_reg/TChk168_22731 at time 820 ns $setuphold (posedge C,negedge D,(0:0:0),(0:0:0),notifier,in_clk_enable_p,in_clk_enable_p,C_dly,D_dly)  $hold violation detected. Time: 820000 ps, Ref Event Time Stamp: 820000 ps, Data Event Time Stamp: 820000 ps, Limit: 60 ps",
+    "WARNING: \"D:\\Software\\2026.1\\Vivado\\data/verilog/src/unisims/FDPE.v\" Line 170: Timing violation in scope /pwm_cut_tb/dut/pwm/timebase/anchor_delayed_reg/TChk170_22733 at time 760 ns $setuphold (posedge C,posedge D,(0:0:0),(0:0:0),notifier,in_clk_enable_p,in_clk_enable_p,C_dly,D_dly)  $hold violation detected. Time: 760000 ps, Ref Event Time Stamp: 760000 ps, Data Event Time Stamp: 760000 ps, Limit: 60 ps",
+    "WARNING: \"D:\\Software\\2026.1\\Vivado\\data/verilog/src/unisims/FDPE.v\" Line 168: Timing violation in scope /pwm_cut_tb/dut/pwm/timebase/anchor_delayed_reg/TChk168_22731 at time 820 ns $setuphold (posedge C,negedge D,(0:0:0),(0:0:0),notifier,in_clk_enable_p,in_clk_enable_p,C_dly,D_dly)  $hold violation detected. Time: 820000 ps, Ref Event Time Stamp: 820000 ps, Data Event Time Stamp: 820000 ps, Limit: 60 ps"
+  ],
+  "pass_markers": 0
+}

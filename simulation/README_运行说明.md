@@ -1,5 +1,11 @@
 # 日常仿真：从这里开始
 
+## Issue40 无功率自动通路
+
+当前ADC/QEP→电流/电角度→原FOC→PWM比较值的统一入口为 [`motor_control/AXU5EV_Motor_Control_System.slx`](motor_control/AXU5EV_Motor_Control_System.slx)，通过 `motor_control_run(<新结果目录>)` 实际运行。它复用原组件和FOC，包含R5位置/测速旁路，外设接口和谷值显示明确为SIM_ONLY。运行器隔离原已接受依赖，保护本地修改的ADC/共享库/Hybrid和交互参数；不要为运行此任务执行旧初始化或保存用户模型。具体命令、帧对齐与生成来源见 [motor_control模型说明](motor_control/README.md)。本轮完整外环、Runtime和自动对齐未接实时反馈。
+
+## 原完整闭环日常入口
+
 进入 `simulation/`，按需编辑 **init_AXU5EV.m**，运行 **START_HERE.m**。入口按自身位置加载参数、准备所选后端并打开 **AXU5EV_Hybrid_ClosedLoop**，不自动Run。默认保留 **model_fixed、10 mm、5 s、V10/A100/J1000**。
 
 ## 正常点位与同次Run继续发送

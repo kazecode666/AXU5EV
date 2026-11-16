@@ -1,0 +1,118 @@
+{
+  "status": "SLOW_MAX_ELABORATION_TIMEOUT; SDF_ACCEPTANCE_OPEN",
+  "source_commit": "0191fc773102bc4aa5d71c89e652137cce10c350",
+  "authorization": [
+    6745328232,
+    6745337679
+  ],
+  "hardware": ".runtime/motor_control/hardware_02",
+  "netlist": ".runtime/motor_control/hardware_02/timing_pl/motor_routed.v",
+  "sdf": ".runtime/motor_control/hardware_02/timing_pl/motor_slow.sdf",
+  "testbench": "verification/motor_control/timing_tb.sv",
+  "MC_TIMING_RTL_defined": false,
+  "view": "existing full functional PL; PWM ILA black box; structural dbg_hub retained; PS clock/reset and AXI stimulus replaced",
+  "run": ".runtime/motor_control/sdf_full_slow_01",
+  "invocation": {
+    "time_local": "2026-11-10T00:32:36.393001+08:00",
+    "wrapper_pid": 33084,
+    "source_commit": "0191fc773102bc4aa5d71c89e652137cce10c350",
+    "command": "./scripts/motor_control_run_sdf.ps1 -Hardware .runtime/motor_control/hardware_02 -RunDir .runtime/motor_control/sdf_full_slow_01 -Corner slow -ToolTimeoutMs 10800000",
+    "run_dir": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\sdf_full_slow_01",
+    "corner": "slow/max",
+    "define_MC_TIMING_RTL": false,
+    "tool_timeout_ms": 10800000,
+    "retry": false,
+    "board": "NOT_RUN"
+  },
+  "wrapper_result": {
+    "status": "FAILED_OR_TIMED_OUT",
+    "message": "xelab timed out",
+    "time_local": "2026-11-10T03:32:48.1387238+08:00",
+    "fast": "NOT_RUN",
+    "automatic_retry": false
+  },
+  "user_additional_wait_authorized": true,
+  "native_restarts": 0,
+  "native_watch_limit_ms": 21600000,
+  "native_watch": {
+    "pid": 8028,
+    "process": "xelab",
+    "observer": "read-only process handle; no restart or compile",
+    "started_local": "2026-11-10T00:32:48.5420411+08:00",
+    "deadline_local": "2026-11-10T06:32:48.5420411+08:00",
+    "finished": false,
+    "exit_code": null,
+    "observed_at": "2026-11-10T06:32:48.7577275+08:00"
+  },
+  "before_stop": {
+    "status": "EXTENDED_LIMIT_REACHED",
+    "observed_local": "2026-11-10T06:34:14.9834078+08:00",
+    "deadline_local": "2026-11-10T06:32:48.5420411+08:00",
+    "native_pid": 8028,
+    "cpu_seconds": 21238.625,
+    "private_bytes": 5559496704,
+    "process_tree": [
+      {
+        "ProcessId": 8028,
+        "ParentProcessId": 24428,
+        "Name": "xelab.exe",
+        "ExecutablePath": "E:\\AMDDesignTools\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\xelab.exe",
+        "CommandLine": "\"E:/AMDDesignTools/2026.1/Vivado/bin/unwrapped/win64.o/xelab.exe\"   \"work.timing_tb\" \"work.glbl\" \"-s\" \"pwm_timing\" \"-debug\" \"off\" \"-timescale\" \"1ns/1ps\" \"-L\" \"simprims_ver\" \"-L\" \"unisims_ver\" \"-L\" \"secureip\" \"-transport_int_delays\" \"-pulse_r\" \"0\" \"-pulse_int_r\" \"0\" \"-pulse_e\" \"0\" \"-pulse_int_e\" \"0\" \"-sdfmax\" \"/timing_tb/dut=D:/Project/AXU5EV/.runtime/motor_control/hardware_02/timing_pl/motor_slow.sdf\"",
+        "CreationDate": "2026-11-10T00:32:48.542041+08:00"
+      }
+    ],
+    "kernel_exists": false,
+    "xsim_log_exists": false,
+    "annotation": "NOT_COMPLETED",
+    "dynamic": "NOT_RUN",
+    "fast": "NOT_RUN",
+    "native_restarts": 0
+  },
+  "stop": {
+    "status": "STOPPED_AT_EXTENDED_6H_LIMIT",
+    "stopped_local": "2026-11-10T06:34:15.8282873+08:00",
+    "native_pid": 8028,
+    "termination": "supervisor termination of the verified task native process tree, not a natural tool exit",
+    "termination_exit_code": -1,
+    "natural_exit_code": null,
+    "remaining_task_processes": 0,
+    "remaining_processes": [],
+    "annotation": "NOT_COMPLETED",
+    "dynamic": "NOT_RUN",
+    "fast": "NOT_RUN",
+    "automatic_retry": false,
+    "board": "NOT_RUN"
+  },
+  "cleanup_note": "Initial stop identity guard aborted without mutation because Parse lost fractional seconds after JSON date conversion; exact UTC tick comparison then verified the same native process before termination.",
+  "stdout_note": "Original wrapper exited at 3h; its stdout/stderr pipes may be closed. A retained Process.Handle observes exit, not pipe integrity. No natural native exit0 or complete annotation evidence was obtained.",
+  "xvlog": "PASS",
+  "static_elaboration": "COMPLETED",
+  "xelab_completion": "NOT_COMPLETED",
+  "kernel_exists": false,
+  "successful_annotation_confirmation": false,
+  "annotation": "NOT_COMPLETED",
+  "dynamic_simulation": "NOT_RUN",
+  "dynamic_checks": {
+    "same_frame_capture": "NOT_RUN",
+    "three_phase_group": "NOT_RUN",
+    "target_valley": "NOT_RUN",
+    "late_cancel": "NOT_RUN",
+    "disarm": "NOT_RUN",
+    "lock_loss_explicit_rearm": "NOT_RUN",
+    "complementary_deadtime": "NOT_RUN",
+    "snapshot_80_words": "NOT_RUN"
+  },
+  "errors_in_available_native_log": 0,
+  "error_interpretation": "No explicit error in the available native log does not prove progress, annotation success, timing compliance, or absence of a DUT error. This is an elaboration timeout, not a simulated assertion failure.",
+  "fast_min": {
+    "status": "NOT_RUN",
+    "reason": "slow/max did not complete; no directory created"
+  },
+  "automatic_retry": false,
+  "production_dcp_bit_xsa_modified": false,
+  "rebuild_or_cut": "NOT_RUN",
+  "r5_rebuild": "NOT_RUN",
+  "old_regression": "NOT_RUN",
+  "board": "NOT_RUN",
+  "raw_records": "all original invocation/process/wrapper/continuation/watch/stop logs and compiler intermediates remain in the run directory and adjacent invocation JSON"
+}

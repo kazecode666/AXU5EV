@@ -1,0 +1,785 @@
+{
+  "status": "PASS",
+  "board": "NOT_RUN",
+  "tool": "Vivado 2026.1",
+  "hardware": ".runtime/motor_control/hardware_02",
+  "dut_commit": "bc52d7498e1c913166b496e626ebe5e0757ce061",
+  "audit": ".runtime/motor_control/route_audit_01",
+  "audit_log": ".runtime/motor_control/route_audit_01.console.log",
+  "sta": {
+    "wns_ns": 1.272,
+    "tns_ns": 0.0,
+    "setup_failing_endpoints": 0,
+    "setup_total_endpoints": 211265,
+    "whs_ns": 0.011,
+    "ths_ns": 0.0,
+    "hold_failing_endpoints": 0,
+    "hold_total_endpoints": 211249,
+    "wpws_ns": 4.0,
+    "tpws_ns": 0.0,
+    "pulse_failing_endpoints": 0,
+    "pulse_total_endpoints": 99525
+  },
+  "clock_period_ns": {
+    "ADC_AXI_FOC": 20.0,
+    "PWM": 10.0,
+    "ADC_forward_A": 200.0,
+    "ADC_forward_B": 200.0
+  },
+  "check_timing": {
+    "no_clock": 0,
+    "unconstrained_internal_endpoints": 0,
+    "no_input_delay": 0,
+    "clock_output_ports_without_output_delay": 2
+  },
+  "directed_paths": {
+    "falling_hold_to_core": {
+      "max_slack_ns": 2.101,
+      "max_path_type": "Setup (Max at Slow Process Corner)",
+      "min_slack_ns": 9.511,
+      "min_path_type": "Hold (Min at Slow Process Corner)"
+    },
+    "related_forward": {
+      "max_slack_ns": 2.055,
+      "max_path_type": "Recovery (Max at Slow Process Corner)",
+      "min_slack_ns": 0.015,
+      "min_path_type": "Hold (Min at Slow Process Corner)"
+    },
+    "related_reverse": {
+      "max_slack_ns": 6.603,
+      "max_path_type": "Setup (Max at Slow Process Corner)",
+      "min_slack_ns": 0.737,
+      "min_path_type": "Hold (Min at Fast Process Corner)"
+    },
+    "inhibit_to_release": {
+      "max_slack_ns": 2.159,
+      "max_path_type": "Recovery (Max at Slow Process Corner)",
+      "min_slack_ns": 5.701,
+      "min_path_type": "Removal (Min at Slow Process Corner)"
+    },
+    "release_to_pwm": {
+      "max_slack_ns": 1.71,
+      "max_path_type": "Recovery (Max at Slow Process Corner)",
+      "min_slack_ns": 5.094,
+      "min_path_type": "Removal (Min at Fast Process Corner)"
+    }
+  },
+  "retained_groups": [
+    {
+      "group": "frozen_foc_inputs",
+      "retained_sequential_cells": 5786,
+      "max_paths_checked": 10,
+      "max_slack_ns": 7.786,
+      "min_slack_ns": 0.035
+    },
+    {
+      "group": "falling_foc_input_hold",
+      "retained_sequential_cells": 270,
+      "max_paths_checked": 10,
+      "max_slack_ns": 1.697,
+      "min_slack_ns": 9.557
+    },
+    {
+      "group": "original_foc",
+      "retained_sequential_cells": 86999,
+      "max_paths_checked": 10,
+      "max_slack_ns": 2.101,
+      "min_slack_ns": 0.011
+    },
+    {
+      "group": "generated_duty_mapper",
+      "retained_sequential_cells": 40,
+      "max_paths_checked": 10,
+      "max_slack_ns": 14.973,
+      "min_slack_ns": 0.363
+    },
+    {
+      "group": "compare_offer",
+      "retained_sequential_cells": 39,
+      "max_paths_checked": 10,
+      "max_slack_ns": 9.467,
+      "min_slack_ns": 0.196
+    },
+    {
+      "group": "generated_current",
+      "retained_sequential_cells": 443,
+      "max_paths_checked": 10,
+      "max_slack_ns": 2.089,
+      "min_slack_ns": 0.044
+    },
+    {
+      "group": "generated_angle",
+      "retained_sequential_cells": 318,
+      "max_paths_checked": 10,
+      "max_slack_ns": 8.069,
+      "min_slack_ns": 0.018
+    },
+    {
+      "group": "sample_metadata",
+      "retained_sequential_cells": 259,
+      "max_paths_checked": 10,
+      "max_slack_ns": 14.785,
+      "min_slack_ns": 0.034
+    },
+    {
+      "group": "seven_event_metadata",
+      "retained_sequential_cells": 969,
+      "max_paths_checked": 10,
+      "max_slack_ns": 15.227,
+      "min_slack_ns": 0.012
+    },
+    {
+      "group": "pair_metadata",
+      "retained_sequential_cells": 323,
+      "max_paths_checked": 10,
+      "max_slack_ns": 13.873,
+      "min_slack_ns": 0.027
+    },
+    {
+      "group": "current_join",
+      "retained_sequential_cells": 360,
+      "max_paths_checked": 10,
+      "max_slack_ns": 8.547,
+      "min_slack_ns": 0.012
+    },
+    {
+      "group": "theta_join",
+      "retained_sequential_cells": 37,
+      "max_paths_checked": 10,
+      "max_slack_ns": 13.688,
+      "min_slack_ns": 0.038
+    },
+    {
+      "group": "snapshot_latest",
+      "retained_sequential_cells": 1487,
+      "max_paths_checked": 10,
+      "max_slack_ns": 16.493,
+      "min_slack_ns": 0.017
+    },
+    {
+      "group": "snapshot_frozen",
+      "retained_sequential_cells": 1487,
+      "max_paths_checked": 10,
+      "max_slack_ns": 14.529,
+      "min_slack_ns": 0.014
+    },
+    {
+      "group": "pwm_auto_release",
+      "retained_sequential_cells": 2,
+      "max_paths_checked": 3,
+      "max_slack_ns": 2.159,
+      "min_slack_ns": 0.128
+    },
+    {
+      "group": "pwm_related_triplet",
+      "retained_sequential_cells": 39,
+      "max_paths_checked": 10,
+      "max_slack_ns": 1.963,
+      "min_slack_ns": 0.053
+    }
+  ],
+  "retained_groups_note": "Name-selected sequential-cell groups include synthesis/implementation replicas and primitive subcells; counts are not interface bit widths.",
+  "adc": {
+    "pins_checked": 28,
+    "input_bits_checked": 26,
+    "min_max_paths_checked": 52,
+    "min_input_delay_ns": 2.0,
+    "max_input_delay_ns": 10.0,
+    "worst_setup_slack_ns": 1.272,
+    "worst_hold_slack_ns": 5.583,
+    "budget_status": "Existing engineering assumption; not a board measurement.",
+    "pins": [
+      {
+        "port": "adc_clk_b_o",
+        "package_pin": "AG11",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[0]",
+        "package_pin": "AF11",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[1]",
+        "package_pin": "AB14",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[2]",
+        "package_pin": "AB15",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[3]",
+        "package_pin": "W13",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[4]",
+        "package_pin": "W14",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[5]",
+        "package_pin": "W11",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[6]",
+        "package_pin": "W12",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[7]",
+        "package_pin": "Y10",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[8]",
+        "package_pin": "W10",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[9]",
+        "package_pin": "AB9",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[10]",
+        "package_pin": "AB10",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_b_i[11]",
+        "package_pin": "AH13",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_otr_b_i",
+        "package_pin": "AG13",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[1]",
+        "package_pin": "AE14",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[0]",
+        "package_pin": "AE15",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[3]",
+        "package_pin": "AD14",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[2]",
+        "package_pin": "AD15",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[5]",
+        "package_pin": "AC13",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[4]",
+        "package_pin": "AC14",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[7]",
+        "package_pin": "Y13",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[6]",
+        "package_pin": "Y14",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[9]",
+        "package_pin": "AH14",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[8]",
+        "package_pin": "AG14",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[11]",
+        "package_pin": "AC11",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_data_a_i[10]",
+        "package_pin": "AB11",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_clk_a_o",
+        "package_pin": "AD10",
+        "io_standard": "LVCMOS33"
+      },
+      {
+        "port": "adc_otr_a_i",
+        "package_pin": "AD11",
+        "io_standard": "LVCMOS33"
+      }
+    ],
+    "paths": [
+      {
+        "port": "adc_data_a_i[11]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.957
+      },
+      {
+        "port": "adc_data_a_i[11]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 1.967
+      },
+      {
+        "port": "adc_data_a_i[10]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 6.096
+      },
+      {
+        "port": "adc_data_a_i[10]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 1.73
+      },
+      {
+        "port": "adc_data_a_i[9]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.856
+      },
+      {
+        "port": "adc_data_a_i[9]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.186
+      },
+      {
+        "port": "adc_data_a_i[8]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.953
+      },
+      {
+        "port": "adc_data_a_i[8]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.053
+      },
+      {
+        "port": "adc_data_a_i[7]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.768
+      },
+      {
+        "port": "adc_data_a_i[7]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.268
+      },
+      {
+        "port": "adc_data_a_i[6]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.583
+      },
+      {
+        "port": "adc_data_a_i[6]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.705
+      },
+      {
+        "port": "adc_data_a_i[5]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.754
+      },
+      {
+        "port": "adc_data_a_i[5]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.35
+      },
+      {
+        "port": "adc_data_a_i[4]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.698
+      },
+      {
+        "port": "adc_data_a_i[4]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.523
+      },
+      {
+        "port": "adc_data_a_i[3]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.775
+      },
+      {
+        "port": "adc_data_a_i[3]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.312
+      },
+      {
+        "port": "adc_data_a_i[2]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.74
+      },
+      {
+        "port": "adc_data_a_i[2]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.439
+      },
+      {
+        "port": "adc_data_a_i[1]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.828
+      },
+      {
+        "port": "adc_data_a_i[1]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.214
+      },
+      {
+        "port": "adc_data_a_i[0]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.822
+      },
+      {
+        "port": "adc_data_a_i[0]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.275
+      },
+      {
+        "port": "adc_data_b_i[11]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.946
+      },
+      {
+        "port": "adc_data_b_i[11]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 1.976
+      },
+      {
+        "port": "adc_data_b_i[10]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 6.092
+      },
+      {
+        "port": "adc_data_b_i[10]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 1.73
+      },
+      {
+        "port": "adc_data_b_i[9]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 6.156
+      },
+      {
+        "port": "adc_data_b_i[9]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 1.569
+      },
+      {
+        "port": "adc_data_b_i[8]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 6.008
+      },
+      {
+        "port": "adc_data_b_i[8]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 1.864
+      },
+      {
+        "port": "adc_data_b_i[7]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 6.178
+      },
+      {
+        "port": "adc_data_b_i[7]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 1.498
+      },
+      {
+        "port": "adc_data_b_i[6]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.93
+      },
+      {
+        "port": "adc_data_b_i[6]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.032
+      },
+      {
+        "port": "adc_data_b_i[5]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.762
+      },
+      {
+        "port": "adc_data_b_i[5]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.312
+      },
+      {
+        "port": "adc_data_b_i[4]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.737
+      },
+      {
+        "port": "adc_data_b_i[4]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.363
+      },
+      {
+        "port": "adc_data_b_i[3]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.868
+      },
+      {
+        "port": "adc_data_b_i[3]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.077
+      },
+      {
+        "port": "adc_data_b_i[2]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.925
+      },
+      {
+        "port": "adc_data_b_i[2]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 1.992
+      },
+      {
+        "port": "adc_data_b_i[1]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.793
+      },
+      {
+        "port": "adc_data_b_i[1]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.24
+      },
+      {
+        "port": "adc_data_b_i[0]",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 6.336
+      },
+      {
+        "port": "adc_data_b_i[0]",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 1.272
+      },
+      {
+        "port": "adc_otr_a_i",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 5.818
+      },
+      {
+        "port": "adc_otr_a_i",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 2.292
+      },
+      {
+        "port": "adc_otr_b_i",
+        "delay": "min",
+        "budget_ns": 2.0,
+        "slack_ns": 6.136
+      },
+      {
+        "port": "adc_otr_b_i",
+        "delay": "max",
+        "budget_ns": 10.0,
+        "slack_ns": 1.626
+      }
+    ]
+  },
+  "abz_synchronizers": {
+    "retained_async_reg_cells": 6
+  },
+  "resources": {
+    "CLB LUTs": {
+      "used": 78891.0,
+      "available": 117120.0,
+      "percent": 67.36
+    },
+    "CLB Registers": {
+      "used": 94459.0,
+      "available": 234240.0,
+      "percent": 40.33
+    },
+    "CLB": {
+      "used": 13788.0,
+      "available": 14640.0,
+      "percent": 94.18
+    },
+    "CARRY8": {
+      "used": 7672.0,
+      "available": 14640.0,
+      "percent": 52.4
+    },
+    "Block RAM Tile": {
+      "used": 14.5,
+      "available": 144.0,
+      "percent": 10.07
+    },
+    "DSPs": {
+      "used": 455.0,
+      "available": 1248.0,
+      "percent": 36.46
+    }
+  },
+  "resources_by_hierarchy": [
+    {
+      "instance": "auto_path.controller",
+      "total_luts": 71203,
+      "ffs": 82018,
+      "dsps": 431
+    },
+    {
+      "instance": "duty_mapper",
+      "total_luts": 38,
+      "ffs": 40,
+      "dsps": 0
+    },
+    {
+      "instance": "foc",
+      "total_luts": 70590,
+      "ffs": 80925,
+      "dsps": 431
+    }
+  ],
+  "cdc": {
+    "functional_warning_count": 0,
+    "vendor_dbg_hub_warning_count": 4,
+    "vendor_warning_rule": "CDC-15",
+    "info_CDC_3": 9,
+    "info_CDC_9": 2
+  },
+  "drc": {
+    "error_count": 0,
+    "warning_count": 820,
+    "rules": [
+      {
+        "rule": "DPIP-2",
+        "severity": "Warning",
+        "count": 294
+      },
+      {
+        "rule": "DPOP-3",
+        "severity": "Warning",
+        "count": 214
+      },
+      {
+        "rule": "DPOP-4",
+        "severity": "Warning",
+        "count": 306
+      },
+      {
+        "rule": "PDCN-1569",
+        "severity": "Warning",
+        "count": 3
+      },
+      {
+        "rule": "REQP-1617",
+        "severity": "Warning",
+        "count": 2
+      },
+      {
+        "rule": "RTSTAT-10",
+        "severity": "Warning",
+        "count": 1
+      }
+    ]
+  },
+  "methodology": {
+    "warning_count": 40,
+    "advisory_count": 2,
+    "rules": [
+      {
+        "rule": "LUTAR-1",
+        "severity": "Warning",
+        "count": 10
+      },
+      {
+        "rule": "TIMING-18",
+        "severity": "Warning",
+        "count": 26
+      },
+      {
+        "rule": "XDCB-5",
+        "severity": "Warning",
+        "count": 4
+      },
+      {
+        "rule": "CLKC-40",
+        "severity": "Advisory",
+        "count": 1
+      },
+      {
+        "rule": "CLKC-56",
+        "severity": "Advisory",
+        "count": 1
+      }
+    ]
+  },
+  "warnings_notes": [
+    "DSP pipeline warnings are retained model-generated arithmetic; no numerical pipeline or latency was changed.",
+    "LUTAR-1 warnings include asynchronous cancellation/reset gates; real related-clock recovery/removal paths are checked above.",
+    "TIMING-18 flags ADC ports relative to clk_pl_0; all 26 ports retain min2/max10ns constraints relative to forwarded 5MHz clocks and pass actual input-path STA.",
+    "The two no_output_delay clock ports are the actual forwarded ADC clocks.",
+    "Four bus-skew constraints are vendor dbg_hub FIFO paths; hardware_02/reports/bus_skew.rpt worst slack is +9.261ns.",
+    "Occupied CLBs are 94.18%; LUT utilization alone does not describe the remaining placement capacity."
+  ]
+}

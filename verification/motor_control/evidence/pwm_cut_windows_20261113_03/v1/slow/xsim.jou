@@ -1,0 +1,25 @@
+#-----------------------------------------------------------
+# xsim v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Fri Nov 13 16:34:56 2026
+# Process ID         : 3248
+# Current directory  : D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1631/v1/slow
+# Command line       : xsim.exe -mode tcl -source {xsim.dir/pwm_cut_timing/xsim_script.tcl}
+# Log file           : D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1631/v1/slow/xsim.log
+# Journal file       : D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1631/v1/slow\xsim.jou
+# Running On         : DESKTOP-591B4R4
+# Platform           : Windows 10
+# Operating System   : 19045
+# Processor Detail   : Intel(R) Core(TM) Ultra 9 285K
+# CPU Frequency      : 3686 MHz
+# CPU Physical cores : 24
+# CPU Logical cores  : 24
+# Host memory        : 205378 MB
+# Swap memory        : 45097 MB
+# Total Virtual      : 250475 MB
+# Available Virtual  : 118020 MB
+#-----------------------------------------------------------
+source xsim.dir/pwm_cut_timing/xsim_script.tcl
+run -all

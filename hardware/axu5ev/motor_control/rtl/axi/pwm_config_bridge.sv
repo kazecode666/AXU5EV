@@ -2,11 +2,14 @@
 // One frozen mailbox. Related clocks remain fully timed by STA.
 // Request/accepted/applied use level handshakes; payload is stable until
 // both acknowledgement levels return low. No per-bit synchronizer assembly.
-module pwm_config_bridge(
+module pwm_config_bridge #(parameter integer AUTO_FOC=0)(
  (* X_INTERFACE_INFO="xilinx.com:signal:clock:1.0 s_axi_aclk CLK", X_INTERFACE_PARAMETER="XIL_INTERFACENAME s_axi_aclk, ASSOCIATED_BUSIF s_axi, ASSOCIATED_RESET s_axi_aresetn, FREQ_HZ 49999500" *) input wire s_axi_aclk,
  (* X_INTERFACE_INFO="xilinx.com:signal:reset:1.0 s_axi_aresetn RST", X_INTERFACE_PARAMETER="XIL_INTERFACENAME s_axi_aresetn, POLARITY ACTIVE_LOW" *) input wire s_axi_aresetn,
  (* X_INTERFACE_INFO="xilinx.com:signal:clock:1.0 pwm_clk CLK", X_INTERFACE_PARAMETER="XIL_INTERFACENAME pwm_clk, FREQ_HZ 99999000" *) input wire pwm_clk,
  input wire locked, input wire fast_inhibit, input wire adc_anchor,
+ input wire auto_valid_i,input wire [38:0] auto_compare_i,
+ input wire [31:0] auto_seq_i,input wire auto_inhibit_i,
+ output wire auto_ready_o,auto_online_o,output wire [31:0] auto_applied_seq_o,
  output wire [2:0] high_o, output wire [2:0] low_o,
  output wire [127:0] debug_o,
  (* X_INTERFACE_INFO="xilinx.com:interface:aximm:1.0 s_axi AWADDR", X_INTERFACE_PARAMETER="XIL_INTERFACENAME s_axi, PROTOCOL AXI4LITE, DATA_WIDTH 32, ADDR_WIDTH 12, READ_WRITE_MODE READ_WRITE, FREQ_HZ 49999500" *) input wire [11:0] s_axi_awaddr,
@@ -32,6 +35,13 @@ module pwm_config_bridge(
  import pwm_parameters::*;
  wire clock_resetn=s_axi_aresetn && locked;
  wire mailbox_resetn=clock_resetn && !fast_inhibit;
+ // Automatic invalidation cancels the pending triplet and outputs. Release
+ // on falling PWM edges, as for the original clock-domain reset release.
+ wire auto_canceln=mailbox_resetn && !auto_inhibit_i;
+ (* ASYNC_REG="TRUE" *) reg [1:0] auto_release;
+ always @(negedge pwm_clk or negedge auto_canceln)
+  if(!auto_canceln) auto_release<=0;else auto_release<={auto_release[0],1'b1};
+ wire request_resetn=mailbox_resetn && (!AUTO_FOC || auto_release[1]);
  (* ASYNC_REG="TRUE" *) reg [1:0] reset_release;
  // Release on falling edges, leaving a half-cycle before positive-edge logic.
  always @(negedge pwm_clk or negedge clock_resetn)
@@ -41,15 +51,16 @@ module pwm_config_bridge(
  reg [6:0] permission;
  reg [1:0] accept_pipe,apply_pipe,online_pipe;
  reg [1:0] request_pipe;
- always @(posedge pwm_clk or negedge mailbox_resetn)
-  if(!mailbox_resetn) request_pipe<=0;
+ always @(posedge pwm_clk or negedge request_resetn)
+  if(!request_resetn) request_pipe<=0;
   else request_pipe<={request_pipe[0],request && online_pipe[1]};
  wire accepted,applied,pending,started,valley,peak;
  wire [31:0] active_seq;wire [38:0] active_compare;wire [13:0] phase;
  wire [2:0] high_request;
- pwm_three_phase pwm(.clk(pwm_clk),.resetn(pwm_resetn),.fast_inhibit(fast_inhibit),
+ wire [6:0] use_permission=AUTO_FOC ? (auto_inhibit_i ? 7'd0 : 7'h7f) : permission;
+ pwm_three_phase pwm(.clk(pwm_clk),.resetn(pwm_resetn),.fast_inhibit(fast_inhibit || (AUTO_FOC && !auto_release[1])),
  .anchor(adc_anchor),.request(request_pipe[1]),.request_compare(frozen_compare),
- .request_seq(frozen_seq),.permission(permission),.accepted(accepted),.applied(applied),
+ .request_seq(frozen_seq),.permission(use_permission),.accepted(accepted),.applied(applied),
  .pending(pending),.started(started),.phase(phase),.valley(valley),.peak(peak),
  .active_seq(active_seq),.active_compare(active_compare),.high_o(high_o),.low_o(low_o),.high_request(high_request));
  always @(posedge s_axi_aclk or negedge mailbox_resetn) begin
@@ -63,6 +74,9 @@ module pwm_config_bridge(
  reg [31:0] shadow_seq,received_seq,adopted_seq,cancel_count,reject_count;
  reg [38:0] adopted_compare;
  reg busy,received,completed,cancelled;
+ assign auto_online_o=online_pipe[1] && mailbox_resetn;
+ assign auto_ready_o=AUTO_FOC && !busy && online_pipe[1] && mailbox_resetn;
+ assign auto_applied_seq_o=adopted_seq;
  reg aw_seen,w_seen;reg [11:0] awaddr;reg [31:0] wdata;reg [3:0] wstrb;
  assign s_axi_awready=s_axi_aresetn && !aw_seen && !s_axi_bvalid;
  assign s_axi_wready=s_axi_aresetn && !w_seen && !s_axi_bvalid;
@@ -86,15 +100,15 @@ module pwm_config_bridge(
     s_axi_bvalid<=1;s_axi_bresp<=0;
     if(wstrb!=4'hf) s_axi_bresp<=2;
     else case(awaddr)
-     12'h010: if(wdata<=PEAK)shadow_a<=wdata[12:0];else s_axi_bresp<=2;
-     12'h014: if(wdata<=PEAK)shadow_b<=wdata[12:0];else s_axi_bresp<=2;
-     12'h018: if(wdata<=PEAK)shadow_c<=wdata[12:0];else s_axi_bresp<=2;
-     12'h01c: shadow_seq<=wdata;
-     12'h020: if(wdata==1 && !busy && online_pipe[1] && !fast_inhibit) begin
+     12'h010: if(!AUTO_FOC && wdata<=PEAK)shadow_a<=wdata[12:0];else s_axi_bresp<=2;
+     12'h014: if(!AUTO_FOC && wdata<=PEAK)shadow_b<=wdata[12:0];else s_axi_bresp<=2;
+     12'h018: if(!AUTO_FOC && wdata<=PEAK)shadow_c<=wdata[12:0];else s_axi_bresp<=2;
+     12'h01c: if(!AUTO_FOC)shadow_seq<=wdata;else s_axi_bresp<=2;
+     12'h020: if(!AUTO_FOC && wdata==1 && !busy && online_pipe[1] && !fast_inhibit) begin
       frozen_compare<={shadow_c,shadow_b,shadow_a};frozen_seq<=shadow_seq;
       request<=1;busy<=1;received<=0;completed<=0;cancelled<=0;
      end else begin s_axi_bresp<=2;reject_count<=reject_count+1;end
-     12'h024: if(online_pipe[1] && !fast_inhibit) permission<=wdata[6:0];else s_axi_bresp<=2;
+     12'h024: if(!AUTO_FOC && online_pipe[1] && !fast_inhibit) permission<=wdata[6:0];else s_axi_bresp<=2;
      default:s_axi_bresp<=2;
     endcase
    end
@@ -103,6 +117,17 @@ module pwm_config_bridge(
     request<=0;permission<=0;
     if(busy) begin cancelled<=1;cancel_count<=cancel_count+1;end
     busy<=0;
+   end
+   if(AUTO_FOC) begin
+    if(auto_valid_i && auto_ready_o && !auto_inhibit_i) begin
+     frozen_compare<=auto_compare_i;frozen_seq<=auto_seq_i;
+     request<=1;busy<=1;received<=0;completed<=0;cancelled<=0;
+    end
+    if(auto_inhibit_i) begin
+     request<=0;
+     if(busy) begin cancelled<=1;cancel_count<=cancel_count+1'b1;end
+     busy<=0;
+    end
    end
   end
  end
@@ -121,7 +146,7 @@ module pwm_config_bridge(
      12'h014:s_axi_rdata<={19'd0,shadow_b};
      12'h018:s_axi_rdata<={19'd0,shadow_c};
      12'h01c:s_axi_rdata<=shadow_seq;
-     12'h024:s_axi_rdata<={25'd0,permission};
+     12'h024:s_axi_rdata<={25'd0,use_permission};
      12'h028:s_axi_rdata<=cancel_count;
      12'h02c:s_axi_rdata<=reject_count;
      12'h030:s_axi_rdata<={19'd0,adopted_compare[12:0]};
@@ -135,6 +160,6 @@ module pwm_config_bridge(
   end
  end
  // Only sampled by PWM-clocked ILA, never as unhandshaken AXI status.
- assign debug_o={21'd0,active_compare,active_seq,permission,high_request,
+ assign debug_o={21'd0,active_compare,active_seq,use_permission,high_request,
                  pending,applied,accepted,started,peak,valley,phase,low_o,high_o};
 endmodule

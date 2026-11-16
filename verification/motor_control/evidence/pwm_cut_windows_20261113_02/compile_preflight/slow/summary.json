@@ -1,0 +1,78 @@
+{
+  "runner_schema": 2,
+  "corner": "slow",
+  "status": "FAIL",
+  "input_paths": {
+    "netlist": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\pwm_cut.v",
+    "sdf": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\pwm_cut_slow.sdf",
+    "tb": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\pwm_cut_tb.sv",
+    "glbl": "D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v"
+  },
+  "run_directory": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\slow",
+  "stages": [
+    {
+      "stage": "xvlog",
+      "argv": [
+        "D:\\Software\\2026.1\\Vivado\\bin\\xvlog.bat",
+        "-sv",
+        "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\pwm_cut.v",
+        "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\pwm_cut_tb.sv",
+        "D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v"
+      ],
+      "command": "\"C:\\Windows\\system32\\cmd.exe\" /d /s /c \"D:\\Software\\2026.1\\Vivado\\bin\\xvlog.bat -sv \"D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\pwm_cut.v\" \"D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\pwm_cut_tb.sv\" D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v\"",
+      "limit_seconds": 600,
+      "started_epoch": 1794554841.257035,
+      "supervisor_stop": null,
+      "natural_exit": true,
+      "exit_code": 1,
+      "elapsed_seconds": 0.7809999999881256,
+      "diagnostics": [
+        {
+          "category": "sdf_matching_or_annotation_error",
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\slow\\xvlog.stdout.log",
+          "line": "ERROR: [VRFC 10-3380] identifier 'anchor' is used before its declaration [D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/pwm_cut_tb.sv:30]"
+        },
+        {
+          "category": "sdf_matching_or_annotation_error",
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\slow\\xvlog.stdout.log",
+          "line": "ERROR: [VRFC 10-8530] module 'pwm_cut_tb' is ignored due to previous errors [D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/pwm_cut_tb.sv:4]"
+        },
+        {
+          "category": "sdf_matching_or_annotation_error",
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\slow\\xvlog.log",
+          "line": "ERROR: [VRFC 10-3380] identifier 'anchor' is used before its declaration [D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/pwm_cut_tb.sv:30]"
+        },
+        {
+          "category": "sdf_matching_or_annotation_error",
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522\\slow\\xvlog.log",
+          "line": "ERROR: [VRFC 10-8530] module 'pwm_cut_tb' is ignored due to previous errors [D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/pwm_cut_tb.sv:4]"
+        }
+      ],
+      "reviewed_warnings": [],
+      "annotation_markers": [],
+      "pass_markers": [],
+      "last_scenario": null,
+      "last_simulation_time": null,
+      "last_progress_line": "ERROR: [VRFC 10-8530] module 'pwm_cut_tb' is ignored due to previous errors [D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/pwm_cut_tb.sv:4]",
+      "log_files": [
+        "xvlog.stdout.log",
+        "xvlog.stderr.log",
+        "xvlog.log"
+      ],
+      "pid": 70072,
+      "failure_reason": "sdf_matching_or_annotation_error: ERROR: [VRFC 10-3380] identifier 'anchor' is used before its declaration [D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/pwm_cut_tb.sv:30]"
+    }
+  ],
+  "limits_seconds": {
+    "xvlog": 600,
+    "xelab": 3600,
+    "xsim": 900
+  },
+  "optimization": "O2 only; one attempt",
+  "timing_checks_disabled": false,
+  "board": "NOT_RUN",
+  "stop_reason": "RuntimeError: sdf_matching_or_annotation_error: ERROR: [VRFC 10-3380] identifier 'anchor' is used before its declaration [D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/pwm_cut_tb.sv:30]",
+  "last_scenario": null,
+  "last_simulation_time": null,
+  "total_stage_wall_seconds": 0.7809999999881256
+}

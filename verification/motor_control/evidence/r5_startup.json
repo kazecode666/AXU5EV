@@ -1,0 +1,41 @@
+{
+  "fsbl": {
+    "processor": "psu_cortexa53_0",
+    "machine": "AArch64",
+    "elf_class": 64,
+    "byte_order": "little",
+    "entry": 4294705152
+  },
+  "application": {
+    "machine": "ARM",
+    "elf_class": 32,
+    "byte_order": "little",
+    "entry": 60,
+    "flags": 83887104,
+    "segments": [
+      {
+        "address": 0,
+        "file_bytes": 2008,
+        "memory_bytes": 2008,
+        "flags": 7
+      },
+      {
+        "address": 1048576,
+        "file_bytes": 44060,
+        "memory_bytes": 179584,
+        "flags": 7
+      }
+    ],
+    "processor": "psu_cortexr5_0"
+  },
+  "launch": "motor_control_manual",
+  "status": "OFFLINE_STARTUP_CHECK_PASS",
+  "workspace": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01",
+  "xsa": "D:/Project/AXU5EV/.runtime/motor_control/hardware_02/ax03b3_adc.xsa",
+  "elf": "D:/Project/AXU5EV/.runtime/motor_control/vitis_01/motor_control_observer/build/motor_control_observer.elf",
+  "observer_base": "0x80000000",
+  "observer_macro": "XPAR_ADC_OBSERVER_0_BASEADDR",
+  "board": "NOT_RUN",
+  "sample_service_timing": "NOT_RUN",
+  "physical_link_verified": 0
+}

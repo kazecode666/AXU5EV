@@ -1,0 +1,179 @@
+{
+  "runner_schema": 2,
+  "corner": "slow",
+  "status": "FAIL",
+  "input_paths": {
+    "netlist": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\pwm_cut.v",
+    "sdf": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\pwm_cut_slow.sdf",
+    "tb": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\pwm_cut_tb.sv",
+    "glbl": "D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v"
+  },
+  "run_directory": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\slow",
+  "stages": [
+    {
+      "stage": "xvlog",
+      "argv": [
+        "D:\\Software\\2026.1\\Vivado\\bin\\xvlog.bat",
+        "-sv",
+        "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\pwm_cut.v",
+        "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\pwm_cut_tb.sv",
+        "D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v"
+      ],
+      "command": "\"C:\\Windows\\system32\\cmd.exe\" /d /s /c \"D:\\Software\\2026.1\\Vivado\\bin\\xvlog.bat -sv \"D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\pwm_cut.v\" \"D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\pwm_cut_tb.sv\" D:\\Software\\2026.1\\data\\verilog\\src\\glbl.v\"",
+      "limit_seconds": 600,
+      "started_epoch": 1794554891.9990046,
+      "supervisor_stop": null,
+      "natural_exit": true,
+      "exit_code": 0,
+      "elapsed_seconds": 0.7820000000065193,
+      "diagnostics": [],
+      "reviewed_warnings": [],
+      "annotation_markers": [],
+      "pass_markers": [],
+      "last_scenario": null,
+      "last_simulation_time": null,
+      "last_progress_line": "INFO: [VRFC 10-2263] Analyzing SystemVerilog file \"D:/Software/2026.1/data/verilog/src/glbl.v\" into library work",
+      "log_files": [
+        "xvlog.stdout.log",
+        "xvlog.stderr.log",
+        "xvlog.log"
+      ],
+      "pid": 64880,
+      "failure_reason": null
+    },
+    {
+      "stage": "xelab",
+      "argv": [
+        "D:\\Software\\2026.1\\Vivado\\bin\\xelab.bat",
+        "work.pwm_cut_tb",
+        "work.glbl",
+        "-s",
+        "pwm_cut_timing",
+        "-debug",
+        "off",
+        "-timescale",
+        "1ns/1ps",
+        "-L",
+        "simprims_ver",
+        "-L",
+        "unisims_ver",
+        "-L",
+        "secureip",
+        "-transport_int_delays",
+        "-pulse_r",
+        "0",
+        "-pulse_int_r",
+        "0",
+        "-pulse_e",
+        "0",
+        "-pulse_int_e",
+        "0",
+        "-sdfmax",
+        "/pwm_cut_tb/dut=D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522_buildfix/pwm_cut_slow.sdf",
+        "--O2"
+      ],
+      "command": "\"C:\\Windows\\system32\\cmd.exe\" /d /s /c \"D:\\Software\\2026.1\\Vivado\\bin\\xelab.bat work.pwm_cut_tb work.glbl -s pwm_cut_timing -debug off -timescale 1ns/1ps -L simprims_ver -L unisims_ver -L secureip -transport_int_delays -pulse_r 0 -pulse_int_r 0 -pulse_e 0 -pulse_int_e 0 -sdfmax \"/pwm_cut_tb/dut=D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522_buildfix/pwm_cut_slow.sdf\" --O2\"",
+      "limit_seconds": 3600,
+      "started_epoch": 1794554892.7737355,
+      "supervisor_stop": null,
+      "natural_exit": true,
+      "exit_code": 0,
+      "elapsed_seconds": 10.25,
+      "diagnostics": [],
+      "reviewed_warnings": [
+        {
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\slow\\xelab.stdout.log",
+          "line": "WARNING: [XSIM 43-4328] File: D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522_buildfix/pwm_cut_tb.sv Line: 210 : Sensitivity on input argument \"id\" of task \"finish_offer\" may never get triggered."
+        },
+        {
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\slow\\xelab.stdout.log",
+          "line": "WARNING: [XSIM 43-4328] File: D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522_buildfix/pwm_cut_tb.sv Line: 211 : Sensitivity on input argument \"id\" of task \"finish_offer\" may never get triggered."
+        },
+        {
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\slow\\xelab.log",
+          "line": "WARNING: [XSIM 43-4328] File: D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522_buildfix/pwm_cut_tb.sv Line: 210 : Sensitivity on input argument \"id\" of task \"finish_offer\" may never get triggered."
+        },
+        {
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\slow\\xelab.log",
+          "line": "WARNING: [XSIM 43-4328] File: D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522_buildfix/pwm_cut_tb.sv Line: 211 : Sensitivity on input argument \"id\" of task \"finish_offer\" may never get triggered."
+        }
+      ],
+      "annotation_markers": [
+        {
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\slow\\xelab.stdout.log",
+          "line": "INFO: [XSIM 43-3452] SDF backannotation was successful for SDF file \"D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522_buildfix/pwm_cut_slow.sdf\", for root module \"/pwm_cut_tb/dut\"."
+        },
+        {
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\slow\\xelab.log",
+          "line": "INFO: [XSIM 43-3452] SDF backannotation was successful for SDF file \"D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522_buildfix/pwm_cut_slow.sdf\", for root module \"/pwm_cut_tb/dut\"."
+        }
+      ],
+      "pass_markers": [],
+      "last_scenario": null,
+      "last_simulation_time": null,
+      "last_progress_line": "Built simulation snapshot pwm_cut_timing",
+      "log_files": [
+        "xelab.stdout.log",
+        "xelab.stderr.log",
+        "xelab.log"
+      ],
+      "pid": 69732,
+      "failure_reason": null
+    },
+    {
+      "stage": "xsim",
+      "argv": [
+        "D:\\Software\\2026.1\\Vivado\\bin\\xsim.bat",
+        "pwm_cut_timing",
+        "-runall"
+      ],
+      "command": "\"C:\\Windows\\system32\\cmd.exe\" /d /s /c \"D:\\Software\\2026.1\\Vivado\\bin\\xsim.bat pwm_cut_timing -runall\"",
+      "limit_seconds": 900,
+      "started_epoch": 1794554903.0181606,
+      "supervisor_stop": "tool_or_testbench_error: Fatal: PWM_CUT_FAIL unique source offer t=930000 phase=5009 seq=0",
+      "natural_exit": false,
+      "exit_code": 0,
+      "elapsed_seconds": 3.4679999999934807,
+      "diagnostics": [
+        {
+          "category": "tool_or_testbench_error",
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\slow\\xsim.stdout.log",
+          "line": "Fatal: PWM_CUT_FAIL unique source offer t=930000 phase=5009 seq=0"
+        },
+        {
+          "category": "tool_or_testbench_error",
+          "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1522_buildfix\\slow\\xsim.log",
+          "line": "Fatal: PWM_CUT_FAIL unique source offer t=930000 phase=5009 seq=0"
+        }
+      ],
+      "reviewed_warnings": [],
+      "annotation_markers": [],
+      "pass_markers": [],
+      "last_scenario": "PWM_CUT_SCENARIO offer t_ns=880.200 seq=1 abc=1000/2500/4000",
+      "last_simulation_time": "930 ns",
+      "last_progress_line": "INFO: [Common 17-206] Exiting xsim at Fri Nov 13 15:28:26 2026...",
+      "log_files": [
+        "xsim.stdout.log",
+        "xsim.stderr.log",
+        "xsim.log",
+        "xsim.dir\\pwm_cut_timing\\xsimcrash.log",
+        "xsim.dir\\pwm_cut_timing\\xsimkernel.log"
+      ],
+      "pid": 29992,
+      "taskkill_exit_code": 128,
+      "failure_reason": "tool_or_testbench_error: Fatal: PWM_CUT_FAIL unique source offer t=930000 phase=5009 seq=0"
+    }
+  ],
+  "limits_seconds": {
+    "xvlog": 600,
+    "xelab": 3600,
+    "xsim": 900
+  },
+  "optimization": "O2 only; one attempt",
+  "timing_checks_disabled": false,
+  "board": "NOT_RUN",
+  "stop_reason": "RuntimeError: tool_or_testbench_error: Fatal: PWM_CUT_FAIL unique source offer t=930000 phase=5009 seq=0",
+  "last_scenario": "PWM_CUT_SCENARIO offer t_ns=880.200 seq=1 abc=1000/2500/4000",
+  "last_simulation_time": "930 ns",
+  "total_stage_wall_seconds": 14.5
+}

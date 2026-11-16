@@ -1,0 +1,33 @@
+{
+  "PWM_CUT_SDF_SLOW": "FAIL",
+  "PWM_CUT_SDF_FAST": "NOT_RUN",
+  "FULL_CHAIN_SDF": "NOT_COMPLETED (unchanged; prior O0 GCC failure/O2 timeout are not DUT failures)",
+  "FULL_DESIGN_STA": "Existing hardware_02 PASS evidence preserved; not rerun",
+  "FULL_CHAIN_RTL": "Existing functional verification evidence unchanged; not rerun or independently recertified",
+  "task1": "Native export and retention review completed",
+  "slow": {
+    "xvlog_seconds": 1.7809743881,
+    "xelab_seconds": 14.197861433,
+    "xelab_exit_code": 0,
+    "annotation_success": true,
+    "xsim_wall_seconds": 142.6692340374,
+    "xsim_dynamic_completed": false,
+    "xsim_termination": "stopped only PID65780 process tree after confirmed timing violations; child PIDs66924,20160,6156 terminated",
+    "pass_markers": 0,
+    "diagnostics": "anchor_delayed_reg hold violations at 760ns and 820ns, limit60ps",
+    "classification": "Local testbench/cut-boundary stimulus failure; not production DUT failure"
+  },
+  "export": {
+    "wall_seconds": 228.5855905,
+    "full_primitives": 196766,
+    "cut_primitives": 1204,
+    "cut_flip_flops": 570,
+    "per_corner_sdf_cells": 1197,
+    "per_corner_interconnects": 4433,
+    "verilog_bytes": 377238,
+    "slow_sdf_bytes": 1623447,
+    "fast_sdf_bytes": 1640368
+  },
+  "stop_rule": "No rerun, no alternate optimization/cut, fast not started",
+  "github_comment": "Not posted: no available noninteractive credential; comment draft saved separately"
+}

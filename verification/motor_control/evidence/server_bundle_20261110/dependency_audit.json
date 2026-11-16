@@ -1,0 +1,39 @@
+{
+  "status": "PASS_VISIBLE_INPUT_AUDIT",
+  "sources": {
+    "inputs/hardware_02/timing_pl/motor_routed.v": {
+      "inputs": [],
+      "outputs": [],
+      "unresolved": [],
+      "protected_vendor_blocks": 1,
+      "vendor_scope": "opaque vendor model blocks retained verbatim; matching Vivado/secureip libraries are external tool dependencies"
+    },
+    "verification/motor_control/timing_tb.sv": {
+      "inputs": [],
+      "outputs": [
+        {
+          "kind": "fopen",
+          "file": "foc_frames.txt",
+          "mode": "w"
+        },
+        {
+          "kind": "fopen",
+          "file": "motor_frames.txt",
+          "mode": "w"
+        }
+      ],
+      "unresolved": [],
+      "protected_vendor_blocks": 0,
+      "vendor_scope": "opaque vendor model blocks retained verbatim; matching Vivado/secureip libraries are external tool dependencies"
+    }
+  },
+  "additional_project_input_files": [],
+  "external_tool_dependencies": [
+    "Vivado/XSim 2026.1 matching simulation libraries",
+    "simprims_ver",
+    "unisims_ver",
+    "secureip",
+    "<configured Vivado bin>/../data/verilog/src/glbl.v"
+  ],
+  "real_sdf": "NOT_RUN"
+}

@@ -1,0 +1,9 @@
+{
+  "status": "FAIL_BEFORE_FIX",
+  "test": "pending arm commit then consumed disarm before selected P0",
+  "failure": "MOTOR_CHAIN_FAIL disarm cancels committed arm at the next selected P0",
+  "failure_time_ps": 1500170001,
+  "run_dir": ".runtime/motor_control/rtl_05",
+  "scope": "directed no-power RTL",
+  "board": "NOT_RUN"
+}

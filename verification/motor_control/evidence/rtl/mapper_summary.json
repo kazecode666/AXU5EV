@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "scope": "ADC_QEP_FOC_PWM",
+  "pass_marker": "MOTOR_MAPPER_PASS vectors=31 checks=125",
+  "run_dir": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\mapper_rtl_01",
+  "board": "NOT_RUN",
+  "old_pr24_b1_regression": "NOT_RUN"
+}

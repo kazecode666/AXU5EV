@@ -1,0 +1,93 @@
+{
+  "CUT_BOUNDARY_MAPPING": "PROVEN_PERMISSION_COMPLEMENT",
+  "PWM_CUT_SDF_SLOW": "PASS",
+  "PWM_CUT_SDF_FAST": "PASS",
+  "FULL_CHAIN_SDF": "NOT_COMPLETED",
+  "BOARD": "NOT_RUN",
+  "fast_inhibit_independent_dynamic": "N/A_BD_CONSTANT_ZERO",
+  "final_tb": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v2\\pwm_cut_tb.sv",
+  "corners": [
+    {
+      "corner": "slow",
+      "stages": [
+        {
+          "stage": "xvlog",
+          "seconds": 0.7650000000139698,
+          "natural_exit": true,
+          "exit_code": 0,
+          "diagnostics": [],
+          "annotation": []
+        },
+        {
+          "stage": "xelab",
+          "seconds": 9.90700000000652,
+          "natural_exit": true,
+          "exit_code": 0,
+          "diagnostics": [],
+          "annotation": [
+            {
+              "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v2\\slow\\xelab.stdout.log",
+              "line": "INFO: [XSIM 43-3452] SDF backannotation was successful for SDF file \"D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1735/v2/pwm_cut_slow.sdf\", for root module \"/pwm_cut_tb/dut\"."
+            },
+            {
+              "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v2\\slow\\xelab.log",
+              "line": "INFO: [XSIM 43-3452] SDF backannotation was successful for SDF file \"D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1735/v2/pwm_cut_slow.sdf\", for root module \"/pwm_cut_tb/dut\"."
+            }
+          ]
+        },
+        {
+          "stage": "xsim",
+          "seconds": 319.4059999999881,
+          "natural_exit": true,
+          "exit_code": 0,
+          "diagnostics": [],
+          "annotation": []
+        }
+      ],
+      "pass": "PWM_CUT_SDF_PASS checks=756022 offers=11 accepts=11 adoptions=8 acks=8 periods=20 h_edges=43 l_edges=41 zero=51028 full=51028 cancels=3 rearms=3 q_events=8 releases=4 min_gap_ns=1000.000 max_q_ns=0.100",
+      "simulation_end": "2182440200 ps"
+    },
+    {
+      "corner": "fast",
+      "stages": [
+        {
+          "stage": "xvlog",
+          "seconds": 0.7659999999741558,
+          "natural_exit": true,
+          "exit_code": 0,
+          "diagnostics": [],
+          "annotation": []
+        },
+        {
+          "stage": "xelab",
+          "seconds": 9.89000000001397,
+          "natural_exit": true,
+          "exit_code": 0,
+          "diagnostics": [],
+          "annotation": [
+            {
+              "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v2\\fast\\xelab.stdout.log",
+              "line": "INFO: [XSIM 43-3452] SDF backannotation was successful for SDF file \"D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1735/v2/pwm_cut_fast.sdf\", for root module \"/pwm_cut_tb/dut\"."
+            },
+            {
+              "source": "D:\\Weiwen Li\\AXU5EV\\pwm_cut_sdf_20261113_1735\\v2\\fast\\xelab.log",
+              "line": "INFO: [XSIM 43-3452] SDF backannotation was successful for SDF file \"D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1735/v2/pwm_cut_fast.sdf\", for root module \"/pwm_cut_tb/dut\"."
+            }
+          ]
+        },
+        {
+          "stage": "xsim",
+          "seconds": 274.625,
+          "natural_exit": true,
+          "exit_code": 0,
+          "diagnostics": [],
+          "annotation": []
+        }
+      ],
+      "pass": "PWM_CUT_SDF_PASS checks=756022 offers=11 accepts=11 adoptions=8 acks=8 periods=20 h_edges=43 l_edges=41 zero=51028 full=51028 cancels=3 rearms=3 q_events=8 releases=4 min_gap_ns=1000.000 max_q_ns=0.100",
+      "simulation_end": "2182440200 ps"
+    }
+  ],
+  "prior_candidates": "v1 fatal preserved; v2 interrupted attempt not PASS, separately adjudicated",
+  "revision_limit": "one proven adapter plus one TB-only revision; no input changes between final corners"
+}

@@ -1,0 +1,29 @@
+#-----------------------------------------------------------
+# xsim v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Fri Nov 13 14:23:04 2026
+# Process ID         : 66924
+# Current directory  : D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1404/slow
+# Command line       : xsim.exe -mode tcl -source {xsim.dir/pwm_cut_timing/xsim_script.tcl}
+# Log file           : D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1404/slow/xsim.log
+# Journal file       : D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1404/slow\xsim.jou
+# Running On         : DESKTOP-591B4R4
+# Platform           : Windows 10
+# Operating System   : 19045
+# Processor Detail   : Intel(R) Core(TM) Ultra 9 285K
+# CPU Frequency      : 3686 MHz
+# CPU Physical cores : 24
+# CPU Logical cores  : 24
+# Host memory        : 205378 MB
+# Swap memory        : 45097 MB
+# Total Virtual      : 250475 MB
+# Available Virtual  : 120526 MB
+#-----------------------------------------------------------
+source xsim.dir/pwm_cut_timing/xsim_script.tcl
+# xsim {pwm_cut_timing} -autoloadwcfg -runall
+Time resolution is 1 ps
+run -all
+WARNING: "D:\Software\2026.1\Vivado\data/verilog/src/unisims/FDPE.v" Line 170: Timing violation in scope /pwm_cut_tb/dut/pwm/timebase/anchor_delayed_reg/TChk170_22733 at time 760 ns $setuphold (posedge C,posedge D,(0:0:0),(0:0:0),notifier,in_clk_enable_p,in_clk_enable_p,C_dly,D_dly)  $hold violation detected. Time: 760000 ps, Ref Event Time Stamp: 760000 ps, Data Event Time Stamp: 760000 ps, Limit: 60 ps
+WARNING: "D:\Software\2026.1\Vivado\data/verilog/src/unisims/FDPE.v" Line 168: Timing violation in scope /pwm_cut_tb/dut/pwm/timebase/anchor_delayed_reg/TChk168_22731 at time 820 ns $setuphold (posedge C,negedge D,(0:0:0),(0:0:0),notifier,in_clk_enable_p,in_clk_enable_p,C_dly,D_dly)  $hold violation detected. Time: 820000 ps, Ref Event Time Stamp: 820000 ps, Data Event Time Stamp: 820000 ps, Limit: 60 ps

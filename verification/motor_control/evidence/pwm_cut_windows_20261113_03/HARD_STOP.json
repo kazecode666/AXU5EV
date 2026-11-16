@@ -1,0 +1,30 @@
+{
+  "status": "STOPPED_SUSPECTED_NATIVE_CUT_BOUNDARY_MISMATCH",
+  "candidate": "v1",
+  "candidates_used": 1,
+  "candidate_limit": 3,
+  "job": "pwsh-2c164359542e406e",
+  "job_status": "killed",
+  "job_wall_seconds": 95.992,
+  "stop_method": "Harness job_kill: exact supervised job tree",
+  "xsim_root_pid": 52548,
+  "last_recorded_xsim_wall_seconds": 84.469,
+  "last_recorded_simulation_ns": 500000,
+  "last_observed_counts": {
+    "offers": 1,
+    "accepts": 0,
+    "adoptions": 0,
+    "acks": 0,
+    "starts": 1,
+    "peaks": 1
+  },
+  "first_handshake_ns": 910,
+  "first_retire_ns": 910.2,
+  "pass_markers": 0,
+  "reason": "Source handshake and same-edge+CQ retirement correct; native captureCE0, busy/request0, no accepts across five carrier periods. Native LUT/reset truth differs from RTL-level auto_inhibit direct interpretation. Not proven TB-only; stop required by Review.",
+  "runner_summary_preserved": "v1/slow/summary.json retains RUNNING snapshot; HARD_STOP.json and results.json are final adjudication, no natural exit claimed",
+  "fast": "NOT_RUN",
+  "v2_v3": "NOT_CREATED",
+  "production_rtl_fault": "NOT_ESTABLISHED",
+  "no_delay_phase_or_inhibit_polarity_experiment": true
+}

@@ -1,0 +1,91 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 10-nov-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Fri Nov 13 15:22:32 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source {D:\Weiwen Li\AXU5EV\pwm_cut_sdf_20261113_1522/probe_anchor.tcl}
+# set out [file dirname [info script]]
+# proc save {name data} {global out;set f [open $out/$name w];puts $f $data;close $f}
+# proc main {} {
+#  global out
+#  open_checkpoint {D:/Weiwen Li/AXU5EV/Issue40_PWM_Cut_Handoff/pwm_adc_routed.dcp}
+#  save timing_help.txt [help report_timing]
+#  set pin [get_pins {design_1_i/pwm_control_0/inst/adc_anchor}]
+#  set nets [get_nets -segments -of_objects $pin]
+#  set drivers [get_pins -leaf -of_objects $nets -filter {DIRECTION == OUT}]
+#  set ep [get_cells {design_1_i/pwm_control_0/inst/pwm/timebase/anchor_delayed_reg}]
+#  set d [get_pins -of_objects $ep -filter {REF_PIN_NAME == D}]
+#  save endpoints.txt "cut_pin=$pin
+# nets=$nets
+# drivers=$drivers
+# endpoint=$ep
+# data_pin=$d"
+#  if {[llength $drivers]!=1 || [llength $d]!=1} {error {Expected single native anchor driver and endpoint}}
+#  save driver_properties.txt [report_property -return_string [get_cells -of_objects $drivers]]
+#  save endpoint_properties.txt [report_property -return_string $ep]
+#  report_clocks -file $out/clock_relationships.rpt
+#  report_timing -from $drivers -to $d -delay_type min -max_paths 1 -path_type full_clock_expanded -file $out/anchor_min.rpt
+#  report_timing -from $drivers -to $d -delay_type max -max_paths 1 -path_type full_clock_expanded -file $out/anchor_max.rpt
+#  save probe_status.txt COMPLETED_READ_ONLY_TARGETED_QUERY
+# }
+# if {[catch {main} msg opts]} {save probe_status.txt "FAILED
+# $msg
+# [dict get $opts -errorinfo]";exit 1}
+Command: open_checkpoint {D:/Weiwen Li/AXU5EV/Issue40_PWM_Cut_Handoff/pwm_adc_routed.dcp}
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.046 . Memory (MB): peak = 336.789 ; gain = 4.223
+INFO: [Device 21-403] Loading part xczu5ev-sfvc784-2-i
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.982 . Memory (MB): peak = 1693.902 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 10817 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 4 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.550 . Memory (MB): peak = 1986.777 ; gain = 66.676
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.380 . Memory (MB): peak = 2881.215 ; gain = 0.000
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.054 . Memory (MB): peak = 2881.215 ; gain = 0.000
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2881.215 ; gain = 0.000
+Read placeStorage: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2950.789 ; gain = 69.574
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2950.789 ; gain = 0.000
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:12 ; elapsed = 00:00:11 . Memory (MB): peak = 3512.336 ; gain = 561.547
+Read Physdb Files: Time (s): cpu = 00:00:18 ; elapsed = 00:00:17 . Memory (MB): peak = 3512.336 ; gain = 631.121
+Restored from archive | CPU: 20.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:19 ; elapsed = 00:00:17 . Memory (MB): peak = 3512.336 ; gain = 631.121
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.129 . Memory (MB): peak = 3799.387 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 579 instances were transformed.
+  CFGLUT5 => CFGLUT5 (SRL16E, SRLC32E): 92 instances
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 433 instances
+  DSP48E2 => DSP48E2 (inverted pins: RSTA) (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 2 instances
+  DSP48E2 => DSP48E2 (inverted pins: RSTB) (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 20 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 26 instances
+  RAM32M16 => RAM32M16 (RAMD32(x14), RAMS32(x2)): 2 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 4 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:01:32 ; elapsed = 00:01:22 . Memory (MB): peak = 3799.551 ; gain = 3473.641
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Temperature grade: I, Delay Type: min.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 2 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -to_pins  -max_paths 1 -nworst 1 -delay_type min -sort_by slack.
+report_timing: Time (s): cpu = 00:01:46 ; elapsed = 00:01:01 . Memory (MB): peak = 4220.316 ; gain = 369.027
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Temperature grade: I, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 2 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -to_pins  -max_paths 1 -nworst 1 -delay_type max -sort_by slack.
+# exit 0
+INFO: [Common 17-206] Exiting Vivado at Fri Nov 13 15:25:04 2026...

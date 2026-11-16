@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "current_events": 16,
+  "current_output_words": 224,
+  "angle_events": 15,
+  "same_input_table": "D:/Project/AXU5EV/.runtime/motor_control/rtl_04",
+  "source_current": "ax03b1_current_preprocess.m",
+  "source_angle": "encoder_angle_step.m",
+  "board": "NOT_RUN"
+}

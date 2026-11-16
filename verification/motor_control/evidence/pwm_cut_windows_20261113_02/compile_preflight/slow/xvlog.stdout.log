@@ -1,0 +1,9 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/pwm_cut.v" into library work
+INFO: [VRFC 10-311] analyzing module pwm_cut
+INFO: [VRFC 10-311] analyzing module design_1_pwm_control_0_0_pwm_three_phase
+INFO: [VRFC 10-311] analyzing module design_1_pwm_control_0_0_pwm_timebase
+INFO: [VRFC 10-311] analyzing module glbl
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/pwm_cut_tb.sv" into library work
+INFO: [VRFC 10-311] analyzing module pwm_cut_tb
+ERROR: [VRFC 10-3380] identifier 'anchor' is used before its declaration [D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/pwm_cut_tb.sv:30]
+ERROR: [VRFC 10-8530] module 'pwm_cut_tb' is ignored due to previous errors [D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522/pwm_cut_tb.sv:4]

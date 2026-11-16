@@ -1,0 +1,86 @@
+Property           Type     Read-only  Value
+CLASS              string   true       clock
+FILE_NAME          string   true       D:/Project/AXU5EV/.runtime/motor_control/hardware_02/project/ax02a_ps.gen/sources_1/bd/design_1/ip/design_1_zynq_ultra_ps_e_0_0/design_1_zynq_ultra_ps_e_0_0.xdc
+INPUT_JITTER       double   true       0.000
+IS_GENERATED       bool     true       0
+IS_PROPAGATED      bool     true       1
+IS_USER_GENERATED  bool     true       0
+IS_VIRTUAL         bool     true       0
+LINE_NUMBER        int      true       21
+NAME               string   true       clk_pl_0
+PERIOD             double   true       20.000
+SOURCE_PINS        string*  true       design_1_i/zynq_ultra_ps_e_0/inst/PS8_i/PLCLK[0]
+SYSTEM_JITTER      double   true       0.050
+WAVEFORM           double*  true       0.000 10.000
+WEIGHT             double   true       1.000
+Property           Type     Read-only  Value
+CLASS              string   true       clock
+DIVIDE_BY          int      true       10
+FILE_NAME          string   true       D:/Project/AXU5EV/hardware/axu5ev/motor_control/constraints/adc_j15.xdc
+INPUT_JITTER       double   true       0.000
+IS_GENERATED       bool     true       1
+IS_INVERTED        bool     true       0
+IS_PROPAGATED      bool     true       1
+IS_RENAMED         bool     true       0
+IS_USER_GENERATED  bool     true       1
+IS_VIRTUAL         bool     true       0
+LINE_NUMBER        int      true       46
+MASTER_CLOCK       string   true       needs timing update***
+NAME               string   true       an9238_clk_a
+PERIOD             double   true       needs timing update***
+SOURCE             pin      true       design_1_i/adc_observer_0/s_axi_aclk
+SOURCE_PINS        string*  true       adc_clk_a_o
+SYSTEM_JITTER      double   true       0.050
+WAVEFORM           double*  true       needs timing update***
+WEIGHT             double   true       1.000
+Property           Type     Read-only  Value
+CLASS              string   true       clock
+DIVIDE_BY          int      true       10
+FILE_NAME          string   true       D:/Project/AXU5EV/hardware/axu5ev/motor_control/constraints/adc_j15.xdc
+INPUT_JITTER       double   true       0.000
+IS_GENERATED       bool     true       1
+IS_INVERTED        bool     true       0
+IS_PROPAGATED      bool     true       1
+IS_RENAMED         bool     true       0
+IS_USER_GENERATED  bool     true       1
+IS_VIRTUAL         bool     true       0
+LINE_NUMBER        int      true       47
+MASTER_CLOCK       string   true       needs timing update***
+NAME               string   true       an9238_clk_b
+PERIOD             double   true       needs timing update***
+SOURCE             pin      true       design_1_i/adc_observer_0/s_axi_aclk
+SOURCE_PINS        string*  true       adc_clk_b_o
+SYSTEM_JITTER      double   true       0.050
+WAVEFORM           double*  true       needs timing update***
+WEIGHT             double   true       1.000
+Property           Type     Read-only  Value
+CLASS              string   true       clock
+INPUT_JITTER       double   true       0.000
+IS_GENERATED       bool     true       1
+IS_INVERTED        bool     true       0
+IS_PROPAGATED      bool     true       1
+IS_RENAMED         bool     true       0
+IS_USER_GENERATED  bool     true       0
+IS_VIRTUAL         bool     true       0
+MASTER_CLOCK       string   true       needs timing update***
+MULTIPLY_BY        int      true       2
+NAME               string   true       clk_out1_design_1_pwm_clock_0
+PERIOD             double   true       needs timing update***
+SOURCE             pin      true       design_1_i/pwm_clock/inst/mmcme4_adv_inst/CLKIN1
+SOURCE_PINS        string*  true       design_1_i/pwm_clock/inst/mmcme4_adv_inst/CLKOUT0
+SYSTEM_JITTER      double   true       0.050
+WAVEFORM           double*  true       needs timing update***
+WEIGHT             double   true       1.000
+Property           Type     Read-only  Value
+CLASS              string   true       clock
+INPUT_JITTER       double   true       0.000
+IS_GENERATED       bool     true       0
+IS_PROPAGATED      bool     true       1
+IS_USER_GENERATED  bool     true       0
+IS_VIRTUAL         bool     true       0
+NAME               string   true       dbg_hub/inst/BSCANID.u_xsdbm_id/SWITCH_N_EXT_BSCAN.bscan_inst/SERIES7_BSCAN.bscan_inst/INTERNAL_TCK
+PERIOD             double   true       50.000
+SOURCE_PINS        string*  true       dbg_hub/inst/BSCANID.u_xsdbm_id/SWITCH_N_EXT_BSCAN.bscan_inst/SERIES7_BSCAN.bscan_inst/INTERNAL_TCK
+SYSTEM_JITTER      double   true       0.050
+WAVEFORM           double*  true       0.000 25.000
+WEIGHT             double   true       1.000

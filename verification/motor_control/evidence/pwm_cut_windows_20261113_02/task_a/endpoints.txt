@@ -1,0 +1,5 @@
+cut_pin=design_1_i/pwm_control_0/inst/adc_anchor
+nets=design_1_i/adc_observer_0/inst/pwm_anchor_o design_1_i/adc_observer_0/pwm_anchor_o design_1_i/adc_observer_0_pwm_anchor_o design_1_i/pwm_control_0/adc_anchor design_1_i/pwm_control_0/inst/adc_anchor design_1_i/pwm_control_0/inst/pwm/adc_anchor design_1_i/pwm_control_0/inst/pwm/timebase/adc_anchor
+drivers=design_1_i/adc_observer_0/inst/pwm_anchor_o_reg/Q
+endpoint=design_1_i/pwm_control_0/inst/pwm/timebase/anchor_delayed_reg
+data_pin=design_1_i/pwm_control_0/inst/pwm/timebase/anchor_delayed_reg/D

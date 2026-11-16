@@ -1,0 +1,23 @@
+
+****** xsim v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Fri Nov 13 15:28:23 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source xsim.dir/pwm_cut_timing/xsim_script.tcl
+# xsim {pwm_cut_timing} -autoloadwcfg -runall
+Time resolution is 1 ps
+run -all
+PWM_CUT_SCENARIO anchor/restart t_ns=700.200
+PWM_CUT_START t_ns=804.000 cycle=80 phase=4997 anchor_to_edge_ns=9.800
+PWM_CUT_ANCHOR t_ns=810.200 width_ns=20.000 pulses=1
+PWM_CUT_PEAK t_ns=834.000 cycle=83 phase=5000
+PWM_CUT_SCENARIO offer t_ns=880.200 seq=1 abc=1000/2500/4000
+Fatal: PWM_CUT_FAIL unique source offer t=930000 phase=5009 seq=0
+Time: 930 ns  Iteration: 0  Process: /pwm_cut_tb/check  Scope: pwm_cut_tb.check  File: D:/Weiwen Li/AXU5EV/pwm_cut_sdf_20261113_1522_buildfix/pwm_cut_tb.sv Line: 78
+$finish called at time : 930 ns
+exit
+INFO: [Common 17-206] Exiting xsim at Fri Nov 13 15:28:26 2026...

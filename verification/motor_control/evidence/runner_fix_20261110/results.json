@@ -1,0 +1,94 @@
+{
+  "status": "PASS",
+  "scope": "short mock tools only; no Vivado/HDL/SDF/board",
+  "platform": "win32",
+  "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "cases": [
+    {
+      "case": "normal",
+      "status": "PASS",
+      "observed": "EXITED_OK",
+      "live_stdout_stderr": true,
+      "natural_exit_code": 0,
+      "observed_processes": 5,
+      "remaining": 0,
+      "unrelated_process_unchanged": true
+    },
+    {
+      "case": "failure",
+      "status": "PASS",
+      "observed": "FAILED_EXIT",
+      "live_stdout_stderr": true,
+      "natural_exit_code": 7,
+      "observed_processes": 5,
+      "remaining": 0,
+      "unrelated_process_unchanged": true
+    },
+    {
+      "case": "timeout",
+      "status": "PASS",
+      "observed": "TIMED_OUT",
+      "live_stdout_stderr": true,
+      "natural_exit_code": null,
+      "observed_processes": 5,
+      "remaining": 0,
+      "unrelated_process_unchanged": true
+    },
+    {
+      "case": "cancel",
+      "status": "PASS",
+      "observed": "CANCELLED",
+      "live_stdout_stderr": true,
+      "natural_exit_code": null,
+      "observed_processes": 5,
+      "remaining": 0,
+      "unrelated_process_unchanged": true
+    },
+    {
+      "case": "powershell_normal",
+      "status": "PASS",
+      "mock_flow_status": "PASS",
+      "real_sdf": "NOT_RUN"
+    },
+    {
+      "case": "powershell_fail_xelab",
+      "status": "PASS",
+      "mock_flow_status": "FAILED_EXIT",
+      "real_sdf": "NOT_RUN"
+    },
+    {
+      "case": "powershell_timeout",
+      "status": "PASS",
+      "mock_flow_status": "TIMED_OUT",
+      "real_sdf": "NOT_RUN"
+    },
+    {
+      "case": "powershell_cancel",
+      "status": "PASS",
+      "mock_flow_status": "CANCELLED",
+      "real_sdf": "NOT_RUN"
+    },
+    {
+      "case": "missing_annotation",
+      "status": "PASS",
+      "invalid_result": "REJECTED"
+    },
+    {
+      "case": "timing_violation",
+      "status": "PASS",
+      "invalid_result": "REJECTED"
+    },
+    {
+      "case": "missing_pass",
+      "status": "PASS",
+      "invalid_result": "REJECTED"
+    },
+    {
+      "case": "sdf_warning",
+      "status": "PASS",
+      "invalid_result": "REJECTED"
+    }
+  ],
+  "unrelated_process_unchanged": true,
+  "real_sdf": "NOT_RUN"
+}

@@ -1,0 +1,22 @@
+{
+  "PWM_CUT_SDF_SLOW": "FAIL_HARD_STOP_SUSPECTED_NATIVE_CUT_BOUNDARY",
+  "PWM_CUT_SDF_FAST": "NOT_RUN",
+  "FULL_CHAIN_SDF": "NOT_COMPLETED",
+  "FULL_DESIGN_STA": "PRIOR_EVIDENCE_UNCHANGED_NOT_RERUN",
+  "FULL_CHAIN_RTL": "PRIOR_EVIDENCE_UNCHANGED_NOT_RERUN",
+  "candidates_used": 1,
+  "candidate_limit": 3,
+  "syntax_xvlog_seconds": 1.047,
+  "slow_xvlog_seconds": 0.766,
+  "slow_xelab_seconds": 10.25,
+  "slow_annotation_confirmed": true,
+  "slow_xsim_last_wall_seconds": 84.469,
+  "slow_xsim_last_simulation_ns": 500000,
+  "normal_dynamic_exit": false,
+  "pass_marker_count": 0,
+  "complete_dynamic_coverage": false,
+  "timing_sdf_or_fatal_diagnostics_observed": 0,
+  "hard_stop": "HARD_STOP.json",
+  "board": "NOT_RUN",
+  "changes": "TB and dedicated runner only; existing netlist/SDF unchanged; no DCP/export/implementation/hash"
+}

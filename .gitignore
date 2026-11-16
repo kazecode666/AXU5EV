@@ -50,3 +50,7 @@ Thumbs.db
 /generated/encoder/feedback_c/*
 !/generated/encoder/feedback_c/*.c
 !/generated/encoder/feedback_c/*.h
+
+/generated/motor_control/AXU5EV_Duty_Adapter_HDL/*
+!/generated/motor_control/AXU5EV_Duty_Adapter_HDL/Duty_To_Compare.sv
+!/generated/motor_control/AXU5EV_Duty_Adapter_HDL/Duty_Scale_Core.sv

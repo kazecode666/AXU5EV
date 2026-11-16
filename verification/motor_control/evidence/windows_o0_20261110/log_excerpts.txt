@@ -1,0 +1,31 @@
+BOUNDED HEAD
+Vivado Simulator v2026.1
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: E:/AMDDesignTools/2026.1/Vivado/bin/unwrapped/win64.o/xelab.exe work.timing_tb work.glbl -s pwm_timing -debug off -timescale 1ns/1ps -L simprims_ver -L unisims_ver -L secureip -transport_int_delays -pulse_r 0 -pulse_int_r 0 -pulse_e 0 -pulse_int_e 0 -sdfmax /timing_tb/dut=D:/Project/AXU5EV/.runtime/motor_control/hardware_02/timing_pl/motor_slow.sdf --O0 --stats --verbose 1
+Multi-threading is on. Using 30 slave threads.
+INFO: [XSIM 43-3427] Library Mapping: Sourcing library mapping file "E:\AMDDesignTools\2026.1\Vivado\data/xsim/xsim.ini".
+INFO: [VRFC 10-8707] VHDL library search path for library "std" is now "E:/AMDDesignTools/2026.1/Vivado/data/xsim/vhdl/std_2008"
+INFO: [VRFC 10-8319] The Verilog library search path for library "std" is now "E:/AMDDesignTools/2026.1/Vivado/data/xsim/vhdl/std_2008"
+INFO: [VRFC 10-8707] VHDL library search path for library "ieee" is now "E:/AMDDesignTools/2026.1/Vivado/data/xsim/vhdl/ieee_2008"
+INFO: [VRFC 10-8319] The Verilog library search path for library "ieee" is now "E:/AMDDesignTools/2026.1/Vivado/data/xsim/vhdl/ieee_2008"
+INFO: [VRFC 10-8707] VHDL library search path for library "ieee_proposed" is now "E:/AMDDesignTools/2026.1/Vivado/data/xsim/vhdl/ieee_proposed_2008"
+INFO: [VRFC 10-8319] The Verilog library search path for library "ieee_proposed" is now "E:/AMDDesignTools/2026.1/Vivado/data/xsim/vhdl/ieee_proposed_2008"
+INFO: [VRFC 10-8707] VHDL library search path for library "vl" is now "E:/AMDDesignTools/2026.1/Vivado/data/xsim/vhdl/vl_2008"
+INFO: [VRFC 10-8319] The Verilog library search path for library "vl" is now "E:/AMDDesignTools/2026.1/Vivado/data/xsim/vhdl/vl_2008"
+INFO: [VRFC 10-8707] VHDL library search path for library "synopsys" is now "E:/AMDDesignTools/2026.1/Vivado/data/xsim/vhdl/synopsys_2008"
+INFO: [VRFC 10-8319] The Verilog library search path for library "synopsys" is now "E:/AMDDesignTools/2026.1/Vivado/data/xsim/vhdl/synopsys_2008"
+INFO: [VRFC 10-8707] VHDL library search path for library "uvm" is now "E:/AMDDesignTools/2026.1/Vivado/data/xs
+BOUNDED TAIL
+d_design_1_i/adc_observer_0/inst/auto_path\.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg\[200\]_i_1__1/S.
+INFO: [XSIM 43-3437] Processing SDF port delay for  port S for SDG instance motor_routed/design_1_i/adc_observer_0/inst/auto_path.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg[200]_i_1__1 of module CARRY8.
+INFO: [XSIM 43-3498] genericName = tipd_design_1_i/adc_observer_0/inst/auto_path\.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg\[208\]_i_1__1/S.
+INFO: [XSIM 43-3437] Processing SDF port delay for  port S for SDG instance motor_routed/design_1_i/adc_observer_0/inst/auto_path.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg[208]_i_1__1 of module CARRY8.
+INFO: [XSIM 43-3498] genericName = tipd_design_1_i/adc_observer_0/inst/auto_path\.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg\[208\]_i_1__1/S.
+INFO: [XSIM 43-3437] Processing SDF port delay for  port S for SDG instance motor_routed/design_1_i/adc_observer_0/inst/auto_path.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg[208]_i_1__1 of module CARRY8.
+INFO: [XSIM 43-3498] genericName = tipd_design_1_i/adc_observer_0/inst/auto_path\.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg\[208\]_i_1__1/S.
+INFO: [XSIM 43-3437] Processing SDF port delay for  port S for SDG instance motor_routed/design_1_i/adc_observer_0/inst/auto_path.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg[208]_i_1__1 of module CARRY8.
+INFO: [XSIM 43-3498] genericName = tipd_design_1_i/adc_observer_0/inst/auto_path\.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg\[208\]_i_1__1/S.
+INFO: [XSIM 43-3437] Processing SDF port delay for  port S for SDG instance motor_routed/design_1_i/adc_observer_0/inst/auto_path.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg[208]_i_1__1 of module CARRY8.
+INFO: [XSIM 43-3498] genericName = tipd_design_1_i/adc_observer_0/inst/auto_path\.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg\[208\]_i_1__1/S.
+INFO: [XSIM 43-3437] Processing SDF port delay for  port S for SDG instance motor_routed/design_1_i/adc_observer_0/inst/auto_path.controller/foc/core/u_SVPWMG/u_T1T2_Calculate/u_Fcn2/u_Defined_Quotient/r10_p_reg[208]_i_1__1 of module CARRY8.

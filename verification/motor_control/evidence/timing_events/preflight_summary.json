@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "scope": "TIMING_TESTBENCH_PREFLIGHT_NOT_SDF",
+  "pass_marker": "MOTOR_TIMING_RTL_PASS checks=3035 samples=14 edges=36 periods=11 frames=15 valid=8 invalid=7 publications=15 adoptions=6 q_events=6 offers=7 distinct=5 late=1 lock=1 rearm=2 disarm=2 p0=1 release=5 snapshots=15 min_dead_ns=1000.000 max_switch_dead_ns=1000.000 q_delay_ns=[0.000,0.000] sample_to_publish_ns=[50200.000,50200.000] adc_minus_peak_ns=[0.000,0.000]",
+  "run_dir": "D:\\Project\\AXU5EV\\.runtime\\motor_control\\timing_preflight_03",
+  "board": "NOT_RUN",
+  "old_pr24_b1_regression": "NOT_RUN"
+}

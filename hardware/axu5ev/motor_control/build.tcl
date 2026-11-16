@@ -7,18 +7,6 @@ set mc_out [file normalize [lindex $argv 0]]
 set mc_stage [expr {$argc>1 ? [lindex $argv 1] : "validate"}]
 set mc_vendor [expr {$argc>2 ? [file normalize [lindex $argv 2]] : [file join $mc_root .runtime ax03b2 vendor_ps design_1.bd]}]
 if {$mc_stage ni {base integrate synth audit validate build all reports}} {error "unknown stage"}
-proc mc_sources {root kind} {
-    set f [open $root/hardware/axu5ev/motor_control/sources.list r]
-    set sources [list]
-    foreach line [split [read $f] "\n"] {
-        set fields [split [string trim $line] |]
-        if {[lindex $fields 0] eq $kind} {
-            lappend sources [file normalize [file join $root [lindex $fields 1]]]
-        }
-    }
-    close $f
-    return $sources
-}
 source $mc_root/hardware/axu5ev/motor_control/bd/adc.tcl
 proc mc_base {root out vendor} {
     # Same vendor DDR/UART preset and accepted GEM3/TTC PS configuration as C1.

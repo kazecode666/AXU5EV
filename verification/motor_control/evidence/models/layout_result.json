@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "scopes": [
+    "AXU5EV_Motor_Control_System",
+    "AXU5EV_Duty_Adapter_HDL",
+    "AXU5EV_Duty_Adapter_HDL/Duty_To_Compare"
+  ],
+  "overlapping_block_pairs": 0,
+  "outports_repositioned": 18,
+  "terminators_repositioned": 11,
+  "extra_constant_overlap_resolved": "Encoder_Config_Version moved up 25px; preexisting 3px intersection",
+  "math_changed": false,
+  "numeric_rerun": "NOT_RUN layout only"
+}

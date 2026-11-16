@@ -1,0 +1,29 @@
+{
+  "status": "PASS_WINDOWS_HANDOFF_ENTRY_ONLY",
+  "cases": [
+    {
+      "case": "windows_wrapper_dry_slow",
+      "status": "PASS_NOT_SDF"
+    },
+    {
+      "case": "windows_wrapper_dry_fast",
+      "status": "PASS_NOT_SDF"
+    },
+    {
+      "case": "fast_without_slow",
+      "status": "REJECTED"
+    },
+    {
+      "case": "mock_windows_slow",
+      "status": "PASS_MOCK_ONLY"
+    },
+    {
+      "case": "mock_windows_fast",
+      "status": "PASS_MOCK_ONLY"
+    }
+  ],
+  "real_sdf": "NOT_RUN",
+  "linux": "NOT_TESTED_DEFERRED",
+  "old_archive": "UNCHANGED",
+  "old_12_runner_tests": "REUSED_NOT_RERUN"
+}

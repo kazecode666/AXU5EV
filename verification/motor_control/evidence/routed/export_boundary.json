@@ -1,0 +1,45 @@
+{
+  "hardware": ".runtime/motor_control/hardware_02",
+  "original_dcp_bit_xsa_unchanged": true,
+  "synthesis_place_route_repeated_for_export_fix": false,
+  "hand_edited_netlist_or_sdf": false,
+  "attempts": [
+    {
+      "log": ".runtime/motor_control/hardware_02.pl_sdf.log",
+      "boundary": "Blackbox both design_1_i/pwm_ila and dbg_hub",
+      "status": "FAIL",
+      "detail": "Vivado Common17-70 NULL ParentLH on the routed PWM pending alias after debug-boundary mutation. Original DCP, bit and XSA remain intact."
+    },
+    {
+      "log": ".runtime/motor_control/export_probe_01.console.log",
+      "boundary": "Hub first, then ILA (not reached)",
+      "status": "FAIL",
+      "detail": "Hub-only blackbox raised Constraints18-608 shared clk_out1 versus sl_iport0[1] site-clock conflicts. Alias inspection before mutation showed the pending signal connected to real PWM loads and ILA probe0[25]."
+    },
+    {
+      "log": ".runtime/motor_control/export_probe_02.console.log",
+      "boundary": "No blackbox; entire original routed view",
+      "status": "PASS_DIAGNOSTIC_CONTROL",
+      "detail": "Native timesim Verilog and both slow/fast SDF export succeeded. This control retains the unsupported protected ILA model and was not selected for functional timing verification."
+    },
+    {
+      "log": ".runtime/motor_control/export_probe_03.console.log",
+      "boundary": "Blackbox only PWM ILA; retain structural dbg_hub",
+      "status": "PASS",
+      "detail": "Native timesim Verilog and both slow/fast SDF export succeeded without alias or shared-clock conflicts."
+    },
+    {
+      "log": ".runtime/motor_control/hardware_02.pl_sdf_02.log",
+      "entry": "hardware/axu5ev/motor_control/export_timing.tcl",
+      "environment": "MC_AUTO=1",
+      "boundary": "Blackbox only design_1_i/pwm_ila; retain structural dbg_hub",
+      "status": "PASS",
+      "selected_output": ".runtime/motor_control/hardware_02/timing_pl",
+      "outputs": ["motor_routed.v", "motor_slow.sdf", "motor_fast.sdf"],
+      "detail": "Actual production entry repeated this export successfully. It does not save over the original DCP and performs no synthesis, placement or rerouting."
+    }
+  ],
+  "compatibility": "Only MC_AUTO=1 selects ILA-only blackbox. Existing non-AUTO default still blackboxes both debug instances.",
+  "scope": "Actual full routed hardware remains in STA/bit/XSA. The timing view makes only the unsupported ILA opaque; functional clock, AXI, ADC/QEP, FOC and PWM cells/nets remain routed. ILA/JTAG debug functionality is not validated.",
+  "board": "NOT_RUN"
+}

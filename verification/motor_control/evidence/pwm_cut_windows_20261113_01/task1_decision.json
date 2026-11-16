@@ -1,0 +1,14 @@
+{
+  "status": "ACCEPTED_FOR_BOUNDED_LOCAL_SIMULATION",
+  "export_elapsed_seconds": 228.5855905,
+  "cut": "design_1_i/pwm_control_0/inst",
+  "retained_register_groups": "reviewed in cut_audit.md",
+  "sdf_static_match": "1196 nonconstant primitives matched both corners; runtime annotation still required",
+  "clock_boundary": "related 50/100MHz cut inputs; outside clock tree excluded",
+  "reset_boundary": "two native reset replica inputs tied to same active-low reset stimulus",
+  "limitations": [
+    "fast_inhibit is already unconnected in original full routed view; no coverage claimed",
+    "upstream ADC sticky rearm policy is environment assumption, not local DUT property",
+    "external clock/reset trees, FOC and outside interconnect excluded"
+  ]
+}

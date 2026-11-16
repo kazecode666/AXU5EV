@@ -1,0 +1,26 @@
+{
+  "status": "STOPPED_AT_600S_BOUND",
+  "feasibility": "NOT_PROVEN",
+  "invocations": 1,
+  "source": ".runtime/motor_control/hardware_02/pwm_adc_routed.dcp",
+  "run": ".runtime/motor_control/routed_boundary_probe_01",
+  "last_phase": "boundary get_timing_paths loop; no completed path-preservation report",
+  "completed": "DCP load, actual register groups, first-receiver/output-source connectivity lists",
+  "incomplete": [
+    "boundary timing proof",
+    "shared reset-driver query",
+    "safe partial-cut proof",
+    "temporary view preservation"
+  ],
+  "temp_view_exports": 0,
+  "xelab_runs": 0,
+  "sdf_annotation": "NOT_RUN",
+  "sdf_dynamic": "NOT_RUN",
+  "checked_pids": [
+    31356,
+    23748
+  ],
+  "remaining_task_processes": 0,
+  "retry_authorized": false,
+  "production_writes": 0
+}
