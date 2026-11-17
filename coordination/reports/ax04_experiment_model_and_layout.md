@@ -72,3 +72,78 @@ FOC辅助`gm_AXU5EV_Experiment_FOC`的输出延时插入步骤出现`Failed to a
 当前为 `HW_BINDING_PENDING`、`BOARD_NOT_RUN`。AXI原子帧读写、GIC/PL中断注册、驱动IO与物理默认状态、服务快照的抢占一致性及匹配bit/XSA/ELF属于交付B。物理电流标定与总运动质量仍未落实。交付A停在Draft PR Review。
 
 Issue44的独立分析及PR41冻结验收证据分别保留在各自工作线。
+
+## PR46 Review修订 — 对齐安全、就地编辑与呈现
+
+2026-11-17，继续同一Draft PR46执行Task1～Task4。本节记录新候选的实际范围，前文交付A的既有结果保留其历史范围。[本轮执行评论](https://github.com/kazecode666/AXU5EV/pull/46#issuecomment-6948838671)
+
+### R1—R5修改位置
+
+以下模型路径均位于 `AXU5EV_Motor_Control_System` 内。
+
+| Review项 | 实际修改位置 | 行为与呈现 |
+|---|---|---|
+| R1 对齐许可 | `Motor_Control_ISR/Alignment_Permit` | 就地完整函数读取软件初始化、位置/电流/测速历史、当前故障、PWM及对齐请求、REL/EN、OE、F_Reset和复位条件。许可由上游合同推导，PI_Reset按既有非零语义解释，启动与保持条件可直接查看 |
+| R2 终态优先级与安全处理 | `Motor_Control_ISR/Qualified_Runtime/Alignment_Task/Enabled_Original_MIL/Angle_Init`、`Runtime_Advance_Or_Safety`、`Qualified_Runtime/Host_New_Frame`及`Qualified_Runtime/Motion_Control/New_Frame_Only` | 进行中许可丢失中止并撤销本次对齐结果。复位/故障/许可撤销优先于RAMP_DOWN末拍完成。Start释放后再次触发才接受新启动。安全处理在重复或无效帧时仍可执行，Host/积分/调度计时按新帧推进 |
+| R3 实际使用位置可编辑 | `Motor_Control_ISR/Feedback_Measurement`、`Controller_Driver_IO_Manager`、`Qualified_Runtime/Motion_Control/Travel_Safety_Manager` | 三实例固化为普通子系统，`LinkStatus=none`且`ReferenceBlock`为空。R5日常加载与生成实际取主模型，原R5库及用户对它的本地修改保留在原路径 |
+| R4 完整逐采样算法 | `Feedback_Measurement/Frame_And_Count_Guard`、`Frame_And_Fault_Qualification`、`Reference_Commit`、`Capture_Latest_Observation`和`Host_New_Frame/Host_Core` | 计数、资格、参考与遥测算法完整位于块内。Host附有点位及Scurve局部函数。`Bind_Real_Feedback`采用可见字段绑定和布尔门控，有限值检查在其`Finite_Command`块内 |
+| R5 可读性与接口 | ISR、反馈内部、Runtime字段旁注及根层接口说明 | 紫色中文分区，测量→资格→Runtime→参考封装主链，辅助长线使用局部Goto/From。用户重排的顶层块位置保留，Stateflow五态图保留原有节点及迁移布局 |
+
+几何回查中五个Stateflow状态框与原位置一致，迁移端点差不超过1e-4px。默认迁移中点有4px归一化偏移，标签约3px，旁注不足1px。布局提交为 `75b7bde`，这些小幅显示偏移按实际回读记录。
+
+许可只描述软件已知条件，物理电流建立及硬件绑定状态仍为待完成。正常重复帧保持位置/历史并将当次速度标为无效，已有完整51项历史可用于对齐保持判断。重复帧本身沿用既有故障语义，明确复位或许可撤销则进入安全处理。正常对齐继续采用10000/30000/2000拍，位置/速度分频及机械连续计数语义通过定向验证。
+
+反馈块内已标出ID正常增量500、50MHz时戳正常增量5000，以及51项位置对应50个100us间隔。status位0～6分别表示启动、重复、缺帧、配置历史重置、无效编码器/非法跳变、半圈模糊和重新同步，资格块采用具名位组合替代裸116掩码。软限仍位于最终速度参考与Speed_Loop之间，向外禁止、向内允许。直接Iq测试的软限覆盖范围另行标注，硬±120mm及显式软件清错保持独立合同。
+
+根层20/41/8/5字段接口、端口顺序与类型保持。`Initialized`表示软件初始化完成，`Reference_Commit`封装参考/许可/版本，AXI事务属于后续绑定。`Service_Request`提供最近遥测和计数，通信及长记录属于后续实现。驱动子系统依赖上层`system_fault`输入施加软件禁止，低有效ERRI_n/ERRU_n、F_Reset与软件清错分别处理。
+
+### 活动来源与保留来源
+
+日常R5算法的活动源已固化在上述三个使用位置。来源检查实际确认项目库链接和Model Reference均为0，逐块列出完整MATLAB Function及局部函数，外部逐采样`axu5ev_experiment_*`调用为0。打开、检查和直接R5生成共用来源检查，PL生成选择沿用其原有路径。
+
+以下七份旧外部函数逐文件迁入 `simulation/tests/experiment/oracles/`，作为历史测试来源显式选用。历史R5库继续保留于 `simulation/experiment/r5/AXU5EV_Experiment_R5_Algorithms.slx`，日常R5加载选择取主模型。
+
+```text
+axu5ev_experiment_encoder_guard.m
+axu5ev_experiment_frame_guard.m
+axu5ev_experiment_bind_runtime_input.m
+axu5ev_experiment_reference_commit.m
+axu5ev_experiment_telemetry.m
+axu5ev_experiment_point_move_step.m
+axu5ev_experiment_scurve_profile.m
+```
+
+### 本轮实际验证
+
+旧候选由原生成C的主机MEX复现7项反例，包含REL/EN/OE/PWM请求四种拒绝条件，以及RAMP_DOWN末拍Init_Reset、外部故障和许可撤销三种事件。旧结果记录为 `COUNTEREXAMPLES_REPRODUCED`，反例的安全断言均失败。本轮修复后以同类事件验证新的状态与输出合同。
+
+独立Review随后发现PI_Reset的非零语义边界。源版本1.94的实际C在 `PI_Reset=0.25` 时仍进入RAMP_ID并产生0.00015A对齐命令。该反例已记录，修复 `2a9692d` 将许可检查改为非零判定，源版本为1.95，并在既有测试中追加9项检查、186次调用。下面生成与数值结果来自最终1.95候选，双入口隔离针对本轮来源调整执行。
+
+| 验证对象 | 实际结果 | 范围 |
+|---|---|---|
+| 最终R5生成 | PASS | `r5_final_03`，ERT/Cortex-R配置导出15份C/H，实际BuildInfo中的5份C编译为主机transport-only MEX，源与C头部版本均为1.95 |
+| 生成C定向集合 | PASS | 317项检查、275136次IRQ函数调用，初始化、反馈、清错、驱动、行程、对齐与服务 |
+| 对齐安全 | PASS | 42项检查、227186次调用，拒绝开始、旧Start保持、新显式Start、三进行态中止、末拍优先级、重复及无效帧安全事件、非零PI复位 |
+| 正常五态 | PASS | 正常流程42130次调用，跃迁0/10000/40000/42000，一次性偏置及机械计数保持，Id/Iq限值0.5A/0.3A |
+| 反馈方向及回绕 | PASS | 183帧，正反向uint32计数回绕、帧号与uint64时戳回绕，速度±100mm/s |
+| 行程 | PASS | 5490次调用，4项软限方向组合及2项含边界硬限，PI/Init复位保持故障，显式清错恢复 |
+| 双入口和依赖隔离 | PASS | 两种打开顺序，各17项活动来源、7项退役helper退出日常路径、75参数/模型及6项Signal保存重开 |
+| 主模型检查 | PASS | 844块边界检查及端口/连线/Stateflow检查通过，活动项目库链接、Model Reference及外部逐采样调用均为0 |
+| ARM执行与硬件绑定 | NOT_RUN | `HW_BINDING_PENDING`、`BOARD_NOT_RUN` |
+
+最终1.95候选生成目录为 `generated/experiment/pr46_review_01/r5_final_03`，原始生成日志和定向结果采用 `.runtime/experiment/pr46_review_01/r5_final_03`，日志为同级 `r5_final_03.log`。较早的 `r5`、`r5_final`、`r5_final_02`及反例记录继续保留。精简结果与截图位于[本轮证据目录](../../verification/experiment/pr46_review_01)。
+
+最终生成日志保留两类警告。聚合`runtime_y`的部分来源缺少有效初始条件，因此Outport使用默认0。实际初始化安全输出由当次断言验证。直接读取RTW.BuildInfo时仍有原编译目录提示，后续实际源编译与MEX验证通过。这些主机结果的范围限于生成算法，IRQ/GIC/原子AXI、驱动电气、服务快照抢占一致性及目标ARM执行仍待交付B。
+
+### 关键截图
+
+- [用户顶层布局](../../verification/experiment/pr46_review_01/main_user_layout.png)
+- [ISR主链及安全支路](../../verification/experiment/pr46_review_01/isr.png)
+- [反馈内部](../../verification/experiment/pr46_review_01/feedback.png)
+- [对齐状态与优先级](../../verification/experiment/pr46_review_01/alignment_state_priority.png)
+- [对齐许可块内实际源码排印](../../verification/experiment/pr46_review_01/alignment_permit_source.png)
+- [驱动合同](../../verification/experiment/pr46_review_01/driver.png)
+- [行程速度参考路径](../../verification/experiment/pr46_review_01/travel_speed_path.png)
+- [Runtime字段标注](../../verification/experiment/pr46_review_01/runtime_field_map.png)
+
+本轮继续在PR46保持Draft并等待Review，参数、PI及PL HDL保持各自既有候选范围。板卡及电机操作继续等待相应硬件阶段授权。

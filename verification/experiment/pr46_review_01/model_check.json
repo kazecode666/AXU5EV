@@ -1,0 +1,90 @@
+{
+  "status": "CHECK_PASS",
+  "sources": {
+    "model": "AXU5EV_Motor_Control_System",
+    "file": "D:\\Project\\AXU5EV\\simulation\\experiment\\AXU5EV_Motor_Control_System.slx",
+    "loaded_before": true,
+    "dirty": "off"
+  },
+  "boundaries": {
+    "checked_blocks": 844,
+    "model_references": 0,
+    "local_r5_source": {
+      "status": "MAIN_LOCAL_R5_SOURCE_PASS",
+      "editable_instances": [
+        "AXU5EV_Motor_Control_System/Motor_Control_ISR/Feedback_Measurement",
+        "AXU5EV_Motor_Control_System/Motor_Control_ISR/Controller_Driver_IO_Manager",
+        "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Motion_Control/Travel_Safety_Manager"
+      ],
+      "project_library_links": 0,
+      "model_references": 0,
+      "matlab_function_blocks": [
+        {
+          "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Alignment_Permit",
+          "local_functions": [
+            "f"
+          ]
+        },
+        {
+          "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Bind_Real_Feedback/Finite_Command",
+          "local_functions": [
+            "f"
+          ]
+        },
+        {
+          "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Capture_Latest_Observation",
+          "local_functions": [
+            "f"
+          ]
+        },
+        {
+          "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Feedback_Measurement/Frame_And_Count_Guard",
+          "local_functions": [
+            "f",
+            "count_delta",
+            "mod32diff",
+            "mod64diff"
+          ]
+        },
+        {
+          "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Frame_And_Fault_Qualification",
+          "local_functions": [
+            "f"
+          ]
+        },
+        {
+          "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Host_New_Frame/Host_Core",
+          "local_functions": [
+            "Simple_Host",
+            "axu5ev_experiment_point_move_step",
+            "axu5ev_experiment_scurve_profile"
+          ]
+        },
+        {
+          "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Motion_Control/Travel_Safety_Manager",
+          "local_functions": [
+            "Travel_Safety_Manager"
+          ]
+        },
+        {
+          "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Reference_Commit",
+          "local_functions": [
+            "f"
+          ]
+        },
+        {
+          "path": "AXU5EV_Motor_Control_System/NonRealtime_Service/Count_Service_Call",
+          "local_functions": [
+            "f"
+          ]
+        }
+      ],
+      "checked_function_namespace": "axu5ev_experiment_*",
+      "external_per_sample_calls": 0
+    }
+  },
+  "work_directory": "D:\\Project\\AXU5EV\\.runtime\\experiment\\pr46_review_01\\check_final_02",
+  "parameter_source": "D:\\Project\\AXU5EV\\simulation\\experiment\\parameters\\axu5ev_experiment_parameters.m",
+  "hardware": "HW_BINDING_PENDING",
+  "board": "BOARD_NOT_RUN"
+}
