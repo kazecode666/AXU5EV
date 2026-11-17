@@ -1,6 +1,6 @@
 function [theta_q32,phase_count,valid,result_strobe,version] = encoder_angle_step(sample_strobe,count,ready,zero_count,phase_offset_count,direction,config_version)
 %#codegen
-% Observation-only electrical angle. FOC interface: signed40, radians Q32.
+% Frozen PR41 oracle for the visible angle graph and retained serial engine.
 % int64 stores the Q32 bits; generated output is narrowed only by the consumer.
 % Test scale: 30000 effective decoded counts/electrical period, NOT x4 again.
 % One bit/clock modulo reduction avoids a wide divider in the 50MHz domain.

@@ -1,5 +1,5 @@
 function result=motor_control_run(output_dir,trace_path,wait_for_completion)
-% Unique safe executable entry: always isolate frozen dependencies from user models.
+% Isolate current shared feedback components and the accepted frozen FOC.
 root=fileparts(fileparts(fileparts(mfilename('fullpath'))));
 if nargin<2,trace_path='';end
 if nargin<3,wait_for_completion=true;end

@@ -1,6 +1,6 @@
 function [position_mm,speed_mm_s,position_valid,speed_valid,history_count,status,continuous_count] = encoder_position_speed(raw_count,sample_id,sample_tick,encoder_ready,illegal_count,zero_count,reverse,config_version,nm_per_count,reset)
 %#codegen
-% ENCF software numeric source. No UART time, filter, PI or Runtime state.
+% Frozen PR41 numerical oracle. Active generation uses Caculate_measurement.
 % The physical scale is explicit: TEST 1000nm/count is 0.001mm/count once,
 % with no extra quadrature multiplier. Tick=50MHz, selected IDs normally +500.
 % Each received count displacement must be strictly within +/-2^31 counts.

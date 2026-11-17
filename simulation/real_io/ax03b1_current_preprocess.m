@@ -1,6 +1,6 @@
 function [ia_q24,ib_q24,ic_q24,offset_a_q16,offset_b_q16,cal_count_a,cal_count_b,cal_done_a,cal_done_b,cal_version,valid,clip,error,result_strobe] = ax03b1_current_preprocess(sample_strobe,raw_a,raw_b,capture_valid_a,capture_valid_b,otr_a,otr_b,cal_en,cal_restart,config_apply,config_version,offset_seed_a_q16,offset_seed_b_q16,manual_valid_a,manual_valid_b,gain_a_q24,gain_b_q24,cal_log2_N)
 %#codegen
-% New observation-only two-current path. Integer storage encodes Q16/Q24.
+% Frozen PR41 oracle for the visible shared current-processing graph.
 % config_apply atomically replaces both channels and starts a new epoch.
 % Bad samples never advance calibration. External cal_en=0 pauses it.
 % Result timing is combinational here; the generated DUT registers ALL outputs.
