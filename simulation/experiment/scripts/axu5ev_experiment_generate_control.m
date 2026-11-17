@@ -26,7 +26,7 @@ model_file=fullfile(experiment,[model '.slx']);
 oldpath=path;
 folders=Simulink.fileGenControl('getConfig');
 environment_cleanup=onCleanup(@()restore_environment(oldpath,folders)); %#ok<NASGU>
-addpath(experiment,fullfile(experiment,'r5'),fullfile(experiment,'pl'), ...
+addpath(experiment,fullfile(experiment,'pl'), ...
     fullfile(experiment,'parameters'),fullfile(root,'simulation','tests','experiment'));
 if ~bdIsLoaded(model)
     open_system(model_file);
@@ -36,11 +36,7 @@ assert(strcmpi(canonical(get_param(model,'FileName')),canonical(model_file)), ..
 assert(strcmp(get_param(model,'SimulationStatus'),'stopped'));
 assert(strcmp(get_param(model,'Dirty'),'off'), ...
     'Save the reviewed experiment source before generation.');
-library='AXU5EV_Experiment_R5_Algorithms';
-if bdIsLoaded(library)
-    assert(strcmp(get_param(library,'Dirty'),'off'), ...
-        'Save the reviewed independent R5 library before generation.');
-end
+local_r5=axu5ev_experiment_check_r5_source(model);
 
 % Work on a temporary configuration. Never save the open model from here.
 original=getActiveConfigSet(model);
@@ -132,6 +128,7 @@ if options.run_validation
     assert(strcmp(validation.status,'PASS'));
 end
 result=struct('status','PASS','model',model,'source',model_file, ...
+    'local_r5_source',local_r5, ...
     'generated_target',target,'generated_directory',generated_dir, ...
     'exported_files',{export_names},'build_info',build_info_file, ...
     'compiled_sources',{sources},'include_paths',{includes}, ...

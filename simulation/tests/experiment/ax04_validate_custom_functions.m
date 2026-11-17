@@ -1,10 +1,11 @@
 function result=ax04_validate_custom_functions(output_dir)
-% Directed equivalence check for the independently copied trajectory helpers.
+% Historical external helper oracles retained for the source-copy evidence.
+% Active per-sample algorithms are edited inside the experiment main model.
 root=fileparts(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 oldpath=path;
 cleanup=onCleanup(@()path(oldpath)); %#ok<NASGU>
 addpath(fullfile(root,'simulation','closed_loop','components'), ...
-    fullfile(root,'simulation','experiment','r5'), ...
+    fullfile(root,'simulation','tests','experiment','oracles'), ...
     fullfile(root,'simulation','experiment','pl'), ...
     fullfile(root,'simulation','experiment','parameters'));
 assert(~isfolder(output_dir),'Choose a new verification directory.');

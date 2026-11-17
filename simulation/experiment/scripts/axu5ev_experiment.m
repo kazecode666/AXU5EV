@@ -6,7 +6,7 @@ root=fileparts(fileparts(fileparts(fileparts(mfilename('fullpath')))));
 assert(isfile(fullfile(root,'AGENTS.md')),'AX04:Root','Repository root was not resolved.');
 experiment=fullfile(root,'simulation','experiment');
 addpath(experiment,fullfile(experiment,'parameters'), ...
-    fullfile(experiment,'r5'),fullfile(experiment,'pl'),fullfile(experiment,'scripts'));
+    fullfile(experiment,'pl'),fullfile(experiment,'scripts'));
 [parameters,provenance]=axu5ev_experiment_parameters();
 parameter_models={'AXU5EV_Motor_Control_System','AXU5EV_Experiment_FOC'};
 
@@ -104,7 +104,6 @@ end
 
 function sources=load_sources(experiment,selection)
 models={ ...
-    'r5','AXU5EV_Experiment_R5_Algorithms'; ...
     'pl','AXU5EV_Experiment_PL_Algorithms'; ...
     'pl','AXU5EV_Experiment_Encoder_Components'; ...
     'pl','AXU5EV_Experiment_Current_HDL'; ...
@@ -113,13 +112,13 @@ models={ ...
     'pl','AXU5EV_Experiment_FOC'; ...
     '','AXU5EV_Motor_Control_System'};
 if strcmp(selection,'open')
-    models=models([1 2 3 7 8],:);
+    models=models([1 2 6 7],:);
 elseif strcmp(selection,'parameters')
-    models=models([7 8],:);
+    models=models([6 7],:);
 elseif strcmp(selection,'generate_r5')
-    models=models([1 8],:);
+    models=models(7,:);
 elseif strcmp(selection,'generate_pl')
-    models=models(2:7,:);
+    models=models(1:6,:);
 end
 sources=struct('model',{},'file',{},'loaded_before',{},'dirty',{});
 for index=1:size(models,1)
@@ -179,6 +178,7 @@ end
 end
 
 function result=check_boundaries(model)
+local_r5=axu5ev_experiment_check_r5_source(model);
 blocks=find_system(model,'LookUnderMasks','all','FollowLinks','off','Type','block');
 excluded={'SIM_ONLY','PMLSM_Plant','Inverter_DeadTime', ...
     'Generated_Runtime_Step','Actual_P3_XSI'};
@@ -186,20 +186,9 @@ for index=1:numel(excluded)
     assert(~any(contains(blocks,excluded{index})),'AX04:ExperimentBoundary', ...
         'The experiment model contains a simulation execution block: %s',excluded{index});
 end
-for index=1:numel(blocks)
-    reference=get_param(blocks{index},'ReferenceBlock');
-    if any(startsWith(reference,{'AXU5EV_','PMLSM_'}))
-        assert(startsWith(reference,'AXU5EV_Experiment_'),'AX04:LibraryBoundary', ...
-            'A library link resolves outside the independent experiment components: %s',reference);
-    end
-end
 references=find_system(model,'LookUnderMasks','all','FollowLinks','off','BlockType','ModelReference');
-for index=1:numel(references)
-    reference=get_param(references{index},'ModelName');
-    assert(startsWith(reference,'AXU5EV_Experiment_'),'AX04:ModelBoundary', ...
-        'A model reference resolves outside the experiment components: %s',reference);
-end
-result=struct('checked_blocks',numel(blocks),'model_references',numel(references));
+result=struct('checked_blocks',numel(blocks),'model_references',numel(references), ...
+    'local_r5_source',local_r5);
 end
 
 function assert_clean(models)
