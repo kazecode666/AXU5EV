@@ -42,6 +42,12 @@ HDL/C新候选集中在 `generated/dsp_reuse/{adc,angle,feedback_c}`。原板级
 
 适配中修正了旧校准图的double类型约束和信号对象绑定。Delay的 `level` 会在复位撤销时再清历史，本候选使用 `level hold`，1493帧对照已覆盖首次有效测速。布局PNG导出曾触发Simulink链接渲染/M3I警告，相关任务窗口已从已保存模型重新打开，库链接resolved，独立batch模型和数值检查通过。布局导出文件留在本地 `.runtime`。
 
+## 窗口与布局整理
+
+2026-11-17按用户后续要求清点Simulink窗口。唯一Dirty对象为本轮临时 `Task1_API_Probe`，已保存到原 `.runtime/dsp_reuse/Task1_API_Probe.slx`。测试壳、生成模型及DSP来源对照窗口已关闭，交互界面保留统一模型主窗口，当前加载模型Dirty均为off。
+
+两共享库及统一模型的R5区域完成局部布局、字号及正交布线整理，7个组件层级检查均无块体重叠。三文件共530块、638条连接的端点、算法参数和函数脚本静态核对一致。原布局副本、对照记录和预览保存在 `.runtime/dsp_reuse/layout_20261117_01`，本次呈现调整沿用上节数值与生成验证证据。
+
 ## 打开、检查和生成
 
 在MATLAB MCP调用统一入口。每次选择新的证据目录。
