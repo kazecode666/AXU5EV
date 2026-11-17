@@ -1,6 +1,13 @@
-function result=ax04_validate_alignment_control(output_dir)
+function result=ax04_validate_alignment_control(output_dir,mode)
 % Full copied five-state alignment through the experiment-generated C entry.
 % Evidence keeps state boundaries and adjacent samples, with no long CSV.
+if nargin<2,mode='verify';end
+mode=validatestring(mode,{'verify','counterexample'});
+if strcmp(mode,'counterexample')
+    result=alignment_safety_cases(output_dir,mode);
+    return;
+end
+
 file=fullfile(output_dir,'alignment_control_result.json');
 assert(~isfile(file),'Choose a new alignment-verification directory.');
 if ~isfolder(output_dir)
@@ -145,6 +152,9 @@ catch err
     write_result();
     rethrow(err);
 end
+result.safety=alignment_safety_cases(output_dir,mode);
+result.normal_flow_irq_calls=calls;
+result.irq_calls=calls+result.safety.irq_calls;
 write_result();
 disp(result);
 
@@ -178,7 +188,8 @@ disp(result);
             abs(value.reference_commit(2))<=p.Experiment_Iq_Limit_A+1e-12, ...
             'AX04:AlignmentCurrentLimit','The committed debug current limits were exceeded.');
         if calls>=51
-            assert(value.reference_commit(8)==1 && value.reference_commit(6)==1, ...
+            assert(value.reference_commit(8)==1 && ...
+                value.reference_commit(6)==double(command(18)==0), ...
                 'AX04:AlignmentPermission','Healthy explicitly requested alignment lost PWM/reference permission.');
         end
         sample_id=sample_id+uint32(500);
@@ -203,4 +214,208 @@ disp(result);
         cleanup=onCleanup(@()fclose(stream)); %#ok<NASGU>
         fprintf(stream,'%s\n',jsonencode(result,PrettyPrint=true));
     end
+end
+
+function result=alignment_safety_cases(output_dir,mode)
+% Exercise the same external control entry for rejected and interrupted starts.
+% Counterexample mode records the previous candidate's actual unsafe outputs.
+strict=strcmp(mode,'verify');
+if ~isfolder(output_dir),mkdir(output_dir);end
+if strict
+    file=fullfile(output_dir,'alignment_safety_result.json');
+else
+    file=fullfile(output_dir,'alignment_counterexamples.json');
+end
+assert(~isfile(file),'Choose a new alignment safety result directory.');
+command=zeros(20,1);
+raw=uint32(12000);sample_id=uint32(0);tick=uint64(0);
+ready=true;erri=true;erru=true;clear_fault=false;
+relcon=true;encon=true;freset=false;oe_disable=false;
+trial_calls=0;total_calls=0;
+cases=struct('name',{},'passed',{},'before',{},'event',{},'after',{});
+
+% A denied level cannot become a later start when permission is restored.
+for denied={'relcon','encon','oe_disable','pwm_request'}
+    setup(denied{1});
+    command(17)=1;
+    before=call(true);
+    for index=1:3,observation=call(true);end
+    safe=aborted(observation);
+    record(['start_denied_' denied{1}],safe,before,observation,[]);
+    if strict
+        restore_permit();
+        for index=1:3,observation=call(true);end
+        record(['held_start_after_' denied{1}],rejected(observation),[],observation,[]);
+        command(17)=0;call(true);
+        command(17)=1;observation=call(true);
+        record(['new_start_after_' denied{1}],ramp_start(observation),[],observation,[]);
+    end
+end
+
+% The final RAMP_DOWN sample must consume safety before normal completion.
+for event={'init_reset','external_fault','permit_withdrawal'}
+    setup('');
+    command(17)=1;call(true);command(17)=0;
+    for frame=1:41999,observation=call(true);end
+    assert(observation.runtime_frame(5)==3,'AX04:SafetySetup', ...
+        'The terminal-priority fixture did not reach the final RAMP_DOWN interval.');
+    before=observation;
+    switch event{1}
+        case 'init_reset',command(18)=1;
+        case 'external_fault',erri=false;
+        case 'permit_withdrawal',relcon=false;
+    end
+    observation=call(true);
+    command(18)=0;erri=true;relcon=true;
+    after=call(true);
+    record(['terminal_' event{1}],aborted(observation) && ...
+        after.runtime_frame(4)==0 && after.runtime_frame(5)~=4, ...
+        before,observation,after);
+end
+
+if strict
+    active_frames=[10 10010 40010];
+    active_names={'ramp_id','hold_align','ramp_down_id'};
+    for active_index=1:numel(active_frames)
+        for event={'f_reset','permit_withdrawal'}
+            setup('');
+            command(17)=1;
+            for frame=0:active_frames(active_index),observation=call(true);end
+            before=observation;
+            if strcmp(event{1},'f_reset'),freset=true;else,encon=false;end
+            observation=call(true);
+            restore_permit();
+            for index=1:3,after=call(true);end
+            name=[active_names{active_index} '_' event{1}];
+            record(['running_' name],aborted(observation) && ...
+                rejected(after),before,observation,after);
+            command(17)=0;call(true);command(17)=1;
+            observation=call(true);
+            record(['new_start_after_' name],ramp_start(observation),[],observation,[]);
+        end
+    end
+
+    setup('');command(17)=1;call(true);command(17)=0;
+    for index=1:10,observation=call(true);end
+    before=observation;
+    observation=call(false);
+    record('ordinary_duplicate_hold', ...
+        isequal(observation.runtime_frame,before.runtime_frame) && ...
+        observation.continuous_count==before.continuous_count && ...
+        observation.history_count==before.history_count && ...
+        observation.reference_version==before.reference_version && ...
+        bitand(observation.feedback_status,uint32(2))~=0, ...
+        before,observation,[]);
+
+    command(18)=1;observation=call(false);
+    record('duplicate_init_reset',aborted(observation) && ...
+        observation.continuous_count==before.continuous_count,before,observation,[]);
+    command(18)=0;call(true);command(17)=1;call(true);
+    for index=1:5,observation=call(true);end
+    before=observation;relcon=false;observation=call(false);
+    restore_permit();after=call(true);
+    record('duplicate_permit_withdrawal',aborted(observation) && ...
+        rejected(after),before,observation,after);
+    command(17)=0;call(true);command(17)=1;observation=call(true);
+    record('new_start_after_duplicate_abort',ramp_start(observation),[],observation,[]);
+
+    for event={'init_reset','permit_withdrawal'}
+        setup('');command(17)=1;call(true);
+        for index=1:5,observation=call(true);end
+        before=observation;ready=false;
+        if strcmp(event{1},'init_reset'),command(18)=1;else,oe_disable=true;end
+        observation=call(true);
+        ready=true;command(18)=0;restore_permit();after=call(true);
+        record(['invalid_frame_' event{1}],aborted(observation) && ...
+            observation.continuous_count==before.continuous_count && ...
+            after.runtime_frame(4)==0,before,observation,after);
+    end
+end
+
+failed={cases(~[cases.passed]).name};
+if strict
+    status='PASS';
+    if ~isempty(failed),status='FAIL';end
+else
+    status='NO_COUNTEREXAMPLE';
+    if any(startsWith(failed,'start_denied_')) && ...
+            any(strcmp(failed,'terminal_init_reset'))
+        status='COUNTEREXAMPLES_REPRODUCED';
+    end
+end
+result=struct('status',status,'mode',mode,'cases',cases, ...
+    'checks',numel(cases),'failed_cases',{failed},'irq_calls',total_calls, ...
+    'source','Exact experiment-generated C external entry', ...
+    'hardware','HW_BINDING_PENDING','board','BOARD_NOT_RUN');
+stream=fopen(file,'w');assert(stream>=0,'Cannot create alignment safety evidence.');
+cleanup=onCleanup(@()fclose(stream)); %#ok<NASGU>
+fprintf(stream,'%s\n',jsonencode(result,PrettyPrint=true));
+if strict
+    assert(isempty(failed),'AX04:AlignmentSafety','Alignment safety failed: %s',strjoin(failed,', '));
+end
+disp(result);
+
+    function setup(denied)
+        ax04_control_mex('initialize');
+        command=zeros(20,1);command(8)=1;command(16)=1;
+        raw=uint32(12000);sample_id=uint32(0);tick=uint64(0);trial_calls=0;
+        ready=true;erri=true;erru=true;clear_fault=false;
+        restore_permit();
+        switch denied
+            case 'relcon',relcon=false;
+            case 'encon',encon=false;
+            case 'oe_disable',oe_disable=true;
+            case 'pwm_request',command(8)=0;
+        end
+        for warmup=1:51,call(true);end
+    end
+
+    function restore_permit()
+        relcon=true;encon=true;oe_disable=false;freset=false;command(8)=1;
+    end
+
+    function value=call(new_frame)
+        if new_frame && trial_calls>0
+            sample_id=sample_id+uint32(500);tick=tick+uint64(5000);
+        end
+        value=ax04_control_mex('irq',command,raw,sample_id,tick,ready,uint32(0), ...
+            true,erri,erru,clear_fault,relcon,encon,freset,oe_disable);
+        total_calls=total_calls+1;trial_calls=trial_calls+1;
+        assert(value.continuous_count==int64(12000), ...
+            'AX04:SafetyOrigin','Alignment safety changed the mechanical count.');
+    end
+
+    function value=rejected(data)
+        value=data.runtime_frame(5)==0 && data.runtime_frame(4)==0 && ...
+            data.runtime_frame(6)==0 && data.runtime_frame(7)==0 && ...
+            data.reference_commit(1)==0;
+    end
+
+    function value=aborted(data)
+        value=rejected(data) && data.reference_commit(6)==0 && ...
+            abs(data.runtime_frame(8))<1e-12 && abs(data.runtime_frame(9))<1e-12;
+    end
+
+    function value=ramp_start(data)
+        value=data.runtime_frame(5)==1 && data.runtime_frame(4)==0 && ...
+            data.runtime_frame(6)==0;
+    end
+
+    function record(name,passed,before,event,after)
+        cases(end+1)=struct('name',name,'passed',logical(passed), ...
+            'before',brief(before),'event',brief(event),'after',brief(after));
+    end
+end
+
+function value=brief(data)
+value=[];
+if ~isempty(data)
+    value=struct('state',data.runtime_frame(5),'init_done',data.runtime_frame(4), ...
+        'id_init_A',data.runtime_frame(6),'angle_init_enable',data.runtime_frame(7), ...
+        'offset_rad',data.runtime_frame(8),'position_mm',data.position_mm, ...
+        'continuous_count',data.continuous_count,'history_count',data.history_count, ...
+        'feedback_status',data.feedback_status,'reference_version',data.reference_version, ...
+        'id_commit_A',data.reference_commit(1),'pwm_permit',data.reference_commit(6), ...
+        'reference_valid',data.reference_commit(8),'drive_outputs',data.drive_outputs);
+end
 end

@@ -99,16 +99,25 @@ assert(all(observation.drive_outputs(1:2)) && ~any(observation.drive_outputs(3:5
 checks=checks+1;
 relcon=false;encon=false;oe_disable=true;
 
-% Manual alignment stays idle until Init_Start, and Init_Reset returns idle.
+% A start with disabled drive permission is rejected. Restoration while Start
+% remains high cannot create an implicit start. Release and request explicitly.
 command(16)=1;command(17)=0;
 for frame=1:3,advance();observation=irq();end
 assert(observation.runtime_frame(5)==0);checks=checks+1;
 command(17)=1;
 for frame=1:3,advance();observation=irq();end
+assert(observation.runtime_frame(5)==0 && observation.runtime_frame(4)==0 && ...
+    observation.reference_commit(6)==0);checks=checks+1;
+relcon=true;encon=true;oe_disable=false;command(8)=1;command(9)=0;
+for frame=1:3,advance();observation=irq();end
+assert(observation.runtime_frame(5)==0 && observation.runtime_frame(4)==0);checks=checks+1;
+command(17)=0;advance();observation=irq();
+command(17)=1;advance();observation=irq();
 assert(observation.runtime_frame(5)==1);checks=checks+1;
 command(17)=0;command(18)=1;
 for frame=1:3,advance();observation=irq();end
-assert(observation.runtime_frame(5)==0);checks=checks+1;
+assert(observation.runtime_frame(5)==0 && observation.runtime_frame(4)==0 && ...
+    observation.reference_commit(6)==0);checks=checks+1;
 
 service_before=observation.service_count;
 observation=ax04_control_mex('service');
@@ -117,15 +126,17 @@ assert(all(isfinite(observation.telemetry)));
 writematrix(rows,fullfile(output_dir,'generated_control_frames.csv'));
 travel=ax04_validate_travel_control(output_dir);
 alignment=ax04_validate_alignment_control(output_dir);
-result=struct('status','PASS','checks',checks, ...
-    'irq_calls',size(rows,1)+travel.irq_calls+alignment.irq_calls, ...
+feedback=feedback_direction_and_wrap(output_dir);
+result=struct('status','PASS','checks',checks+feedback.checks+alignment.safety.checks, ...
+    'irq_calls',size(rows,1)+travel.irq_calls+alignment.irq_calls+feedback.irq_calls, ...
     'frame_cases_irq_calls',size(rows,1), ...
     'speed_history_entries',51,'speed_intervals',50,'speed_test_mm_s',100, ...
-    'cases','normal frames, duplicate and duplicate-clear rejection, gap/reacquisition, active-low fault, REL/EN enable, F_Reset inhibit, explicit clear, PI reset, soft/hard travel, full five-state alignment and once-only offset, manual alignment start/reset, non-real-time service', ...
+    'cases','normal frames, duplicate and duplicate-clear rejection, gap/reacquisition, active-low fault, REL/EN enable, F_Reset inhibit, explicit clear, PI reset, soft/hard travel, full five-state alignment and once-only offset, permission-denied start, explicit restart, final-sample safety priority, duplicate/invalid-frame safety, non-real-time service', ...
     'hardware','HW_BINDING_PENDING','board','BOARD_NOT_RUN', ...
     'source','Exact ARM Cortex-R generated C through transport-only MEX');
 result.travel=travel;
 result.alignment=alignment;
+result.feedback=feedback;
 result.initialization=struct('status','PASS','before_first_irq',true, ...
     'reference_commit',initialization.reference_commit, ...
     'drive_outputs',initialization.drive_outputs,'reference_version',initialization.reference_version, ...
@@ -151,4 +162,61 @@ disp(result);
             double(value.continuous_count),double(value.reference_version), ...
             value.reference_commit(6),value.drive_outputs(3),value.drive_outputs(5)];
     end
+end
+
+function result=feedback_direction_and_wrap(output_dir)
+% Directed continuity cases use the normal typed external feedback interface.
+command=zeros(20,1);command(9)=1;
+cases=struct('name',{},'frames',{},'initial_sample_id',{},'initial_sample_tick',{}, ...
+    'last_sample_id',{},'last_sample_tick',{},'final_count',{},'speed_mm_s',{},'status',{});
+checks=0;
+for trial=1:3
+    ax04_control_mex('initialize');
+    step=int64(10);
+    first_count=int64(-250);
+    sample_id=uint32(0);tick=uint64(0);
+    name='forward_uint32_count_wrap';
+    if trial==2
+        step=int64(-10);first_count=int64(250);name='reverse_uint32_count_wrap';
+    elseif trial==3
+        first_count=int64(0);name='frame_id_and_uint64_tick_wrap';
+        sample_id=intmax('uint32')-uint32(249);
+        tick=intmax('uint64')-uint64(2499);
+    end
+    initial_sample_id=sample_id;initial_sample_tick=tick;
+    for frame=0:60
+        last_sample_id=sample_id;last_sample_tick=tick;
+        expected_count=first_count+int64(frame)*step;
+        raw=uint32(mod(expected_count,int64(4294967296)));
+        observation=ax04_control_mex('irq',command,raw,sample_id,tick,true,uint32(0), ...
+            true,true,true,false,false,false,false,true);
+        assert(observation.position_valid && observation.continuous_count==expected_count && ...
+            abs(observation.position_mm-double(expected_count)*0.001)<1e-12, ...
+            'AX04:FeedbackWrap','Count continuity differs in %s frame %d.',name,frame);
+        assert(observation.speed_valid==(frame>=50), ...
+            'AX04:FeedbackWrapHistory','History changed across the %s boundary.',name);
+        if frame>=50
+            assert(abs(observation.speed_mm_s-double(step)*10)<1e-9, ...
+                'AX04:FeedbackWrapSpeed','The signed 50-interval speed differs in %s.',name);
+        end
+        checks=checks+1;
+        sample_id=uint32(mod(uint64(sample_id)+uint64(500),uint64(4294967296)));
+        if tick>intmax('uint64')-uint64(5000)
+            tick=tick-(intmax('uint64')-uint64(5000))-uint64(1);
+        else
+            tick=tick+uint64(5000);
+        end
+    end
+    cases(end+1)=struct('name',name,'frames',61, ...
+        'initial_sample_id',initial_sample_id,'initial_sample_tick',initial_sample_tick, ...
+        'last_sample_id',last_sample_id,'last_sample_tick',last_sample_tick, ...
+        'final_count',observation.continuous_count, ...
+        'speed_mm_s',observation.speed_mm_s,'status','PASS');
+end
+result=struct('status','PASS','cases',cases,'checks',checks,'irq_calls',checks, ...
+    'source','Exact experiment-generated C normal external entry');
+stream=fopen(fullfile(output_dir,'feedback_direction_wrap_result.json'),'w');
+assert(stream>=0,'Cannot create directed feedback result.');
+cleanup=onCleanup(@()fclose(stream)); %#ok<NASGU>
+fprintf(stream,'%s\n',jsonencode(result,PrettyPrint=true));
 end
