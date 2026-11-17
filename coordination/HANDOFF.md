@@ -1,6 +1,8 @@
 # AXU5EV 当前交接 — Issue42 Task1
 
-2026-11-17，基于含已合并PR41的main e36e358，工作分支 `codex/issue42-task1-dsp-reuse`。Task1共享反馈组件复用及受影响生成/离线验证完成，提交独立Draft PR后等待Review。
+2026-11-17，基于含已合并PR41的main e36e358，工作分支 `codex/issue42-task1-dsp-reuse`。Task1共享反馈组件复用及受影响生成/离线验证完成，已发布 [kazecode666/AXU5EV Draft PR45](https://github.com/kazecode666/AXU5EV/pull/45)，关联Issue42，等待Review。
+
+实施提交 `4852f1b676478aeaf76f8d28888fc9c0591bf9ff`，映射与证据提交 `9bcdb75d29de915f2889543effcf63d6889d14a1`。原PR41冻结交付继续保留，Issue42保持开放。
 
 - 已实际读取DSP原模型和AQM备份，复用可见校准、两相电流、位置/50间隔测速及电角定点路径。统一模型的R5支路和新C生成壳链接同一组件。
 - 电流49向量×14输出及RTL25项通过，电角46向量/RTL460项通过。R5模型与目标C均1493帧×7零差。统一模型55帧×18与PR41存档帧表零差。
