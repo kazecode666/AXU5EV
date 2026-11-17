@@ -14,6 +14,16 @@
 
 `axu5ev_experiment('check')` 更新检查主模型的编译、依赖与实机边界。可分别调用 `generate_r5`、`generate_pl` 定向生成，或调用 `axu5ev_experiment('generate',new_work_dir,new_generated_dir)` 串联生成。建议使用独立 MATLAB `-batch` 进程。工作目录及生成目录均须全新，串联生成的 R5 C 和 PL HDL 分别写入 `new_generated_dir/{r5,pl}`，日志与定向验证写入工作目录。
 
+从任意工作目录进入后，可显式执行检查或生成。下例中的结果目录应换成尚未使用的新版本。
+
+```matlab
+run('D:/Project/AXU5EV/simulation/START_EXPERIMENT.m')
+axu5ev_experiment('check','D:/Project/AXU5EV/.runtime/experiment/check_new')
+axu5ev_experiment('generate', ...
+    'D:/Project/AXU5EV/.runtime/experiment/session_new', ...
+    'D:/Project/AXU5EV/generated/experiment/version_new')
+```
+
 硬件 IRQ、驱动 IO 与板级绑定为 `HW_BINDING_PENDING`，板卡运行状态为 `BOARD_NOT_RUN`。本入口用于模型与代码生成阶段。
 
 ## 测试与历史

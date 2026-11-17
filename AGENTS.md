@@ -1,5 +1,15 @@
 # AXU5EV 协作与工作区规则
 
+## AX-04 当前执行入口
+
+2026-11-17，按 Issue42 评论6941278055及PR43任务书执行交付A，分支 `codex/ax04-experiment-model`，叠加在PR45 `codex/issue42-task1-dsp-reuse`。当前任务与最终验证记录见 `coordination/HANDOFF.md` 首节。本文以下AX-03及更早阶段的授权/待Review措辞保留作历史。
+
+- 纯仿真入口为 `simulation/START_SIMULATION.m`，兼容入口为 `START_HERE.m`，参数源为 `closed_loop/parameters/init_AXU5EV.m`。
+- 实机入口为 `simulation/START_EXPERIMENT.m`，算法、参数、生成入口位于 `experiment`。实机采用独立副本与ModelWorkspace参数，后续修改在各自用途目录进行。
+- 实机R5主模型导出初始化、`PL_Frame_IRQ`及非实时服务函数，PL电流控制及数值预处理采用独立HDL生成边界。硬件驱动/IRQ绑定为 `HW_BINDING_PENDING`，板卡状态为 `BOARD_NOT_RUN`。
+- 新生成源位于 `generated/experiment/<版本>`，缓存与本地结果采用 `.runtime/experiment/<新目录>`。原PR41冻结成果及历史实验目录原位保留。
+- 目录迁移逐文件保留用户本地修改，打开入口保留Dirty内容和已有参数。库/模型切换仅使用显式用途路径。交付A完成后提交独立Draft PR，停在Review。
+
 > AX-03B1交付入口：[kazecode666/AXU5EV Draft PR29](https://github.com/kazecode666/AXU5EV/pull/29)，关联Issue28，停在Review。本机Git HTTPS不可用，已通过连接器发布并核对本地/远端实现树一致；提交映射见当前HANDOFF，不强推或reset来抹平历史。后续B2/C、板卡、参数/PI恢复仍未授权。
 
 > 当前开发：2026-11-05，用户已启动Issue28 AX-03B1；从含已合并PR27的main d3a10cf建立codex/ax03b1-feedback-observer，独立无功率观测模型/新数值生成/ADC与ABZ薄RTL/只读原子快照已离线实现并通过新增验证。当前交接以coordination/HANDOFF.md首节与coordination/reports/ax03b1_feedback_observer.md为准。只读观测无功率许可，所有硬件未知保留SIM_ASSUMPTION/PENDING；未改电机/PI/旧模型/FOC/Runtime，未重跑PR24、未操作板卡。提交本轮Draft PR后停在Review，不自动合并/关闭Issue、不进入B2/C。PR24、PR27均已合并，以下待Review/旧关机措辞为历史；保留全部Workspace、用户修改和实验数据。
@@ -53,7 +63,7 @@
 - Simulink搭建完成后逐层检查连线与排版；From/Goto使用局部作用域，Inport/Outport保持默认大小与外观。
 - 先读 `coordination/HANDOFF.md`。AX-00迁移已完成；旧迁移任务、Issue #3及旧M4仅作历史记录，不作为继续开发的流程清单。
 - 当前优先Issue #15的AX-02A（A1—A6）：先真实R5目标工程、数值与100µs时间证据，不重规划全项目、不默认重跑完整RTL。PR #14已合并（ae9a11d2d59abc952cce0b979d004a315878639a），Issue #13仿真收尾仅作既有证据。当前Cortex-R生成/全采样导出/主机比较及真实5EV PS-only XSA、R5 standalone BSP/FSBL/ELF/map构建通过；10月27日历史BOARD_BOOT/REPLAY/PERIODIC为NOT_RUN；10月30日新状态见本节首条及`coordination/reports/ax02a_r5_target_validation.md`。不得以构建或主机结果关闭板上验收。
-- 继续取消C源码学习、逐行讲解及教学配置更改。Ready是当拍许可，Busy=0不保证Ready=1；status3未Ready拒绝、不排队。Issue #11和AX-02B/C不在本轮实施。活动模型和必要.m集中在`simulation/`，唯一日常参数入口`init_AXU5EV.m`，启动入口`START_HERE.m`。保留用户本地SLX/参数修改；旧PR14输入可复用，但当前参数参考必须独立标识。目标生成不覆盖PC目录/MEX、不保存未保存模型。板卡复位/JTAG加载运行须本次明确授权。
+- 继续取消C源码学习、逐行讲解及教学配置更改。Ready是当拍许可，Busy=0不保证Ready=1；status3未Ready拒绝、不排队。Issue #11和AX-02B/C不在本轮实施。活动模型与必要.m按用途集中在`simulation/`。纯仿真参数入口为`closed_loop/parameters/init_AXU5EV.m`，实机参数入口为`experiment/parameters/axu5ev_experiment_parameters.m`，分别使用`START_SIMULATION.m`与`START_EXPERIMENT.m`。`START_HERE.m`转到纯仿真入口。保留用户本地SLX/参数修改；旧PR14输入可复用，但当前参数参考必须独立标识。目标生成不覆盖PC目录/MEX、不保存未保存模型。板卡复位/JTAG加载运行须本次明确授权。
 - 当前按PR16“用户手动上板与首次PS开发学习”评论补齐离线操作交接，上板由用户本人完成；Codex不连接、复位、写内存、加载或运行板卡，也不自动探测已接好的线。首次手动测试只到现有R5应用等待输入；操作见`firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md`。不恢复C语法教学，不另建Hello World/LED/QEMU项目，不把后续回放段自动执行。
 - PR16首次故障已定位旧GUI将R5 FSBL加载到A53_0；当前离线启动工程为`.runtime/ax02a/vitis_target_a53fsbl`，A53_0 FSBL＋R5_0应用，launch为`ax02a_first_wait_a53fsbl`。先用构建入口的`--check-startup`核对实际架构/域/路径；保留旧workspace，旧`ax02a_first_wait_manual`不再用于GUI重试。用户修正后BOARD_BOOT和首次motion已有PASS；其他板上验收见C1—C3首条，不把旧R5 Suspended当初始化成功。
 - 板型以《AXU5EVB-E开发板用户手册》为依据；用户确认核心板可参考`ACU5EV核心板原理图.pdf`，底板可参考`AXU5EVB-E开发板原理图.pdf`（与AXU3EG底板共用），实物以太网收发芯片JL2121。不得仅凭图框AXU3EG否定底板资料，也不因此在AX-02A扩展网络适配。

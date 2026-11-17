@@ -1,0 +1,344 @@
+{
+  "status": "DELIVERY_A_PASS",
+  "repository": "kazecode666/AXU5EV",
+  "issue": 42,
+  "taskbook_pr": 43,
+  "base_pr": 45,
+  "base_head": "a7a5670350e94dc5e94db0562f34d4f8213e32c8",
+  "branch": "codex/ax04-experiment-model",
+  "stage": "Review",
+  "model_check": {
+    "status": "CHECK_PASS",
+    "sources": [
+      {
+        "model": "AXU5EV_Experiment_R5_Algorithms",
+        "file": "D:\\Project\\AXU5EV\\simulation\\experiment\\r5\\AXU5EV_Experiment_R5_Algorithms.slx",
+        "loaded_before": true,
+        "dirty": "off"
+      },
+      {
+        "model": "AXU5EV_Motor_Control_System",
+        "file": "D:\\Project\\AXU5EV\\simulation\\experiment\\AXU5EV_Motor_Control_System.slx",
+        "loaded_before": true,
+        "dirty": "off"
+      }
+    ],
+    "boundaries": {
+      "checked_blocks": 589,
+      "model_references": 0
+    },
+    "work_directory": "D:/Project/AXU5EV/.runtime/experiment/ax04_01/main_check_03",
+    "parameter_source": "D:\\Project\\AXU5EV\\simulation\\experiment\\parameters\\axu5ev_experiment_parameters.m",
+    "hardware": "HW_BINDING_PENDING",
+    "board": "BOARD_NOT_RUN"
+  },
+  "structural_checks": {
+    "status": "PASS",
+    "scope": "root",
+    "checks": [
+      "unconnected_ports",
+      "unconnected_lines",
+      "stateflow_lint"
+    ]
+  },
+  "layout": {
+    "status": "PASS",
+    "regions": "manual purple areas at root, ISR, Qualified_Runtime and Driver",
+    "connections_and_scripts_preserved": true,
+    "ordinary_port_appearance_preserved": true,
+    "screenshots": [
+      "driver_io_manager.png",
+      "experiment_main.png",
+      "motor_control_isr.png",
+      "pl_current_preprocess.png",
+      "pl_encoder_angle.png",
+      "pl_foc_dut.png",
+      "qualified_runtime.png"
+    ],
+    "driver_data_connections_preserved": 24
+  },
+  "source_copy_evidence": "verification/experiment/model_layout/source_copy.json",
+  "pure_short_simulation": {
+    "status": "PASS",
+    "backend": "model_fixed",
+    "stop_time_s": 0.02,
+    "frames": 201,
+    "existing_base_preserved": true,
+    "scope": "initial pre-Host-start 20ms only"
+  },
+  "isolation": {
+    "status": "PASS",
+    "open_orders": 2,
+    "resolved_sources_per_order": 24,
+    "parameters_per_model": 75,
+    "alignment_signals": 6,
+    "saved_model_reloaded": true,
+    "base_collision_values_preserved": true,
+    "evidence": "verification/experiment/model_layout/dependencies.json"
+  },
+  "c_generation": {
+    "status": "PASS",
+    "model": "AXU5EV_Motor_Control_System",
+    "generated_directory": "generated/experiment/ax04_01/r5_02",
+    "exported_files": [
+      "AXU5EV_Motor_Control_System.c",
+      "AXU5EV_Motor_Control_System_data.c",
+      "rtGetInf.c",
+      "rtGetNaN.c",
+      "rt_nonfinite.c",
+      "AXU5EV_Motor_Control_System.h",
+      "AXU5EV_Motor_Control_System_private.h",
+      "AXU5EV_Motor_Control_System_types.h",
+      "complex_types.h",
+      "rtGetInf.h",
+      "rtGetNaN.h",
+      "rt_nonfinite.h",
+      "rtmodel.h",
+      "rtwtypes.h",
+      "zero_crossing_types.h"
+    ],
+    "compiled_sources": [
+      "AXU5EV_Motor_Control_System.c",
+      "AXU5EV_Motor_Control_System_data.c",
+      "rtGetInf.c",
+      "rtGetNaN.c",
+      "rt_nonfinite.c"
+    ],
+    "irq_function": "PL_Frame_IRQ",
+    "service_function": "Service_Request",
+    "initialization_function": "AXU5EV_Motor_Control_System_initialize",
+    "production": "ARM Compatible->ARM Cortex-R",
+    "byte_order": "LittleEndian",
+    "zero_internal_memory_at_initialize": "on",
+    "zero_external_memory_at_initialize": "on",
+    "host_mex": "PASS",
+    "arm_execution": "NOT_RUN"
+  },
+  "generated_c_validation": {
+    "status": "PASS",
+    "checks": 90,
+    "irq_calls": 47762,
+    "frame_cases_irq_calls": 142,
+    "initialization": {
+      "status": "PASS",
+      "before_first_irq": true,
+      "reference_commit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "drive_outputs": [
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "reference_version": 0,
+      "service_count": 0
+    },
+    "travel": {
+      "status": "PASS",
+      "cases": [
+        {
+          "kind": "soft",
+          "position_count": 110001,
+          "request_mm_s": 0.5,
+          "expected_safe_mm_s": 0,
+          "actual_safe_mm_s": 0,
+          "status": "PASS"
+        },
+        {
+          "kind": "soft",
+          "position_count": 110001,
+          "request_mm_s": -0.5,
+          "expected_safe_mm_s": -0.5,
+          "actual_safe_mm_s": -0.5,
+          "status": "PASS"
+        },
+        {
+          "kind": "soft",
+          "position_count": -110001,
+          "request_mm_s": -0.5,
+          "expected_safe_mm_s": 0,
+          "actual_safe_mm_s": 0,
+          "status": "PASS"
+        },
+        {
+          "kind": "soft",
+          "position_count": -110001,
+          "request_mm_s": 0.5,
+          "expected_safe_mm_s": 0.5,
+          "actual_safe_mm_s": 0.5,
+          "status": "PASS"
+        },
+        {
+          "kind": "hard",
+          "position_count": 120000,
+          "returned_count": 100000,
+          "pi_reset_kept_fault": true,
+          "init_reset_kept_fault": true,
+          "explicit_clear_recovered": true,
+          "status": "PASS"
+        },
+        {
+          "kind": "hard",
+          "position_count": -120000,
+          "returned_count": -100000,
+          "pi_reset_kept_fault": true,
+          "init_reset_kept_fault": true,
+          "explicit_clear_recovered": true,
+          "status": "PASS"
+        }
+      ],
+      "irq_calls": 5490,
+      "source": "Exact experiment-generated C normal entry",
+      "soft_direction_threshold_mm_s": 0,
+      "hardware": "HW_BINDING_PENDING",
+      "board": "BOARD_NOT_RUN"
+    },
+    "alignment": {
+      "status": "PASS",
+      "irq_calls": 42130,
+      "expected_transition_frames": [
+        0,
+        10000,
+        40000,
+        42000
+      ],
+      "expected_offset_rad": 3.7699111843077517,
+      "id_limit_A": 0.5,
+      "iq_limit_A": 0.3,
+      "maximum_abs_iq_commit_A": 0,
+      "init_reset_preserved_position": true,
+      "manual_restart_verified": true,
+      "second_capture": "NOT_RUN; second manual RAMP entry verified"
+    }
+  },
+  "hdl_generation": {
+    "status": "PASS",
+    "models": [
+      {
+        "model": "AXU5EV_Experiment_Current_HDL",
+        "dut": "AXU5EV_Experiment_Current_HDL/Current_Preprocess",
+        "files": 16,
+        "module_prefix": "AX04_Current_"
+      },
+      {
+        "model": "AXU5EV_Experiment_Angle_HDL",
+        "dut": "AXU5EV_Experiment_Angle_HDL/Encoder_Angle",
+        "files": 4,
+        "module_prefix": "AX04_Angle_"
+      },
+      {
+        "model": "AXU5EV_Experiment_Duty_HDL",
+        "dut": "AXU5EV_Experiment_Duty_HDL/Duty_To_Compare",
+        "files": 2,
+        "module_prefix": "AX04_Duty_"
+      },
+      {
+        "model": "AXU5EV_Experiment_FOC",
+        "dut": "AXU5EV_Experiment_FOC/FOC_DUT",
+        "files": 29,
+        "module_prefix": "AX04_FOC_"
+      }
+    ],
+    "source_files": 51,
+    "unique_modules": 50,
+    "unique_packages": 1,
+    "generated_directory": "generated/experiment/ax04_01/pl",
+    "part_reference": "xczu5ev-sfvc784-2-i",
+    "physical_part_binding": "PENDING",
+    "coefficient_evidence": "verification/experiment/pl_coefficient_bindings.json"
+  },
+  "foc_model": {
+    "status": "PASS",
+    "frames": 1188,
+    "current_pi": [
+      59,
+      7250
+    ],
+    "phase_rl": [
+      1.45,
+      0.0118,
+      0.0118
+    ],
+    "flux_Wb": 0.06842404002794004,
+    "Ts_ACR": 0.0001,
+    "peak_duty_span": 0.8999734930694103,
+    "max_aw_recovery_difference_uq30_words": 966339180.0,
+    "zero_command_duty_uq30_words": [
+      536870906.0,
+      536870906.0,
+      536870906.0
+    ],
+    "zero_command_nominal_center_offset_words": [
+      -6,
+      -6,
+      -6
+    ],
+    "held_reset_return_error_uq30_words": 0,
+    "checks": "bounded duty, B2 workspace, voltage saturation, AW contribution, PI reset"
+  },
+  "foc_rtl": {
+    "status": "PASS",
+    "frames": 192,
+    "checks": 576,
+    "bit_mismatch": 0,
+    "xz_count": 0,
+    "protocol_errors": 0,
+    "accepted_clocks": 960000,
+    "frame_clocks": 5000,
+    "output_phase": 314
+  },
+  "feedforward_rtl": {
+    "status": "PASS",
+    "frames": 48,
+    "checks": 144,
+    "bit_mismatch": 0,
+    "xz_count": 0,
+    "protocol_errors": 0,
+    "accepted_clocks": 240000,
+    "frame_clocks": 5000,
+    "output_phase": 314
+  },
+  "custom_functions": {
+    "status": "PASS",
+    "checks": 1635,
+    "glue_cases": 14,
+    "point_move_frames": 1600,
+    "maximum_error": 0,
+    "accepted_commands": 1,
+    "rejected_commands": 2,
+    "interrupted": 1,
+    "parameters": "AQM30-B2 experiment candidate",
+    "mass": "UNKNOWN",
+    "hardware": "HW_BINDING_PENDING; BOARD_NOT_RUN"
+  },
+  "warnings": [
+    "HDL Coder auxiliary gm FOC model reported integer-delay insertion failure. Actual four HDL exports and short RTL validations passed. Auxiliary gm equivalence NOT_RUN."
+  ],
+  "hardware": "HW_BINDING_PENDING",
+  "arm_execution": "NOT_RUN",
+  "board": "BOARD_NOT_RUN",
+  "synthesis": "NOT_RUN",
+  "implementation": "NOT_RUN",
+  "sta_cdc_sdf": "NOT_RUN",
+  "local_raw_results": ".runtime/experiment/ax04_01",
+  "preservation": {
+    "original_user_changes_remain_uncommitted": 9,
+    "legacy_test_shell_name": "AXU5EV_DigitalChain_Test",
+    "frozen_candidates_and_original_results": "Preserved in place",
+    "issue44_code": "separate task"
+  },
+  "independent_review": {
+    "status": "PASS",
+    "blocking_findings": 0,
+    "sdi_reference_labels": "Corrected Id/Iq/velocity reference names in the experiment copy"
+  }
+}

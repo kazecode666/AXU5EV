@@ -1,0 +1,206 @@
+function result=ax04_validate_alignment_control(output_dir)
+% Full copied five-state alignment through the experiment-generated C entry.
+% Evidence keeps state boundaries and adjacent samples, with no long CSV.
+file=fullfile(output_dir,'alignment_control_result.json');
+assert(~isfile(file),'Choose a new alignment-verification directory.');
+if ~isfolder(output_dir)
+    mkdir(output_dir);
+end
+p=axu5ev_experiment_parameters();
+assert(p.Tau_e_mm==30 && p.Id_Init_Target==0.5 && ...
+    p.Experiment_Id_Limit_A==0.5 && p.Experiment_Iq_Limit_A==0.3);
+assert(p.Ramp_Ticks==10000 && p.Hold_Ticks==30000 && ...
+    p.Id_Release_Ramp_Ticks==2000);
+initial=ax04_control_mex('initialize');
+assert(isequal(initial.reference_commit,[0;0;0;0;0;0;1;0]) && ...
+    isequal(initial.drive_outputs,logical([0;0;0;1;0])), ...
+    'AX04:AlignmentInitialize','Alignment did not start with inhibited outputs.');
+assert(~initial.position_valid && ~initial.speed_valid && ...
+    initial.continuous_count==int64(0) && initial.reference_version==uint32(0), ...
+    'AX04:AlignmentInitializeState','Generated initialization retained an earlier fixture state.');
+command=zeros(20,1);
+command(8)=1;
+command(16)=1;
+raw=uint32(12000);
+sample_id=uint32(0);
+tick=uint64(0);
+frame=-51;
+phase='warmup';
+calls=0;
+states_seen=false(1,5);
+state_frames=zeros(1,5);
+minimum_id=inf(1,5);
+maximum_id=-inf(1,5);
+maximum_iq=0;
+transitions=struct('phase',{},'frame',{},'from',{},'to',{}, ...
+    'before',{},'entry',{},'next',{});
+previous=[];
+observation=[];
+last_observation=[];
+try
+    for frame=-51:-1
+        observation=irq();
+        assert(observation.runtime_frame(5)==0 && observation.runtime_frame(4)==0, ...
+            'AX04:AlignmentManual','Alignment started before the manual Init_Start pulse.');
+    end
+    assert(observation.speed_valid && abs(observation.speed_mm_s)<1e-12);
+    assert(observation.position_mm==12 && observation.continuous_count==int64(12000));
+
+    phase='alignment';
+    command(17)=1;
+    frame=0;
+    observation=irq();
+    assert(observation.runtime_frame(5)==1 && observation.runtime_frame(6)==0, ...
+        'AX04:AlignmentStart','The manual pulse did not enter RAMP_ID at zero Id.');
+    command(17)=0;
+    done_frame=p.Ramp_Ticks+p.Hold_Ticks+p.Id_Release_Ramp_Ticks;
+    for frame=1:done_frame+5
+        observation=irq();
+    end
+    assert(all(states_seen),'AX04:AlignmentStates','The complete five-state sequence was not observed.');
+    alignment_events=transitions(strcmp({transitions.phase},'alignment'));
+    assert(isequal([alignment_events.to],[1 2 3 4]), ...
+        'AX04:AlignmentOrder','The alignment state order differs from the copied source.');
+    assert(isequal([alignment_events.frame],[0 p.Ramp_Ticks ...
+        p.Ramp_Ticks+p.Hold_Ticks done_frame]), ...
+        'AX04:AlignmentTiming','The 100 us alignment state durations differ from the copied source.');
+    assert(abs(alignment_events(2).entry.id_init_A-0.5)<1e-12 && ...
+        abs(alignment_events(3).entry.id_init_A-0.5)<1e-12 && ...
+        alignment_events(4).entry.id_init_A==0);
+    assert(observation.runtime_frame(5)==4 && observation.runtime_frame(4)==1 && ...
+        observation.runtime_frame(7)==0 && observation.reference_commit(1)==0, ...
+        'AX04:AlignmentDone','DONE did not release Id and fixed-angle alignment.');
+    expected_offset=mod(p.theta_align_const-2*pi*12/p.Tau_e_mm,2*pi);
+    assert(abs(observation.runtime_frame(8)-expected_offset)<1e-12 && ...
+        abs(observation.reference_commit(4)-expected_offset)<1e-12, ...
+        'AX04:AlignmentOffset','The captured 12 mm/30 mm offset differs from the source formula.');
+    assert(observation.runtime_frame(9)==12 && observation.position_mm==12 && ...
+        observation.continuous_count==int64(12000), ...
+        'AX04:AlignmentOrigin','Alignment changed measured position or continuous count.');
+    done_snapshot=snapshot(observation);
+
+    phase='post_alignment_motion';
+    raw=raw+uint32(1000);
+    for frame=done_frame+6:done_frame+65
+        observation=irq();
+        assert(observation.position_mm==13 && observation.continuous_count==int64(13000));
+        assert(observation.runtime_frame(5)==4 && observation.runtime_frame(4)==1 && ...
+            observation.runtime_frame(9)==12 && ...
+            abs(observation.runtime_frame(8)-expected_offset)<1e-12 && ...
+            abs(observation.reference_commit(4)-expected_offset)<1e-12, ...
+            'AX04:AlignmentOnce','Completed alignment recaptured its offset while position changed.');
+    end
+    assert(observation.speed_valid && abs(observation.speed_mm_s)<1e-12);
+    moved_snapshot=snapshot(observation);
+
+    phase='init_reset';
+    command(18)=1;
+    frame=done_frame+66;
+    observation=irq();
+    assert(observation.runtime_frame(5)==0 && observation.runtime_frame(4)==0 && ...
+        observation.reference_commit(1)==0 && observation.position_mm==13 && ...
+        observation.continuous_count==int64(13000), ...
+        'AX04:AlignmentReset','Init_Reset did not return only alignment to IDLE.');
+    command(18)=0;
+    phase='manual_restart_wait';
+    for frame=done_frame+67:done_frame+76
+        observation=irq();
+        assert(observation.runtime_frame(5)==0 && observation.runtime_frame(4)==0 && ...
+            observation.runtime_frame(9)==12 && ...
+            abs(observation.runtime_frame(8)-expected_offset)<1e-12, ...
+            'AX04:AlignmentAutoRestart','Alignment restarted or recaptured without Init_Start.');
+    end
+    phase='manual_restart';
+    command(17)=1;
+    frame=done_frame+77;
+    observation=irq();
+    assert(observation.runtime_frame(5)==1 && observation.runtime_frame(6)==0 && ...
+        observation.runtime_frame(4)==0 && observation.position_mm==13 && ...
+        observation.continuous_count==int64(13000), ...
+        'AX04:AlignmentRestart','A second manual pulse did not enter a new RAMP_ID.');
+    command(17)=0;
+    frame=done_frame+78;
+    observation=irq();
+    assert(observation.runtime_frame(5)==1 && ...
+        abs(observation.runtime_frame(6)-p.Id_Init_Step)<1e-12);
+    result=struct('status','PASS','irq_calls',calls,'sample_period_s',p.Ts_ACR, ...
+        'expected_transition_frames',[0 10000 40000 42000], ...
+        'transitions',transitions,'state_frames',state_frames, ...
+        'minimum_id_init_A',minimum_id,'maximum_id_init_A',maximum_id, ...
+        'maximum_abs_iq_commit_A',maximum_iq,'id_limit_A',p.Experiment_Id_Limit_A, ...
+        'iq_limit_A',p.Experiment_Iq_Limit_A,'expected_offset_rad',expected_offset, ...
+        'done',done_snapshot,'moved_without_recapture',moved_snapshot, ...
+        'init_reset_preserved_position',true,'manual_restart_verified',true, ...
+        'second_capture','NOT_RUN; second manual RAMP entry verified', ...
+        'source','Exact experiment-generated C normal entry', ...
+        'hardware','HW_BINDING_PENDING','board','BOARD_NOT_RUN');
+catch err
+    result=struct('status','FAIL','phase',phase,'frame',frame,'irq_calls',calls, ...
+        'states_seen',states_seen,'transitions',transitions, ...
+        'state_frames',state_frames,'minimum_id_init_A',minimum_id, ...
+        'maximum_id_init_A',maximum_id,'error_id',err.identifier,'error',err.message, ...
+        'last_observation',snapshot(last_observation), ...
+        'source','Exact experiment-generated C normal entry', ...
+        'hardware','HW_BINDING_PENDING','board','BOARD_NOT_RUN');
+    write_result();
+    rethrow(err);
+end
+write_result();
+disp(result);
+
+    function value=irq()
+        value=ax04_control_mex('irq',command,raw,sample_id,tick,true,uint32(0), ...
+            true,true,true,false,true,true,false,false);
+        last_observation=value;
+        calls=calls+1;
+        current=snapshot(value);
+        if ~isempty(transitions) && isempty(transitions(end).next)
+            transitions(end).next=current;
+        end
+        state=value.runtime_frame(5);
+        assert(state>=0 && state<=4 && state==fix(state), ...
+            'AX04:AlignmentStateValue','Unexpected alignment state value.');
+        states_seen(state+1)=true;
+        state_frames(state+1)=state_frames(state+1)+1;
+        minimum_id(state+1)=min(minimum_id(state+1),value.runtime_frame(6));
+        maximum_id(state+1)=max(maximum_id(state+1),value.runtime_frame(6));
+        maximum_iq=max(maximum_iq,abs(value.reference_commit(2)));
+        if isempty(previous) || state~=previous.state
+            from=-1;
+            if ~isempty(previous),from=previous.state;end
+            transitions(end+1)=struct('phase',phase,'frame',frame,'from',from,'to',state, ...
+                'before',previous,'entry',current,'next',[]);
+        end
+        previous=current;
+        assert(value.position_valid && value.speed_valid==(calls>=51), ...
+            'AX04:AlignmentFeedback','Qualified feedback did not keep its 50-interval history.');
+        assert(abs(value.reference_commit(1))<=p.Experiment_Id_Limit_A+1e-12 && ...
+            abs(value.reference_commit(2))<=p.Experiment_Iq_Limit_A+1e-12, ...
+            'AX04:AlignmentCurrentLimit','The committed debug current limits were exceeded.');
+        if calls>=51
+            assert(value.reference_commit(8)==1 && value.reference_commit(6)==1, ...
+                'AX04:AlignmentPermission','Healthy explicitly requested alignment lost PWM/reference permission.');
+        end
+        sample_id=sample_id+uint32(500);
+        tick=tick+uint64(5000);
+    end
+
+    function value=snapshot(data)
+        value=[];
+        if ~isempty(data)
+            value=struct('sample_id',data.commit_sample_id,'state',data.runtime_frame(5), ...
+                'init_done',data.runtime_frame(4),'id_init_A',data.runtime_frame(6), ...
+                'id_runtime_A',data.runtime_frame(1),'id_commit_A',data.reference_commit(1), ...
+                'iq_commit_A',data.reference_commit(2),'offset_rad',data.runtime_frame(8), ...
+                'x_align_mm',data.runtime_frame(9),'position_mm',data.position_mm, ...
+                'continuous_count',data.continuous_count,'pwm_permit',data.reference_commit(6));
+        end
+    end
+
+    function write_result()
+        stream=fopen(file,'w');
+        assert(stream>=0,'Cannot create alignment-control evidence.');
+        cleanup=onCleanup(@()fclose(stream)); %#ok<NASGU>
+        fprintf(stream,'%s\n',jsonencode(result,PrettyPrint=true));
+    end
+end

@@ -3,12 +3,17 @@ function result=ax04_style_experiment(selection,route_lines)
 % The caller reviews and saves the resulting in-memory layout.
 if nargin<1,selection='both';end
 if nargin<2,route_lines=true;end
-selection=validatestring(selection,{'root','isr','both'});
-model='AXU5EV_Motor_Control_System';
+selection=validatestring(selection,{'root','isr','both','driver'});
 root=fileparts(fileparts(mfilename('fullpath')));
-expected=char(System.IO.Path.GetFullPath(fullfile(root, ...
-    'simulation','experiment',[model '.slx'])));
-assert(bdIsLoaded(model),'AX04:LayoutSource','Open the canonical experiment main model first.');
+if strcmp(selection,'driver')
+    model='AXU5EV_Experiment_R5_Algorithms';
+    expected=fullfile(root,'simulation','experiment','r5',[model '.slx']);
+else
+    model='AXU5EV_Motor_Control_System';
+    expected=fullfile(root,'simulation','experiment',[model '.slx']);
+end
+expected=char(System.IO.Path.GetFullPath(expected));
+assert(bdIsLoaded(model),'AX04:LayoutSource','Load the canonical experiment source first.');
 actual=char(System.IO.Path.GetFullPath(get_param(model,'FileName')));
 assert(strcmpi(actual,expected),'AX04:LayoutSource','The open model is outside simulation/experiment.');
 assert(strcmp(get_param(model,'SimulationStatus'),'stopped'), ...
@@ -16,6 +21,12 @@ assert(strcmp(get_param(model,'SimulationStatus'),'stopped'), ...
 before=algorithm_snapshot(model);
 ports_before=port_appearance(model);
 scopes={};
+if strcmp(selection,'driver')
+    set_param(model,'Lock','off');
+    driver=find_child(model,'Controller_Driver_IO_Manager');
+    style_driver(driver);
+    scopes{end+1}=driver;
+end
 if any(strcmp(selection,{'root','both'}))
     style_root(model);
     scopes{end+1}=model;
@@ -45,6 +56,67 @@ result=struct('status','LAYOUT_APPLIED','model',actual,'scopes',{scopes}, ...
     'normal_port_appearance_preserved',true,'dirty',get_param(model,'Dirty'), ...
     'saved',false);
 disp(result);
+end
+
+function style_driver(scope)
+area(scope,'driver_inputs','输入与故障采集',[20 80 420 1130]);
+area(scope,'driver_latch','故障锁存与禁止',[480 80 1480 1130]);
+area(scope,'driver_outputs','驱动输出',[1540 80 2080 1130]);
+disable_preview(scope,'External_Fault_Latch');
+inputs={'ERRI_n',200;'ERRU_n',260;'clear_fault',350; ...
+    'system_fault_latch',470;'request_relcon',610;'request_encon',730; ...
+    'request_freset',840;'request_oe_disable',1000};
+for index=1:size(inputs,1)
+    move_port(scope,inputs{index,1},60,inputs{index,2});
+end
+positions={ ...
+    'ERRI_Raw_Goto',[260 185 345 215]; ...
+    'ERRU_Raw_Goto',[260 245 345 275]; ...
+    'ERRI_Raw_From',[500 190 585 220]; ...
+    'ERRU_Raw_From',[500 250 585 280]; ...
+    'External_Fault_Latch',[700 180 940 360]; ...
+    'System_Fault_Active',[620 450 720 500]; ...
+    'Reset_Or_System_Inhibit',[840 450 900 510]; ...
+    'System_Fault_Not',[1020 450 1080 510]; ...
+    'Drive_Safe_Goto',[1190 465 1275 495]; ...
+    'Outside_Driver_Reset',[650 810 710 870]; ...
+    'Fault_OE_Inhibit_Outside_Reset',[1050 790 1110 850]; ...
+    'Drive_Safe_RELCON',[1580 620 1665 644]; ...
+    'Drive_Safe_ENCON',[1580 740 1665 764]; ...
+    'RELCON_Safe_Enable',[1750 580 1810 650]; ...
+    'ENCON_Safe_Enable',[1750 700 1810 770]; ...
+    sprintf('Logical\nOperator'),[1750 980 1810 1040]};
+for index=1:size(positions,1)
+    move_block(scope,positions{index,1},positions{index,2});
+end
+outputs={'external_fault_latch',270;'RELCON',615;'ENCON',735; ...
+    'F_Reset',890;'OE_Disable',1010};
+for index=1:size(outputs,1)
+    move_port(scope,outputs{index,1},1900,outputs{index,2});
+end
+notes=find_system(scope,'FindAll','on','SearchDepth',1,'Type','annotation');
+for index=1:numel(notes)
+    note=get_param(notes(index),'Object');
+    if strcmp(note.AnnotationType,'area_annotation'),continue;end
+    text=lower(strtrim(note.Name));
+    if startsWith(text,'oe_disable')
+        origin=[1590 1070];
+    elseif startsWith(text,'f_reset')
+        origin=[1590 930];
+    elseif startsWith(text,'encon')
+        origin=[1590 790];
+    elseif startsWith(text,'relcon')
+        origin=[1590 670];
+    elseif startsWith(text,'erri_n')
+        origin=[60 1060];
+    elseif startsWith(text,'/oe')
+        origin=[500 1090];
+    else
+        continue;
+    end
+    original=note.Position;
+    note.Position=[origin origin+original(3:4)-original(1:2)];
+end
 end
 
 function style_root(scope)
