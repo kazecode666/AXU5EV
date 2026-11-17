@@ -1,6 +1,6 @@
-# AXU5EV — 当前交接（PR41 / Issue40）
+# AXU5EV — 当前交接（PR41 已合并 / Issue42 实机集成）
 
-> **现行状态入口，更新于2026-11-13。** 以本页与 [聚合验收状态](../verification/motor_control/results.json) 为准；较早的评论、说明和仿真日志用于追溯历史，不再构成新任务指令。PR41保持Draft，Issue40开放；是否接受全链动态SDF缺项并合并，由用户决定。
+> **2026-11-17 最新交接：PR41 已于2026-11-16合并。** 数字链已接受原定范围的离线验收，完整功能PL动态SDF仍 **NOT_COMPLETED**，无功率板测/R5现场连续采集、外部六路PWM及完整实机运动仍 **NOT_RUN**。新阶段以 [AQM30-B2实机集成路线图（Draft PR43）](https://github.com/kazecode666/AXU5EV/pull/43)、[Issue42](https://github.com/kazecode666/AXU5EV/issues/42) Task1→Task2→Task3 和 [Issue44](https://github.com/kazecode666/AXU5EV/issues/44) 的跨帧时序评估为执行入口。此变更仅为规划与交接，**没有启动开发/板测，不得自动合并或上电**。下文2026-11-13旧合并决策及旧分支描述属于历史；技术验收矩阵和局部SDF边界仍有效。
 
 ## 一、现阶段统一结论
 
@@ -20,20 +20,22 @@
 
 ## 二、当前唯一有效的技术基线
 
-- **仓库与工作分支：** `kazecode666/AXU5EV`，`codex/motor-control-chain`；[Draft PR41](https://github.com/kazecode666/AXU5EV/pull/41)、[Issue40](https://github.com/kazecode666/AXU5EV/issues/40)。
+- **仓库与新任务基线：** `kazecode666/AXU5EV` 的 `main`（已包含[合并PR41](https://github.com/kazecode666/AXU5EV/pull/41)）；`codex/motor-control-chain` 是原历史实施分支。当前新任务/规划见[Issue42](https://github.com/kazecode666/AXU5EV/issues/42)、[Draft PR43](https://github.com/kazecode666/AXU5EV/pull/43)、[Issue44](https://github.com/kazecode666/AXU5EV/issues/44)。
 - **已冻结的实施产物：** `.runtime/motor_control/hardware_02`的bit/ltx/XSA及已布线DCP；`.runtime/motor_control/vitis_01`的R5应用/平台/FSBL。服务器未修改生产RTL、Simulink模型、XDC或这些实施产物。
 - **最终局部SDF证据：** [统一报告](../verification/motor_control/evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md)、[物理极性证明](../verification/motor_control/evidence/pwm_cut_windows_20261113_04/POLARITY_PROOF.md)、[最终Testbench](../verification/motor_control/evidence/pwm_cut_windows_20261113_04/v2/pwm_cut_tb.sv)。`auto_inhibit`在RTL为高电平禁止，但该cut的物理边界承载`permission=!logical_inhibit`；反相关系**只在局部TB接口适配**，不能据此反转生产RTL接口。
 - **局部SDF动态覆盖：** 每角756022次检查、11次请求/接受、8次谷值采用/回执、3次取消/重臂、三次Anchor启动、死区最小1000ns；slow/fast均实际完成，SDF注释确认且无真实时序异常。边界源延迟0.2ns是仿真假设，不是完整跨层实测延迟。
 - **物理边界：** `physical_link_verified=0`，六路PWM尚非经过验证的外部驱动器接口；`fast_inhibit`在当前BD固定接0，独立动态覆盖N/A。48V为数字测试参考，不是实测母线。
 
-## 三、接下来怎么做（本页只提供决策，不自动授权）
+## 三、新阶段任务与停止点（2026-11-17，仅规划，不自动执行）
 
-**当前：停止额外的服务器SDF诊断或长时间全量编译。** 已完成的PWM局部两角工作线收口，原失败和中断日志保留，不重跑已完成的模型/RTL/STA。
+当前：**停止旧的完整功能PL动态SDF编译/参数搜索长跑**，不重跑已通过的整链RTL/STA/PWM局部两角SDF。不把PR41已合并视为实体接口板测完成。
 
-1. **本地Codex：** 更新本地工作副本前先确认分支和未提交变更，安全同步远程PR41的现行内容。不得自动强制覆盖、清理、暂存用户文件。核对PR正文、聚合结果和本页一致；无需重新运行Vivado/XSim或重新打包。
-2. **用户决策：** 按“数字链已离线验证 + PWM局部SDF两角PASS + 完整设计STA PASS + 完整链动态SDF延期 + 板测未执行”的限定范围，决定是否允许PR41进入合并审查。没有用户授权不得自动合并、关闭Issue或把NOT_COMPLETED改PASS。
-3. **未来现场阶段（另行授权）：** 使用[无功率板测手册](../firmware/r5/motor_control/FIRST_RUN_ZH.md)核对bit/ltx/XSA/ELF、UART、ILA和80字快照，再执行默认禁止、ADC校准、同帧反馈与采集连续性、参考采用、编码器、禁止/重臂。现场操作和功率级测试都不是本轮任务。
-4. **更后续：** R5完整运动控制Runtime、外环及初始化对齐按独立任务开展；AQM参数/编码器尺度与电流PI基线复核不混入本次验收收尾。
+1. **首先执行 Issue42 Task1：** 复用DSP旧采集换算/编码器子系统到现有共享Simulink组件及代码生成边界；保护本地用户文件，只验证受影响数字链；**不修改AQM参数、驱动IO或R5运行调度**。交单独Draft PR待Review。
+2. **然后分别执行 Issue42 Task2、Task3：** 恢复AQM30-B2参数和PI候选并真正更新受影响生成C/HDL；复用驱动IO/行程管理、将J16最终PCB定义转为待板测端口/XDC。不得覆盖PR41冻结证据或把新实现标成已上板。
+3. **可并行只读执行 Issue44：** 确认完整快照名义P2508发布与旧AX-02C2 Runtime耗时是否能满足新跨帧参考合同；只输出评估/建议，不提前修改生产控制代码。随后Review方案再做R5 Runtime/原五态对齐集成、闭环仿真与实验日志。
+4. **未来现场阶段：** 接口板完成电气核对、取得现场安全条件及用户逐项明确授权后，再使用[无功率板测指南](../firmware/r5/motor_control/FIRST_RUN_ZH.md)和**与新实现匹配**的 bit/ltx/XSA/ELF 验证真实链路。旧指南中的PR41冻结候选不能被当成新AQM候选；先无功率，后再考虑受控上电/运动。
+
+详见[路线图所在Draft PR43](https://github.com/kazecode666/AXU5EV/pull/43)。各Task的源码/生成/仿真/布局布线/板测状态分别以实际PR及日志为准，不自动合并或关闭Issue。
 
 ## 四、历史索引（保留原始证据，不作为现行指令）
 
