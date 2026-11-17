@@ -330,6 +330,35 @@ if strict
             observation.continuous_count==before.continuous_count && ...
             after.runtime_frame(4)==0,before,observation,after);
     end
+
+    % The established double command contract treats every nonzero PI request
+    % as reset. The alignment permit must use that same boolean conversion.
+    for reset_value=[0.25 -1]
+        setup('');
+        command(9)=reset_value;
+        command(17)=1;
+        for index=1:4,observation=call(true);end
+        name=sprintf('nonzero_pi_reset_%g',reset_value);
+        record(['start_denied_' name],rejected(observation) && ...
+            observation.reference_commit(7)==1,[],observation,[]);
+        command(9)=0;
+        for index=1:3,observation=call(true);end
+        record(['held_start_after_' name],rejected(observation),[],observation,[]);
+        command(17)=0;call(true);
+        command(17)=1;observation=call(true);
+        record(['new_start_after_' name],ramp_start(observation),[],observation,[]);
+    end
+
+    setup('');command(17)=1;call(true);
+    for index=1:10,observation=call(true);end
+    before=observation;command(9)=0.25;observation=call(false);
+    record('duplicate_nonzero_pi_reset',rejected(observation) && ...
+        observation.reference_commit(7)==1 && ...
+        observation.continuous_count==before.continuous_count,before,observation,[]);
+    command(9)=0;after=call(true);
+    record('held_start_after_duplicate_pi_reset',rejected(after),[],after,[]);
+    command(17)=0;call(true);command(17)=1;observation=call(true);
+    record('new_start_after_duplicate_pi_reset',ramp_start(observation),[],observation,[]);
 end
 
 failed={cases(~[cases.passed]).name};
