@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "numeric_checks": 42,
+  "vector_rows": 49,
+  "output_fields": 14,
+  "output_latency_cycles": 1,
+  "observer_frames": 4,
+  "board": "NOT_RUN"
+}

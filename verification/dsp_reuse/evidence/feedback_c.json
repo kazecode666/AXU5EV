@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "frames": 1493,
+  "scenarios": 19,
+  "compared_output_fields": 7,
+  "maximum_error": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "source": "ARM-target model-generated C compiled through transport-only MEX",
+  "board": "NOT_RUN",
+  "model": "AXU5EV_Encoder_Feedback",
+  "component": "AXU5EV_Encoder_Components/Caculate_measurement",
+  "active_c": "D:\\Project\\AXU5EV\\generated\\dsp_reuse\\feedback_c",
+  "generated_target": "D:\\Project\\AXU5EV\\.runtime\\dsp_reuse\\final_generation_01\\feedback\\codegen\\AXU5EV_Encoder_Feedback_ert_rtw",
+  "production": "ARM Compatible->ARM Cortex-R",
+  "byte_order": "LittleEndian"
+}

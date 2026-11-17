@@ -1,3 +1,17 @@
+# AXU5EV 当前交接 — Issue42 Task1
+
+2026-11-17，基于含已合并PR41的main e36e358，工作分支 `codex/issue42-task1-dsp-reuse`。Task1共享反馈组件复用及受影响生成/离线验证完成，提交独立Draft PR后等待Review。
+
+- 已实际读取DSP原模型和AQM备份，复用可见校准、两相电流、位置/50间隔测速及电角定点路径。统一模型的R5支路和新C生成壳链接同一组件。
+- 电流49向量×14输出及RTL25项通过，电角46向量/RTL460项通过。R5模型与目标C均1493帧×7零差。统一模型55帧×18与PR41存档帧表零差。
+- [Task1报告](reports/task1_dsp_reuse.md)、[旧DSP映射](reports/task1_dsp_component_map.csv)、[新候选结果](../verification/dsp_reuse/results.json)。统一MATLAB入口 `simulation/task1_dsp_reuse.m`，新生成源 `generated/dsp_reuse`。
+- 原9项用户修改和未跟踪数据保留，编辑的共享PL库保留既有排版，其编辑前副本在 `.runtime/dsp_reuse/user_preserved`。其余用户模型及参数文件保持起始内容。
+- 两份HDL生成各有1条复用优化警告。新综合/实现/STA/CDC/SDF、板卡与功率均NOT_RUN。Task2、Task3及Issue44代码保持各自边界。
+
+## PR41签收历史入口
+
+PR41已于2026-11-16合并。以下原文保留历史验收证据及其当时Review措辞，当前Task1以本页首节及新报告为准。
+
 # AXU5EV — 当前交接（PR41 / Issue40）
 
 > **现行状态入口，更新于2026-11-13。** 以本页与 [聚合验收状态](../verification/motor_control/results.json) 为准；较早的评论、说明和仿真日志用于追溯历史，不再构成新任务指令。PR41保持Draft，Issue40开放；是否接受全链动态SDF缺项并合并，由用户决定。

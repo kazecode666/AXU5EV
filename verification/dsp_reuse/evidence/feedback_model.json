@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "model": "AXU5EV_Encoder_Feedback",
+  "frames": 1493,
+  "scenarios": 19,
+  "compared_output_fields": 7,
+  "maximum_error": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "speed_intervals": 50,
+  "history_entries": 51,
+  "history_time_seconds": 0.005,
+  "board": "NOT_RUN"
+}

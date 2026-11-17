@@ -6,14 +6,15 @@ not modify the legacy motor parameters or claim physical scale verification.
 `scripts/encoder_generate_scale.py` exports the PL package and C constants.
 The angle generator checks that its specialized period matches this source.
 
-PL source is `encoder_angle_step.m`. The canonical reusable subsystem is
-`AXU5EV_Encoder_Components.slx/Encoder_Angle`; the new
-`AXU5EV_Encoder_Angle_HDL.slx` shell is a resolved library link to it. The
-existing user-modified PL library and ADC models are never saved by this flow.
-`encoder_generate_hdl(new_output_dir)` is the only HDL generation entry and
-produces `generated/encoder/AXU5EV_Encoder_Angle_HDL/Encoder_Angle.sv` and
-`Electric_Angle_Core.sv`. The MATLAB Function calls the single .m source;
-neither the shell nor future consumers should copy its formula.
+Issue42 Task1 uses the visible shared `AXU5EV_Encoder_Components/Encoder_Angle`
+graph with `task1_encoder_phase_serial.m` for its retained serial state engine.
+`AXU5EV_Encoder_Angle_HDL.slx` links that component. `encoder_angle_step.m`
+is the frozen numerical oracle. The generation entry
+`encoder_generate_hdl(new_output_dir,hdl_dir)` writes the selected candidate
+directory. The unified `task1_dsp_reuse('generate',new_output_dir)` selects
+`generated/dsp_reuse/angle`. The original `generated/encoder` source remains
+with the frozen PR41 board candidate. Current mapping, results and commands
+are in [the Task1 report](../../coordination/reports/task1_dsp_reuse.md).
 
 The existing FOC contract was read from `simulation/pmlsm_foc_fixed_config.m`
 (`Angle`, signed40, fraction32) and the generated legacy `FOC_DUT.theta_e`
@@ -72,8 +73,10 @@ offset and direction changes, manual zero changes, not-ready and
 the ambiguous half-wrap. Earlier path-escaping/latency-convention test failures
 remain in angle_rtl_01/02. No generated HDL was hand-edited.
 
-Software numerical source and C-generation/validation entries are
-`encoder_position_speed.m`, `encoder_generate_c.m` and
-`encoder_validate_software.m`. The same-frame zero/direction/scale/version is
-passed by R5. Their original generated C is the only active software algorithm;
-R5 hand code only reads frames, calls it and stores observations.
+The current software source is the shared visible `Caculate_measurement`
+component. `AXU5EV_Encoder_Feedback.slx` links it for ARM Cortex-R generation
+through `encoder_generate_c(new_output_dir)`, which validates the exact target
+C through a transport-only MEX and publishes `generated/dsp_reuse/feedback_c`.
+`encoder_position_speed.m`, its original generated C and the older validation
+entries are retained as PR41 reference evidence. The same-frame
+zero/direction/scale/version remain explicit input fields.

@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "model": "AXU5EV_Encoder_Angle_HDL",
+  "dut": "AXU5EV_Encoder_Angle_HDL/Encoder_Angle",
+  "generated_directory": "D:\\Project\\AXU5EV\\generated\\dsp_reuse\\angle\\AXU5EV_Encoder_Angle_HDL",
+  "format": "signed40 radians Q32 stored in signed64",
+  "board": "NOT_RUN"
+}

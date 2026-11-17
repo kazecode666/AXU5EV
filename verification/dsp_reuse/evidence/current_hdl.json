@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "model": "AXU5EV_ADC_HDL",
+  "dut": "AXU5EV_ADC_HDL/Current_Preprocess",
+  "component": "AXU5EV_PL_Algorithm_Library/Current_Preprocess",
+  "output_latency_cycles": 1,
+  "generated_directory": "D:\\Project\\AXU5EV\\generated\\dsp_reuse\\adc\\AXU5EV_ADC_HDL",
+  "model_saved": false,
+  "board": "NOT_RUN"
+}

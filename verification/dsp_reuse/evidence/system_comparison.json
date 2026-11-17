@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "frames": 55,
+  "fields": 18,
+  "maximum_errors": {
+    "sample_id": 0.0,
+    "reference_version": 0.0,
+    "ia_A": 0.0,
+    "theta_rad": 0.0,
+    "feedback_valid": 0.0,
+    "duty_u": 0.0,
+    "duty_v": 0.0,
+    "duty_w": 0.0,
+    "compare_u": 0.0,
+    "compare_v": 0.0,
+    "compare_w": 0.0,
+    "applied_u": 0.0,
+    "applied_v": 0.0,
+    "applied_w": 0.0,
+    "position_mm": 0.0,
+    "speed_mm_s": 0.0,
+    "position_valid": 0.0,
+    "speed_valid": 0.0
+  },
+  "baseline": "verification/motor_control/evidence/models/system_frames.csv",
+  "scope": "SIM_ONLY affected shared feedback integration",
+  "board": "NOT_RUN"
+}
