@@ -4,6 +4,7 @@ if nargin == 0, runSIL = false; end
 root = fileparts(fileparts(mfilename('fullpath')));
 addpath(fullfile(root,'simulation'), ...
     fullfile(root,'verification','r5'));
+axu5ev_simulation_paths(root);
 evalin('base','init_AXU5EV;');
 runtime = fullfile(root,'.runtime','ax01');
 if ~isfolder(runtime), mkdir(runtime); end
