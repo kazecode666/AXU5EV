@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "copy_source": "PR53 p3 accepted pipeline configuration, copied once for AX-04",
+  "frame_cycles": 5000,
+  "clock_hz": 50000000,
+  "settings": [
+    {
+      "path": "FOC_DUT",
+      "property": "DistributedPipelining",
+      "requested": "on",
+      "copy_source_sid": 1
+    },
+    {
+      "path": "FOC_DUT/Id",
+      "property": "DistributedPipelining",
+      "requested": "on",
+      "copy_source_sid": 23
+    },
+    {
+      "path": "FOC_DUT/Iq",
+      "property": "DistributedPipelining",
+      "requested": "on",
+      "copy_source_sid": 52
+    },
+    {
+      "path": "FOC_DUT/dq_voltage_limiter",
+      "property": "DistributedPipelining",
+      "requested": "on",
+      "copy_source_sid": 184
+    },
+    {
+      "path": "FOC_DUT/SVPWMG",
+      "property": "DistributedPipelining",
+      "requested": "on",
+      "copy_source_sid": 95
+    },
+    {
+      "path": "FOC_DUT/SVPWMG/XYZ\nCalculate",
+      "property": "DistributedPipelining",
+      "requested": "on",
+      "copy_source_sid": 154
+    },
+    {
+      "path": "FOC_DUT/SVPWMG/Sector\nCaculate",
+      "property": "DistributedPipelining",
+      "requested": "on",
+      "copy_source_sid": 119
+    },
+    {
+      "path": "FOC_DUT/SVPWMG/T1T2\nCalculate",
+      "property": "DistributedPipelining",
+      "requested": "on",
+      "copy_source_sid": 134
+    },
+    {
+      "path": "FOC_DUT/dq_voltage_limiter",
+      "property": "OutputPipeline",
+      "requested": 4,
+      "copy_source_sid": 184
+    },
+    {
+      "path": "FOC_DUT/InversePark",
+      "property": "OutputPipeline",
+      "requested": 6,
+      "copy_source_sid": 51
+    },
+    {
+      "path": "FOC_DUT/SVPWMG/XYZ\nCalculate",
+      "property": "OutputPipeline",
+      "requested": 4,
+      "copy_source_sid": 154
+    },
+    {
+      "path": "FOC_DUT/SVPWMG/Sector\nCaculate",
+      "property": "OutputPipeline",
+      "requested": 1,
+      "copy_source_sid": 119
+    },
+    {
+      "path": "FOC_DUT/SVPWMG/T1T2\nCalculate",
+      "property": "OutputPipeline",
+      "requested": 4,
+      "copy_source_sid": 134
+    },
+    {
+      "path": "FOC_DUT/Park",
+      "property": "OutputPipeline",
+      "requested": 12,
+      "copy_source_sid": 83
+    },
+    {
+      "path": "FOC_DUT/Clark",
+      "property": "DistributedPipelining",
+      "requested": "on",
+      "copy_source_sid": 10
+    },
+    {
+      "path": "FOC_DUT/Clark",
+      "property": "OutputPipeline",
+      "requested": 3,
+      "copy_source_sid": 10
+    },
+    {
+      "path": "FOC_DUT/Id",
+      "property": "OutputPipeline",
+      "requested": 6,
+      "copy_source_sid": 23
+    },
+    {
+      "path": "FOC_DUT/Iq",
+      "property": "OutputPipeline",
+      "requested": 6,
+      "copy_source_sid": 52
+    }
+  ]
+}

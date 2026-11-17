@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "stage": "Equivalent source copy before IRQ, management and B2 adaptations",
+  "runtime": {
+    "status": "PASS",
+    "source": "AXU5EV_R5_Runtime",
+    "copy": "AXU5EV_Motor_Control_System/Runtime_Wrapper",
+    "blocks": 423,
+    "connections": 374,
+    "stage": "Before IRQ, driver/travel and AQM30-B2 adaptations"
+  },
+  "pl": {
+    "status": "PASS",
+    "current": {
+      "status": "PASS",
+      "vectors": 49,
+      "arithmetic_checks": 42,
+      "outputs": 14,
+      "latency_cycles": 1,
+      "reference": "accepted PR45 49-vector integer arithmetic and calibration oracle"
+    },
+    "angle": {
+      "status": "PASS",
+      "vectors": 46,
+      "clock_steps": 2208,
+      "latency_cycles": 34,
+      "max_ideal_error_q32_lsb": 1,
+      "reference": "accepted PR41 modulo32 serial angle and Q32 quantization oracle"
+    },
+    "foc": {
+      "status": "DEFERRED_B2_PARAMETER_STAGE"
+    },
+    "hardware": "HW_BINDING_PENDING",
+    "board": "BOARD_NOT_RUN",
+    "scope": "short model simulation and accepted numeric fixtures"
+  },
+  "foc_source_snapshot": {
+    "source": "simulation/closed_loop/parameters/init_AXU5EV.m",
+    "parameters": {
+      "Rs": 2.37,
+      "Ld": 0.001745,
+      "Lq": 0.001745,
+      "psi": 0.141,
+      "Kp_ACR": 8.725000000000001,
+      "Ki_ACR": 11850.000000000004,
+      "Kaw_d": 0.1358166189111748,
+      "Kaw_q": 0.1358166189111748,
+      "Ts_ACR": 0.0001,
+      "Udc": 48
+    },
+    "Ts_ACR": 0.0001,
+    "phase": "equivalent source copy before B2",
+    "board": "BOARD_NOT_RUN"
+  }
+}
