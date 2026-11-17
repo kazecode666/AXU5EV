@@ -55,7 +55,8 @@
       "pl_foc_dut.png",
       "qualified_runtime.png"
     ],
-    "driver_data_connections_preserved": 24
+    "driver_data_connections_preserved": 24,
+    "post_codegen_changes": "Layout, model descriptions and SDI labels only; algorithm connections and scripts preserved"
   },
   "source_copy_evidence": "verification/experiment/model_layout/source_copy.json",
   "pure_short_simulation": {
@@ -340,5 +341,6 @@
     "status": "PASS",
     "blocking_findings": 0,
     "sdi_reference_labels": "Corrected Id/Iq/velocity reference names in the experiment copy"
-  }
+  },
+  "draft_pr": "https://github.com/kazecode666/AXU5EV/pull/46"
 }

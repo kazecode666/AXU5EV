@@ -2,7 +2,7 @@
 
 ## AX-04 当前执行入口
 
-2026-11-17，按 Issue42 评论6941278055及PR43任务书执行交付A，分支 `codex/ax04-experiment-model`，叠加在PR45 `codex/issue42-task1-dsp-reuse`。当前任务与最终验证记录见 `coordination/HANDOFF.md` 首节。本文以下AX-03及更早阶段的授权/待Review措辞保留作历史。
+2026-11-17，按 Issue42 评论6941278055及PR43任务书完成交付A，已发布 [kazecode666/AXU5EV Draft PR46](https://github.com/kazecode666/AXU5EV/pull/46)，停在Review。分支 `codex/ax04-experiment-model`，叠加在PR45 `codex/issue42-task1-dsp-reuse`。最终验证记录见 `coordination/HANDOFF.md` 首节。本文以下AX-03及更早阶段的授权/待Review措辞保留作历史。
 
 - 纯仿真入口为 `simulation/START_SIMULATION.m`，兼容入口为 `START_HERE.m`，参数源为 `closed_loop/parameters/init_AXU5EV.m`。
 - 实机入口为 `simulation/START_EXPERIMENT.m`，算法、参数、生成入口位于 `experiment`。实机采用独立副本与ModelWorkspace参数，后续修改在各自用途目录进行。

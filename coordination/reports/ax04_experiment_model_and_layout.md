@@ -1,6 +1,6 @@
 # AX-04 独立实机模型与双入口
 
-本轮执行 Issue42 评论6941278055及PR43任务书的交付A，基于PR45 `a7a5670` 建立 `codex/ax04-experiment-model`。PR45保持Draft，新PR以 `codex/issue42-task1-dsp-reuse` 为base。[执行任务](../tasks/ax04_experiment_model_and_simulation_layout.md)
+本轮执行 Issue42 评论6941278055及PR43任务书的交付A，基于PR45 `a7a5670` 建立 `codex/ax04-experiment-model`。已发布 [Draft PR46](https://github.com/kazecode666/AXU5EV/pull/46)，base为 `codex/issue42-task1-dsp-reuse`，停在Review。[执行任务](../tasks/ax04_experiment_model_and_simulation_layout.md)
 
 ## 来源与提交
 
@@ -63,7 +63,7 @@ FOC辅助`gm_AXU5EV_Experiment_FOC`的输出延时插入步骤出现`Failed to a
 
 目标C实际生成与测试位于 `.runtime/experiment/ax04_01/r5_02`，最终日志为 `r5_02b.log`，版本化C/H位于 `generated/experiment/ax04_01/r5_02`。首次生成后的函数原型读取错误已修复，最终按实际BuildInfo中的5份C编译测试。该验证在主机执行，ARM目标链接与运行留待交付B。主模型排版前后执行连接、脚本及普通端口外观断言，Review发现的3项旧duty日志名已改成Id、Iq及速度参考名称。
 
-双入口隔离的最终结果为 `isolation_02/entries.json`，纯仿真短结果为 `pure_02/entries.json`。主模型受控检查写入 `main_check_01`。保存过程中曾出现复杂模型保存耗时异常，本轮新模型采用关闭外层预览、跳过保存回调的检查点方式恢复并保存，模型回调静态检查为空；该异常根因尚未确认。
+双入口隔离的最终结果为 `isolation_02/entries.json`，纯仿真短结果为 `pure_02/entries.json`。最终主模型受控检查写入 `main_check_03`。C生成后仅调整排版、模型说明和SDI标签，连接及算法脚本断言保持一致；驱动的24项数据连接在几何重绘后逐项复核。保存过程中曾出现复杂模型保存耗时异常，本轮新模型采用关闭外层预览、跳过保存回调的检查点方式恢复并保存，模型回调静态检查为空；该异常根因尚未确认。
 
 精简汇总与依赖结果分别为[交付A结果](../../verification/experiment/model_layout/results.json)和[模型及函数来源](../../verification/experiment/model_layout/dependencies.json)。原始CSV、MEX、工具缓存、失败记录及检查点保留在本轮新运行目录。顶层、ISR、Runtime、驱动及三个PL关键区域的实际截图位于 `verification/experiment/model_layout`。
 

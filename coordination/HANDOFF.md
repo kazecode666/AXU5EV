@@ -1,6 +1,6 @@
 # AXU5EV 当前交接 — Issue42 AX-04 交付A
 
-2026-11-17，`kazecode666/AXU5EV` 的独立实机模型、simulation双入口及实际C/HDL生成已完成交付A。分支 `codex/ax04-experiment-model` 基于未合并PR45的最新head `a7a5670350e94dc5e94db0562f34d4f8213e32c8`，新Draft PR以 `codex/issue42-task1-dsp-reuse` 为base，停在Review。
+2026-11-17，`kazecode666/AXU5EV` 的独立实机模型、simulation双入口及实际C/HDL生成已完成交付A，已发布 [Draft PR46](https://github.com/kazecode666/AXU5EV/pull/46)。分支 `codex/ax04-experiment-model` 基于未合并PR45的最新head `a7a5670350e94dc5e94db0562f34d4f8213e32c8`，PR46以 `codex/issue42-task1-dsp-reuse` 为base，停在Review。
 
 - 目录与入口提交 `a223973`、等价源复制 `9c5fb4b`、B2参数及实机入口适配 `4c72c05`。85项路径映射见[旧新路径](reports/ax04_path_map.csv)。
 - 纯仿真从 `simulation/START_SIMULATION.m` 进入，实机从 `simulation/START_EXPERIMENT.m` 进入。实机算法、参数、自定义函数及生成入口独立，当前主模型包含真实初始化、外部PL_Frame_IRQ、Qualified_Runtime、驱动行程及非实时服务。
