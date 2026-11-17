@@ -31,15 +31,35 @@ switch action
             'models',{parameter_models},'parameters',parameters, ...
             'provenance',provenance,'saved',false);
     case 'check'
-        sources=load_sources(experiment,'open');
-        assert_stopped(parameter_models);
-        assert_complete(parameter_models,parameters);
+        sources=load_sources(experiment,'generate_r5');
+        assert_stopped(parameter_models(1));
+        assert_complete(parameter_models(1),parameters);
+        if nargin<2 || isempty(output_dir)
+            output_dir=fullfile(root,'.runtime','experiment', ...
+                ['check_' char(datetime('now',Format='yyyyMMdd_HHmmss_SSS'))]);
+        end
+        assert(~isfolder(output_dir) && ~isfile(output_dir), ...
+            'AX04:Output','Choose a new model-check directory.');
+        mkdir(output_dir);
+        folders=Simulink.fileGenControl('getConfig');
+        folder_cleanup=onCleanup(@()Simulink.fileGenControl('setConfig','config',folders)); %#ok<NASGU>
+        Simulink.fileGenControl('set','CacheFolder',fullfile(output_dir,'cache'), ...
+            'CodeGenFolder',fullfile(output_dir,'code'),'createDir',true);
         main='AXU5EV_Motor_Control_System';
-        set_param(main,'SimulationCommand','update');
-        boundaries=check_boundaries(main);
-        result=struct('status','CHECK_PASS','sources',{sources}, ...
-            'boundaries',boundaries,'parameter_source',which('axu5ev_experiment_parameters'), ...
-            'hardware','HW_BINDING_PENDING','board','BOARD_NOT_RUN');
+        try
+            set_param(main,'SimulationCommand','update');
+            boundaries=check_boundaries(main);
+            result=struct('status','CHECK_PASS','sources',{sources}, ...
+                'boundaries',boundaries,'work_directory',output_dir, ...
+                'parameter_source',which('axu5ev_experiment_parameters'), ...
+                'hardware','HW_BINDING_PENDING','board','BOARD_NOT_RUN');
+            write_json(fullfile(output_dir,'model_check.json'),result);
+        catch err
+            result=struct('status','CHECK_FAIL','model',main, ...
+                'error_id',err.identifier,'error',err.message);
+            write_json(fullfile(output_dir,'model_check.json'),result);
+            rethrow(err);
+        end
     case {'generate','generate_r5','generate_pl'}
         if nargin<2 || isempty(output_dir)
             output_dir=fullfile(root,'.runtime','experiment', ...
@@ -118,10 +138,13 @@ end
 end
 
 function records=initialize_missing(models,parameters)
-names=fieldnames(parameters);
 records=struct('model',{},'added_fields',{},'complete',{},'dirty',{});
 for index=1:numel(models)
     model=models{index};
+    names=fieldnames(parameters);
+    if strcmp(model,'AXU5EV_Motor_Control_System')
+        names=[names;alignment_signal_names()];
+    end
     workspace=get_param(model,'ModelWorkspace');
     present=cellfun(@(name)workspace.hasVariable(name),names);
     missing=names(~present);
@@ -131,7 +154,14 @@ for index=1:numel(models)
         workspace.DataSource='Model File';
         for parameter_index=1:numel(missing)
             name=missing{parameter_index};
-            assignin(workspace,name,parameters.(name));
+            if isfield(parameters,name)
+                value=parameters.(name);
+            else
+                value=Simulink.Signal;
+                value.DataType='double';
+                value.InitialValue='0';
+            end
+            assignin(workspace,name,value);
         end
         added=missing;
     end
@@ -191,7 +221,24 @@ for index=1:numel(models)
             'AX04:Parameters','Review and save the current experiment parameter source: %s/%s', ...
             models{index},name);
     end
+    if strcmp(models{index},'AXU5EV_Motor_Control_System')
+        signals=alignment_signal_names();
+        for signal_index=1:numel(signals)
+            name=signals{signal_index};
+            assert(workspace.hasVariable(name),'AX04:AlignmentSignal', ...
+                'The saved experiment alignment signal is absent: %s',name);
+            signal=workspace.getVariable(name);
+            assert(isa(signal,'Simulink.Signal') && ...
+                strcmp(signal.DataType,'double') && strcmp(signal.InitialValue,'0'), ...
+                'AX04:AlignmentSignal','The experiment alignment signal definition differs: %s',name);
+        end
+    end
 end
+end
+
+function names=alignment_signal_names()
+names={'Init_Done';'Init_State_Num';'id_init_ref';'Angle_Init_EN'; ...
+    'Theta_Offset_auto';'x_align_mm_latch'};
 end
 
 function write_json(file,value)
