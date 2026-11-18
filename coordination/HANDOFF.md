@@ -1,8 +1,8 @@
 # AXU5EV 当前交接 — AX-04B 离线候选
 
-2026-11-19，从合并 PR47 的完整 main `21847326e4e0d8e100f3aaa5f31b612f24f75e01` 建立 `codex/ax04b-hardware-binding`。PR46 经 PR45 分支再由 PR47 带入主线。本轮完成 B1～B4 并停在实现 Draft PR Review。执行依据为 [PR47 任务书](tasks/ax04b_hardware_binding_and_first_run.md)、[Issue42 执行评论](https://github.com/kazecode666/AXU5EV/issues/42#issuecomment-6974714393)及 [Issue44 执行评论](https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-6974720049)。
+2026-11-19，从合并 PR47 的完整 main `21847326e4e0d8e100f3aaa5f31b612f24f75e01` 建立 `codex/ax04b-hardware-binding`。PR46 经 PR45 分支再由 PR47 带入主线。本轮完成 B1～B4 并停在 [kazecode666/AXU5EV Draft PR48](https://github.com/kazecode666/AXU5EV/pull/48) Review。执行依据为 [PR47 任务书](tasks/ax04b_hardware_binding_and_first_run.md)、[Issue42 执行评论](https://github.com/kazecode666/AXU5EV/issues/42#issuecomment-6974714393)及 [Issue44 执行评论](https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-6974720049)。
 
-- B1 `a3817c7` 实现冻结反馈、高电平 IRQ、精确 ACK 和下一 P0 原子参考。B2 `7d821b4` 接实际实机 HDL、固定角/偏置及独立禁止。B3 `a05ba41` 将真实 GIC/MMIO 调度接入 PR46 v1.95 ERT。B4 构建、XDC 确认和启动检查见[完整报告](reports/ax04b_hardware_binding.md)。
+- B1 `a3817c7` 实现冻结反馈、高电平 IRQ、精确 ACK 和下一 P0 原子参考。B2 `7d821b4` 接实际实机 HDL、固定角/偏置及独立禁止。B3 `a05ba41` 将真实 GIC/MMIO 调度接入 PR46 v1.95 ERT。B4 `43d176589465e3dd296cbee8d8736cc9a77fddc6` 完成两套构建、XDC 确认和启动检查。[完整报告](reports/ax04b_hardware_binding.md)
 - AXI 定向 866 项通过。链路 RTL 仿真实测 P76 早期 IRQ、P110 会合、P127 冻结、P443 结果、P2500 PWM 谷值采用、P2504 回传。SELFTEST/REAL 定向刺激均验证无效帧调度、固定/偏置切换和快速停止。
 - `.runtime/experiment/ax04b/selftest_02` 与 `.runtime/experiment/ax04b/real_02` 各有匹配 bit/ltx/XSA/ELF。布线 STA 的 WNS/WHS 分别为 +0.355/+0.005 ns 与 +0.986/+0.011 ns，TNS/THS 均为 0。REAL 16 个 J16 引脚的最终设计核对通过。实际 Cortex-R5 裸机启动检查从各自 XSA/BSP/ELF 核对 `0x80002000`、GIC 121 高电平和 16 KiB IRQ 栈。[精简证据](../verification/experiment/ax04b/results.json)
 - [唯一无功率首运行指南](../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md)列出 `ax04b_realtime_manual` 及成套候选。ARM 执行、板内 SELFTEST、REAL 外部 IO、功率运动和实际中断预算均为 `NOT_RUN`。本次只做离线工作。原 PR41 候选、现有模型布局、未提交用户修改和全部数据继续保留。
