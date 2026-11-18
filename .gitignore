@@ -54,3 +54,9 @@ Thumbs.db
 /generated/motor_control/AXU5EV_Duty_Adapter_HDL/*
 !/generated/motor_control/AXU5EV_Duty_Adapter_HDL/Duty_To_Compare.sv
 !/generated/motor_control/AXU5EV_Duty_Adapter_HDL/Duty_Scale_Core.sv
+
+# Issue42 feedback candidates retain generated source separately from PR41.
+/generated/dsp_reuse/adc/AXU5EV_ADC_HDL/*
+!/generated/dsp_reuse/adc/AXU5EV_ADC_HDL/*.sv
+/generated/dsp_reuse/angle/AXU5EV_Encoder_Angle_HDL/*
+!/generated/dsp_reuse/angle/AXU5EV_Encoder_Angle_HDL/*.sv

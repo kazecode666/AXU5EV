@@ -74,7 +74,8 @@ for k=1:n,fprintf(f,'%.0f %.0f %.0f %.0f %.0f %.0f %.0f %.0f %.0f\n',v(k,:),gold
 % Generated RTL is separately measured post-edge; see README for 33/34 convention.
 result=struct('status','PASS','vectors',n,'model_clock_steps',cycles,'latency_cycles',latencies(1), ...
  'max_ideal_error_q32_lsb',max_error,'format','signed40 Q32 rad in int64','coefficient',943231700270, ...
- 'source','AXU5EV_Encoder_Components/Encoder_Angle -> encoder_angle_step.m','board','NOT_RUN');
+ 'source','AXU5EV_Encoder_Components/Encoder_Angle visible quantization + retained serial modulo state', ...
+ 'reference','encoder_angle_step.m frozen PR41 oracle','board','NOT_RUN');
 f2=fopen(fullfile(output_dir,'angle_model_result.json'),'w');cl2=onCleanup(@()fclose(f2));
 fprintf(f2,'%s\n',jsonencode(result,PrettyPrint=true));disp(result);
 end

@@ -3,7 +3,7 @@ function result=motor_control_system_batch(output_dir)
 assert(batchStartupOptionUsed,'Use motor_control_run.');
 root=fileparts(fileparts(fileparts(mfilename('fullpath'))));deps=fullfile(output_dir,'dependencies');
 addpath(deps,fullfile(root,'simulation','motor_control'),fullfile(root,'simulation','real_io'),fullfile(root,'simulation','encoder'),'-begin');
-addpath(deps,'-begin'); % Explicitly prefer the accepted single-source snapshots.
+addpath(deps,'-begin'); % Prefer the explicitly staged feedback and frozen FOC.
 evalin('base','init_PMLSM_PI_FOC_Float_Baseline;');
 Simulink.fileGenControl('set','CacheFolder',fullfile(output_dir,'cache'), ...
  'CodeGenFolder',fullfile(output_dir,'code'),'createDir',true);

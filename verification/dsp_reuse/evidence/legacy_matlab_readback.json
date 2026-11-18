@@ -1,0 +1,48 @@
+{
+  "PMSLM_Close_Loop_MBDL4": {
+    "model": "PMSLM_Close_Loop_MBDL4",
+    "file": "D:\\Project\\AXU5EV\\references\\legacy\\mil\\PMSLM_Close_Loop_MBDL4.slx",
+    "dirty": "off",
+    "calibration_path": "PMSLM_Close_Loop_MBDL4/FOC_3Close_Loop_Control/ADC//QEP/Current_Offset_Calibration",
+    "calibration_ports": [
+      4,
+      8,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "measurement_path": "PMSLM_Close_Loop_MBDL4/FOC_3Close_Loop_Control/Caculate_measurement",
+    "delay50": "50",
+    "speed_gain": "1/(delay_N*Ts)",
+    "electrical_gain": "2*pi/Tau_e_mm",
+    "position_scale": "Grating_Resolution_mm_per_count"
+  },
+  "PMSLM_Close_Loop_MBDL4_F28335_Backup": {
+    "model": "PMSLM_Close_Loop_MBDL4_F28335_Backup",
+    "file": "D:\\Project\\PMSLM_Simulation\\PMSLM_Close_Loop_MBDL4_F28335_Backup.slx",
+    "dirty": "off",
+    "calibration_path": "PMSLM_Close_Loop_MBDL4_F28335_Backup/FOC_3Close_Loop_Control/ADC//QEP/Current_Offset_Calibration",
+    "calibration_ports": [
+      3,
+      7,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "measurement_path": "PMSLM_Close_Loop_MBDL4_F28335_Backup/FOC_3Close_Loop_Control/Caculate_measurement",
+    "delay50": "50",
+    "speed_gain": "1/(delay_N*Ts)",
+    "electrical_gain": "2*pi/Tau_e_mm",
+    "position_scale": "0.001"
+  }
+}

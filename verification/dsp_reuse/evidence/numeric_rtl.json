@@ -1,0 +1,30 @@
+{
+    "status":  "PASS",
+    "scope":  "EXTRACTED_NUMERIC_RTL_ONLY",
+    "results":  [
+                    {
+                        "suite":  "current",
+                        "status":  "PASS",
+                        "top":  "ax03b1_current_tb",
+                        "pass_marker":  "AX03B1_CURRENT_PASS checks=25",
+                        "generated_directory":  "generated/dsp_reuse/adc/AXU5EV_ADC_HDL",
+                        "generated_file_count":  16,
+                        "log_directory":  "D:\\Project\\AXU5EV\\.runtime\\dsp_reuse\\numeric_rtl_final_01\\current"
+                    },
+                    {
+                        "suite":  "angle",
+                        "status":  "PASS",
+                        "top":  "angle_tb",
+                        "pass_marker":  "ANGLE_PASS vectors=46 checks=460 latency=33",
+                        "generated_directory":  "generated/dsp_reuse/angle/AXU5EV_Encoder_Angle_HDL",
+                        "generated_file_count":  4,
+                        "log_directory":  "D:\\Project\\AXU5EV\\.runtime\\dsp_reuse\\numeric_rtl_final_01\\angle"
+                    }
+                ],
+    "current_cases":  "Existing current_tb arithmetic, independent calibration, 1024-sample window and boundary assertions",
+    "angle_vectors":  "D:\\Project\\AXU5EV\\.runtime\\dsp_reuse\\final_verify_01\\angle\\angle_vectors.txt",
+    "board":  "NOT_RUN",
+    "synthesis":  "NOT_RUN",
+    "implementation":  "NOT_RUN",
+    "physical_timing_cdc":  "NOT_RUN"
+}

@@ -1,0 +1,22 @@
+{
+  "status": "PASS_OFFLINE_TASK1",
+  "issue": "kazecode666/AXU5EV#42",
+  "base": "e36e358b9060a0eab99d1e3d78a3f0827302bd45",
+  "branch": "codex/issue42-task1-dsp-reuse",
+  "current_model": "49 vectors x14 outputs;1 clock;4 observer frames",
+  "current_rtl": "25 existing assertions including1024 calibration",
+  "angle_model": "46 vectors;2208 steps;34 pre-update model clocks;<=1 Q32 LSB",
+  "angle_rtl": "460 checks;33 post-edge clocks",
+  "r5_model_and_target_c": "19 scenarios;1493 frames x7;zero difference",
+  "integrated_model": "55 frames x18 match stored PR41 trace exactly",
+  "hdl_warnings": {
+    "current": 1,
+    "angle": 1,
+    "id": "hdlcoder:engine:ReuseRequiresInvariantConstants"
+  },
+  "hardware_build": "NOT_RUN",
+  "new_sta_cdc_sdf": "NOT_RUN",
+  "board": "NOT_RUN",
+  "tasks2_3": "NOT_RUN",
+  "issue44_changes": "NONE"
+}

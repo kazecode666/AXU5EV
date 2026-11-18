@@ -1,6 +1,6 @@
 function [position_mm,speed_mm_s,position_valid,speed_valid] = motor_control_sim_r5(count,sample_id,tick,encoder_valid,new_frame)
 %#codegen
-% R5 numerical boundary: reuse the sole generated-software source, no outer loop.
+% Frozen PR41 harness reference. The active SLX links Caculate_measurement.
 persistent x v pv vv
 if isempty(x),x=0.0;v=0.0;pv=false;vv=false;end
 if new_frame
