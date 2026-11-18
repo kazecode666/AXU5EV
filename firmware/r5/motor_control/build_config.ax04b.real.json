@@ -1,0 +1,7 @@
+{
+  "profile": "REAL",
+  "xsa": ".runtime/experiment/ax04b/real_02/hardware/ax04b_real.xsa",
+  "bitstream": ".runtime/experiment/ax04b/real_02/hardware/ax04b_real.bit",
+  "ltx": ".runtime/experiment/ax04b/real_02/hardware/ax04b_real.ltx",
+  "workspace": ".runtime/experiment/ax04b/real_02/vitis"
+}

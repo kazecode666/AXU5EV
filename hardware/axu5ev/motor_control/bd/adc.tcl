@@ -156,7 +156,13 @@ proc mc_integrate {root out} {
     set wrapper [make_wrapper -files [get_files */design_1.bd] -top]
     add_files -norecurse $wrapper
     add_files -fileset constrs_1 [mc_sources $root constraints]
-    if {$profile eq "REAL"} {add_files -fileset constrs_1 [mc_sources $root constraints_real]}
+    if {$profile eq "REAL"} {
+        add_files -fileset constrs_1 [mc_sources $root constraints_real]
+        foreach constraint [mc_sources $root constraints_real_impl] {
+            add_files -fileset constrs_1 $constraint
+            set_property USED_IN_SYNTHESIS false [get_files $constraint]
+        }
+    }
     set_property top design_1_wrapper [current_fileset]
     update_compile_order -fileset sources_1
     write_hw_platform -fixed -file $out/ax03b3_adc_prebit.xsa
@@ -194,32 +200,67 @@ proc mc_ax04b_realtime {ps} {
         connect_bd_net [get_bd_pins ax04b_irq_concat/dout] $interrupt_pin
     }
     create_bd_cell -type ip -vlnv xilinx.com:ip:ila realtime_ila
-    mc_ax04b_ila_config
-    connect_bd_net [get_bd_pins $ps/pl_clk0] [get_bd_pins realtime_ila/clk]
-    set probe 0
-    foreach source [list $obs/ax04b_p0_o $obs/ax04b_frame_o $cpu/irq_o $obs/ax04b_p0_id_o \
-        $cpu/active_target_o $cpu/active_valid_o $cpu/inhibit_o $obs/ax04b_fault_o] {
-        connect_bd_net [get_bd_pins $source] [get_bd_pins realtime_ila/probe$probe]
-        incr probe
-    }
 }
 
 proc mc_ax04b_ila_config {} {
     set ila [get_bd_cells realtime_ila]
-    set_property -dict [list CONFIG.C_MONITOR_TYPE Native CONFIG.C_NUM_OF_PROBES 8 \
-        CONFIG.C_DATA_DEPTH 1024] $ila
-    set_property -dict [list CONFIG.C_PROBE0_WIDTH 1 CONFIG.C_PROBE1_WIDTH 1 \
-        CONFIG.C_PROBE2_WIDTH 1 CONFIG.C_PROBE3_WIDTH 32 CONFIG.C_PROBE4_WIDTH 32 \
-        CONFIG.C_PROBE5_WIDTH 1 CONFIG.C_PROBE6_WIDTH 1 CONFIG.C_PROBE7_WIDTH 1] $ila
+    set_property -dict [list CONFIG.C_MONITOR_TYPE Native CONFIG.C_NUM_OF_PROBES 4 \
+        CONFIG.C_DATA_DEPTH 8192] $ila
+    set_property -dict [list CONFIG.C_PROBE0_WIDTH 6 CONFIG.C_PROBE1_WIDTH 32 \
+        CONFIG.C_PROBE2_WIDTH 32 CONFIG.C_PROBE3_WIDTH 128] $ila
 }
 
 proc mc_ax04b_check_ila {} {
     set ila [get_bd_cells realtime_ila]
-    if {[get_property CONFIG.C_NUM_OF_PROBES $ila] != 8} {error "AX04B ILA probe count changed"}
-    foreach probe {3 4} {
+    if {[llength [get_bd_cells -filter {VLNV =~ "xilinx.com:ip:ila:*"}]] != 1 ||
+        [get_property CONFIG.C_NUM_OF_PROBES $ila] != 4} {
+        error "AX04B needs exactly one four-probe ILA"
+    }
+    foreach {probe top_bit} {0 5 1 31 2 31 3 127} {
         set pin [get_bd_pins realtime_ila/probe$probe]
-        if {[get_property LEFT $pin] != 31 || [get_property RIGHT $pin] != 0} {
-            error "AX04B ILA narrowed the frame identity on probe $probe"
+        if {[get_property LEFT $pin] != $top_bit || [get_property RIGHT $pin] != 0} {
+            error "AX04B ILA narrowed probe $probe"
         }
+    }
+    set expected [get_bd_nets -of_objects [get_bd_pins pwm_clock/clk_out1]]
+    if {[get_bd_nets -of_objects [get_bd_pins realtime_ila/clk]] ne $expected} {
+        error "AX04B ILA must use the PWM clock to observe exact adoption"
+    }
+}
+
+proc mc_ax04b_configure_combined_ila {} {
+    # BASIC limits debug cores and probes. Pack status into one probe and
+    # sample both related domains at 100 MHz to see the exact PWM valley.
+    set old [get_bd_cells -quiet pwm_ila]
+    if {[llength $old]} {delete_bd_objs $old}
+    foreach pin [get_bd_pins -quiet realtime_ila/probe*] {
+        set net [get_bd_nets -quiet -of_objects $pin]
+        if {[llength $net]} {disconnect_bd_net $net $pin}
+    }
+    mc_ax04b_ila_config
+    set clock [get_bd_pins realtime_ila/clk]
+    set net [get_bd_nets -quiet -of_objects $clock]
+    set source [get_bd_pins pwm_clock/clk_out1]
+    if {$net ne [get_bd_nets -of_objects $source]} {
+        if {[llength $net]} {disconnect_bd_net $net $clock}
+        connect_bd_net $source $clock
+    }
+    set obs adc_observer_0
+    set cpu ax04b_realtime_0
+    set flags ax04b_probe_flags
+    if {![llength [get_bd_cells -quiet $flags]]} {
+        create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat $flags
+        set_property CONFIG.NUM_PORTS 6 [get_bd_cells $flags]
+        set bit 0
+        foreach signal [list $obs/ax04b_p0_o $obs/ax04b_frame_o $cpu/irq_o \
+            $cpu/active_valid_o $cpu/inhibit_o $obs/ax04b_fault_o] {
+            connect_bd_net [get_bd_pins $signal] [get_bd_pins $flags/In$bit]
+            incr bit
+        }
+    }
+    set probe 0
+    foreach signal [list $flags/dout $obs/ax04b_p0_id_o $cpu/active_target_o pwm_control_0/debug_o] {
+        connect_bd_net [get_bd_pins $signal] [get_bd_pins realtime_ila/probe$probe]
+        incr probe
     }
 }

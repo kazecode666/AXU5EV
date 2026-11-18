@@ -112,3 +112,4 @@ experiment|generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_XYZ_Ca
 experiment|generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_dq_voltage_limiter.sv
 experiment|generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_reciprocal.sv
 constraints_real|hardware/axu5ev/motor_control/constraints/j16_ax04b_real.xdc
+constraints_real_impl|hardware/axu5ev/motor_control/constraints/j16_ax04b_cdc.xdc

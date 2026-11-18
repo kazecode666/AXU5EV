@@ -1,0 +1,190 @@
+{
+  "base": "21847326e4e0d8e100f3aaa5f31b612f24f75e01",
+  "pr46_model_and_c_version": "1.95",
+  "implementation_branch": "codex/ax04b-hardware-binding",
+  "stage_commits": {
+    "B1": "a3817c7",
+    "B2": "7d821b4",
+    "B3": "a05ba41"
+  },
+  "RTL_BINDING": "PASS",
+  "R5_HOST_ADAPTER": "PASS",
+  "R5_TARGET_BUILD": "PASS",
+  "FULL_IMPLEMENTATION_STA_CDC": "PASS",
+  "BOARD_SELFTEST": "NOT_RUN",
+  "REAL_IO": "NOT_RUN",
+  "POWER_MOTION": "NOT_RUN",
+  "ARM_EXECUTION": "NOT_RUN",
+  "IRQ_COMMIT_LATENCY_MEASUREMENT": "NOT_RUN",
+  "DYNAMIC_SDF": "NOT_RUN",
+  "tests": {
+    "axi": {
+      "status": "PASS",
+      "marker": "AX04B_REALTIME_AXI PASS checks=866",
+      "evidence": ".runtime/experiment/ax04b/b1_axi_04/summary.json"
+    },
+    "selftest": {
+      "status": "PASS",
+      "marker": "AX04B_CHAIN PASS mode=1 checks=110297 invalid_irq=3 valid_irq=3 irq_phase=76 join=110 result=443 apply=2500 confirm=2504 fixed=1 normal=1",
+      "evidence": ".runtime/experiment/ax04b/b2_chain_selftest_04/summary.json"
+    },
+    "real_stimulus": {
+      "status": "PASS",
+      "marker": "AX04B_CHAIN PASS mode=0 checks=110299 invalid_irq=3 valid_irq=3 irq_phase=76 join=110 result=443 apply=2500 confirm=2504 fixed=1 normal=1",
+      "evidence": ".runtime/experiment/ax04b/b2_chain_real_04/summary.json"
+    },
+    "legacy_chain": {
+      "status": "PASS",
+      "marker": "MOTOR_CHAIN_PASS checks=370245 foc_frames=19 publications=19 adoptions=9 invalid_frames=9 phases=18 triplets=9 ce_clocks=92386 late=1 clock_rearm=1 disarm=2",
+      "evidence": ".runtime/experiment/ax04b/legacy_chain_01/summary.json"
+    }
+  },
+  "real_j16": {
+    "pin_map": "PASS",
+    "matched_pins": 16,
+    "pcb_revision": "V0.3",
+    "pcb_source_commit": "e388c58e6b3e8643aca555dd9847beaf314b3d8c",
+    "electrical": "NOT_RUN"
+  },
+  "candidate_paths": {
+    "selftest": ".runtime/experiment/ax04b/selftest_02",
+    "real": ".runtime/experiment/ax04b/real_02"
+  },
+  "builds": {
+    "SELFTEST": {
+      "profile": "SELFTEST",
+      "mode": 1,
+      "startup_check": "OFFLINE_STARTUP_CHECK_PASS",
+      "candidate": ".runtime/experiment/ax04b/selftest_02",
+      "startup_evidence": ".runtime/experiment/ax04b/selftest_02/vitis/startup_validation.json",
+      "files": {
+        "bitstream": {
+          "path": ".runtime/experiment/ax04b/selftest_02/hardware/ax04b_selftest.bit",
+          "bytes": 7797907
+        },
+        "ltx": {
+          "path": ".runtime/experiment/ax04b/selftest_02/hardware/ax04b_selftest.ltx",
+          "bytes": 42946
+        },
+        "xsa": {
+          "path": ".runtime/experiment/ax04b/selftest_02/hardware/ax04b_selftest.xsa",
+          "bytes": 3130940
+        },
+        "elf": {
+          "path": ".runtime/experiment/ax04b/selftest_02/vitis/ax04b_realtime/build/ax04b_realtime.elf",
+          "bytes": 428720
+        },
+        "map": {
+          "path": ".runtime/experiment/ax04b/selftest_02/vitis/ax04b_realtime/build/ax04b_realtime.map",
+          "bytes": 282492
+        }
+      },
+      "report_directory": ".runtime/experiment/ax04b/selftest_02/hardware/reports",
+      "application_id": "0x41585201",
+      "irq": 121,
+      "irq_type": "high_level",
+      "irq_stack_bytes": 16384,
+      "mmio": "0x80002000",
+      "matching_embedded_bit": true,
+      "route_errors": 0,
+      "sta_ns": {
+        "wns": 0.355,
+        "whs": 0.005,
+        "tns": 0.0,
+        "ths": 0.0,
+        "wpws": 4.0,
+        "related_forward_max_ns": 0.355,
+        "related_forward_min_ns": 0.005,
+        "related_reverse_max_ns": 7.342,
+        "related_reverse_min_ns": 0.69
+      },
+      "drc": {
+        "errors": 0,
+        "warnings": 805
+      },
+      "cdc_rules": {
+        "CDC-3": {
+          "severity": "Info",
+          "count": 9
+        },
+        "CDC-9": {
+          "severity": "Info",
+          "count": 2
+        },
+        "CDC-15": {
+          "severity": "Warning",
+          "count": 4
+        }
+      }
+    },
+    "REAL": {
+      "profile": "REAL",
+      "mode": 2,
+      "startup_check": "OFFLINE_STARTUP_CHECK_PASS",
+      "candidate": ".runtime/experiment/ax04b/real_02",
+      "startup_evidence": ".runtime/experiment/ax04b/real_02/vitis/startup_validation.json",
+      "files": {
+        "bitstream": {
+          "path": ".runtime/experiment/ax04b/real_02/hardware/ax04b_real.bit",
+          "bytes": 7797907
+        },
+        "ltx": {
+          "path": ".runtime/experiment/ax04b/real_02/hardware/ax04b_real.ltx",
+          "bytes": 42946
+        },
+        "xsa": {
+          "path": ".runtime/experiment/ax04b/real_02/hardware/ax04b_real.xsa",
+          "bytes": 3187618
+        },
+        "elf": {
+          "path": ".runtime/experiment/ax04b/real_02/vitis/ax04b_realtime/build/ax04b_realtime.elf",
+          "bytes": 428328
+        },
+        "map": {
+          "path": ".runtime/experiment/ax04b/real_02/vitis/ax04b_realtime/build/ax04b_realtime.map",
+          "bytes": 278908
+        }
+      },
+      "report_directory": ".runtime/experiment/ax04b/real_02/hardware/reports",
+      "application_id": "0x41585201",
+      "irq": 121,
+      "irq_type": "high_level",
+      "irq_stack_bytes": 16384,
+      "mmio": "0x80002000",
+      "matching_embedded_bit": true,
+      "route_errors": 0,
+      "sta_ns": {
+        "wns": 0.986,
+        "whs": 0.011,
+        "tns": 0.0,
+        "ths": 0.0,
+        "wpws": 4.0,
+        "related_forward_max_ns": 0.986,
+        "related_forward_min_ns": 0.013,
+        "related_reverse_max_ns": 6.666,
+        "related_reverse_min_ns": 0.852,
+        "adc_setup_ns": 2.857,
+        "adc_hold_ns": 5.065,
+        "bus_skew_min_ns": 9.066
+      },
+      "drc": {
+        "errors": 0,
+        "warnings": 805
+      },
+      "cdc_rules": {
+        "CDC-3": {
+          "severity": "Info",
+          "count": 14
+        },
+        "CDC-9": {
+          "severity": "Info",
+          "count": 2
+        },
+        "CDC-15": {
+          "severity": "Warning",
+          "count": 4
+        }
+      }
+    }
+  }
+}

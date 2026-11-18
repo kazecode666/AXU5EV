@@ -7,6 +7,9 @@ set mc_out [file normalize [lindex $argv 0]]
 set mc_stage [expr {$argc>1 ? [lindex $argv 1] : "validate"}]
 set mc_vendor [expr {$argc>2 ? [file normalize [lindex $argv 2]] : [file join $mc_root .runtime ax03b2 vendor_ps design_1.bd]}]
 if {$mc_stage ni {base integrate synth audit validate build all reports}} {error "unknown stage"}
+set mc_profile [expr {[info exists ::env(MC_AX04B)] ? $::env(MC_AX04B) : "Legacy"}]
+if {$mc_profile ni {Legacy SELFTEST REAL}} {error "unknown motor control profile: $mc_profile"}
+set mc_artifact [expr {$mc_profile eq "Legacy" ? "ax03b3_adc" : "ax04b_[string tolower $mc_profile]"}]
 source $mc_root/hardware/axu5ev/motor_control/bd/adc.tcl
 proc mc_base {root out vendor} {
     # Same vendor DDR/UART preset and accepted GEM3/TTC PS configuration as C1.
@@ -14,22 +17,77 @@ proc mc_base {root out vendor} {
     set argv [list xczu5ev-sfvc784-2-i $out $vendor]
     source $root/hardware/axu5ev/eth02_ps_runtime_ethernet.tcl
 }
+proc mc_ax04b_verify_real_io {out} {
+    set source [open [lindex [mc_sources $::mc_root constraints_real] 0] r]
+    set lines [split [read $source] "\n"]
+    close $source
+    set results [list]
+    foreach line $lines {
+        if {[regexp {^set_property -dict \{PACKAGE_PIN ([A-Z0-9]+) IOSTANDARD LVCMOS33\} \[get_ports \{([^\}]+)\}\]$} $line -> ball name]} {
+            set port [get_ports -quiet $name]
+            if {[llength $port] != 1 || [get_property PACKAGE_PIN $port] ne $ball ||
+                [get_property IOSTANDARD $port] ne "LVCMOS33"} {
+                error "AX04B REAL J16 constraint not applied: $name $ball"
+            }
+            lappend results "$name $ball LVCMOS33"
+        }
+    }
+    if {[llength $results] != 16} {error "AX04B REAL expected 16 J16 pin constraints"}
+    set qep [get_cells -quiet -hier -filter {NAME =~ *encoder.receiver/sync1_reg* && ASYNC_REG == TRUE}]
+    set faults [get_cells -quiet -hier -filter {
+        (NAME =~ *ax04b_live.erri_sync_reg?0? || NAME =~ *ax04b_live.erru_sync_reg?0?) && ASYNC_REG == TRUE}]
+    if {[llength $qep] != 3 || [llength $faults] != 2} {
+        error "AX04B REAL expected three ABZ and two fault first-stage registers"
+    }
+    set report [open $out/reports/j16_pin_audit.txt w]
+    puts $report [join $results "\n"]
+    puts $report "ABZ first stages: $qep"
+    puts $report "fault first stages: $faults"
+    close $report
+}
 proc mc_build {out} {
+    set stem $::mc_artifact
+    set profile $::mc_profile
+    if {$profile ne "Legacy"} {
+        foreach suffix {bit ltx xsa} {
+            if {[file exists $out/$stem.$suffix]} {error "preserve AX04B output: $out/$stem.$suffix"}
+        }
+        set intent [open $out/ax04b_build_profile.txt r]
+        set integrated_profile [string trim [read $intent]]
+        close $intent
+        if {$integrated_profile ne $profile} {error "AX04B integrated profile differs from requested profile"}
+    }
     open_project $out/project/ax02a_ps.xpr
+    set synth synth_1
+    set impl impl_1
+    if {$profile ne "Legacy"} {
+        set bd [get_files */design_1.bd]
+        open_bd_design $bd
+        mc_ax04b_check_ila
+        close_bd_design [current_bd_design]
+        set synth [current_run -synthesis]
+        set impl [current_run -implementation]
+        file mkdir $out/reports
+        set selected [open $out/reports/synthesis_sources.txt w]
+        foreach path [get_files -compile_order sources -used_in synthesis] {puts $selected $path}
+        close $selected
+    }
     set_param general.maxThreads 8
-    set jobs [expr {[info exists ::env(MC_PWM)] && $::env(MC_PWM)==1 ? 2 : 4}]
-    launch_runs synth_1 -jobs $jobs
-    wait_on_run synth_1
-    if {![string match {*Complete*} [get_property STATUS [get_runs synth_1]]]} {error "synthesis failed"}
-    launch_runs impl_1 -to_step route_design -jobs $jobs
-    wait_on_run impl_1
-    if {![string match {*Complete*} [get_property STATUS [get_runs impl_1]]]} {error "implementation failed"}
-    open_run impl_1
+    set jobs [expr {$profile eq "REAL" ? 1 : ([info exists ::env(MC_PWM)] && $::env(MC_PWM)==1 ? 2 : 4)}]
+    launch_runs $synth -jobs $jobs
+    wait_on_run $synth
+    if {![string match {*Complete*} [get_property STATUS [get_runs $synth]]]} {error "synthesis failed"}
+    launch_runs $impl -to_step route_design -jobs $jobs
+    wait_on_run $impl
+    if {![string match {*Complete*} [get_property STATUS [get_runs $impl]]]} {error "implementation failed"}
+    open_run $impl
     file mkdir $out/reports
+    if {$profile eq "REAL"} {mc_ax04b_verify_real_io $out}
     report_methodology -file $out/reports/methodology.rpt
     report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -file $out/reports/timing_summary.rpt
     check_timing -verbose -file $out/reports/check_timing.rpt
     report_drc -file $out/reports/drc.rpt
+    if {$profile ne "Legacy"} {report_route_status -file $out/reports/route_status.rpt}
     report_utilization -file $out/reports/utilization.rpt
     report_io -file $out/reports/io.rpt
     report_clocks -file $out/reports/clocks.rpt
@@ -42,32 +100,41 @@ proc mc_build {out} {
     }
     if {[get_property SLACK [get_timing_paths -delay_type max -max_paths 1]]<0 || \
         [get_property SLACK [get_timing_paths -delay_type min -max_paths 1]]<0} {error "timing failed"}
-    write_debug_probes -force $out/ax03b3_adc.ltx
+    write_debug_probes -force $out/$stem.ltx
     close_design
-    launch_runs impl_1 -to_step write_bitstream -jobs $jobs
-    wait_on_run impl_1
-    if {![string match {*Complete*} [get_property STATUS [get_runs impl_1]]]} {error "bitstream failed"}
-    open_run impl_1
-    file copy [get_property DIRECTORY [get_runs impl_1]]/design_1_wrapper.bit $out/ax03b3_adc.bit
-    write_hw_platform -fixed -include_bit -file $out/ax03b3_adc.xsa
+    launch_runs $impl -to_step write_bitstream -jobs $jobs
+    wait_on_run $impl
+    if {![string match {*Complete*} [get_property STATUS [get_runs $impl]]]} {error "bitstream failed"}
+    open_run $impl
+    file copy [get_property DIRECTORY [get_runs $impl]]/design_1_wrapper.bit $out/$stem.bit
+    write_hw_platform -fixed -include_bit -file $out/$stem.xsa
     close_project
-    puts "AX03B3_BUILD_PASS $out/ax03b3_adc.xsa"
+    if {$profile eq "Legacy"} {
+        puts "AX03B3_BUILD_PASS $out/$stem.xsa"
+    } else {
+        puts "AX04B_BUILD_PASS $profile $out/$stem.xsa"
+    }
 }
 
 proc mc_synth {out} {
     open_project $out/project/ax02a_ps.xpr
+    set run [expr {$::mc_profile eq "Legacy" ? "synth_1" : [current_run -synthesis]}]
     set_param general.maxThreads 4
-    launch_runs synth_1 -jobs 2
-    wait_on_run synth_1
-    if {![string match {*Complete*} [get_property STATUS [get_runs synth_1]]]} {error "synthesis failed"}
+    launch_runs $run -jobs 2
+    wait_on_run $run
+    if {![string match {*Complete*} [get_property STATUS [get_runs $run]]]} {error "synthesis failed"}
     close_project
 }
 proc mc_audit {root out} {
     open_project $out/project/ax02a_ps.xpr
-    open_run synth_1
+    set run [expr {$::mc_profile eq "Legacy" ? "synth_1" : [current_run -synthesis]}]
+    open_run $run
     file mkdir $out/reports
     set f [open $out/reports/source_constraint_checks.txt w]
-    foreach kind {handwritten generated constraints} {
+    set kinds {handwritten generated constraints}
+    if {$::mc_profile eq "SELFTEST"} {set kinds {handwritten experiment constraints}}
+    if {$::mc_profile eq "REAL"} {set kinds {handwritten experiment constraints constraints_real}}
+    foreach kind $kinds {
         foreach path [mc_sources $root $kind] {
             if {[llength [get_files -quiet $path]] != 1} {error "source missing or duplicate: $path"}
             puts $f "$kind=$path"
@@ -118,13 +185,21 @@ proc mc_audit {root out} {
     close_project
 }
 if {$mc_stage in {base validate all}} {mc_base $mc_root $mc_out $mc_vendor}
-if {$mc_stage in {integrate validate all}} {mc_integrate $mc_root $mc_out}
+if {$mc_stage in {integrate validate all}} {
+    mc_integrate $mc_root $mc_out
+    if {$mc_profile ne "Legacy"} {
+        set intent [open $mc_out/ax04b_build_profile.txt {WRONLY CREAT EXCL}]
+        puts $intent $mc_profile
+        close $intent
+    }
+}
 if {$mc_stage in {synth validate}} {mc_synth $mc_out}
 if {$mc_stage in {audit validate}} {mc_audit $mc_root $mc_out}
 if {$mc_stage in {build all}} {mc_build $mc_out}
 if {$mc_stage eq "reports"} {
     open_project $mc_out/project/ax02a_ps.xpr
-    open_run impl_1
+    set selected_run [expr {$mc_profile eq "Legacy" ? "impl_1" : [current_run -implementation]}]
+    open_run $selected_run
     source $mc_root/hardware/axu5ev/motor_control/pwm_reports.tcl
     mc_pwm_reports $mc_out
     close_project

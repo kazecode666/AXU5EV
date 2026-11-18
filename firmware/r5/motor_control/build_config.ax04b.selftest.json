@@ -1,0 +1,7 @@
+{
+  "profile": "SELFTEST",
+  "xsa": ".runtime/experiment/ax04b/selftest_02/hardware/ax04b_selftest.xsa",
+  "bitstream": ".runtime/experiment/ax04b/selftest_02/hardware/ax04b_selftest.bit",
+  "ltx": ".runtime/experiment/ax04b/selftest_02/hardware/ax04b_selftest.ltx",
+  "workspace": ".runtime/experiment/ax04b/selftest_02/vitis"
+}
