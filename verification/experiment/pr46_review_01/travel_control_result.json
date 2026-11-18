@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "kind": "soft",
+      "position_count": 110001,
+      "request_mm_s": 0.5,
+      "expected_safe_mm_s": 0,
+      "actual_safe_mm_s": 0,
+      "status": "PASS"
+    },
+    {
+      "kind": "soft",
+      "position_count": 110001,
+      "request_mm_s": -0.5,
+      "expected_safe_mm_s": -0.5,
+      "actual_safe_mm_s": -0.5,
+      "status": "PASS"
+    },
+    {
+      "kind": "soft",
+      "position_count": -110001,
+      "request_mm_s": -0.5,
+      "expected_safe_mm_s": 0,
+      "actual_safe_mm_s": 0,
+      "status": "PASS"
+    },
+    {
+      "kind": "soft",
+      "position_count": -110001,
+      "request_mm_s": 0.5,
+      "expected_safe_mm_s": 0.5,
+      "actual_safe_mm_s": 0.5,
+      "status": "PASS"
+    },
+    {
+      "kind": "hard",
+      "position_count": 120000,
+      "returned_count": 100000,
+      "pi_reset_kept_fault": true,
+      "init_reset_kept_fault": true,
+      "explicit_clear_recovered": true,
+      "status": "PASS"
+    },
+    {
+      "kind": "hard",
+      "position_count": -120000,
+      "returned_count": -100000,
+      "pi_reset_kept_fault": true,
+      "init_reset_kept_fault": true,
+      "explicit_clear_recovered": true,
+      "status": "PASS"
+    }
+  ],
+  "irq_calls": 5490,
+  "source": "Exact experiment-generated C normal entry",
+  "soft_direction_threshold_mm_s": 0,
+  "hardware": "HW_BINDING_PENDING",
+  "board": "BOARD_NOT_RUN"
+}

@@ -1,0 +1,147 @@
+{
+  "status": "PASS",
+  "repository": "kazecode666/AXU5EV",
+  "pull_request": 46,
+  "source_commit": "2a9692dc682d0553a13dbb911f8e8ca251b64272",
+  "model": "simulation/experiment/AXU5EV_Motor_Control_System.slx",
+  "model_version": "1.95",
+  "generated_directory": "generated/experiment/pr46_review_01/r5_final_03",
+  "runtime_directory": ".runtime/experiment/pr46_review_01/r5_final_03",
+  "generated_c_and_h": 15,
+  "compiled_c": 5,
+  "host_mex": "PASS",
+  "checks": 317,
+  "irq_calls": 275136,
+  "alignment_safety_checks": 42,
+  "alignment_safety_irq_calls": 227186,
+  "alignment_safety_failures": 0,
+  "normal_alignment_irq_calls": 42130,
+  "normal_transition_frames": [
+    0,
+    10000,
+    40000,
+    42000
+  ],
+  "travel_irq_calls": 5490,
+  "feedback_direction_wrap_frames": 183,
+  "old_counterexamples": "COUNTEREXAMPLES_REPRODUCED, seven original cases plus PI_Reset=0.25",
+  "model_check": "CHECK_PASS",
+  "checked_blocks": 844,
+  "sources": {
+    "status": "MAIN_LOCAL_R5_SOURCE_PASS",
+    "editable_instances": [
+      "AXU5EV_Motor_Control_System/Motor_Control_ISR/Feedback_Measurement",
+      "AXU5EV_Motor_Control_System/Motor_Control_ISR/Controller_Driver_IO_Manager",
+      "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Motion_Control/Travel_Safety_Manager"
+    ],
+    "project_library_links": 0,
+    "model_references": 0,
+    "matlab_function_blocks": [
+      {
+        "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Alignment_Permit",
+        "local_functions": [
+          "f"
+        ]
+      },
+      {
+        "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Bind_Real_Feedback/Finite_Command",
+        "local_functions": [
+          "f"
+        ]
+      },
+      {
+        "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Capture_Latest_Observation",
+        "local_functions": [
+          "f"
+        ]
+      },
+      {
+        "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Feedback_Measurement/Frame_And_Count_Guard",
+        "local_functions": [
+          "f",
+          "count_delta",
+          "mod32diff",
+          "mod64diff"
+        ]
+      },
+      {
+        "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Frame_And_Fault_Qualification",
+        "local_functions": [
+          "f"
+        ]
+      },
+      {
+        "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Host_New_Frame/Host_Core",
+        "local_functions": [
+          "Simple_Host",
+          "axu5ev_experiment_point_move_step",
+          "axu5ev_experiment_scurve_profile"
+        ]
+      },
+      {
+        "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Motion_Control/Travel_Safety_Manager",
+        "local_functions": [
+          "Travel_Safety_Manager"
+        ]
+      },
+      {
+        "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Reference_Commit",
+        "local_functions": [
+          "f"
+        ]
+      },
+      {
+        "path": "AXU5EV_Motor_Control_System/NonRealtime_Service/Count_Service_Call",
+        "local_functions": [
+          "f"
+        ]
+      }
+    ],
+    "checked_function_namespace": "axu5ev_experiment_*",
+    "external_per_sample_calls": 0
+  },
+  "isolation": {
+    "status": "PASS",
+    "open_orders": 2,
+    "daily_sources_per_order": 17,
+    "retired_helpers": 7,
+    "model_workspace_parameters": 75,
+    "saved_alignment_signals": 6
+  },
+  "layout": {
+    "status": "PASS",
+    "model_version": "1.95",
+    "root_blocks_checked": 34,
+    "root_positions_preserved": true,
+    "chart_state_boxes_checked": 5,
+    "state_box_max_delta": 0,
+    "transition_routes_checked": 9,
+    "source_endpoint_max_delta": 0.00010000000003174137,
+    "destination_endpoint_max_delta": 0,
+    "midpoint_max_delta": 4,
+    "label_anchor_max_delta": 3.0879999999999654,
+    "scope": "Geometry from saved local user_main_before.slx; label content and safety priority intentionally changed.",
+    "note_box_max_delta": 0.7778,
+    "route_note": "Five state boxes and curved paths retain original local layout. Stateflow normalizes two note anchors below 1 px, one default-entry midpoint by 4 px and two transition-label anchors by about 3.1 px. Labels reflow for added conditions."
+  },
+  "screenshots": [
+    "main_user_layout.png",
+    "isr.png",
+    "feedback.png",
+    "alignment_state_priority.png",
+    "alignment_permit_source.png",
+    "driver.png",
+    "travel_speed_path.png",
+    "runtime_field_map.png"
+  ],
+  "warnings": [
+    "runtime_y mixed-source Outport uses default initial value 0. Initialization output assertions passed.",
+    "RTW.BuildInfo direct load assumes the recorded build directory. All five actual sources compiled."
+  ],
+  "hardware": "HW_BINDING_PENDING",
+  "arm_execution": "NOT_RUN",
+  "board": "BOARD_NOT_RUN",
+  "new_pl_hdl": "NOT_RUN",
+  "new_vivado_sdf": "NOT_RUN",
+  "stop": "DRAFT_PR46_REVIEW"
+}

@@ -1,0 +1,29 @@
+FOC_DUT_tc --> AX04_FOC_FOC_DUT_tc
+AXU5EV_Experiment_FOC/FOC_DUT/Clark --> AX04_FOC_Clark
+AXU5EV_Experiment_FOC/FOC_DUT/Id --> AX04_FOC_Id
+AXU5EV_Experiment_FOC/FOC_DUT/InversePark --> AX04_FOC_InversePark
+AXU5EV_Experiment_FOC/FOC_DUT/Iq --> AX04_FOC_Iq
+AXU5EV_Experiment_FOC/FOC_DUT/Park --> AX04_FOC_Park
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/Duty Calculate/Fcn --> AX04_FOC_Fcn
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/Duty Calculate/Fcn1 --> AX04_FOC_Fcn1
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/Duty Calculate/Fcn2 --> AX04_FOC_Fcn2
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/Duty Calculate --> AX04_FOC_Duty_Calculate
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/Sector Caculate/B0 --> AX04_FOC_B0
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/Sector Caculate/B1 --> AX04_FOC_B1
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/Sector Caculate/B2 --> AX04_FOC_B2
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/Sector Caculate/N --> AX04_FOC_N
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/Sector Caculate --> AX04_FOC_Sector_Caculate
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/T1T2 Calculate/Fcn --> AX04_FOC_Fcn_block
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/T1T2 Calculate/Fcn1/Defined_Quotient --> AX04_FOC_Defined_Quotient
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/T1T2 Calculate/Fcn1 --> AX04_FOC_Fcn1_block
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/T1T2 Calculate/Fcn2/Defined_Quotient --> AX04_FOC_Defined_Quotient_block
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/T1T2 Calculate/Fcn2 --> AX04_FOC_Fcn2_block
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/T1T2 Calculate --> AX04_FOC_T1T2_Calculate
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/XYZ Calculate/reciprocal --> AX04_FOC_reciprocal
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG/XYZ Calculate --> AX04_FOC_XYZ_Calculate
+AXU5EV_Experiment_FOC/FOC_DUT/SVPWMG --> AX04_FOC_SVPWMG
+AXU5EV_Experiment_FOC/FOC_DUT/dq_voltage_limiter/Sqrt --> AX04_FOC_Sqrt
+AXU5EV_Experiment_FOC/FOC_DUT/dq_voltage_limiter/Divide --> AX04_FOC_Divide
+AXU5EV_Experiment_FOC/FOC_DUT/dq_voltage_limiter --> AX04_FOC_dq_voltage_limiter
+AXU5EV_Experiment_FOC/FOC_DUT --> AX04_FOC_FOC_DUT
+ --> AX04_FOC_FOC_DUT_pkg

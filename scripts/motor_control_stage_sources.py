@@ -5,10 +5,10 @@ root=Path(__file__).resolve().parents[1]
 out=Path(sys.argv[1]).resolve()
 out.mkdir(parents=True,exist_ok=False)
 base='ffaa5683322e2a485d96a23cc1b8a9e88fbcdb13'
-shared=['simulation/AXU5EV_PL_Algorithm_Library.slx',
-       'simulation/encoder/AXU5EV_Encoder_Components.slx',
-       'simulation/encoder/task1_encoder_guard.m',
-       'simulation/encoder/task1_encoder_phase_serial.m']
+shared=['simulation/closed_loop/components/AXU5EV_PL_Algorithm_Library.slx',
+       'simulation/tests/encoder/AXU5EV_Encoder_Components.slx',
+       'simulation/tests/encoder/task1_encoder_guard.m',
+       'simulation/tests/encoder/task1_encoder_phase_serial.m']
 paths=[
        'simulation/real_io/ax03b1_current_preprocess.m',
        'simulation/encoder/encoder_angle_step.m',

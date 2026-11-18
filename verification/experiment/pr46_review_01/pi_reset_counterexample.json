@@ -1,0 +1,8 @@
+{
+  "status": "COUNTEREXAMPLE_REPRODUCED",
+  "command_pi_reset": 0.25,
+  "runtime_state": 1,
+  "runtime_id_A": 0.00015000000000000001,
+  "committed_pi_reset": 1,
+  "candidate": "r5_final_02 model 1.94"
+}

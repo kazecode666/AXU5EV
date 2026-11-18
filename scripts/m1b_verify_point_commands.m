@@ -4,7 +4,7 @@ arguments
  stage (1,:) char {mustBeMember(stage,{'baseline','regression','live','aligned-live','all'})}
 end
 root=fileparts(fileparts(mfilename('fullpath')));runtime=fullfile(root,'.runtime','m1b_20261024');folder=fullfile(root,'docs','reports','m1b_repeat_moves_alignment');
-addpath(fullfile(root,'simulation'));m='PMLSM_PI_FOC_Float_Baseline';
+addpath(fullfile(root,'simulation'));axu5ev_simulation_paths(root);m='PMLSM_PI_FOC_Float_Baseline';
 if strcmp(stage,'baseline')
  output=fullfile(runtime,'baseline');assert(~isfile(fullfile(folder,'baseline_behavior.json')),'M1B:BASELINE_EXISTS','修订前参考不得覆盖。');if ~isfolder(output),mkdir(output);end
  evalin('base','init_AXU5EV;');

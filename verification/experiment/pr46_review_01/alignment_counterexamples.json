@@ -1,0 +1,426 @@
+{
+  "status": "COUNTEREXAMPLES_REPRODUCED",
+  "mode": "counterexample",
+  "cases": [
+    {
+      "name": "start_denied_relcon",
+      "passed": false,
+      "before": {
+        "state": 1,
+        "init_done": 0,
+        "id_init_A": 0,
+        "angle_init_enable": 1,
+        "offset_rad": 0,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 52,
+        "id_commit_A": 0,
+        "pwm_permit": 0,
+        "reference_valid": 1,
+        "drive_outputs": [
+          false,
+          true,
+          false,
+          false,
+          false
+        ]
+      },
+      "event": {
+        "state": 1,
+        "init_done": 0,
+        "id_init_A": 0.00015000000000000001,
+        "angle_init_enable": 1,
+        "offset_rad": 0,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 55,
+        "id_commit_A": 0.00015000000000000001,
+        "pwm_permit": 0,
+        "reference_valid": 1,
+        "drive_outputs": [
+          false,
+          true,
+          false,
+          false,
+          false
+        ]
+      },
+      "after": []
+    },
+    {
+      "name": "start_denied_encon",
+      "passed": false,
+      "before": {
+        "state": 1,
+        "init_done": 0,
+        "id_init_A": 0,
+        "angle_init_enable": 1,
+        "offset_rad": 0,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 52,
+        "id_commit_A": 0,
+        "pwm_permit": 0,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "event": {
+        "state": 1,
+        "init_done": 0,
+        "id_init_A": 0.00015000000000000001,
+        "angle_init_enable": 1,
+        "offset_rad": 0,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 55,
+        "id_commit_A": 0.00015000000000000001,
+        "pwm_permit": 0,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "after": []
+    },
+    {
+      "name": "start_denied_oe_disable",
+      "passed": false,
+      "before": {
+        "state": 1,
+        "init_done": 0,
+        "id_init_A": 0,
+        "angle_init_enable": 1,
+        "offset_rad": 0,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 52,
+        "id_commit_A": 0,
+        "pwm_permit": 0,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          true,
+          false,
+          true,
+          false
+        ]
+      },
+      "event": {
+        "state": 1,
+        "init_done": 0,
+        "id_init_A": 0.00015000000000000001,
+        "angle_init_enable": 1,
+        "offset_rad": 0,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 55,
+        "id_commit_A": 0.00015000000000000001,
+        "pwm_permit": 0,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          true,
+          false,
+          true,
+          false
+        ]
+      },
+      "after": []
+    },
+    {
+      "name": "start_denied_pwm_request",
+      "passed": false,
+      "before": {
+        "state": 1,
+        "init_done": 0,
+        "id_init_A": 0,
+        "angle_init_enable": 1,
+        "offset_rad": 0,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 52,
+        "id_commit_A": 0,
+        "pwm_permit": 0,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          true,
+          false,
+          false,
+          false
+        ]
+      },
+      "event": {
+        "state": 1,
+        "init_done": 0,
+        "id_init_A": 0.00015000000000000001,
+        "angle_init_enable": 1,
+        "offset_rad": 0,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 55,
+        "id_commit_A": 0.00015000000000000001,
+        "pwm_permit": 0,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          true,
+          false,
+          false,
+          false
+        ]
+      },
+      "after": []
+    },
+    {
+      "name": "terminal_init_reset",
+      "passed": false,
+      "before": {
+        "state": 3,
+        "init_done": 0,
+        "id_init_A": 0.00025000000002731323,
+        "angle_init_enable": 1,
+        "offset_rad": 3.7699111843077517,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 42051,
+        "id_commit_A": 0.00025000000002731323,
+        "pwm_permit": 1,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          true,
+          false,
+          false,
+          false
+        ]
+      },
+      "event": {
+        "state": 4,
+        "init_done": 1,
+        "id_init_A": 0,
+        "angle_init_enable": 0,
+        "offset_rad": 3.7699111843077517,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 42052,
+        "id_commit_A": 0,
+        "pwm_permit": 1,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          true,
+          false,
+          false,
+          false
+        ]
+      },
+      "after": {
+        "state": 4,
+        "init_done": 1,
+        "id_init_A": 0,
+        "angle_init_enable": 0,
+        "offset_rad": 3.7699111843077517,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 42053,
+        "id_commit_A": 0,
+        "pwm_permit": 1,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          true,
+          false,
+          false,
+          false
+        ]
+      }
+    },
+    {
+      "name": "terminal_external_fault",
+      "passed": false,
+      "before": {
+        "state": 3,
+        "init_done": 0,
+        "id_init_A": 0.00025000000002731323,
+        "angle_init_enable": 1,
+        "offset_rad": 3.7699111843077517,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 42051,
+        "id_commit_A": 0.00025000000002731323,
+        "pwm_permit": 1,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          true,
+          false,
+          false,
+          false
+        ]
+      },
+      "event": {
+        "state": 4,
+        "init_done": 1,
+        "id_init_A": 0,
+        "angle_init_enable": 0,
+        "offset_rad": 3.7699111843077517,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 42052,
+        "id_commit_A": 0,
+        "pwm_permit": 0,
+        "reference_valid": 0,
+        "drive_outputs": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ]
+      },
+      "after": {
+        "state": 0,
+        "init_done": 0,
+        "id_init_A": 0,
+        "angle_init_enable": 0,
+        "offset_rad": 3.7699111843077517,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 42053,
+        "id_commit_A": 0,
+        "pwm_permit": 0,
+        "reference_valid": 0,
+        "drive_outputs": [
+          false,
+          false,
+          false,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "name": "terminal_permit_withdrawal",
+      "passed": false,
+      "before": {
+        "state": 3,
+        "init_done": 0,
+        "id_init_A": 0.00025000000002731323,
+        "angle_init_enable": 1,
+        "offset_rad": 3.7699111843077517,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 42051,
+        "id_commit_A": 0.00025000000002731323,
+        "pwm_permit": 1,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          true,
+          false,
+          false,
+          false
+        ]
+      },
+      "event": {
+        "state": 4,
+        "init_done": 1,
+        "id_init_A": 0,
+        "angle_init_enable": 0,
+        "offset_rad": 3.7699111843077517,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 42052,
+        "id_commit_A": 0,
+        "pwm_permit": 0,
+        "reference_valid": 1,
+        "drive_outputs": [
+          false,
+          true,
+          false,
+          false,
+          false
+        ]
+      },
+      "after": {
+        "state": 4,
+        "init_done": 1,
+        "id_init_A": 0,
+        "angle_init_enable": 0,
+        "offset_rad": 3.7699111843077517,
+        "position_mm": 12,
+        "continuous_count": 12000,
+        "history_count": 51,
+        "feedback_status": 0,
+        "reference_version": 42053,
+        "id_commit_A": 0,
+        "pwm_permit": 1,
+        "reference_valid": 1,
+        "drive_outputs": [
+          true,
+          true,
+          false,
+          false,
+          false
+        ]
+      }
+    }
+  ],
+  "checks": 7,
+  "failed_cases": [
+    "start_denied_relcon",
+    "start_denied_encon",
+    "start_denied_oe_disable",
+    "start_denied_pwm_request",
+    "terminal_init_reset",
+    "terminal_external_fault",
+    "terminal_permit_withdrawal"
+  ],
+  "irq_calls": 126379,
+  "source": "Exact experiment-generated C external entry",
+  "hardware": "HW_BINDING_PENDING",
+  "board": "BOARD_NOT_RUN"
+}

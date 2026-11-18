@@ -1,0 +1,783 @@
+{
+  "mode": "isolation",
+  "status": "PASS",
+  "matlab": "26.2.0.3433840 (R2026b) Update 1",
+  "process": 29644,
+  "output_dir": "D:\\Project\\AXU5EV\\.runtime\\experiment\\pr46_review_01\\isolation",
+  "isolation": {
+    "status": "PASS",
+    "execution_folder": "D:\\Project\\AXU5EV\\.runtime\\experiment\\pr46_review_01\\isolation\\working_folder",
+    "orders": [
+      {
+        "status": "PASS",
+        "open_order": [
+          "D:\\Project\\AXU5EV\\simulation\\START_SIMULATION.m",
+          "D:\\Project\\AXU5EV\\simulation\\START_EXPERIMENT.m"
+        ],
+        "base_before_open": {
+          "PMLSM_M1A_InitVersion": 2.0261023E+7,
+          "Host_Target_mm": 1.234,
+          "Host_AutoStart_EN": 1,
+          "Host_Start_s": 0.05,
+          "T_pwm": 0.0001,
+          "Ts_ACR": 0.0001,
+          "Ts_ASR": 0.001,
+          "Ts_POS": 0.01,
+          "Ts_Plant": 1E-6,
+          "Udc": 17,
+          "Tau_e_mm": 61.25,
+          "Kp_ACR": 999,
+          "Ki_ACR": 11850.000000000004,
+          "Kp_ASR": 0.018033474852681124,
+          "Ki_ASR": 1.4426779882144898,
+          "Kp_pos": 22,
+          "PMLSM_deadtime_s": 1E-6,
+          "PMLSM_Rs_ohm": 2.37,
+          "PMLSM_Ld_H": 0.001745
+        },
+        "base_after_open": {
+          "PMLSM_M1A_InitVersion": 2.0261023E+7,
+          "Host_Target_mm": 1.234,
+          "Host_AutoStart_EN": 1,
+          "Host_Start_s": 0.05,
+          "T_pwm": 0.0001,
+          "Ts_ACR": 0.0001,
+          "Ts_ASR": 0.001,
+          "Ts_POS": 0.01,
+          "Ts_Plant": 1E-6,
+          "Udc": 17,
+          "Tau_e_mm": 61.25,
+          "Kp_ACR": 999,
+          "Ki_ACR": 11850.000000000004,
+          "Kp_ASR": 0.018033474852681124,
+          "Ki_ASR": 1.4426779882144898,
+          "Kp_pos": 22,
+          "PMLSM_deadtime_s": 1E-6,
+          "PMLSM_Rs_ohm": 2.37,
+          "PMLSM_Ld_H": 0.001745
+        },
+        "base_preserved": true,
+        "experiment_model_file": "D:\\Project\\AXU5EV\\simulation\\experiment\\AXU5EV_Motor_Control_System.slx",
+        "experiment_parameter_source": "D:\\Project\\AXU5EV\\simulation\\experiment\\parameters\\axu5ev_experiment_parameters.m",
+        "resolved_sources": [
+          {
+            "name": "init_AXU5EV",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\closed_loop\\parameters\\init_AXU5EV.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\closed_loop\\parameters\\init_AXU5EV.m"
+            ]
+          },
+          {
+            "name": "axu5ev_prepare",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\closed_loop\\scripts\\axu5ev_prepare.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\closed_loop\\scripts\\axu5ev_prepare.m"
+            ]
+          },
+          {
+            "name": "AXU5EV_Hybrid_ClosedLoop.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\closed_loop\\AXU5EV_Hybrid_ClosedLoop.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\closed_loop\\AXU5EV_Hybrid_ClosedLoop.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_R5_Runtime.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\closed_loop\\components\\AXU5EV_R5_Runtime.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\closed_loop\\components\\AXU5EV_R5_Runtime.slx"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\scripts\\axu5ev_experiment.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\scripts\\axu5ev_experiment.m"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment_parameters",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\parameters\\axu5ev_experiment_parameters.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\parameters\\axu5ev_experiment_parameters.m"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment_check_r5_source",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\scripts\\axu5ev_experiment_check_r5_source.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\scripts\\axu5ev_experiment_check_r5_source.m"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment_encoder_phase_serial",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_encoder_phase_serial.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_encoder_phase_serial.m"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment_duty_to_compare",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_duty_to_compare.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_duty_to_compare.m"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment_foc_fixed_config",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_foc_fixed_config.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_foc_fixed_config.m"
+            ]
+          },
+          {
+            "name": "AXU5EV_Motor_Control_System.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\AXU5EV_Motor_Control_System.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\AXU5EV_Motor_Control_System.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_PL_Algorithms.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_PL_Algorithms.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_PL_Algorithms.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_Encoder_Components.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Encoder_Components.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Encoder_Components.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_Current_HDL.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Current_HDL.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Current_HDL.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_Angle_HDL.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Angle_HDL.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Angle_HDL.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_Duty_HDL.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Duty_HDL.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Duty_HDL.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_FOC.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_FOC.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_FOC.slx"
+            ]
+          }
+        ],
+        "execution_folder": "D:\\Project\\AXU5EV\\.runtime\\experiment\\pr46_review_01\\isolation\\working_folder",
+        "retired_sources": [
+          {
+            "name": "axu5ev_experiment_point_move_step",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_scurve_profile",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_encoder_guard",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_bind_runtime_input",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_frame_guard",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_reference_commit",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_telemetry",
+            "on_daily_path": false
+          }
+        ],
+        "local_r5_source": {
+          "status": "MAIN_LOCAL_R5_SOURCE_PASS",
+          "editable_instances": [
+            "AXU5EV_Motor_Control_System/Motor_Control_ISR/Feedback_Measurement",
+            "AXU5EV_Motor_Control_System/Motor_Control_ISR/Controller_Driver_IO_Manager",
+            "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Motion_Control/Travel_Safety_Manager"
+          ],
+          "project_library_links": 0,
+          "model_references": 0,
+          "matlab_function_blocks": [
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Alignment_Permit",
+              "local_functions": [
+                "f"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Bind_Real_Feedback/Finite_Command",
+              "local_functions": [
+                "f"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Capture_Latest_Observation",
+              "local_functions": [
+                "f"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Feedback_Measurement/Frame_And_Count_Guard",
+              "local_functions": [
+                "f",
+                "count_delta",
+                "mod32diff",
+                "mod64diff"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Frame_And_Fault_Qualification",
+              "local_functions": [
+                "f"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Host_New_Frame/Host_Core",
+              "local_functions": [
+                "Simple_Host",
+                "axu5ev_experiment_point_move_step",
+                "axu5ev_experiment_scurve_profile"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Motion_Control/Travel_Safety_Manager",
+              "local_functions": [
+                "Travel_Safety_Manager"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Reference_Commit",
+              "local_functions": [
+                "f"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/NonRealtime_Service/Count_Service_Call",
+              "local_functions": [
+                "f"
+              ]
+            }
+          ],
+          "checked_function_namespace": "axu5ev_experiment_*",
+          "external_per_sample_calls": 0
+        },
+        "workspace_fields_checked": 75,
+        "model_workspace_source": "Model File",
+        "base_alignment_signals": {
+          "Init_Done": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          },
+          "Init_State_Num": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          },
+          "id_init_ref": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          },
+          "Angle_Init_EN": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          },
+          "Theta_Offset_auto": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          },
+          "x_align_mm_latch": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          }
+        },
+        "alignment_signals_before_close": {
+          "Init_Done": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Init_State_Num": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "id_init_ref": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Angle_Init_EN": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Theta_Offset_auto": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "x_align_mm_latch": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          }
+        },
+        "alignment_signals_after_reload": {
+          "Init_Done": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Init_State_Num": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "id_init_ref": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Angle_Init_EN": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Theta_Offset_auto": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "x_align_mm_latch": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          }
+        },
+        "experiment_values": {
+          "Tau_e_mm": 30,
+          "Kp_ACR": 59.000000000000014,
+          "Udc": 48
+        },
+        "foc_values": {
+          "Tau_e_mm": 30,
+          "Kp_ACR": 59.000000000000014,
+          "Udc": 48
+        }
+      },
+      {
+        "status": "PASS",
+        "open_order": [
+          "D:\\Project\\AXU5EV\\simulation\\START_EXPERIMENT.m",
+          "D:\\Project\\AXU5EV\\simulation\\START_SIMULATION.m"
+        ],
+        "base_before_open": {
+          "PMLSM_M1A_InitVersion": 2.0261023E+7,
+          "Host_Target_mm": 1.234,
+          "Host_AutoStart_EN": 1,
+          "Host_Start_s": 0.05,
+          "T_pwm": 0.0001,
+          "Ts_ACR": 0.0001,
+          "Ts_ASR": 0.001,
+          "Ts_POS": 0.01,
+          "Ts_Plant": 1E-6,
+          "Udc": 17,
+          "Tau_e_mm": 61.25,
+          "Kp_ACR": 999,
+          "Ki_ACR": 11850.000000000004,
+          "Kp_ASR": 0.018033474852681124,
+          "Ki_ASR": 1.4426779882144898,
+          "Kp_pos": 22,
+          "PMLSM_deadtime_s": 1E-6,
+          "PMLSM_Rs_ohm": 2.37,
+          "PMLSM_Ld_H": 0.001745
+        },
+        "base_after_open": {
+          "PMLSM_M1A_InitVersion": 2.0261023E+7,
+          "Host_Target_mm": 1.234,
+          "Host_AutoStart_EN": 1,
+          "Host_Start_s": 0.05,
+          "T_pwm": 0.0001,
+          "Ts_ACR": 0.0001,
+          "Ts_ASR": 0.001,
+          "Ts_POS": 0.01,
+          "Ts_Plant": 1E-6,
+          "Udc": 17,
+          "Tau_e_mm": 61.25,
+          "Kp_ACR": 999,
+          "Ki_ACR": 11850.000000000004,
+          "Kp_ASR": 0.018033474852681124,
+          "Ki_ASR": 1.4426779882144898,
+          "Kp_pos": 22,
+          "PMLSM_deadtime_s": 1E-6,
+          "PMLSM_Rs_ohm": 2.37,
+          "PMLSM_Ld_H": 0.001745
+        },
+        "base_preserved": true,
+        "experiment_model_file": "D:\\Project\\AXU5EV\\simulation\\experiment\\AXU5EV_Motor_Control_System.slx",
+        "experiment_parameter_source": "D:\\Project\\AXU5EV\\simulation\\experiment\\parameters\\axu5ev_experiment_parameters.m",
+        "resolved_sources": [
+          {
+            "name": "init_AXU5EV",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\closed_loop\\parameters\\init_AXU5EV.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\closed_loop\\parameters\\init_AXU5EV.m"
+            ]
+          },
+          {
+            "name": "axu5ev_prepare",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\closed_loop\\scripts\\axu5ev_prepare.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\closed_loop\\scripts\\axu5ev_prepare.m"
+            ]
+          },
+          {
+            "name": "AXU5EV_Hybrid_ClosedLoop.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\closed_loop\\AXU5EV_Hybrid_ClosedLoop.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\closed_loop\\AXU5EV_Hybrid_ClosedLoop.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_R5_Runtime.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\closed_loop\\components\\AXU5EV_R5_Runtime.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\closed_loop\\components\\AXU5EV_R5_Runtime.slx"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\scripts\\axu5ev_experiment.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\scripts\\axu5ev_experiment.m"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment_parameters",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\parameters\\axu5ev_experiment_parameters.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\parameters\\axu5ev_experiment_parameters.m"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment_check_r5_source",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\scripts\\axu5ev_experiment_check_r5_source.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\scripts\\axu5ev_experiment_check_r5_source.m"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment_encoder_phase_serial",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_encoder_phase_serial.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_encoder_phase_serial.m"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment_duty_to_compare",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_duty_to_compare.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_duty_to_compare.m"
+            ]
+          },
+          {
+            "name": "axu5ev_experiment_foc_fixed_config",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_foc_fixed_config.m",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\axu5ev_experiment_foc_fixed_config.m"
+            ]
+          },
+          {
+            "name": "AXU5EV_Motor_Control_System.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\AXU5EV_Motor_Control_System.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\AXU5EV_Motor_Control_System.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_PL_Algorithms.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_PL_Algorithms.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_PL_Algorithms.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_Encoder_Components.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Encoder_Components.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Encoder_Components.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_Current_HDL.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Current_HDL.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Current_HDL.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_Angle_HDL.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Angle_HDL.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Angle_HDL.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_Duty_HDL.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Duty_HDL.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_Duty_HDL.slx"
+            ]
+          },
+          {
+            "name": "AXU5EV_Experiment_FOC.slx",
+            "expected": "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_FOC.slx",
+            "which_all": [
+              "D:\\Project\\AXU5EV\\simulation\\experiment\\pl\\AXU5EV_Experiment_FOC.slx"
+            ]
+          }
+        ],
+        "execution_folder": "D:\\Project\\AXU5EV\\.runtime\\experiment\\pr46_review_01\\isolation\\working_folder",
+        "retired_sources": [
+          {
+            "name": "axu5ev_experiment_point_move_step",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_scurve_profile",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_encoder_guard",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_bind_runtime_input",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_frame_guard",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_reference_commit",
+            "on_daily_path": false
+          },
+          {
+            "name": "axu5ev_experiment_telemetry",
+            "on_daily_path": false
+          }
+        ],
+        "local_r5_source": {
+          "status": "MAIN_LOCAL_R5_SOURCE_PASS",
+          "editable_instances": [
+            "AXU5EV_Motor_Control_System/Motor_Control_ISR/Feedback_Measurement",
+            "AXU5EV_Motor_Control_System/Motor_Control_ISR/Controller_Driver_IO_Manager",
+            "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Motion_Control/Travel_Safety_Manager"
+          ],
+          "project_library_links": 0,
+          "model_references": 0,
+          "matlab_function_blocks": [
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Alignment_Permit",
+              "local_functions": [
+                "f"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Bind_Real_Feedback/Finite_Command",
+              "local_functions": [
+                "f"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Capture_Latest_Observation",
+              "local_functions": [
+                "f"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Feedback_Measurement/Frame_And_Count_Guard",
+              "local_functions": [
+                "f",
+                "count_delta",
+                "mod32diff",
+                "mod64diff"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Frame_And_Fault_Qualification",
+              "local_functions": [
+                "f"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Host_New_Frame/Host_Core",
+              "local_functions": [
+                "Simple_Host",
+                "axu5ev_experiment_point_move_step",
+                "axu5ev_experiment_scurve_profile"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Qualified_Runtime/Motion_Control/Travel_Safety_Manager",
+              "local_functions": [
+                "Travel_Safety_Manager"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/Motor_Control_ISR/Reference_Commit",
+              "local_functions": [
+                "f"
+              ]
+            },
+            {
+              "path": "AXU5EV_Motor_Control_System/NonRealtime_Service/Count_Service_Call",
+              "local_functions": [
+                "f"
+              ]
+            }
+          ],
+          "checked_function_namespace": "axu5ev_experiment_*",
+          "external_per_sample_calls": 0
+        },
+        "workspace_fields_checked": 75,
+        "model_workspace_source": "Model File",
+        "base_alignment_signals": {
+          "Init_Done": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          },
+          "Init_State_Num": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          },
+          "id_init_ref": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          },
+          "Angle_Init_EN": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          },
+          "Theta_Offset_auto": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          },
+          "x_align_mm_latch": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "17"
+          }
+        },
+        "alignment_signals_before_close": {
+          "Init_Done": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Init_State_Num": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "id_init_ref": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Angle_Init_EN": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Theta_Offset_auto": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "x_align_mm_latch": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          }
+        },
+        "alignment_signals_after_reload": {
+          "Init_Done": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Init_State_Num": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "id_init_ref": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Angle_Init_EN": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "Theta_Offset_auto": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          },
+          "x_align_mm_latch": {
+            "class": "Simulink.Signal",
+            "data_type": "double",
+            "initial_value": "0"
+          }
+        },
+        "experiment_values": {
+          "Tau_e_mm": 30,
+          "Kp_ACR": 59.000000000000014,
+          "Udc": 48
+        },
+        "foc_values": {
+          "Tau_e_mm": 30,
+          "Kp_ACR": 59.000000000000014,
+          "Udc": 48
+        }
+      }
+    ]
+  }
+}

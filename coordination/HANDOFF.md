@@ -1,3 +1,32 @@
+# AXU5EV 当前交接 — PR46 Review修订
+
+2026-11-17，继续 `kazecode666/AXU5EV` 同一 [Draft PR46](https://github.com/kazecode666/AXU5EV/pull/46) 的Task1～Task4。分支 `codex/ax04-experiment-model`、base `codex/issue42-task1-dsp-reuse`，保持Draft等待Review。
+
+- 功能提交 `8f91bc7` 修复对齐许可、持续Start消费和RAMP_DOWN末拍安全优先级，新帧推进与安全处理分离。补充提交 `2a9692d` 统一既有PI_Reset非零语义。
+- 来源提交 `6e28ebb` 将反馈/驱动/行程三实例固化于主模型实际使用位置，完整逐采样函数及Host局部调用链可直接查看。七份旧helper逐文件迁入tests/oracles，旧R5库及用户本地修改保留。
+- 呈现提交 `75b7bde` 整理ISR与反馈内部，保留用户顶层34块位置和对齐五态原位置及连线路径。Stateflow对默认入口中点、标签及旁注产生几像素归一化差异，已记录具体范围。
+- 最终主模型及C版本1.95，844块边界检查与端口/连线/Stateflow检查通过。ERT导出15份C/H，实际5份C经主机MEX完成317项检查、275136次IRQ调用，其中42项安全检查、227186次调用零失败。旧7项反例和PI_Reset=0.25反例均先由原候选实际复现。
+- 双入口两种打开顺序通过，17项活动来源、7项退役helper、75参数/模型及6项Signal保存重开通过。原10份其余用户模型/参数修改和全部原始数据保留在工作树。
+- 最终C/H位于 `generated/experiment/pr46_review_01/r5_final_03`，精简结果及8份图见 [本轮证据](../verification/experiment/pr46_review_01/results.json)，详细R1—R5位置与截图见[报告修订节](reports/ax04_experiment_model_and_layout.md#pr46-review修订--对齐安全就地编辑与呈现)。运行缓存及中间失败候选保留于 `.runtime/experiment/pr46_review_01`。
+- `HW_BINDING_PENDING`、`BOARD_NOT_RUN`。IRQ/GIC、原子AXI、驱动电气、服务快照抢占一致性及匹配bit/XSA/ELF待交付B，ARM执行为NOT_RUN。PL沿用原候选，本轮无新HDL/Vivado/SDF或板卡操作，Issue44保持独立工作线。
+
+## AX-04 交付A历史交接
+
+2026-11-17，`kazecode666/AXU5EV` 的独立实机模型、simulation双入口及实际C/HDL生成已完成交付A，已发布 [Draft PR46](https://github.com/kazecode666/AXU5EV/pull/46)。分支 `codex/ax04-experiment-model` 基于未合并PR45的最新head `a7a5670350e94dc5e94db0562f34d4f8213e32c8`，PR46以 `codex/issue42-task1-dsp-reuse` 为base，停在Review。
+
+- 目录与入口提交 `a223973`、等价源复制 `9c5fb4b`、B2参数及实机入口适配 `4c72c05`。85项路径映射见[旧新路径](reports/ax04_path_map.csv)。
+- 纯仿真从 `simulation/START_SIMULATION.m` 进入，实机从 `simulation/START_EXPERIMENT.m` 进入。实机算法、参数、自定义函数及生成入口独立，当前主模型包含真实初始化、外部PL_Frame_IRQ、Qualified_Runtime、驱动行程及非实时服务。
+- 主模型编译/589块边界检查、根层连线/端口/Stateflow检查通过。生成15份C/H，实际C经主机transport-only MEX通过90项检查与47762次IRQ调用，其中完整对齐42130次、行程5490次。
+- 独立PL四边界实际生成51份SV，保留18项p3流水线配置。FOC模型1188帧通过，192帧RTL与48帧动态前馈RTL合计720项duty检查零差，相位314拍。辅助gm输出延时插入有警告，其gm等价验证为NOT_RUN。
+- 双入口2种打开顺序、各24项which-all、75参数/模型和6项Signal磁盘重开通过，base碰撞哨兵保留。纯仿真model_fixed短检查为20ms、201帧。
+- [实施报告](reports/ax04_experiment_model_and_layout.md)、[聚合结果](../verification/experiment/model_layout/results.json)、[依赖来源](../verification/experiment/model_layout/dependencies.json)包含实际范围和截图索引。新C/H位于 `generated/experiment/ax04_01/r5_02`，新SV位于 `generated/experiment/ax04_01/pl`。原始结果及失败检查点保留在 `.runtime/experiment/ax04_01`。
+- 原9项用户模型/参数修改和未跟踪数据继续保留，旧数字链壳正确更名到tests。PR41冻结成果、原始数据及历史Workspace原位保留。
+- `HW_BINDING_PENDING`、`BOARD_NOT_RUN`。物理IRQ/AXI/驱动绑定、可抢占服务快照、匹配bit/XSA/ELF、物理标定和总运动质量留待交付B及后续授权。ARM执行、综合/实现/STA/CDC/SDF均NOT_RUN。Issue44代码保持独立工作线。
+
+## PR45 Task1历史交接
+
+下面保留PR45与PR41阶段记录。较早simulation路径通过上面的85项映射追溯，当前双入口以本页首节为准。
+
 # AXU5EV 当前交接 — Issue42 Task1
 
 2026-11-17，基于含已合并PR41的main e36e358，工作分支 `codex/issue42-task1-dsp-reuse`。Task1共享反馈组件复用及受影响生成/离线验证完成，已发布 [kazecode666/AXU5EV Draft PR45](https://github.com/kazecode666/AXU5EV/pull/45)，关联Issue42，等待Review。

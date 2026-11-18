@@ -1,0 +1,360 @@
+{
+  "status": "PASS",
+  "scope": "Static source binding and exact generated Q40 coefficient checks",
+  "model": "simulation/experiment/pl/AXU5EV_Experiment_FOC.slx",
+  "parameter_source": "simulation/experiment/parameters/axu5ev_experiment_parameters.m",
+  "quantization": "signed 64-bit Q40, convergent rounding and saturation",
+  "binding_count": 9,
+  "bindings": [
+    {
+      "coefficient": "KiTs",
+      "sid": 30,
+      "path": "AXU5EV_Experiment_FOC/FOC_DUT/Id/ ",
+      "parameter": "Gain",
+      "expression": "FOC_Fixed_Config.Coefficients.KiTs.quantized",
+      "cfg_source": 0.7250000000000001,
+      "cfg_quantized": 0.7250000000003638,
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Id.sv",
+      "sv_line": 178,
+      "sv_assignment": "assign KiTs_q_e_d = 64'sh000000B99999999A * Sum_out1;",
+      "sv_q40_literal": "64'sh000000B99999999A",
+      "decoded_value": 0.7250000000003638,
+      "status": "PASS"
+    },
+    {
+      "coefficient": "Kp",
+      "sid": 31,
+      "path": "AXU5EV_Experiment_FOC/FOC_DUT/Id/  ",
+      "parameter": "Gain",
+      "expression": "FOC_Fixed_Config.Coefficients.Kp.quantized",
+      "cfg_source": 59.000000000000014,
+      "cfg_quantized": 59,
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Id.sv",
+      "sv_line": 146,
+      "sv_assignment": "assign alpha_out1 = 64'sh00003B0000000000 * Sum_out1;",
+      "sv_q40_literal": "64'sh00003B0000000000",
+      "decoded_value": 59.0,
+      "status": "PASS"
+    },
+    {
+      "coefficient": "Lq",
+      "sid": 34,
+      "path": "AXU5EV_Experiment_FOC/FOC_DUT/Id/Constant1",
+      "parameter": "Value",
+      "expression": "FOC_Fixed_Config.Coefficients.Lq.quantized",
+      "cfg_source": 0.0118,
+      "cfg_quantized": 0.011800000000221189,
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Id.sv",
+      "sv_line": 353,
+      "sv_assignment": "assign Constant1_out1 = 64'sh0000000305532618;",
+      "sv_q40_literal": "64'sh0000000305532618",
+      "decoded_value": 0.011800000000221189,
+      "status": "PASS"
+    },
+    {
+      "coefficient": "Kaw_d",
+      "sid": 37,
+      "path": "AXU5EV_Experiment_FOC/FOC_DUT/Id/Gain",
+      "parameter": "Gain",
+      "expression": "FOC_Fixed_Config.Coefficients.Kaw_d.quantized",
+      "cfg_source": 0.01228813559322034,
+      "cfg_quantized": 0.01228813559282571,
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Id.sv",
+      "sv_line": 211,
+      "sv_assignment": "assign u_d_aw = 64'sh000000032550B480 * du_d_z;",
+      "sv_q40_literal": "64'sh000000032550B480",
+      "decoded_value": 0.01228813559282571,
+      "status": "PASS"
+    },
+    {
+      "coefficient": "KiTs",
+      "sid": 59,
+      "path": "AXU5EV_Experiment_FOC/FOC_DUT/Iq/ ",
+      "parameter": "Gain",
+      "expression": "FOC_Fixed_Config.Coefficients.KiTs.quantized",
+      "cfg_source": 0.7250000000000001,
+      "cfg_quantized": 0.7250000000003638,
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "sv_line": 181,
+      "sv_assignment": "assign KiTs_q_e_q = 64'sh000000B99999999A * e_q;",
+      "sv_q40_literal": "64'sh000000B99999999A",
+      "decoded_value": 0.7250000000003638,
+      "status": "PASS"
+    },
+    {
+      "coefficient": "Kp",
+      "sid": 60,
+      "path": "AXU5EV_Experiment_FOC/FOC_DUT/Iq/  ",
+      "parameter": "Gain",
+      "expression": "FOC_Fixed_Config.Coefficients.Kp.quantized",
+      "cfg_source": 59.000000000000014,
+      "cfg_quantized": 59,
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "sv_line": 163,
+      "sv_assignment": "assign uq_p = 64'sh00003B0000000000 * e_q;",
+      "sv_q40_literal": "64'sh00003B0000000000",
+      "decoded_value": 59.0,
+      "status": "PASS"
+    },
+    {
+      "coefficient": "psi",
+      "sid": 64,
+      "path": "AXU5EV_Experiment_FOC/FOC_DUT/Iq/Constant",
+      "parameter": "Value",
+      "expression": "FOC_Fixed_Config.Coefficients.psi.quantized",
+      "cfg_source": 0.06842404002794004,
+      "cfg_quantized": 0.06842404002782132,
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "sv_line": 349,
+      "sv_assignment": "assign Constant_out1 = 64'sh00000011843CE62E;",
+      "sv_q40_literal": "64'sh00000011843CE62E",
+      "decoded_value": 0.06842404002782132,
+      "status": "PASS"
+    },
+    {
+      "coefficient": "Kaw_q",
+      "sid": 67,
+      "path": "AXU5EV_Experiment_FOC/FOC_DUT/Iq/Gain",
+      "parameter": "Gain",
+      "expression": "FOC_Fixed_Config.Coefficients.Kaw_q.quantized",
+      "cfg_source": 0.01228813559322034,
+      "cfg_quantized": 0.01228813559282571,
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "sv_line": 214,
+      "sv_assignment": "assign u_q_aw = 64'sh000000032550B480 * du_q_z;",
+      "sv_q40_literal": "64'sh000000032550B480",
+      "decoded_value": 0.01228813559282571,
+      "status": "PASS"
+    },
+    {
+      "coefficient": "Ld",
+      "sid": 70,
+      "path": "AXU5EV_Experiment_FOC/FOC_DUT/Iq/Ld",
+      "parameter": "Value",
+      "expression": "FOC_Fixed_Config.Coefficients.Ld.quantized",
+      "cfg_source": 0.0118,
+      "cfg_quantized": 0.011800000000221189,
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "sv_line": 329,
+      "sv_assignment": "assign Ld_out1 = 64'sh0000000305532618;",
+      "sv_q40_literal": "64'sh0000000305532618",
+      "decoded_value": 0.011800000000221189,
+      "status": "PASS"
+    }
+  ],
+  "active_feedforward_assignments": [
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Id.sv",
+      "line": 353,
+      "assignment": "assign Constant1_out1 = 64'sh0000000305532618;"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Id.sv",
+      "line": 355,
+      "assignment": "assign Product_out1 = iq * Constant1_out1;"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Id.sv",
+      "line": 388,
+      "assignment": "assign not_ascii = Product_out1_2 * we_1;"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Id.sv",
+      "line": 422,
+      "assignment": "assign Sum1_sub_cast_1 = {not_ascii_2[63], not_ascii_2};"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Id.sv",
+      "line": 423,
+      "assignment": "assign Sum1_sub_temp = Sum1_sub_cast - Sum1_sub_cast_1;"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Id.sv",
+      "line": 431,
+      "assignment": "assign ud_raw = Reset_Output_out1;"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "line": 329,
+      "assignment": "assign Ld_out1 = 64'sh0000000305532618;"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "line": 331,
+      "assignment": "assign Product_out1 = id * Ld_out1;"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "line": 349,
+      "assignment": "assign Constant_out1 = 64'sh00000011843CE62E;"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "line": 352,
+      "assignment": "assign Add_add_cast_1 = {Constant_out1[63], Constant_out1};"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "line": 353,
+      "assignment": "assign Add_add_temp = Add_add_cast + Add_add_cast_1;"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "line": 373,
+      "assignment": "assign Ed = Add_out1 * we_1;"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "line": 404,
+      "assignment": "assign Sum1_add_cast_1 = {Ed_2[63], Ed_2};"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "line": 405,
+      "assignment": "assign Sum1_add_temp = Sum1_add_cast + Sum1_add_cast_1;"
+    },
+    {
+      "sv_file": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/AX04_FOC_Iq.sv",
+      "line": 425,
+      "assignment": "assign uq_raw = Reset_Output_out1;"
+    }
+  ],
+  "resistance_role": {
+    "Rs_ohm": 1.45,
+    "direct_Rs_gain_or_constant": false,
+    "derivation": {
+      "Kp": "Lq/(4*xi^2*Ts)",
+      "Ki": "Kp*Rs/Lq",
+      "KiTs": "Ki*Ts",
+      "Kaw": "min(0.2,Ts*Rs/Lq)"
+    },
+    "derived": {
+      "Kp": 59.000000000000014,
+      "Ki": 7250.000000000001,
+      "KiTs": 0.7250000000000001,
+      "Kaw": 0.01228813559322034
+    }
+  },
+  "feedforward_equations": {
+    "d_axis": "ud_PI - Q40(Q40(iq*Lq)*omega_e)",
+    "q_axis": "uq_PI + Q40(SAT_Q40(Q40(id*Ld)+psi)*omega_e)",
+    "Q40": "convergent rounding and saturation after the shown multiplication; generated pipeline registers retained"
+  },
+  "numerical_scope": {
+    "model_frames": 1188,
+    "rtl_frames": 192,
+    "theta_e_rad": 0,
+    "omega_e_rad_per_s": 0,
+    "dynamic_feedforward_test": "NOT_RUN",
+    "feedforward_static_binding": "PASS"
+  },
+  "board": "BOARD_NOT_RUN",
+  "dynamic_feedforward_case": {
+    "status": "PASS",
+    "model_frames": 48,
+    "active_frames": 40,
+    "rtl_frames": 48,
+    "duty_word_checks": 144,
+    "bit_mismatch": 0,
+    "xz_count": 0,
+    "protocol_errors": 0,
+    "frame_clocks": 5000,
+    "output_phase": 314,
+    "accepted_clocks": 240000,
+    "angle_velocity_cases": [
+      [
+        4,
+        8,
+        0,
+        30
+      ],
+      [
+        9,
+        13,
+        0,
+        -30
+      ],
+      [
+        14,
+        18,
+        0.5235987755982988,
+        30
+      ],
+      [
+        19,
+        23,
+        0.5235987755982988,
+        -30
+      ],
+      [
+        24,
+        28,
+        1.5707963267948966,
+        30
+      ],
+      [
+        29,
+        33,
+        1.5707963267948966,
+        -30
+      ],
+      [
+        34,
+        38,
+        -1.0471975511965976,
+        30
+      ],
+      [
+        39,
+        43,
+        -1.0471975511965976,
+        -30
+      ]
+    ],
+    "case_columns": "first_frame,last_frame,theta_rad,omega_rad_s",
+    "phase_currents_A": [
+      0.2,
+      -0.12,
+      -0.08
+    ],
+    "id_ref_A": 0.15,
+    "iq_ref_A": -0.1,
+    "start_reset_frames": 4,
+    "tail_reset_frames": 4,
+    "model_evidence": ".runtime/experiment/ax04_01/pl_b2_01/feedforward_model_01/feedforward_model_result.json",
+    "rtl_evidence": ".runtime/experiment/ax04_01/pl_b2_01/rtl_feedforward_01/rtl_verification.json",
+    "test_source": "simulation/tests/experiment/ax04_validate_feedforward.m"
+  },
+  "generation_boundary": {
+    "status": "PASS",
+    "generated_metadata": "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/hdlcodegenstatus.json",
+    "codegen_parameter_readback": {
+      "ModulePrefix": "'AX04_FOC_'",
+      "Oversampling": "5000",
+      "ClockRatePipelining": "'on'",
+      "ClockRatePipelineOutputPorts": "'on'",
+      "BalanceClockRateOutputPorts": "'on'",
+      "TimingControllerArch": "'resettable'",
+      "TargetFrequency": "50"
+    },
+    "output_phase_cycles": [
+      314,
+      314,
+      314
+    ],
+    "pipeline_settings_count": 18,
+    "exported_sv_files": 51,
+    "unique_modules": 50,
+    "unique_packages": 1,
+    "source_list": ".runtime/experiment/ax04_01/pl_b2_01/codegen_01/generated_sources.list",
+    "auxiliary_model_warning": {
+      "stage": "HDL Coder GenerateModel auxiliary model output-delay insertion",
+      "observed_source": "MATLAB MCP makehdl output from this task",
+      "message": "Failed to add integer delay to DUT output ports: 在系统 'gm_AXU5EV_Experiment_FOC' 中找不到模块 '/FOC_DUT/FOC_DUT'。",
+      "auxiliary_gm_equivalence": "NOT_RUN",
+      "verified_sv_scope": "192 zero-speed frames plus 48 dynamic-feedforward frames; 720 exact duty-word checks at phase314"
+    },
+    "physical_implementation_timing": "NOT_RUN",
+    "board": "BOARD_NOT_RUN"
+  }
+}

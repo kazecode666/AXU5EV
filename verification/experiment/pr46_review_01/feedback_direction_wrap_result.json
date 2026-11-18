@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "name": "forward_uint32_count_wrap",
+      "frames": 61,
+      "initial_sample_id": 0,
+      "initial_sample_tick": 0,
+      "last_sample_id": 30000,
+      "last_sample_tick": 300000,
+      "final_count": 350,
+      "speed_mm_s": 100,
+      "status": "PASS"
+    },
+    {
+      "name": "reverse_uint32_count_wrap",
+      "frames": 61,
+      "initial_sample_id": 0,
+      "initial_sample_tick": 0,
+      "last_sample_id": 30000,
+      "last_sample_tick": 300000,
+      "final_count": -350,
+      "speed_mm_s": -100,
+      "status": "PASS"
+    },
+    {
+      "name": "frame_id_and_uint64_tick_wrap",
+      "frames": 61,
+      "initial_sample_id": 4294967046,
+      "initial_sample_tick": 18446744073709549116,
+      "last_sample_id": 29750,
+      "last_sample_tick": 297500,
+      "final_count": 600,
+      "speed_mm_s": 100,
+      "status": "PASS"
+    }
+  ],
+  "checks": 183,
+  "irq_calls": 183,
+  "source": "Exact experiment-generated C normal external entry"
+}
