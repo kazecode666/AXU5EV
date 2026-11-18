@@ -1,0 +1,102 @@
+#ifndef AX04B_REGISTERS_H
+#define AX04B_REGISTERS_H
+
+#include <stdint.h>
+
+/* AX04B realtime slave. See integration/ps_pl/AX04B_INTERFACE.md. */
+#define AX04B_INTERFACE_ID UINT32_C(0x41584201)
+#define AX04B_APPLICATION_ID UINT32_C(0x41585201)
+#define AX04B_COMMIT_KEY UINT32_C(0x434f4d4d)
+
+enum {
+    AX04B_SELFTEST = 1,
+    AX04B_REAL = 2,
+    AX04B_NM_PER_COUNT = 1000,
+    AX04B_ID_STEP = 500,
+    AX04B_TICK_STEP = 5000
+};
+
+enum {
+    AX04B_IDENT = 0x00,
+    AX04B_MODE = 0x04,
+    AX04B_SCALE = 0x08,
+    AX04B_STATUS = 0x0c,
+    AX04B_PENDING_SEQ = 0x10,
+    AX04B_OVERRUN_COUNT = 0x14,
+    AX04B_ACCEPTED_VERSION = 0x18,
+    AX04B_ACCEPTED_TARGET = 0x1c,
+    AX04B_APPLIED_VERSION = 0x20,
+    AX04B_APPLIED_TARGET = 0x24,
+    AX04B_RESULT = 0x28,
+    AX04B_P0_ID = 0x2c,
+    AX04B_FB_ID = 0x30,
+    AX04B_FB_TICK_LO = 0x34,
+    AX04B_FB_TICK_HI = 0x38,
+    AX04B_FB_COUNT = 0x3c,
+    AX04B_FB_ILLEGAL = 0x40,
+    AX04B_FB_QUALITY = 0x44,
+    AX04B_FB_CAL_VERSION = 0x48,
+    AX04B_FB_CFG_VERSION = 0x4c,
+    AX04B_FB_FAULT = 0x50,
+    AX04B_PHASE = 0x54,
+    AX04B_ACK = 0x80,
+    AX04B_CONTROL = 0x84,
+    AX04B_TARGET = 0x88,
+    AX04B_COMMIT = 0x8c,
+    AX04B_IO_CONTROL = 0x90,
+    AX04B_SHADOW = 0xa0
+};
+
+enum {
+    AX04B_PENDING = 1u << 0,
+    AX04B_INHIBIT_LATCHED = 1u << 1,
+    AX04B_ARMED = 1u << 2,
+    AX04B_REF_QUEUED = 1u << 3,
+    AX04B_ACTIVE_VALID = 1u << 4,
+    AX04B_OVERRUN = 1u << 5,
+    AX04B_FRAME_SEEN = 1u << 6,
+    AX04B_LIVE_INVALID = 1u << 7,
+    AX04B_ACCEPTED_SEEN = 1u << 8,
+    AX04B_APPLIED_SEEN = 1u << 9
+};
+
+enum {
+    AX04B_ENCODER_READY = 1u << 0,
+    AX04B_CURRENT_VALID = 1u << 1,
+    AX04B_CAL_DONE_A = 1u << 2,
+    AX04B_CAL_DONE_B = 1u << 3,
+    AX04B_CLIP = 1u << 4,
+    AX04B_TEST_SOURCE = 1u << 5,
+    AX04B_CAPTURE_A = 1u << 6,
+    AX04B_CAPTURE_B = 1u << 7,
+    AX04B_PAIR_COMPLETE = 1u << 8,
+    AX04B_ENCODER_REVERSE = 1u << 9,
+    AX04B_ERRI = 1u << 0,
+    AX04B_ERRU = 1u << 1
+};
+
+enum {
+    AX04B_FIXED_ANGLE = 1u << 0,
+    AX04B_PWM_ENABLE = 1u << 1,
+    AX04B_PI_RESET = 1u << 2,
+    AX04B_REF_VALID = 1u << 3,
+    AX04B_RELCON = 1u << 4,
+    AX04B_ENCON = 1u << 5,
+    AX04B_F_RESET = 1u << 6,
+    AX04B_OE_DISABLE = 1u << 7,
+    AX04B_STOP = 1u,
+    AX04B_CLEAR = 2u,
+    AX04B_ARM = 4u
+};
+
+enum {
+    AX04B_COMMIT_NONE = 0,
+    AX04B_COMMIT_ACCEPTED = 1,
+    AX04B_COMMIT_LATE = 2,
+    AX04B_COMMIT_BUSY = 3,
+    AX04B_COMMIT_MALFORMED = 4,
+    AX04B_COMMIT_VERSION = 5,
+    AX04B_COMMIT_SAFETY = 6
+};
+
+#endif
