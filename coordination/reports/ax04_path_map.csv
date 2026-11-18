@@ -1,0 +1,86 @@
+﻿old_path,new_path,purpose
+simulation/AXU5EV_Hybrid_ClosedLoop.slx,simulation/closed_loop/AXU5EV_Hybrid_ClosedLoop.slx,pure simulation daily model
+simulation/AXU5EV_R5_Runtime.slx,simulation/closed_loop/components/AXU5EV_R5_Runtime.slx,pure simulation runtime
+simulation/AXU5EV_R5_Control.slx,simulation/closed_loop/components/AXU5EV_R5_Control.slx,pure simulation outer control
+simulation/AXU5EV_PL_Algorithm_Library.slx,simulation/closed_loop/components/AXU5EV_PL_Algorithm_Library.slx,legacy shared library retained for simulation and test fixtures
+simulation/PMLSM_FOC_FixedPoint.slx,simulation/closed_loop/components/PMLSM_FOC_FixedPoint.slx,pure simulation fixed-point FOC
+simulation/PMLSM_PI_FOC_Float_Baseline.slx,simulation/closed_loop/components/PMLSM_PI_FOC_Float_Baseline.slx,pure simulation float baseline
+simulation/AXU5EV_ADC_HDL.slx,simulation/tests/adc/AXU5EV_ADC_HDL.slx,PR45 HDL source fixture
+simulation/AXU5EV_ADC_Observer.slx,simulation/tests/adc/AXU5EV_ADC_Observer.slx,ADC observer fixture
+simulation/AXU5EV_RealIO_NoPower.slx,simulation/tests/adc/AXU5EV_RealIO_NoPower.slx,no-power numeric observer fixture
+simulation/init_AXU5EV.m,simulation/closed_loop/parameters/init_AXU5EV.m,user simulation parameters
+simulation/design_PMLSM_three_loop.m,simulation/closed_loop/parameters/design_PMLSM_three_loop.m,simulation loop tuning
+simulation/pmlsm_foc_fixed_config.m,simulation/closed_loop/parameters/pmlsm_foc_fixed_config.m,simulation fixed-point parameter types
+simulation/pmlsm_point_move_step.m,simulation/closed_loop/components/pmlsm_point_move_step.m,simulation trajectory algorithm
+simulation/pmlsm_scurve_profile.m,simulation/closed_loop/components/pmlsm_scurve_profile.m,simulation S-curve source
+simulation/m1a_require_float_init.m,simulation/closed_loop/components/m1a_require_float_init.m,simulation initialization checker
+simulation/axu5ev_build_pl_target.m,simulation/archive/axu5ev_build_pl_target.m,historical frozen p3 generation entry
+simulation/ax01b_r5_sfun.c,simulation/archive/local/ax01b_r5_sfun.c,untracked user host generated source retained locally; excluded from commit
+simulation/task1_dsp_reuse.m,simulation/tests/digital_chain/task1_dsp_reuse.m,PR45 fixture verification entry
+simulation/axu5ev_build_r5_target.m,simulation/closed_loop/scripts/axu5ev_build_r5_target.m,pure simulation or historical replay helper
+simulation/axu5ev_build_runtime.m,simulation/closed_loop/scripts/axu5ev_build_runtime.m,pure simulation or historical replay helper
+simulation/axu5ev_closeout_export.m,simulation/closed_loop/scripts/axu5ev_closeout_export.m,pure simulation or historical replay helper
+simulation/axu5ev_closeout_run.m,simulation/closed_loop/scripts/axu5ev_closeout_run.m,pure simulation or historical replay helper
+simulation/axu5ev_export_r5_replay.m,simulation/closed_loop/scripts/axu5ev_export_r5_replay.m,pure simulation or historical replay helper
+simulation/axu5ev_export_results.m,simulation/closed_loop/scripts/axu5ev_export_results.m,pure simulation or historical replay helper
+simulation/axu5ev_generate_ax02c2_adapter.m,simulation/closed_loop/scripts/axu5ev_generate_ax02c2_adapter.m,pure simulation or historical replay helper
+simulation/axu5ev_matrix.m,simulation/closed_loop/scripts/axu5ev_matrix.m,pure simulation or historical replay helper
+simulation/axu5ev_prepare.m,simulation/closed_loop/scripts/axu5ev_prepare.m,pure simulation or historical replay helper
+simulation/axu5ev_prepare_ax02c2_data.m,simulation/closed_loop/scripts/axu5ev_prepare_ax02c2_data.m,pure simulation or historical replay helper
+simulation/axu5ev_run_case.m,simulation/closed_loop/scripts/axu5ev_run_case.m,pure simulation or historical replay helper
+simulation/axu5ev_run_summary.m,simulation/closed_loop/scripts/axu5ev_run_summary.m,pure simulation or historical replay helper
+simulation/axu5ev_send_trace.m,simulation/closed_loop/scripts/axu5ev_send_trace.m,pure simulation or historical replay helper
+simulation/axu5ev_verify_run.m,simulation/closed_loop/scripts/axu5ev_verify_run.m,pure simulation or historical replay helper
+simulation/axu5ev_verify_send.m,simulation/closed_loop/scripts/axu5ev_verify_send.m,pure simulation or historical replay helper
+simulation/adc/adc_generate_hdl.m,simulation/tests/adc/adc_generate_hdl.m,ADC fixture check or generator
+simulation/adc/adc_run_observer.m,simulation/tests/adc/adc_run_observer.m,ADC fixture check or generator
+simulation/adc/adc_validate_component.m,simulation/tests/adc/adc_validate_component.m,ADC fixture check or generator
+simulation/real_io/ax03b1_abz_reference.m,simulation/tests/adc/ax03b1_abz_reference.m,frozen feedback oracle and synthetic stimulus
+simulation/real_io/ax03b1_adc_reference.m,simulation/tests/adc/ax03b1_adc_reference.m,frozen feedback oracle and synthetic stimulus
+simulation/real_io/ax03b1_current_preprocess.m,simulation/tests/adc/ax03b1_current_preprocess.m,frozen feedback oracle and synthetic stimulus
+simulation/real_io/ax03b1_run_no_power.m,simulation/tests/adc/ax03b1_run_no_power.m,frozen feedback oracle and synthetic stimulus
+simulation/real_io/ax03b1_snapshot_reference.m,simulation/tests/adc/ax03b1_snapshot_reference.m,frozen feedback oracle and synthetic stimulus
+simulation/real_io/ax03b1_stimulus.m,simulation/tests/adc/ax03b1_stimulus.m,frozen feedback oracle and synthetic stimulus
+simulation/real_io/ax03b1_validate_abz_startup.m,simulation/tests/adc/ax03b1_validate_abz_startup.m,frozen feedback oracle and synthetic stimulus
+simulation/real_io/ax03b1_validate_current.m,simulation/tests/adc/ax03b1_validate_current.m,frozen feedback oracle and synthetic stimulus
+simulation/real_io/README.md,simulation/tests/adc/real_io_README.md,frozen feedback oracle and synthetic stimulus
+simulation/encoder/AXU5EV_Encoder_Angle_HDL.slx,simulation/tests/encoder/AXU5EV_Encoder_Angle_HDL.slx,PR45 encoder fixture source or check
+simulation/encoder/AXU5EV_Encoder_Components.slx,simulation/tests/encoder/AXU5EV_Encoder_Components.slx,PR45 encoder fixture source or check
+simulation/encoder/AXU5EV_Encoder_Feedback.slx,simulation/tests/encoder/AXU5EV_Encoder_Feedback.slx,PR45 encoder fixture source or check
+simulation/encoder/encoder_angle_step.m,simulation/tests/encoder/encoder_angle_step.m,PR45 encoder fixture source or check
+simulation/encoder/encoder_generate_c.m,simulation/tests/encoder/encoder_generate_c.m,PR45 encoder fixture source or check
+simulation/encoder/encoder_generate_hdl.m,simulation/tests/encoder/encoder_generate_hdl.m,PR45 encoder fixture source or check
+simulation/encoder/encoder_position_speed.m,simulation/tests/encoder/encoder_position_speed.m,PR45 encoder fixture source or check
+simulation/encoder/encoder_test_scale.json,simulation/tests/encoder/encoder_test_scale.json,PR45 encoder fixture source or check
+simulation/encoder/encoder_validate_angle.m,simulation/tests/encoder/encoder_validate_angle.m,PR45 encoder fixture source or check
+simulation/encoder/encoder_validate_pl_frames.m,simulation/tests/encoder/encoder_validate_pl_frames.m,PR45 encoder fixture source or check
+simulation/encoder/encoder_validate_software.m,simulation/tests/encoder/encoder_validate_software.m,PR45 encoder fixture source or check
+simulation/encoder/README.md,simulation/tests/encoder/encoder_README.md,PR45 encoder fixture source or check
+simulation/encoder/task1_encoder_guard.m,simulation/tests/encoder/task1_encoder_guard.m,PR45 encoder fixture source or check
+simulation/encoder/task1_encoder_phase_serial.m,simulation/tests/encoder/task1_encoder_phase_serial.m,PR45 encoder fixture source or check
+simulation/encoder/task1_encoder_vectors.m,simulation/tests/encoder/task1_encoder_vectors.m,PR45 encoder fixture source or check
+simulation/encoder/task1_validate_encoder_c.m,simulation/tests/encoder/task1_validate_encoder_c.m,PR45 encoder fixture source or check
+simulation/encoder/task1_validate_encoder_guard.m,simulation/tests/encoder/task1_validate_encoder_guard.m,PR45 encoder fixture source or check
+simulation/encoder/task1_validate_encoder_model.m,simulation/tests/encoder/task1_validate_encoder_model.m,PR45 encoder fixture source or check
+simulation/motor_control/AXU5EV_Duty_Adapter_HDL.slx,simulation/tests/digital_chain/AXU5EV_Duty_Adapter_HDL.slx,digital chain fixture utility
+simulation/motor_control/duty_to_compare.m,simulation/tests/digital_chain/duty_to_compare.m,digital chain fixture utility
+simulation/motor_control/motor_control_compare_foc.m,simulation/tests/digital_chain/motor_control_compare_foc.m,digital chain fixture utility
+simulation/motor_control/motor_control_compare_front.m,simulation/tests/digital_chain/motor_control_compare_front.m,digital chain fixture utility
+simulation/motor_control/motor_control_generate_mapper.m,simulation/tests/digital_chain/motor_control_generate_mapper.m,digital chain fixture utility
+simulation/motor_control/motor_control_run.m,simulation/tests/digital_chain/motor_control_run.m,digital chain fixture utility
+simulation/motor_control/motor_control_sim_io.m,simulation/tests/digital_chain/motor_control_sim_io.m,digital chain fixture utility
+simulation/motor_control/motor_control_sim_join.m,simulation/tests/digital_chain/motor_control_sim_join.m,digital chain fixture utility
+simulation/motor_control/motor_control_sim_pwm.m,simulation/tests/digital_chain/motor_control_sim_pwm.m,digital chain fixture utility
+simulation/motor_control/motor_control_sim_r5.m,simulation/tests/digital_chain/motor_control_sim_r5.m,digital chain fixture utility
+simulation/motor_control/motor_control_system_batch.m,simulation/tests/digital_chain/motor_control_system_batch.m,digital chain fixture utility
+simulation/motor_control/README.md,simulation/tests/digital_chain/motor_control_README.md,digital chain fixture utility
+simulation/ethernet/ETH01_Model.slx,simulation/tests/ethernet/ETH01_Model.slx,historical transfer or replay fixture
+simulation/ethernet/eth01_process.m,simulation/tests/ethernet/eth01_process.m,historical transfer or replay fixture
+simulation/ethernet/ETH01_SoC_IO_Probe.slx,simulation/tests/ethernet/ETH01_SoC_IO_Probe.slx,historical transfer or replay fixture
+simulation/ethernet/ETH01_Target.slx,simulation/tests/ethernet/ETH01_Target.slx,historical transfer or replay fixture
+simulation/ethernet/eth01_validate.m,simulation/tests/ethernet/eth01_validate.m,historical transfer or replay fixture
+simulation/ethernet/RUN_AX02C2.m,simulation/tests/ethernet/RUN_AX02C2.m,historical transfer or replay fixture
+simulation/ethernet/RUN_ETH02.m,simulation/tests/ethernet/RUN_ETH02.m,historical transfer or replay fixture
+simulation/ethernet/START_ETH01.m,simulation/tests/ethernet/START_ETH01.m,historical transfer or replay fixture
+simulation/motor_control/AXU5EV_Motor_Control_System.slx,simulation/tests/digital_chain/AXU5EV_DigitalChain_Test.slx,renamed PR45 SIM_ONLY fixture; MATLAB save-as performed by root
+simulation/README_运行说明.md,simulation/closed_loop/README_闭环操作.md,preserved detailed manual; short dual-entry index at original path

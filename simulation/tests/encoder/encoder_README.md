@@ -1,0 +1,88 @@
+# Encoder numerical entries
+
+AX-04 retains this directory as the PR45 encoder test fixture. Select it
+explicitly with `axu5ev_test_paths`. The experiment entry uses its independent
+copies under `simulation/experiment`.
+
+`encoder_test_scale.json` is the explicit synthetic scale: 1000nm per effective
+decoded count, 30000 counts per electrical period, no additional x4. It does
+not modify the legacy motor parameters or claim physical scale verification.
+`scripts/encoder_generate_scale.py` exports the PL package and C constants.
+The angle generator checks that its specialized period matches this source.
+
+Issue42 Task1 uses the visible shared `AXU5EV_Encoder_Components/Encoder_Angle`
+graph with `task1_encoder_phase_serial.m` for its retained serial state engine.
+`AXU5EV_Encoder_Angle_HDL.slx` links that component. `encoder_angle_step.m`
+is the frozen numerical oracle. The generation entry
+`encoder_generate_hdl(new_output_dir,hdl_dir)` writes the selected candidate
+directory. The unified `task1_dsp_reuse('generate',new_output_dir)` selects
+`new_output_dir/angle/hdl`. PR45 generated `generated/dsp_reuse/angle`.
+The original `generated/encoder` source remains
+with the frozen PR41 board candidate. Current mapping, results and commands
+are in [the Task1 report](../../../coordination/reports/task1_dsp_reuse.md).
+
+The existing FOC contract was read from `simulation/closed_loop/parameters/pmlsm_foc_fixed_config.m`
+(`Angle`, signed40, fraction32) and the generated legacy `FOC_DUT.theta_e`
+port. It is radians, not turns. This component returns integer Q32 bits in an
+int64 container, with nonnegative values below 2pi; the low40 bits therefore
+match that input format. It is not connected to FOC in this issue.
+The saved Hybrid model was also read through MATLAB MCP:
+`Alignment_Interface/Alignment_Angle_Selection` (SID2148), Gain SID2157 uses
+`2*pi/Tau_e_mm*x_mm`; Sum SID2152 adds both `Theta_Offset_auto` (input2151)
+and `Theta_Offset_Fine` (constant2161) before wrapping. The manual phase-offset
+sign here is therefore additive, matching that existing convention.
+Legacy Runtime C lines314–315 compute the alignment correction as
+`0 - 2*pi*x_align/60`; here the manual `zero_count` is subtracted and the
+manual phase offset is added. That legacy60mm parameter is not reused for
+the explicit30mm test scale. No alignment state machine is run or changed.
+
+For the first ready frame or a manual zero change, the coordinate is the
+nearest signed-modulo32 distance from raw `zero_count`. Subsequent frames use
+nearest signed-modulo32 increments from the previous raw count and maintain
+phase modulo30000, so crossing raw UINT32 or signed INT32 boundaries does not
+change electrical phase spuriously. Direction1 negates that displacement;
+phase_offset_count is added after direction and must be 0..29999. A manual
+zero change creates a new coordinate epoch. Phase-offset or version-only
+changes preserve the accumulated unoffset phase; direction changes negate
+that retained phase before applying the new signed increment. This matters
+after displacement has accumulated through a full modulo32 raw-count wrap:
+re-anchoring to raw-zero for a version/offset change would introduce a
+spurious 2^32 mod30000 =17296 count phase shift.
+Not-ready clears the primed state. Every initial/increment displacement must
+be strictly less than 2^31 counts in magnitude; the exact half-wrap is invalid
+and requires re-priming. Z only appears in frame metadata and never resets
+this algorithm.
+
+For final phase p, the quantization is
+`floor((p*943231700270 + 2^19)/2^20)` Q32 bits, where the coefficient is
+`round(2*pi*2^52/30000)`. This differs from ideal round-to-nearest Q32 radians by
+at most one LSB. The 32-step serial remainder avoids a wide modulo divider in
+one 50MHz clock. An input event while busy is outside this component's
+contract; integration supplies only one every5000 clocks.
+
+`encoder_validate_angle(new_output_dir)` compares MATLAB with the linked model
+and exports46 analytical vectors. Final model result is
+`.runtime/encoder_feedback/angle_model_03`: 2208 clock steps, maximum ideal
+error1 Q32 LSB. Its output sample-index offset is34, evaluated before the
+discrete state update. Generated RTL was separately checked at post-edge
+observation in `angle_rtl_04`:46 vectors/460 checks, result visible33 clocks
+after the input-accept edge. A consuming parent register captures that result
+on the following edge, at34 clocks; snapshot word29 reports this consumption
+delay. These are explicit sampling conventions, not different algorithms.
+
+The RTL comparison command is
+`scripts/encoder_run_angle_rtl.ps1 -RunDir <new_directory> -Vectors <angle_model_dir>/angle_vectors.txt`.
+Vectors cover quarter-periods, electrical boundary/negative motion, signed32
+and modulo32 raw wraps, large accumulated displacement followed by version,
+offset and direction changes, manual zero changes, not-ready and
+the ambiguous half-wrap. Earlier path-escaping/latency-convention test failures
+remain in angle_rtl_01/02. No generated HDL was hand-edited.
+
+The current software source is the shared visible `Caculate_measurement`
+component. `AXU5EV_Encoder_Feedback.slx` links it for ARM Cortex-R generation
+through `encoder_generate_c(new_output_dir)`, which validates the exact target
+C through a transport-only MEX and publishes the new output directory's
+`exported_c`. PR45 generated `generated/dsp_reuse/feedback_c`.
+`encoder_position_speed.m`, its original generated C and the older validation
+entries are retained as PR41 reference evidence. The same-frame
+zero/direction/scale/version remain explicit input fields.

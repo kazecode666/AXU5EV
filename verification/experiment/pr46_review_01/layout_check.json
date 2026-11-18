@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "model_version": "1.95",
+  "root_blocks_checked": 34,
+  "root_positions_preserved": true,
+  "chart_state_boxes_checked": 5,
+  "state_box_max_delta": 0,
+  "transition_routes_checked": 9,
+  "source_endpoint_max_delta": 0.00010000000003174137,
+  "destination_endpoint_max_delta": 0,
+  "midpoint_max_delta": 4,
+  "label_anchor_max_delta": 3.0879999999999654,
+  "scope": "Geometry from saved local user_main_before.slx; label content and safety priority intentionally changed.",
+  "note_box_max_delta": 0.7778,
+  "route_note": "Five state boxes and curved paths retain original local layout. Stateflow normalizes two note anchors below 1 px, one default-entry midpoint by 4 px and two transition-label anchors by about 3.1 px. Labels reflow for added conditions."
+}

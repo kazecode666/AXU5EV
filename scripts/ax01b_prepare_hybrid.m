@@ -1,7 +1,7 @@
 function model=ax01b_prepare_hybrid(mode,rebuild)
 % 兼容旧调用；日常入口为simulation/START_HERE。
 root=fileparts(fileparts(mfilename('fullpath')));
-addpath(fullfile(root,'simulation'));
+addpath(fullfile(root,'simulation'));axu5ev_simulation_paths(root);
 if evalin('base','exist(''PMLSM_M1A_InitVersion'',''var'')~=1')
     evalin('base','init_AXU5EV;');
 end

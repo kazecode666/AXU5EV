@@ -1,0 +1,2 @@
+AXU5EV_Experiment_Duty_HDL/Duty_To_Compare/Duty_Scale_Core --> AX04_Duty_Duty_Scale_Core
+AXU5EV_Experiment_Duty_HDL/Duty_To_Compare --> AX04_Duty_Duty_To_Compare

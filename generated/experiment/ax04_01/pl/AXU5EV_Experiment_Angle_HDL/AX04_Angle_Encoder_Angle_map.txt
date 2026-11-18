@@ -1,0 +1,4 @@
+AXU5EV_Experiment_Angle_HDL/Encoder_Angle/Electric_Angle_Core/Serial_Modulo_State --> AX04_Angle_Serial_Modulo_State
+AXU5EV_Experiment_Angle_HDL/Encoder_Angle/Electric_Angle_Core/Shift_Q52_to_Q32 --> AX04_Angle_Shift_Q52_to_Q32
+AXU5EV_Experiment_Angle_HDL/Encoder_Angle/Electric_Angle_Core --> AX04_Angle_Electric_Angle_Core
+AXU5EV_Experiment_Angle_HDL/Encoder_Angle --> AX04_Angle_Encoder_Angle

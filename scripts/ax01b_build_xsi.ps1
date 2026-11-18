@@ -1,7 +1,11 @@
-param([string]$VivadoBin='E:/AMDDesignTools/2026.1/Vivado/bin')
+param([string]$VivadoBin='E:/AMDDesignTools/2026.1/Vivado/bin', [string]$WorkDir)
 $ErrorActionPreference='Stop'
 $axRoot=Split-Path -Parent $PSScriptRoot
-$axWork=Join-Path $axRoot '.runtime/ax01b/xsi'
+if (-not $WorkDir) {
+ $WorkDir=Join-Path $axRoot ('.runtime/closed_loop/xsi_'+[guid]::NewGuid().ToString('N'))
+}
+$axWork=[IO.Path]::GetFullPath($WorkDir)
+if (Test-Path -LiteralPath $axWork) { throw 'Choose a new XSI output directory to preserve earlier results' }
 New-Item -ItemType Directory -Force -Path $axWork | Out-Null
 $axManifest=Get-Content (Join-Path $axRoot 'generated/legacy_m3_p3/manifest.json') -Raw | ConvertFrom-Json
 $axSources=@($axManifest.design_files | ForEach-Object { 'sv work "'+(Join-Path $axRoot ('generated/legacy_m3_p3/'+$_.path)).Replace('\','/')+'"' })

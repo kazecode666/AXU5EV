@@ -1,5 +1,13 @@
 # 工作区、上板工程与数据保存位置
 
+## AX-04 模型开发入口
+
+当前交付A采用 `simulation/START_SIMULATION.m` 与 `simulation/START_EXPERIMENT.m` 两个入口。纯仿真参数源位于 `simulation/closed_loop/parameters/init_AXU5EV.m`，实机参数源位于 `simulation/experiment/parameters/axu5ev_experiment_parameters.m`。日常打开、检查及生成方法见[双入口说明](../simulation/README_运行说明.md)。
+
+本轮分支为 `codex/ax04-experiment-model`，base为PR45分支 `codex/issue42-task1-dsp-reuse`。本地工作与验证采用新目录 `.runtime/experiment/ax04_01`，版本化C/HDL输出位于 `generated/experiment`。硬件绑定为 `HW_BINDING_PENDING`，板卡状态为 `BOARD_NOT_RUN`。实际完成项以[当前交接](../coordination/HANDOFF.md)为准。
+
+## 历史候选与实验数据
+
 > PR24当前实板入口及签收：Workspace`.runtime/ax02c2/vitis_runtime_pl_perf_r1`，Launch`ax02c2_runtime_manual`，ID0x43324302；复用native64平台/BSP/FSBL/psu_init及hardware_02。用户已完成`board/current_motion_perf_r1_01`单次64536条完整实板PASS，该目录已占用，不再运行同一入口。原失败目录与fail1200_backup保留。[精简签收](../verification/ax02c2/board_perf_r1_01/README.md)、[主报告](../coordination/reports/ax02c2_runtime_pl_replay.md)、[唯一指南](../firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)包含完整耗时/后移日志及失败对照。本轮只归档，等待用户最终Review；不连接板卡、不构建、不自动合并。以下旧NOT_RUN及候选入口均按历史理解。
 
 > 当前AX-02C2：PR22已合并，C1成功不复现，复用`.runtime/ax02c/hardware_02`的bit/XSA。最终新Workspace`.runtime/ax02c2/vitis_runtime_pl_native64`，Launch`ax02c2_runtime_manual`，R5应用`ax02c2_runtime`；同源数据`.runtime/ax02c2/prepared_04/data/current_motion`，adapter源`.runtime/ax02c2/adapter_native_01/adapter_01/codegen/AX02C2_Adapter_ert_rtw`。必要适配验证/实际构建/启动检查PASS，板测NOT_RUN；新的完整实验尚待JTAG/UART及ETH02直连网络可用后按本次授权运行一次。见[唯一指南](../firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md)、[报告](../coordination/reports/ax02c2_runtime_pl_replay.md)。较早C2工作区`vitis_runtime_pl`、C1/ETH02/R1及数据均保留，不搬动。下列旧阶段状态按历史理解。
@@ -23,7 +31,8 @@
 | 目的 | 入口/位置 |
 |---|---|
 | 当前任务及未完成项 | [coordination/HANDOFF.md](../coordination/HANDOFF.md) |
-| 日常仿真 | `simulation/START_HERE.m`；唯一参数入口 `simulation/init_AXU5EV.m` |
+| 日常仿真 | `simulation/START_SIMULATION.m`；参数源 `simulation/closed_loop/parameters/init_AXU5EV.m` |
+| 实机模型与生成 | `simulation/START_EXPERIMENT.m`；参数源 `simulation/experiment/parameters/axu5ev_experiment_parameters.m` |
 | 下一次用户上板 | `.runtime/ax02a/vitis_runtime_100us_r1`；Review后按指南第14节/完整场景指南 |
 | 当前构建配置 | [build_config.runtime_100us_r1.json](../firmware/r5/ax02a/build_config.runtime_100us_r1.json) |
 | 原始实测数据 | `.runtime/ax02a/board_manual/<独立实验目录>/` |
