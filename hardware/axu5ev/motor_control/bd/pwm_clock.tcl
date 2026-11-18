@@ -1,5 +1,5 @@
 # Keep PS pl_clk0 and ADC reset wiring. Add only the derived PWM clock/domain.
-proc mc_pwm_integrate {out ps} {
+proc mc_pwm_integrate {out ps {profile ""}} {
     create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz pwm_clock
     set input_mhz [expr {[get_property CONFIG.FREQ_HZ [get_bd_pins $ps/pl_clk0]]/1000000.0}]
     set_property -dict [list CONFIG.PRIM_IN_FREQ $input_mhz \
@@ -20,7 +20,18 @@ proc mc_pwm_integrate {out ps} {
     connect_bd_net [get_bd_pins rst_pl0/peripheral_aresetn] [get_bd_pins pwm_clock/resetn] [get_bd_pins pwm_control_0/s_axi_aresetn]
     connect_bd_net [get_bd_pins pwm_clock/clk_out1] [get_bd_pins pwm_control_0/pwm_clk]
     connect_bd_net [get_bd_pins pwm_clock/locked] [get_bd_pins pwm_control_0/locked]
-    connect_bd_net [get_bd_pins zero/dout] [get_bd_pins pwm_control_0/fast_inhibit]
+    if {$profile eq ""} {
+        connect_bd_net [get_bd_pins zero/dout] [get_bd_pins pwm_control_0/fast_inhibit] \
+            [get_bd_pins pwm_control_0/j16_output_enable_i]
+    } else {
+        connect_bd_net [get_bd_pins pwm_clock/locked] [get_bd_pins adc_observer_0/ax04b_locked_i]
+        connect_bd_net [get_bd_pins adc_observer_0/ax04b_pwm_stop_o] [get_bd_pins pwm_control_0/fast_inhibit]
+        connect_bd_net [get_bd_pins adc_observer_0/ax04b_pwm_enable_o] [get_bd_pins pwm_control_0/j16_output_enable_i]
+        if {$profile eq "REAL"} {
+            mc_external_pin pwm_control_0/j16_high_o j16_pwm_h_o
+            mc_external_pin pwm_control_0/j16_low_o j16_pwm_l_o
+        }
+    }
     connect_bd_net [get_bd_pins adc_observer_0/pwm_anchor_o] [get_bd_pins pwm_control_0/adc_anchor]
     connect_bd_intf_net [get_bd_intf_pins axi_adc/M01_AXI] [get_bd_intf_pins pwm_control_0/s_axi]
     create_bd_cell -type ip -vlnv xilinx.com:ip:ila pwm_ila

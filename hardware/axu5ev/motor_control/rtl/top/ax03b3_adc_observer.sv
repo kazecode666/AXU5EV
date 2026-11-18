@@ -10,7 +10,8 @@ module ax03b3_adc_observer #(
     parameter integer ENCODER_FEEDBACK = 0,
     parameter integer TEST_ABZ = 0,
     parameter integer AUTO_CONTROL = 0,
-    parameter [31:0] ENCODER_INITIAL_COUNT = 0
+    parameter [31:0] ENCODER_INITIAL_COUNT = 0,
+    parameter integer AX04B = 0
 ) (
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 s_axi_aclk CLK",
        X_INTERFACE_PARAMETER = "XIL_INTERFACENAME s_axi_aclk, ASSOCIATED_BUSIF s_axi, ASSOCIATED_RESET s_axi_aresetn, FREQ_HZ 49999500" *)
@@ -34,6 +35,14 @@ module ax03b3_adc_observer #(
     output wire auto_inhibit_o,
     input wire auto_ready_i, auto_online_i,
     input wire [31:0] auto_applied_seq_i,
+    input wire ax04b_locked_i, ax04b_erri_n_i, ax04b_erru_n_i,
+    input wire ax04b_ctrl_enable_i, ax04b_ref_valid_i, ax04b_inhibit_i,
+    input wire [255:0] ax04b_reference_i,
+    output wire ax04b_p0_o, ax04b_frame_o, ax04b_fault_o, ax04b_invalidate_o,
+    output wire [31:0] ax04b_p0_id_o,
+    output wire [287:0] ax04b_frame_data_o,
+    output wire ax04b_pwm_stop_o, ax04b_pwm_enable_o, ax04b_ctrl_enable_o,
+    output wire ax04b_relcon_o, ax04b_encon_o, ax04b_f_reset_n_o,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axi AWADDR",
        X_INTERFACE_PARAMETER = "XIL_INTERFACENAME s_axi, PROTOCOL AXI4LITE, DATA_WIDTH 32, ADDR_WIDTH 12, READ_WRITE_MODE READ_WRITE, FREQ_HZ 49999500" *)
     input wire [11:0] s_axi_awaddr,
@@ -56,7 +65,13 @@ module ax03b3_adc_observer #(
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axi RVALID" *) output wire s_axi_rvalid,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s_axi RREADY" *) input wire s_axi_rready
 );
+    `ifdef AX04B_EXPERIMENT
+    // Identical to the saved AQM30-B2 experiment and generated angle source.
+    localparam integer ENCODER_COUNTS_PER_PERIOD = 30000;
+    localparam integer ENCODER_NM_PER_COUNT = 1000;
+    `else
     import encoder_scale_pkg::*;
+    `endif
     reg [3:0] adc_phase;
     reg [63:0] tick, sample_tick;
     integer observe_phase;
@@ -199,9 +214,14 @@ module ax03b3_adc_observer #(
     wire angle_valid,angle_strobe;
     wire [31:0] angle_version;
     generate if(ENCODER_FEEDBACK) begin: angle_path
-      Encoder_Angle generated_angle(.clk(s_axi_aclk),.reset(!s_axi_aresetn),.clk_enable(1'b1),
+       `ifdef AX04B_EXPERIMENT
+       AX04_Angle_Encoder_Angle generated_angle(
+       `else
+       Encoder_Angle generated_angle(
+       `endif
+         .clk(s_axi_aclk),.reset(!s_axi_aresetn),.clk_enable(1'b1),
         .sample_strobe(pair_strobe),.count(frame_count),.ready(frame_ready),
-        .zero_count(frame_zero),.phase_offset_count(frame_phase[15:0]),
+         .zero_count(frame_zero),.phase_offset_count(AX04B ? 16'd0 : frame_phase[15:0]),
         .direction(frame_direction),.config_version(frame_version),
         .theta_q32(theta_q32),.valid(angle_valid),.result_strobe(angle_strobe),
         .version(angle_version),.phase_count(),.ce_out());
@@ -253,6 +273,96 @@ module ax03b3_adc_observer #(
     wire control_status_strobe;
     wire [SNAP_WORDS*32-1:0] snapshot_payload;
     wire snapshot_strobe;
+    wire ax04b_feedback_good;
+    wire signed [63:0] ax04b_theta, ax04b_omega;
+    wire [7:0] ref_flags=ax04b_reference_i[199:192];
+    generate if (AX04B) begin: ax04b_live
+      reg [31:0] previous_illegal;
+      reg [31:0] current_config_version, paired_config_version;
+      (* ASYNC_REG = "TRUE" *) reg [1:0] erri_sync, erru_sync;
+      (* ASYNC_REG = "TRUE" *) reg [1:0] fault_release;
+      wire control_buffer=s_axi_aresetn && ax04b_locked_i && ax04b_ctrl_enable_i;
+      wire physical_fault= !TEST_INPUT &&
+          (!control_buffer || !ax04b_erri_n_i || !ax04b_erru_n_i);
+      wire fault_assert= !s_axi_aresetn || !ax04b_locked_i || physical_fault;
+      always @(posedge s_axi_aclk or posedge fault_assert)
+        if (fault_assert) fault_release<=0;
+        else fault_release<={fault_release[0],1'b1};
+      always @(posedge s_axi_aclk) begin
+        if (!s_axi_aresetn) begin
+          erri_sync<=0;erru_sync<=0;previous_illegal<=0;
+          current_config_version<=0;paired_config_version<=0;
+        end else begin
+          erri_sync<={erri_sync[0],ax04b_erri_n_i};
+          erru_sync<={erru_sync[0],ax04b_erru_n_i};
+          if (result_strobe) previous_illegal<=frame_illegal;
+          // Mirror the generated configuration shape check for the version
+          // label only. A staging write alone does not label current results.
+          if (apply && shadow[4][7:0]<=10 && shadow[0]<=32'd268369920 &&
+              shadow[1]<=32'd268369920)
+            current_config_version<=shadow[5];
+          if (pair_strobe) paired_config_version<=current_config_version;
+        end
+      end
+      wire current_ok=valid && da && db && pair_complete && !clip && !(|otr);
+      assign ax04b_feedback_good=current_ok && frame_ready;
+      wire qualification_lost=result_strobe &&
+            (!ax04b_feedback_good || frame_illegal!=previous_illegal);
+      assign ax04b_p0_o=s_axi_aresetn && adc_phase==0 && observe_phase==0;
+      assign ax04b_p0_id_o=next_sample_id;
+      // Schedule from the early current result, even when rejected. Encoder
+      // P0 metadata travels with this ADC result. The later angle/valley
+      // diagnostics cannot change this frame's R5 snapshot.
+      assign ax04b_frame_o=result_strobe;
+      wire [31:0] frame_quality={22'b0,frame_direction,pair_complete,pair_valid_b,
+          pair_valid_a,(TEST_INPUT!=0),clip,db,da,current_ok,frame_ready};
+      wire [31:0] frame_fault={30'b0,
+          (!TEST_INPUT && (!control_buffer || !erru_sync[1])),
+          (!TEST_INPUT && (!control_buffer || !erri_sync[1]))};
+      assign ax04b_frame_data_o={frame_fault,paired_config_version,version,frame_quality,
+          frame_illegal,frame_count,pair_tick,pair_id};
+      assign ax04b_fault_o=!fault_release[1];
+      assign ax04b_invalidate_o=apply || restart || enc_pending || qualification_lost;
+      // Assertion also reaches the PWM mailbox directly, independently of
+      // software and of the 50 MHz status transfer. Keep F_Reset separate.
+      assign ax04b_pwm_stop_o=fault_assert || ax04b_fault_o || ax04b_inhibit_i ||
+          ax04b_invalidate_o || (ax04b_ref_valid_i && ref_flags[6]);
+      assign ax04b_ctrl_enable_o=(TEST_INPUT==0) && control_buffer;
+      assign ax04b_f_reset_n_o=!(ax04b_ctrl_enable_o && ax04b_ref_valid_i && ref_flags[6]);
+      // This deployment authorizes internal testing and feedback only.
+      // J16 production pins are instantiated in REAL with this hard veto.
+      assign ax04b_pwm_enable_o=1'b0;
+      assign ax04b_relcon_o=1'b0;
+      assign ax04b_encon_o=1'b0;
+      `ifdef AX04B_EXPERIMENT
+      AX04B_Angle_Control_Angle select_control_angle(
+        .encoder_theta_q32($signed(payload[32*32+:64])),
+        .phase_bias_q32({{24{ax04b_reference_i[167]}},ax04b_reference_i[167:128]}),
+        .fixed_theta_q32(64'sd0),
+        .fixed_angle(ref_flags[0]),
+        .measured_omega_q24({{24{ax04b_reference_i[103]}},ax04b_reference_i[103:64]}),
+        .theta_q32(ax04b_theta),.omega_q24(ax04b_omega));
+      `else
+      assign ax04b_theta=0;
+      assign ax04b_omega=0;
+      `endif
+    end else begin: legacy_realtime_disabled
+      assign ax04b_feedback_good=0;
+      assign ax04b_theta=0;
+      assign ax04b_omega=0;
+      assign ax04b_p0_o=0;
+      assign ax04b_p0_id_o=0;
+      assign ax04b_frame_o=0;
+      assign ax04b_frame_data_o=0;
+      assign ax04b_fault_o=0;
+      assign ax04b_invalidate_o=0;
+      assign ax04b_pwm_stop_o=0;
+      assign ax04b_pwm_enable_o=0;
+      assign ax04b_ctrl_enable_o=0;
+      assign ax04b_relcon_o=0;
+      assign ax04b_encon_o=0;
+      assign ax04b_f_reset_n_o=1;
+    end endgenerate
     generate if(AUTO_CONTROL) begin: auto_path
       reg [SNAP_WORDS*32-1:0] feedback_bank,control_bank;
       reg bank_strobe;
@@ -273,14 +383,25 @@ module ax03b3_adc_observer #(
       motor_foc_control controller(.clk(s_axi_aclk),.rst(!s_axi_aresetn),
         .sample_event(adc_phase==0 && observe_phase==0),.sample_tick(tick),.sample_id(next_sample_id),
         .feedback_event(publish_strobe),
-        .feedback_valid(payload[2*32+7] && payload[2*32+9] && payload[2*32+11] &&
-          !payload[2*32+3] && !payload[2*32+4] && !payload[2*32+8] && frame_illegal==0),
+        // Current validity is a sample pulse. The later angle join uses
+        // the captured current bank, never the live P75/P76 valid signal.
+        .feedback_valid(AX04B ? (payload[2*32+2] && payload[2*32+5] &&
+          payload[2*32+6] && payload[2*32+7] && payload[2*32+9] && payload[2*32+11] &&
+          !payload[2*32+3] && !payload[2*32+4] && !payload[2*32+8]) :
+          (payload[2*32+7] && payload[2*32+9] && payload[2*32+11] &&
+            !payload[2*32+3] && !payload[2*32+4] && !payload[2*32+8] && frame_illegal==0)),
         .feedback_id(payload[3*32+:32]),.feedback_tick(payload[4*32+:64]),
         .ia(payload[8*32+:32]),.ib(payload[9*32+:32]),.ic(payload[10*32+:32]),
-        .theta_e(payload[32*32+:40]),
-        .ref_id(ref_active[0]),.ref_iq(ref_active[1]),.ref_omega({ref_active[3][7:0],ref_active[2]}),
-        .ref_vdc(ref_active[4]),.ref_pi_reset(ref_active[5][0]),.ref_version(ref_active[6]),.ref_arm(ref_active[7][0]),
-        .invalidate(apply || restart || manual_disarm),
+        .theta_e(AX04B ? ax04b_theta[39:0] : payload[32*32+:40]),
+        .ref_id(AX04B ? ax04b_reference_i[31:0] : ref_active[0]),
+        .ref_iq(AX04B ? ax04b_reference_i[63:32] : ref_active[1]),
+        .ref_omega(AX04B ? ax04b_omega[39:0] : {ref_active[3][7:0],ref_active[2]}),
+        .ref_vdc(AX04B ? 32'd805306368 : ref_active[4]),
+        .ref_pi_reset(AX04B ? ref_flags[2] : ref_active[5][0]),
+        .ref_version(AX04B ? ax04b_reference_i[255:224] : ref_active[6]),
+        .ref_arm(AX04B ? (ax04b_ref_valid_i && ref_flags[3] && ref_flags[1] &&
+                           !ax04b_pwm_stop_o) : ref_active[7][0]),
+        .invalidate(AX04B ? ax04b_pwm_stop_o : (apply || restart || manual_disarm)),
         .auto_ready(auto_ready_i),.auto_online(auto_online_i),.auto_applied_seq(auto_applied_seq_i),
         .auto_valid(auto_valid_o),.auto_compare(auto_compare_o),.auto_seq(auto_seq_o),.auto_inhibit(auto_inhibit_o),
         .debug_o(control_debug),.status_strobe(control_status_strobe));
@@ -361,9 +482,9 @@ module ax03b3_adc_observer #(
             shadow[(awaddr-12'h100)>>2]<=wdata;
           else if(awaddr==12'h118) begin
             apply<=wdata[0];restart<=wdata[1] && !wdata[0];cal_en<=wdata[2];
-          end else if(ENCODER_FEEDBACK && awaddr==12'h140) enc_shadow_zero<=wdata;
-          else if(ENCODER_FEEDBACK && awaddr==12'h144 && wdata<ENCODER_COUNTS_PER_PERIOD) enc_shadow_phase<=wdata;
-          else if(ENCODER_FEEDBACK && awaddr==12'h148 && wdata<=1) enc_shadow_direction<=wdata[0];
+           end else if(ENCODER_FEEDBACK && awaddr==12'h140 && (!AX04B || wdata==0)) enc_shadow_zero<=wdata;
+           else if(ENCODER_FEEDBACK && awaddr==12'h144 && wdata<ENCODER_COUNTS_PER_PERIOD && (!AX04B || wdata==0)) enc_shadow_phase<=wdata;
+           else if(ENCODER_FEEDBACK && awaddr==12'h148 && wdata<=1 && (!AX04B || wdata==0)) enc_shadow_direction<=wdata[0];
           else if(ENCODER_FEEDBACK && awaddr==12'h14c) enc_shadow_version<=wdata;
           else if(ENCODER_FEEDBACK && awaddr==12'h150) begin
             if(wdata[0] && enc_pending) s_axi_bresp<=2;
@@ -375,15 +496,15 @@ module ax03b3_adc_observer #(
                 enc_pending<=1;
               end
             end
-          end else if(AUTO_CONTROL && awaddr>=12'h180 && awaddr<=12'h19c && awaddr[1:0]==0)
+           end else if(AUTO_CONTROL && !AX04B && awaddr>=12'h180 && awaddr<=12'h19c && awaddr[1:0]==0)
             ref_shadow[(awaddr-12'h180)>>2]<=wdata;
-          else if(AUTO_CONTROL && awaddr==12'h1a0 && wdata==1) begin
+           else if(AUTO_CONTROL && !AX04B && awaddr==12'h1a0 && wdata==1) begin
             if(ref_pending) s_axi_bresp<=2;
             else begin
               for(i=0;i<8;i=i+1) ref_frozen[i]<=ref_shadow[i];
               ref_pending<=1;
             end
-          end else if(AUTO_CONTROL && awaddr==12'h1a4 && wdata==1) begin
+           end else if(AUTO_CONTROL && !AX04B && awaddr==12'h1a4 && wdata==1) begin
             manual_disarm<=1;
             ref_pending<=0; // A pre-disarm arm command must not revive at P0.
           end

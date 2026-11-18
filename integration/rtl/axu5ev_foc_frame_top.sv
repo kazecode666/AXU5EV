@@ -41,8 +41,18 @@ module axu5ev_foc_frame_top(
    end
   end
  end
- FOC_DUT core(.clk(clk),.reset(global_reset),.reset_FOC_DUT_tc(timing_restart),.clk_enable(1'b1),
+`ifdef AX04B_EXPERIMENT
+ AX04_FOC_FOC_DUT core(
+`else
+ FOC_DUT core(
+`endif
+  .clk(clk),.reset(global_reset),.reset_FOC_DUT_tc(timing_restart),.clk_enable(1'b1),
   .ia(ia_h),.ib(ib_h),.ic(ic_h),.theta_e(theta_h),.omega_e(omega_h),
-  .iq_ref(iq_h),.id_ref(id_h),.PI_Reset_EN(pi_h),.Vdc_V(vdc_h),
+  .iq_ref(iq_h),.id_ref(id_h),.PI_Reset_EN(pi_h),
+`ifdef AX04B_EXPERIMENT
+  .Vdc(vdc_h),
+`else
+  .Vdc_V(vdc_h),
+`endif
   .ce_out(ce_unused),.duty_u_cmd(du),.duty_v_cmd(dv),.duty_w_cmd(dw));
 endmodule

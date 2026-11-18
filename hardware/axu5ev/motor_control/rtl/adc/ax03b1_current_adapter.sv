@@ -19,7 +19,12 @@ module ax03b1_current_adapter(
  output wire result_strobe
 );
  wire ce_unused;
- Current_Preprocess generated_current(.clk(clk),.reset(rst),.clk_enable(1'b1),
+`ifdef AX04B_EXPERIMENT
+ AX04_Current_Current_Preprocess generated_current(
+`else
+ Current_Preprocess generated_current(
+`endif
+ .clk(clk),.reset(rst),.clk_enable(1'b1),
  .sample_strobe(sample_strobe),.raw_a(raw_a),.raw_b(raw_b),
  .capture_valid_a(capture_valid_a),.capture_valid_b(capture_valid_b),.otr_a(otr_a),.otr_b(otr_b),
  .cal_en(cal_en),.cal_restart(cal_restart),.config_apply(config_apply),.config_version(config_version),
