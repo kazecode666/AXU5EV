@@ -1,10 +1,14 @@
 [CmdletBinding()]
-param([ValidateSet('chain','mapper','timing-preflight')][string]$Suite='chain',[string]$RunDir,[string]$Vectors,
+param([ValidateSet('chain','mapper','timing-preflight','ax04b-chain','ax04b-axi')][string]$Suite='chain',[string]$RunDir,[string]$Vectors,
       [string]$VivadoBin='E:/AMDDesignTools/2026.1/Vivado/bin',
+      [ValidateSet('SELFTEST','REAL')][string]$Ax04bMode='SELFTEST',
       [switch]$BadAdoptionExpectation)
 $ErrorActionPreference='Stop'
 $axRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-if(-not $RunDir){$RunDir=Join-Path $axRoot ('.runtime/motor_control/rtl_'+[guid]::NewGuid().ToString('N'))}
+if(-not $RunDir){
+ $localDirectory=if($Suite.StartsWith('ax04b-')){'.runtime/experiment/ax04b'}else{'.runtime/motor_control'}
+ $RunDir=Join-Path (Join-Path $axRoot $localDirectory) ('rtl_'+[guid]::NewGuid().ToString('N'))
+}
 $RunDir=[IO.Path]::GetFullPath($RunDir)
 if(Test-Path -LiteralPath $RunDir){throw 'RunDir exists; choose a new directory to preserve previous results'}
 New-Item -ItemType Directory -Path $RunDir -Force | Out-Null
@@ -40,8 +44,21 @@ $sources=@(Get-Content -LiteralPath $manifest | ForEach-Object {
  if($entry[0] -in @('handwritten','generated','generated_foc')) {Join-Path $axRoot $entry[1]}
 })
 $defines=@()
+$generics=@()
 if($BadAdoptionExpectation -and $Suite -ne 'timing-preflight'){throw 'Counterexample is only for timing-preflight'}
-if($Suite -eq 'timing-preflight'){
+if($Suite -eq 'ax04b-chain'){
+ $sources=@(Get-Content -LiteralPath $manifest | ForEach-Object {
+  $entry=$_ -split '\|',2
+  if($entry[0] -in @('handwritten','experiment')) {Join-Path $axRoot $entry[1]}
+ })
+ $sources += @(Join-Path $axRoot 'verification/experiment/ax04b/ax04b_chain_tb.sv')
+ $top='ax04b_chain_tb';$defines=@('-d','AX04B_EXPERIMENT')
+ if($Ax04bMode -eq 'REAL'){$generics=@('-generic_top','SELFTEST=0')}
+}elseif($Suite -eq 'ax04b-axi'){
+ $sources=@((Join-Path $axRoot 'hardware/axu5ev/motor_control/rtl/axi/ax04b_realtime_axi.sv'),
+            (Join-Path $axRoot 'verification/experiment/ax04b/ax04b_realtime_axi_tb.sv'))
+ $top='ax04b_realtime_axi_tb'
+}elseif($Suite -eq 'timing-preflight'){
  $sources += @(Join-Path $axRoot 'verification/motor_control/timing_tb.sv')
  $top='timing_tb';$defines=@('-d','MC_TIMING_RTL')
 }elseif($Suite -eq 'mapper'){
@@ -54,14 +71,16 @@ if($Suite -eq 'timing-preflight'){
  $top='chain_tb'
 }
 $compile=Invoke-B2Tool 'xvlog' (@('-sv')+$defines+$sources) $RunDir
-$elaborate=Invoke-B2Tool 'xelab' @(('work.'+$top),'-s','b2_interface','-debug','off','-timescale','1ns/1ps') $RunDir
+$elaborate=Invoke-B2Tool 'xelab' (@(('work.'+$top),'-s','b2_interface','-debug','off','-timescale','1ns/1ps')+$generics) $RunDir
 $simArguments=@('b2_interface','-runall')
 if($BadAdoptionExpectation){$simArguments+=@('-testplusarg','BAD_ADOPT_EXPECTATION')}
 $simulation=Invoke-B2Tool 'xsim' $simArguments $RunDir
-$marker=@($simulation -split '\r?\n' | Where-Object {$_ -match '^MOTOR_(CHAIN|MAPPER|TIMING_RTL)_PASS '})
+$marker=@($simulation -split '\r?\n' | Where-Object {$_ -match '^(MOTOR_(CHAIN|MAPPER|TIMING_RTL)_PASS|AX04B_(REALTIME_AXI|CHAIN) PASS) '})
 if($marker.Count -ne 1){throw 'New interface simulation did not produce its PASS marker'}
 $summary=[ordered]@{status='PASS';scope='ADC_QEP_FOC_PWM';pass_marker=$marker[0];run_dir=$RunDir;board='NOT_RUN';old_pr24_b1_regression='NOT_RUN'}
 if($Suite -eq 'timing-preflight'){$summary.scope='TIMING_TESTBENCH_PREFLIGHT_NOT_SDF'}
+if($Suite -eq 'ax04b-chain'){$summary.scope='AX04B_ADC_IRQ_AXI_FOC_PWM';$summary.mode=$Ax04bMode}
+if($Suite -eq 'ax04b-axi'){$summary.scope='AX04B_ATOMIC_FEEDBACK_AND_REFERENCE'}
 [IO.File]::WriteAllText((Join-Path $RunDir 'summary.json'),($summary|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))
 Write-Output $marker[0]
 Write-Output ('MOTOR_CONTROL_RTL_PASS '+(Join-Path $RunDir 'summary.json'))

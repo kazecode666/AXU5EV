@@ -11,6 +11,8 @@ module pwm_config_bridge #(parameter integer AUTO_FOC=0)(
  input wire [31:0] auto_seq_i,input wire auto_inhibit_i,
  output wire auto_ready_o,auto_online_o,output wire [31:0] auto_applied_seq_o,
  output wire [2:0] high_o, output wire [2:0] low_o,
+ input wire j16_output_enable_i,
+ output wire [2:0] j16_high_o, j16_low_o,
  output wire [127:0] debug_o,
  (* X_INTERFACE_INFO="xilinx.com:interface:aximm:1.0 s_axi AWADDR", X_INTERFACE_PARAMETER="XIL_INTERFACENAME s_axi, PROTOCOL AXI4LITE, DATA_WIDTH 32, ADDR_WIDTH 12, READ_WRITE_MODE READ_WRITE, FREQ_HZ 49999500" *) input wire [11:0] s_axi_awaddr,
  (* X_INTERFACE_INFO="xilinx.com:interface:aximm:1.0 s_axi AWPROT" *) input wire [2:0] s_axi_awprot,
@@ -33,6 +35,8 @@ module pwm_config_bridge #(parameter integer AUTO_FOC=0)(
  (* X_INTERFACE_INFO="xilinx.com:interface:aximm:1.0 s_axi RREADY" *) input wire s_axi_rready
 );
  import pwm_parameters::*;
+ assign j16_high_o=j16_output_enable_i ? high_o : 3'b0;
+ assign j16_low_o=j16_output_enable_i ? low_o : 3'b0;
  wire clock_resetn=s_axi_aresetn && locked;
  wire mailbox_resetn=clock_resetn && !fast_inhibit;
  // Automatic invalidation cancels the pending triplet and outputs. Release

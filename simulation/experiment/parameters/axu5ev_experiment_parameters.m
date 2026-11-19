@@ -23,14 +23,26 @@ p.PMLSM_Kf_peak_N_per_Apeak=30.4/sqrt(2);
 p.PMLSM_psi_f_Wb=p.PMLSM_Kf_peak_N_per_Apeak/(1.5*2*pi/p.PMLSM_tau_NN_m);
 p.Udc=48;
 
+% The active R5 model uses these periods for its feedback window and divider
+% thresholds. A new hardware period also requires a matching PL candidate.
 p.Ts_ACR=1e-4;
 p.Ts=p.Ts_ACR;
 p.Ts_ASR=1e-3;
 p.Ts_POS=1e-2;
+assert(positive_integer_ratio(p.Ts_ASR/p.Ts_ACR) && ...
+    positive_integer_ratio(p.Ts_POS/p.Ts_ASR), ...
+    'AX04:LoopPeriods','Outer-loop periods must be whole multiples of their input period.');
+% Accepted positions are separated by delay_N current-control intervals.
 p.delay_N=50;
+assert(positive_integer_ratio(p.delay_N) && p.delay_N<255, ...
+    'AX04:FeedbackWindow','The delay must contain 1 to 254 feedback intervals.');
 p.Feedback_Tick_Hz=uint32(50000000);
 p.Feedback_Id_Step=uint32(500);
-p.Feedback_Tick_Step=uint64(5000);
+ticks_per_frame=double(p.Feedback_Tick_Hz)*p.Ts_ACR;
+assert(positive_integer_ratio(ticks_per_frame) && ...
+    mod(round(ticks_per_frame),double(p.Feedback_Id_Step))==0, ...
+    'AX04:FeedbackClock','The frame must contain a whole number of ticks per feedback ID.');
+p.Feedback_Tick_Step=uint64(round(ticks_per_frame));
 
 % Continuous Ki and per-sample Ki*Ts are distinct quantities.
 p.Tuning_Current_Xi=1/sqrt(2);
@@ -109,4 +121,8 @@ provenance=struct( ...
     'moving_mass','UNKNOWN; coil mass is not used as total moving mass', ...
     'calibration','PHYSICAL_CALIBRATION_PENDING', ...
     'hardware','HW_BINDING_PENDING; BOARD_NOT_RUN');
+end
+
+function is_integer=positive_integer_ratio(value)
+is_integer=isfinite(value) && value>=1 && abs(value-round(value))<=eps(value);
 end

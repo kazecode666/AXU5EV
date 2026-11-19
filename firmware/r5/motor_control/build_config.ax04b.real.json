@@ -1,0 +1,11 @@
+{
+  "profile": "REAL",
+  "model_version": "1.173",
+  "generated_r5": "generated/experiment/ax04b_r1_01/r5",
+  "application_id": "0x41585203",
+  "hardware_source": ".runtime/experiment/ax04b/real_02/hardware",
+  "xsa": ".runtime/experiment/ax04b/real_r1_02/hardware/ax04b_real.xsa",
+  "bitstream": ".runtime/experiment/ax04b/real_r1_02/hardware/ax04b_real.bit",
+  "ltx": ".runtime/experiment/ax04b/real_r1_02/hardware/ax04b_real.ltx",
+  "workspace": ".runtime/experiment/ax04b/real_r1_02/vitis"
+}

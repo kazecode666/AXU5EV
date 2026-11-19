@@ -1,6 +1,13 @@
 # AXU5EV 协作与工作区规则
 
-## AX-04 当前执行入口
+## AX-04B 当前执行入口
+
+2026-11-19，PR47 已将完整 PR46 带入 main `21847326`。`codex/ax04b-hardware-binding` 完成 B1～B4 和 R1 复审离线修订，停在 [kazecode666/AXU5EV Draft PR48](https://github.com/kazecode666/AXU5EV/pull/48) Review。当前入口为 [HANDOFF](coordination/HANDOFF.md) 首节、[交付报告](coordination/reports/ax04b_hardware_binding.md) 和 [首运行指南](firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md)。
+
+- 当前两个候选分别在 `.runtime/experiment/ax04b/selftest_r1_02` 和 `.runtime/experiment/ax04b/real_r1_02`。R5 使用已保存的实机模型 1.173 及本轮新生成 C，应用身份 `0x41585203`。各自复用原 `*_02/hardware` 实现，bit/ltx/XSA、R5 ELF、FSBL 和启动项必须成套使用。停止恢复按确认 CLEAR、确认 ARM、再次显式 Start 的顺序。
+- B5 板内 SELFTEST、B6 真实 IO 和功率运动均为 `NOT_RUN`，后续分别取得明确授权。REAL 物理门极、PWM 缓冲及 RELCON/ENCON 硬禁止，目前可用于将来获准的真实输入及禁止态核对。实际 IRQ 计算窗口继续等待 ARM 实测。
+
+## AX-04A 历史入口
 
 2026-11-17，按 Issue42 评论6941278055及PR43任务书完成交付A，已发布 [kazecode666/AXU5EV Draft PR46](https://github.com/kazecode666/AXU5EV/pull/46)，停在Review。分支 `codex/ax04-experiment-model`，叠加在PR45 `codex/issue42-task1-dsp-reuse`。最终验证记录见 `coordination/HANDOFF.md` 首节。本文以下AX-03及更早阶段的授权/待Review措辞保留作历史。
 

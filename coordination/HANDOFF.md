@@ -1,4 +1,20 @@
-# AXU5EV 当前交接 — PR46 Review修订
+# AXU5EV 当前交接 — AX-04B R1 复审候选
+
+2026-11-19，按 PR48 复审任务在原 `codex/ax04b-hardware-binding` 纳入已保存的实机模型 1.173、初始化参数与白盒说明 `bcbb1bca750636494f211cffa710891aff1e5f34`。新生成源 `generated/experiment/ax04b_r1_01/r5` 提交 `9f5cbb606dc41216e7e69d590496866eb6659fc5`，由该模型生成 Cortex-R ERT。317 项、275136 次 IRQ 的既有主机验证以及 Switch 和 PI_Reset 阈值直测通过。[Draft PR48](https://github.com/kazecode666/AXU5EV/pull/48) · [复审报告](reports/ax04b_hardware_binding.md)
+
+- `b411733a2ee69331c132d914c885842c2b88b822` 修复 PL 停止后 R5 的对齐许可，`c6a2539bf86e5f5deaa51b0560dd342f15c61e13` 作废 STOP 前排队的 CLEAR。用同一份 1.173 生成 C 复现了三个旧反例，最终 12 个定向场景通过。运行许可撤销时立即停止 PL，必要时同一帧执行一次独立安全调用。显式 CLEAR 及 ARM 均有 PL 读回，重新对齐需要新的 Start。
+- 当前 SELFTEST／REAL 候选分别为 `.runtime/experiment/ax04b/selftest_r1_02` 和 `.runtime/experiment/ax04b/real_r1_02`，应用身份 `0x41585203`。各自使用原 `*_02` 的匹配 PL 成果与新 R5 ELF。此次未重新构建 Vivado。两个候选的实际 ARM 执行、IRQ 实测时延、板内 SELFTEST、真实 IO 和功率运动均为 `NOT_RUN`。[无功率首运行指南](../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md) · [验证状态](../verification/experiment/ax04b/results.json)
+
+## 原 B1～B4 离线候选记录
+
+2026-11-19，从合并 PR47 的完整 main `21847326e4e0d8e100f3aaa5f31b612f24f75e01` 建立 `codex/ax04b-hardware-binding`。PR46 经 PR45 分支再由 PR47 带入主线。本轮完成 B1～B4 并停在 [kazecode666/AXU5EV Draft PR48](https://github.com/kazecode666/AXU5EV/pull/48) Review。执行依据为 [PR47 任务书](tasks/ax04b_hardware_binding_and_first_run.md)、[Issue42 执行评论](https://github.com/kazecode666/AXU5EV/issues/42#issuecomment-6974714393)及 [Issue44 执行评论](https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-6974720049)。
+
+- B1 `a3817c7` 实现冻结反馈、高电平 IRQ、精确 ACK 和下一 P0 原子参考。B2 `7d821b4` 接实际实机 HDL、固定角/偏置及独立禁止。B3 `a05ba41` 将真实 GIC/MMIO 调度接入 PR46 v1.95 ERT。B4 `43d176589465e3dd296cbee8d8736cc9a77fddc6` 完成两套构建、XDC 确认和启动检查。[完整报告](reports/ax04b_hardware_binding.md)
+- AXI 定向 866 项通过。链路 RTL 仿真实测 P76 早期 IRQ、P110 会合、P127 冻结、P443 结果、P2500 PWM 谷值采用、P2504 回传。SELFTEST/REAL 定向刺激均验证无效帧调度、固定/偏置切换和快速停止。
+- `.runtime/experiment/ax04b/selftest_02` 与 `.runtime/experiment/ax04b/real_02` 各有匹配 bit/ltx/XSA/ELF。布线 STA 的 WNS/WHS 分别为 +0.355/+0.005 ns 与 +0.986/+0.011 ns，TNS/THS 均为 0。REAL 16 个 J16 引脚的最终设计核对通过。实际 Cortex-R5 裸机启动检查从各自 XSA/BSP/ELF 核对 `0x80002000`、GIC 121 高电平和 16 KiB IRQ 栈。[精简证据](../verification/experiment/ax04b/results.json)
+- [唯一无功率首运行指南](../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md)列出 `ax04b_realtime_manual` 及成套候选。ARM 执行、板内 SELFTEST、REAL 外部 IO、功率运动和实际中断预算均为 `NOT_RUN`。本次只做离线工作。原 PR41 候选、现有模型布局、未提交用户修改和全部数据继续保留。
+
+## PR46 Review 修订历史
 
 2026-11-17，继续 `kazecode666/AXU5EV` 同一 [Draft PR46](https://github.com/kazecode666/AXU5EV/pull/46) 的Task1～Task4。分支 `codex/ax04-experiment-model`、base `codex/issue42-task1-dsp-reuse`，保持Draft等待Review。
 

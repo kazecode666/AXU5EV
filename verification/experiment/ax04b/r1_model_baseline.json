@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "model_commit": "bcbb1bca750636494f211cffa710891aff1e5f34",
+  "model_source": "simulation/experiment/AXU5EV_Motor_Control_System.slx",
+  "parameter_source": "simulation/experiment/parameters/axu5ev_experiment_parameters.m",
+  "model_version": "1.173",
+  "generated_r5": "generated/experiment/ax04b_r1_01/r5",
+  "generator": "simulation/experiment/scripts/axu5ev_experiment_generate_control.m",
+  "target": "ARM Compatible->ARM Cortex-R",
+  "entries": [
+    "AXU5EV_Motor_Control_System_initialize",
+    "PL_Frame_IRQ",
+    "Service_Request"
+  ],
+  "compiled_sources": [
+    "AXU5EV_Motor_Control_System.c",
+    "AXU5EV_Motor_Control_System_data.c",
+    "rtGetInf.c",
+    "rtGetNaN.c",
+    "rt_nonfinite.c"
+  ],
+  "model_workspace_matching_fields": 75,
+  "switch_count": 21,
+  "mux_demux_ports_named": 77,
+  "periods_s": [
+    0.0001,
+    0.001,
+    0.01
+  ],
+  "speed_window_intervals": 50,
+  "feedback_id_step": 500,
+  "feedback_tick_step": 5000,
+  "existing_host_regression": {
+    "checks": 317,
+    "irq_calls": 275136,
+    "alignment_safety_checks": 42
+  },
+  "directed_thresholds": {
+    "status": "PASS",
+    "switch_values": [
+      0,
+      0.5,
+      1
+    ],
+    "iq_A": [
+      0,
+      0,
+      0.125
+    ],
+    "reset_values": [
+      0,
+      0.25,
+      -1
+    ],
+    "model_reset": [
+      0,
+      1,
+      1
+    ],
+    "pl_reset": [
+      0,
+      1,
+      1
+    ]
+  },
+  "generation_evidence": ".runtime/experiment/ax04b/r1/matlab_01/control_generation.json",
+  "compiler_audit": ".runtime/experiment/ax04b/r1/latest_model_compile.json",
+  "arm_execution": "NOT_RUN"
+}

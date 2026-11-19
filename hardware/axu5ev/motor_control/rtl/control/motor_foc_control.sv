@@ -42,7 +42,12 @@ module motor_foc_control(
  reg map_strobe;
  wire [15:0] mapped_u,mapped_v,mapped_w;
  wire mapped_strobe;
- Duty_To_Compare duty_mapper(.clk(clk),.reset(rst),.clk_enable(1'b1),
+`ifdef AX04B_EXPERIMENT
+ AX04_Duty_Duty_To_Compare duty_mapper(
+`else
+ Duty_To_Compare duty_mapper(
+`endif
+  .clk(clk),.reset(rst),.clk_enable(1'b1),
   .sample_strobe(map_strobe),.duty_u(core_du),.duty_v(core_dv),.duty_w(core_dw),
   .compare_u(mapped_u),.compare_v(mapped_v),.compare_w(mapped_w),
   .result_strobe(mapped_strobe),.ce_out());
