@@ -5,7 +5,9 @@
 
 /* AX04B realtime slave. See integration/ps_pl/AX04B_INTERFACE.md. */
 #define AX04B_INTERFACE_ID UINT32_C(0x41584201)
+#ifndef AX04B_APPLICATION_ID
 #define AX04B_APPLICATION_ID UINT32_C(0x41585201)
+#endif
 #define AX04B_COMMIT_KEY UINT32_C(0x434f4d4d)
 
 enum {

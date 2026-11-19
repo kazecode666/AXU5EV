@@ -17,6 +17,8 @@ _Static_assert(sizeof(AXU5EV_Motor_Control_System_Y.reference_commit) ==
     sizeof(((Ax04bModelResult *)0)->value), "ERT reference interface mismatch");
 _Static_assert(sizeof(AXU5EV_Motor_Control_System_Y.telemetry) ==
     AX04B_TELEMETRY_WORDS * sizeof(double), "ERT service interface mismatch");
+_Static_assert(sizeof(AXU5EV_Motor_Control_System_Y.runtime_frame) ==
+    41u * sizeof(double), "ERT runtime frame interface mismatch");
 
 uint64_t ax04b_join_words(uint32_t low, uint32_t high)
 {
@@ -33,7 +35,7 @@ bool ax04b_current_qualified(const Ax04bFeedback *feedback)
 bool ax04b_feedback_contract(const Ax04bFeedback *feedback, unsigned mode)
 {
     const bool test = (feedback->quality & AX04B_TEST_SOURCE) != 0u;
-    /* The PR46 ERT instance has its encoder direction set to forward. */
+    /* The experiment ERT instance has its encoder direction set to forward. */
     return (mode == AX04B_SELFTEST || mode == AX04B_REAL) &&
         test == (mode == AX04B_SELFTEST) &&
         (feedback->quality & AX04B_ENCODER_REVERSE) == 0u;
@@ -194,6 +196,10 @@ void ax04b_model_run(const Ax04bFeedback *feedback, const Ax04bCommand *command,
     result->model_sample = y->commit_sample_id;
     result->model_version = y->reference_version;
     result->feedback_status = y->feedback_status;
+    /* ERT Runtime output fields 4..6: Init_Done, Init_State_Num, id_init_ref. */
+    result->alignment_done = y->runtime_frame[3] != 0.0;
+    result->alignment_state = (uint32_t)y->runtime_frame[4];
+    result->alignment_id = y->runtime_frame[5];
     result->position_valid = y->position_valid;
     result->speed_valid = y->speed_valid;
 }

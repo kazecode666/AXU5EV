@@ -47,6 +47,20 @@ enum {
     CAL_CONTROL = 0x118
 };
 
+typedef enum {
+    AX04B_STOP_NONE,
+    AX04B_STOP_REQUEST,
+    AX04B_STOP_SNAPSHOT,
+    AX04B_STOP_CONTRACT,
+    AX04B_STOP_OVERRUN,
+    AX04B_STOP_ARM_LOST,
+    AX04B_STOP_INHIBIT,
+    AX04B_STOP_LIVE,
+    AX04B_STOP_SAFETY_DUPLICATE,
+    AX04B_STOP_ENCODE,
+    AX04B_STOP_COMMIT
+} StopReason;
+
 typedef struct {
     uint64_t feedback_tick;
     uint32_t pending_sequence;
@@ -71,10 +85,21 @@ typedef struct {
     uint32_t model_done_tick;
     uint32_t accept_done_tick;
     uint32_t ack_done_tick;
+    uint32_t pl_status;
+    uint32_t stop_status;
+    uint32_t start_ticket;
+    uint32_t alignment_state;
+    double alignment_id;
+    StopReason stop_reason;
     bool position_valid;
     bool speed_valid;
     bool reference_valid;
     bool applied_coherent;
+    bool drive_permitted;
+    bool stop_pending;
+    bool safety_pass;
+    bool start_delivered;
+    bool alignment_done;
 } FrameRecord;
 
 typedef struct {
@@ -87,6 +112,9 @@ typedef struct {
     uint32_t accepted;
     uint32_t rejected;
     uint32_t transport_stop;
+    uint32_t safety_passes;
+    uint32_t clear_confirmed;
+    uint32_t clear_denied;
     uint32_t max_read;
     uint32_t max_model;
     uint32_t max_submit;
@@ -102,6 +130,16 @@ static bool have_feedback;
 static uint32_t previous_overrun;
 static uint32_t transport_version;
 static uint32_t consumed_clear, consumed_start, consumed_init_reset, consumed_freset;
+/* ISR and foreground both access this state. Foreground updates are made
+ * with the IRQ masked; the command slots still have one foreground writer. */
+static struct {
+    bool armed;
+    bool clear_confirmed;
+    bool stop_pending;
+    bool model_alignment_done;
+    StopReason reason;
+    uint32_t status;
+} safety;
 static uint32_t calibration_request_version;
 static uint32_t real_gain_a, real_gain_b;
 static bool real_gains_supplied;
@@ -200,6 +238,76 @@ static void publish_command(const Ax04bCommand *command)
     active_command = next;
 }
 
+static StopReason pl_stop_reason(uint32_t status)
+{
+    if ((status & AX04B_LIVE_INVALID) != 0u) {
+        return AX04B_STOP_LIVE;
+    }
+    if ((status & AX04B_INHIBIT_LATCHED) != 0u) {
+        return AX04B_STOP_INHIBIT;
+    }
+    return (status & AX04B_ARMED) == 0u ? AX04B_STOP_ARM_LOST : AX04B_STOP_NONE;
+}
+
+static void revoke_permission(StopReason reason, uint32_t status, uint32_t start_ticket)
+{
+    stop_pl();
+    safety.armed = false;
+    safety.clear_confirmed = false;
+    safety.stop_pending = true;
+    safety.reason = reason;
+    safety.status = status;
+    consumed_start = start_ticket;
+    latest.drive_permitted = false;
+    latest.stop_pending = true;
+    latest.stop_reason = reason;
+    latest.stop_status = status;
+    ++counters.transport_stop;
+}
+
+static void observe_pl_permission(uint32_t status, uint32_t start_ticket)
+{
+    const StopReason reason = pl_stop_reason(status);
+    if (safety.armed && reason != AX04B_STOP_NONE) {
+        revoke_permission(reason, status, start_ticket);
+    }
+}
+
+static void deny_drive(Ax04bCommand *command)
+{
+    command->frame[AX04B_CMD_PWM] = 0.0;
+    command->frame[AX04B_CMD_PI_RESET] = 1.0;
+    command->relcon = false;
+    command->encon = false;
+    command->oe_disable = true;
+}
+
+static void record_alignment(FrameRecord *record, const Ax04bModelResult *result)
+{
+    record->alignment_state = result->alignment_state;
+    record->alignment_done = result->alignment_done;
+    record->alignment_id = result->alignment_id;
+    record->reference_valid = result->value[7] != 0.0;
+    safety.model_alignment_done = result->alignment_done;
+}
+
+static void clear_on_feedback(const Ax04bModelResult *result)
+{
+    safety.clear_confirmed = false;
+    if (result->value[7] != 0.0 && !result->drives[4]) {
+        write_rt(AX04B_CONTROL, AX04B_CLEAR);
+        completion_barrier();
+        const uint32_t after = read_rt(AX04B_STATUS);
+        safety.clear_confirmed = (after & (AX04B_INHIBIT_LATCHED | AX04B_ARMED |
+            AX04B_LIVE_INVALID | AX04B_OVERRUN)) == 0u;
+    }
+    if (safety.clear_confirmed) {
+        ++counters.clear_confirmed;
+    } else {
+        ++counters.clear_denied;
+    }
+}
+
 static void maximum(uint32_t *counter, uint32_t value)
 {
     if (*counter < value) {
@@ -273,13 +381,14 @@ static void frame_interrupt(void *unused)
     record.entry_phase = read_rt(AX04B_PHASE);
     Ax04bFeedback feedback = read_feedback();
     const uint32_t check_status = read_rt(AX04B_STATUS);
+    barrier();
+    const Ax04bCommand *const command = &command_slots[active_command];
     if ((check_status & AX04B_PENDING) == 0u ||
         read_rt(AX04B_PENDING_SEQ) != feedback.sequence) {
         /* External/reset race. Do not ACK an identity we did not process.
          * Mask the level interrupt so a bad pending record cannot livelock. */
         ++counters.bad_snapshot;
-        ++counters.transport_stop;
-        stop_pl();
+        revoke_permission(AX04B_STOP_SNAPSHOT, check_status, command->start_ticket);
         XScuGic_Disable(&interrupt_controller, ax04b_fabric_irq);
         return;
     }
@@ -288,17 +397,20 @@ static void frame_interrupt(void *unused)
     const bool new_overrun = overruns != previous_overrun;
     previous_overrun = overruns;
     const bool contract_ok = ax04b_feedback_contract(&feedback, ax04b_build_mode);
-    const bool live_invalid = (status & AX04B_LIVE_INVALID) != 0u;
-    const bool transport_invalid = !contract_ok || new_overrun ||
-        (live_invalid && feedback.fault == 0u);
-
-    barrier();
-    const Ax04bCommand *const command = &command_slots[active_command];
-    const bool start = command->start_ticket != consumed_start;
+    const bool transport_invalid = !contract_ok || new_overrun;
+    if (transport_invalid) {
+        revoke_permission(!contract_ok ? AX04B_STOP_CONTRACT : AX04B_STOP_OVERRUN,
+            status, command->start_ticket);
+    } else {
+        observe_pl_permission(status, command->start_ticket);
+    }
     const bool init_reset = command->init_reset_ticket != consumed_init_reset;
     const bool driver_reset = command->freset_ticket != consumed_freset;
     const Ax04bDispatch dispatch = ax04b_dispatch(have_feedback ? &last_feedback : NULL,
-        &feedback, transport_invalid || init_reset || driver_reset);
+        &feedback, safety.stop_pending || init_reset || driver_reset);
+    if (dispatch == AX04B_SAFETY_DUPLICATE && safety.armed) {
+        revoke_permission(AX04B_STOP_SAFETY_DUPLICATE, status, command->start_ticket);
+    }
     record.read_done_tick = pmu_tick();
     ++counters.frames;
     record.feedback_tick = feedback.tick;
@@ -308,6 +420,8 @@ static void frame_interrupt(void *unused)
     record.fault = feedback.fault;
     record.calibration_version = feedback.calibration_version;
     record.config_version = feedback.config_version;
+    record.pl_status = status;
+    record.start_ticket = command->start_ticket;
     record.model_done_tick = record.read_done_tick;
     record.accept_done_tick = record.read_done_tick;
 
@@ -317,63 +431,100 @@ static void frame_interrupt(void *unused)
     if (new_overrun) {
         ++counters.overruns;
     }
+    /* Set only when a pending stop needs the same frozen sample after the
+     * ordinary call. This path runs after the exact ACK and never commits. */
+    bool cancel_after_submit = false;
+    bool discard_provisional_done = false;
     if (dispatch == AX04B_DUPLICATE) {
         ++counters.duplicate;
+        record.model_version = latest.model_version;
+        record.feedback_status = latest.feedback_status;
+        record.position_valid = latest.position_valid;
+        record.speed_valid = latest.speed_valid;
+        record.reference_valid = latest.reference_valid;
+        record.alignment_done = latest.alignment_done;
+        record.alignment_state = latest.alignment_state;
+        record.alignment_id = latest.alignment_id;
+        record.drive_permitted = safety.armed && latest.drive_permitted;
     } else {
         const bool new_frame = dispatch == AX04B_NEW_FRAME;
-        const bool clear = new_frame && !transport_invalid &&
+        const bool clear = new_frame && !safety.armed && !transport_invalid &&
             command->clear_ticket != consumed_clear;
+        const bool allow_drive = ax04b_build_mode == AX04B_SELFTEST && safety.armed;
+        const bool start = new_frame && command->start_ticket != consumed_start;
+        const bool was_done = safety.model_alignment_done;
+        Ax04bCommand effective = *command;
+        if (!allow_drive) {
+            deny_drive(&effective);
+        }
+        record.start_delivered = allow_drive && !driver_reset && !init_reset && start;
+        record.drive_permitted = allow_drive && !driver_reset &&
+            effective.frame[AX04B_CMD_PWM] > 0.5 && effective.relcon &&
+            effective.encon && !effective.oe_disable;
         Ax04bModelResult result;
-        ax04b_model_run(&feedback, command, transport_invalid, clear,
-            new_frame && start, init_reset, driver_reset, &result);
+        ax04b_model_run(&feedback, &effective, transport_invalid, clear,
+            record.start_delivered, init_reset, driver_reset, &result);
         record.model_done_tick = pmu_tick();
         record.model_version = result.model_version;
         record.feedback_status = result.feedback_status;
         record.position_valid = result.position_valid;
         record.speed_valid = result.speed_valid;
-        record.reference_valid = result.value[7] != 0.0;
-        if (new_frame && start) {
+        record_alignment(&record, &result);
+        safety.stop_pending = false;
+        if (start) {
             consumed_start = command->start_ticket;
         }
         if (init_reset) {
             consumed_init_reset = command->init_reset_ticket;
         }
-        if (driver_reset) {
+        if (driver_reset && new_frame && !transport_invalid) {
             consumed_freset = command->freset_ticket;
         }
         if (clear) {
             consumed_clear = command->clear_ticket;
-            if (record.reference_valid && !result.drives[4] &&
-                command->frame[AX04B_CMD_PWM] == 0.0) {
-                write_rt(AX04B_CONTROL, AX04B_CLEAR);
-            }
+            clear_on_feedback(&result);
         }
 
-        if (!new_frame || !contract_ok || new_overrun) {
+        if (!new_frame) {
             /* A duplicate carrying a fault/reset always reaches model safety
              * logic. It never schedules another allowed reference. */
-            counters.safety_duplicate += !new_frame;
-            ++counters.transport_stop;
-            stop_pl();
-        } else {
+            ++counters.safety_duplicate;
+            record.safety_pass = true;
+        } else if (!transport_invalid) {
             Ax04bReference reference;
-            const bool allow_drive = ax04b_build_mode == AX04B_SELFTEST &&
-                (status & AX04B_ARMED) != 0u;
+            /* The encoder's reset-only branch never adds PWM/REL/EN. It
+             * can represent an explicit SELFTEST F_Reset even while stopped. */
+            const bool allow_reset = ax04b_build_mode == AX04B_SELFTEST &&
+                driver_reset && result.drives[2];
             const bool encoded = ax04b_encode_reference(&result, feedback.id,
-                ++transport_version, allow_drive, &reference);
+                ++transport_version, allow_drive || allow_reset, &reference);
             if (!encoded) {
-                ++counters.transport_stop;
-                stop_pl();
+                revoke_permission(AX04B_STOP_ENCODE, status, command->start_ticket);
             } else {
                 record.target = reference.target;
                 record.offered_version = reference.word[7];
                 record.flags = reference.word[6];
                 if (submit(&reference, &record)) {
                     ++counters.accepted;
+                    if (allow_drive) {
+                        /* AXI acceptance alone does not prove PL remained
+                         * armed through the model invocation and transfer. */
+                        const uint32_t after = read_rt(AX04B_STATUS);
+                        observe_pl_permission(after, command->start_ticket);
+                    }
                 } else {
                     ++counters.rejected;
-                    ++counters.transport_stop;
-                    stop_pl();
+                    revoke_permission(AX04B_STOP_COMMIT, read_rt(AX04B_STATUS),
+                        command->start_ticket);
+                }
+            }
+            if (safety.stop_pending) {
+                /* Model already saw denied permission in standby. A stop
+                 * after an allowed pass instead needs a safety re-entry. */
+                cancel_after_submit = allow_drive;
+                discard_provisional_done = !was_done && result.alignment_done;
+                if (!cancel_after_submit) {
+                    safety.stop_pending = false;
                 }
             }
         }
@@ -390,6 +541,26 @@ static void frame_interrupt(void *unused)
     write_rt(AX04B_ACK, feedback.sequence);
     completion_barrier();
     record.ack_done_tick = pmu_tick();
+    if (cancel_after_submit) {
+        Ax04bCommand stopped = *command;
+        deny_drive(&stopped);
+        Ax04bModelResult result;
+        /* No extra normal step, Start delivery, clear, reference or ACK.
+         * Init_Reset here rolls back only a newly reached DONE whose own
+         * transaction failed. A previously established DONE is retained. */
+        ax04b_model_run(&feedback, &stopped, false, false, false,
+            discard_provisional_done, false, &result);
+        record_alignment(&record, &result);
+        record.safety_pass = true;
+        safety.stop_pending = false;
+    }
+    if (record.safety_pass) {
+        ++counters.safety_passes;
+    }
+    record.drive_permitted = record.drive_permitted && safety.armed;
+    record.stop_reason = safety.reason;
+    record.stop_status = safety.status;
+    record.stop_pending = safety.stop_pending;
     maximum(&counters.max_read, record.read_done_tick - record.entry_tick);
     maximum(&counters.max_model, record.model_done_tick - record.read_done_tick);
     if (record.result != AX04B_COMMIT_NONE) {
@@ -423,9 +594,11 @@ static bool setup_interrupt(void)
 
 static void disarm(void)
 {
+    const uint32_t cpsr = irq_lock();
     const Ax04bCommand command = stopped_command();
+    revoke_permission(AX04B_STOP_REQUEST, read_rt(AX04B_STATUS), command.start_ticket);
     publish_command(&command);
-    stop_pl();
+    irq_unlock(cpsr);
 }
 
 static void configure_zero_current(void)
@@ -489,17 +662,26 @@ static void arm_test(void)
         return;
     }
     const uint32_t cpsr = irq_lock();
-    const bool ready = latest.position_valid && latest.speed_valid &&
-        latest.reference_valid;
-    irq_unlock(cpsr);
     const uint32_t status = read_rt(AX04B_STATUS);
-    if (!ready || (status & (AX04B_INHIBIT_LATCHED | AX04B_LIVE_INVALID)) != 0u) {
+    const uint32_t ticket = command_slots[active_command].start_ticket;
+    observe_pl_permission(status, ticket);
+    const bool ready = latest.position_valid && latest.speed_valid &&
+        latest.reference_valid && safety.clear_confirmed && !safety.stop_pending;
+    if (!ready || safety.armed ||
+        (status & (AX04B_ARMED | AX04B_INHIBIT_LATCHED | AX04B_LIVE_INVALID)) != 0u) {
+        irq_unlock(cpsr);
         xil_printf("AX04B ARM DENIED: wait for qualification and explicit clear\r\n");
         return;
     }
     write_rt(AX04B_CONTROL, AX04B_ARM);
     completion_barrier();
-    if ((read_rt(AX04B_STATUS) & AX04B_ARMED) == 0u) {
+    const uint32_t after = read_rt(AX04B_STATUS);
+    const StopReason stopped = pl_stop_reason(after);
+    if (stopped != AX04B_STOP_NONE) {
+        if (stopped != AX04B_STOP_ARM_LOST) {
+            revoke_permission(stopped, after, ticket);
+        }
+        irq_unlock(cpsr);
         xil_printf("AX04B PL ARM rejected\r\n");
         return;
     }
@@ -509,29 +691,45 @@ static void arm_test(void)
     command.relcon = true;
     command.encon = true;
     command.oe_disable = false;
+    consumed_start = command.start_ticket;
+    safety.armed = true;
+    safety.clear_confirmed = false;
     publish_command(&command);
+    irq_unlock(cpsr);
     xil_printf("AX04B internal SELFTEST armed with zero current reference\r\n");
 }
 
 static void clear_request(void)
 {
+    const uint32_t cpsr = irq_lock();
     Ax04bCommand command = command_slots[active_command];
-    if (command.frame[AX04B_CMD_PWM] != 0.0) {
+    observe_pl_permission(read_rt(AX04B_STATUS), command.start_ticket);
+    if (safety.armed) {
+        irq_unlock(cpsr);
         xil_printf("AX04B CLEAR DENIED: stop first\r\n");
         return;
     }
+    safety.clear_confirmed = false;
     ++command.clear_ticket;
     publish_command(&command);
+    irq_unlock(cpsr);
     xil_printf("AX04B clear requested on the next clean frame\r\n");
 }
 
 static void test_command(char key)
 {
-    if (ax04b_build_mode != AX04B_SELFTEST || (read_rt(AX04B_STATUS) & AX04B_ARMED) == 0u) {
+    const uint32_t cpsr = irq_lock();
+    Ax04bCommand command = command_slots[active_command];
+    const uint32_t status = read_rt(AX04B_STATUS);
+    observe_pl_permission(status, command.start_ticket);
+    /* Init_Reset and a reset-only F_Reset packet remain available while
+     * stopped. The independent REAL output policy continues to deny them. */
+    if (ax04b_build_mode != AX04B_SELFTEST ||
+        ((key == 'i' || key == 'j') && !safety.armed)) {
+        irq_unlock(cpsr);
         xil_printf("AX04B test reference denied\r\n");
         return;
     }
-    Ax04bCommand command = command_slots[active_command];
     if (key == 'j') {
         command.frame[AX04B_CMD_ALIGN_ENABLE] = 0.0;
         command.frame[AX04B_CMD_IQ_TEST] = 1.0;
@@ -547,6 +745,7 @@ static void test_command(char key)
         ++command.freset_ticket;
     }
     publish_command(&command);
+    irq_unlock(cpsr);
     xil_printf("AX04B internal SELFTEST command %c queued\r\n", key);
 }
 
@@ -555,9 +754,12 @@ static void status_report(void)
     double values[AX04B_TELEMETRY_WORDS];
     const uint32_t cpsr = irq_lock();
     const uint32_t service_start = pmu_tick();
+    const uint32_t status = read_rt(AX04B_STATUS);
+    observe_pl_permission(status, command_slots[active_command].start_ticket);
     const uint32_t services = ax04b_model_service(values);
     const FrameRecord record = latest;
     const Counters counts = counters;
+    const bool armed = safety.armed && !safety.stop_pending;
     maximum(&counters.max_service_mask, pmu_tick() - service_start);
     irq_unlock(cpsr);
 
@@ -565,9 +767,16 @@ static void status_report(void)
         " spur=%" PRIu32 " duplicate=%" PRIu32 " safety_dup=%" PRIu32
         " snapshot_error=%" PRIu32 " overrun=%" PRIu32 " receipt_ok=%" PRIu32
         " rejected=%" PRIu32 " stop=%" PRIu32 "\r\n",
-        ax04b_build_mode, read_rt(AX04B_STATUS), counts.frames, counts.spurious,
+        ax04b_build_mode, status, counts.frames, counts.spurious,
         counts.duplicate, counts.safety_duplicate, counts.bad_snapshot,
         counts.overruns, counts.accepted, counts.rejected, counts.transport_stop);
+    printf("armed=%u permit=%u stop_pending=%u stop_reason=%u stop_pl=%08" PRIx32
+        " clear_ok=%" PRIu32 " clear_denied=%" PRIu32 " safety_calls=%" PRIu32
+        " state=%" PRIu32 " done=%u align_id=%.6f start_ticket=%" PRIu32 "\r\n",
+        (unsigned)armed, (unsigned)record.drive_permitted, (unsigned)record.stop_pending,
+        (unsigned)record.stop_reason, record.stop_status, counts.clear_confirmed,
+        counts.clear_denied, counts.safety_passes, record.alignment_state,
+        (unsigned)record.alignment_done, record.alignment_id, record.start_ticket);
     printf("sample=%" PRIu32 " tick=%" PRIu64 " source=%s quality=%08" PRIx32
         " cal=%" PRIu32 " config=%" PRIu32 " fault=%08" PRIx32
         " pos=%.6f speed=%.6f pv=%u sv=%u model_ver=%" PRIu32
@@ -603,14 +812,17 @@ static void trace_dump(void)
     irq_unlock(cpsr);
     printf("seq,id,tick,phase50MHz,quality,fault,cal_ver,cfg_ver,model_ver,fb_status,"
         "target,offer,accept_ver,accept_target,apply_ver,apply_target,result,flags,"
-        "entry_pmu,read_pmu,model_pmu,accept_pmu,ack_pmu,pv,sv,rv,applied_coherent\r\n");
+        "entry_pmu,read_pmu,model_pmu,accept_pmu,ack_pmu,pv,sv,rv,applied_coherent,"
+        "pl_status,stop_pl,stop_reason,stop_pending,drive_permitted,safety_pass,"
+        "start_ticket,start_delivered,alignment_state,alignment_done,alignment_id\r\n");
     for (unsigned i = 0u; i < count; ++i) {
         const FrameRecord *record = &trace[i];
         printf("%" PRIu32 ",%" PRIu32 ",%" PRIu64 ",%" PRIu32 ",%" PRIu32 ",%"
             PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32
             ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%"
             PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32
-            ",%" PRIu32 ",%u,%u,%u,%u\r\n",
+            ",%" PRIu32 ",%u,%u,%u,%u,%" PRIu32 ",%" PRIu32 ",%u,%u,%u,%u,"
+            "%" PRIu32 ",%u,%" PRIu32 ",%u,%.9f\r\n",
             record->pending_sequence, record->sample_id, record->feedback_tick,
             record->entry_phase, record->quality, record->fault, record->calibration_version,
             record->config_version, record->model_version, record->feedback_status,
@@ -619,7 +831,11 @@ static void trace_dump(void)
             record->result, record->flags, record->entry_tick, record->read_done_tick,
             record->model_done_tick, record->accept_done_tick, record->ack_done_tick,
             (unsigned)record->position_valid, (unsigned)record->speed_valid,
-            (unsigned)record->reference_valid, (unsigned)record->applied_coherent);
+            (unsigned)record->reference_valid, (unsigned)record->applied_coherent,
+            record->pl_status, record->stop_status, (unsigned)record->stop_reason,
+            (unsigned)record->stop_pending, (unsigned)record->drive_permitted,
+            (unsigned)record->safety_pass, record->start_ticket, (unsigned)record->start_delivered,
+            record->alignment_state, (unsigned)record->alignment_done, record->alignment_id);
     }
 }
 

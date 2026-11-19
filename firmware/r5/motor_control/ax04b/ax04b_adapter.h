@@ -46,6 +46,9 @@ typedef struct {
     uint32_t model_version;
     uint32_t model_sample;
     uint32_t feedback_status;
+    uint32_t alignment_state;
+    double alignment_id;
+    bool alignment_done;
     bool position_valid;
     bool speed_valid;
     bool drives[5];
