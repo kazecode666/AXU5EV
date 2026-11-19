@@ -2,7 +2,13 @@
 
 本说明对应 `simulation/experiment/AXU5EV_Motor_Control_System.slx` 及同目录的独立实机算法。以下字段编号采用 Simulink/MATLAB 的 **1 起始**编号，C 数组下标需减一。位置统一用 mm，速度用 mm/s，电角度用 rad，电流用 Apeak，时间用 s。状态字段采用 bool 或以 double 表示的 0/1，具体以各端口定义为准。[实机主模型](../simulation/experiment/AXU5EV_Motor_Control_System.slx)
 
-AX-04B 部署使用已审查的 PR46 v1.95 R5 生成源和独立的 PL 实机源。其新增控制角模型在同帧选择固定对齐角或编码器角加偏置，PL 通过实时 AXI 接口与 R5 交换冻结反馈及下一帧参考。硬件调度和无功率候选见对应的交付文档。[控制角模型](../simulation/experiment/pl/AXU5EV_Experiment_Control_Angle_HDL.slx) · [实时接口](../integration/ps_pl/AX04B_INTERFACE.md) · [交付 B 报告](../coordination/reports/ax04b_hardware_binding.md)
+## 当前离线基线（2026-11-19，PR48 R1）
+
+本文当前算法对照为 PR48 已复审提交 `f31aa8c` 中的主模型及 Cortex-R ERT **1.173**，生成源位于 `generated/experiment/ax04b_r1_01/r5`。SELFTEST 与 REAL 固件候选分别为 `.runtime/experiment/ax04b/selftest_r1_02` 和 `.runtime/experiment/ax04b/real_r1_02`，应用身份均为 **`0x41585203`**。各自复用原 `*_02/hardware` 的未变 bit/ltx/XSA；旧 `*_02/vitis` 与 PR46 的 1.95 C 是历史来源，不是当前R5部署选择。[当前生成头文件](../generated/experiment/ax04b_r1_01/r5/AXU5EV_Motor_Control_System.h) · [模型基线记录](../verification/experiment/ax04b/r1_model_baseline.json) · [当前候选索引](../verification/experiment/ax04b/results.json) · [首运行指南](../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md)
+
+IRQ/GIC、原子 AXI、许可撤销与显式恢复的代码绑定及成套构建已经离线完成；**ARM 实际执行、IRQ/COMMIT 实测时延、板内 SELFTEST、真实 IO 和功率运动仍为 NOT_RUN**。两种候选均保持外部功率输出硬禁止，REAL 当前只用于后续获授权的真实输入及禁止态检查。本文与 PR48 的离线基线不包含 PR49 的独立 J16-MBDL4 接口板功能验证，也不以其结果替代整机验收。本会话后续先讲解模型，不因文档收尾或合并自动开始板卡实验。
+
+AX-04B 部署使用上述 1.173 R5 生成源和独立的 PL 实机源。其新增控制角模型在同帧选择固定对齐角或编码器角加偏置，PL 通过实时 AXI 接口与 R5 交换冻结反馈及下一帧参考。硬件调度和无功率候选见对应的交付文档。[控制角模型](../simulation/experiment/pl/AXU5EV_Experiment_Control_Angle_HDL.slx) · [实时接口](../integration/ps_pl/AX04B_INTERFACE.md) · [交付 B 报告](../coordination/reports/ax04b_hardware_binding.md)
 
 ## 1. 入口、执行分工与参数
 
@@ -15,7 +21,7 @@ AX-04B 部署使用已审查的 PR46 v1.95 R5 生成源和独立的 PL 实机源
 | `NonRealtime_Service` | 外部函数调用 `Service_Request()` | 把最近一次 ISR 的遥测快照复制到服务输出，服务计数加一 |
 | PL 模型 | 独立 HDL 生成边界 | 电流预处理、编码器相位转换、定点电流环及 duty 到比较值映射 |
 
-`AXU5EV_Motor_Control_System_initialize()` 完成后，既有生成 C 测得参考初值 `[0 0 0 0 0 0 1 0]`，驱动初值 `[0 0 0 1 0]`，即 PWM 禁止、PI 复位、参考无效、REL/EN 关闭、OE 禁止。帧版本、服务计数、连续计数、反馈有效性及历史长度从零开始。软件 `Initialized` 由一次初始化事件建立，反馈与当前限额的物理有效性由后续接口提供。[生成头文件](../generated/experiment/pr46_review_01/r5_final_03/AXU5EV_Motor_Control_System.h) · [初始化断言](../simulation/tests/experiment/ax04_validate_generated_control.m)
+`AXU5EV_Motor_Control_System_initialize()` 完成后，既有生成 C 测得参考初值 `[0 0 0 0 0 0 1 0]`，驱动初值 `[0 0 0 1 0]`，即 PWM 禁止、PI 复位、参考无效、REL/EN 关闭、OE 禁止。帧版本、服务计数、连续计数、反馈有效性及历史长度从零开始。软件 `Initialized` 由一次初始化事件建立，反馈与当前限额的物理有效性由后续接口提供。[生成头文件](../generated/experiment/ax04b_r1_01/r5/AXU5EV_Motor_Control_System.h) · [初始化断言](../simulation/tests/experiment/ax04_validate_generated_control.m)
 
 实机参数版本为 `20261117`。R5 外环候选参数为 `Kp_pos=5`、`Kp_ASR=0.03`、`Ki_ASR=0.05`、`Kaw_s=0.4`。位置容差 0.02 mm，位置环和速度给定限幅均为 20 mm/s。速度输出限幅 ±0.3 A，积分状态限幅 ±0.20 A。总运动质量尚未测定，位置和速度增益沿用 AQM 备份候选。48 V 是控制参考常量，遥测中的位置与速度来自编码器，`runtime_frame` 的母线与负载字段分别来自参数 `Udc` 与 `Host_Load_N`。[实验参数源](../simulation/experiment/parameters/axu5ev_experiment_parameters.m)
 
@@ -59,7 +65,9 @@ Runtime + 帧状态 + 驱动/行程条件 → Reference_Commit
 最新参考 + Runtime + 测量 + Control_Fault → LatestTelemetry → Service_Request
 ```
 
-帧资格输出 `new_frame`、`healthy`、`fault_latched` 和 `clear_allowed`。其中 `new_frame = Initialized && position_valid && !duplicate`，`healthy` 再要求当前无系统锁存、原始故障或硬限，电流有效、命令字段全有限且当前未请求 F_Reset。带位置的缺帧或故障仍可能是 `new_frame`，此时外环按故障条件计算，参考有效位被健康门控撤销。测量正常重复帧只维持历史，`new_frame=false`，安全路径仍可因许可撤销而进入 Runtime。这里的 `new_frame` 与参考有效位应分别取证。[主模型](../simulation/experiment/AXU5EV_Motor_Control_System.slx) · [已生成 C 对照](../generated/experiment/pr46_review_01/r5_final_03/AXU5EV_Motor_Control_System.c)
+帧资格输出 `new_frame`、`healthy`、`fault_latched` 和 `clear_allowed`。其中 `new_frame = Initialized && position_valid && !duplicate`，`healthy` 再要求当前无系统锁存、原始故障或硬限，电流有效、命令字段全有限且当前未请求 F_Reset。带位置的缺帧或故障仍可能是 `new_frame`，此时外环按故障条件计算，参考有效位被健康门控撤销。测量正常重复帧只维持历史，`new_frame=false`，安全路径仍可因许可撤销而进入 Runtime。这里的 `new_frame` 与参考有效位应分别取证。[主模型](../simulation/experiment/AXU5EV_Motor_Control_System.slx) · [已生成 C 对照](../generated/experiment/ax04b_r1_01/r5/AXU5EV_Motor_Control_System.c)
+
+上述为模型内部依赖。R1 的硬件绑定在模型调用前，结合本地 ARM 会话和 PL 的 `ARMED`、`INHIBIT_LATCHED`、`LIVE_INVALID`，形成当次有效命令。提交失败后的同帧安全处理、STOP 待处理及 CLEAR／ARM／新 Start 的确认由绑定层承接；它不把待命未 armed 一律当成反馈无效。[R1 实施及定向记录](../coordination/reports/ax04b_hardware_binding.md#停止与显式恢复) · [实际 IRQ 调度](../firmware/r5/motor_control/ax04b/ax04b_main.c)
 
 ## 3. 四个子系统的数据和状态
 
@@ -81,7 +89,7 @@ Runtime + 帧状态 + 驱动/行程条件 → Reference_Commit
 | 5 | 32 | 半圈模差歧义 |
 | 6 | 64 | 要求重新同步 |
 
-上层故障资格检查状态位 2、4、5、6，同时检查位置与电流有效性。普通启动、配置历史重建和正常重复有各自的等待行为。[反馈/资格实施证据](../coordination/reports/ax04_experiment_model_and_layout.md#r1r5修改位置) · [反馈回绕记录](../verification/experiment/pr46_review_01/feedback_direction_wrap_result.json)
+上层故障资格检查状态位 2、4、5、6，同时检查位置与电流有效性。普通启动、配置历史重建和正常重复有各自的等待行为。[PR46 历史反馈/资格实施证据](../coordination/reports/ax04_experiment_model_and_layout.md#r1r5修改位置) · [PR46 历史反馈回绕记录](../verification/experiment/pr46_review_01/feedback_direction_wrap_result.json)
 
 ### 3.2 Controller_Driver_IO_Manager
 
@@ -95,7 +103,7 @@ Runtime + 帧状态 + 驱动/行程条件 → Reference_Commit
 | OE_disable | 独立禁止请求为真，或系统故障已锁存且当前未请求 F_Reset |
 | external_fault_latch | 原始驱动故障有效，或上拍已锁存且未获安全清除。安全清除要求 `clear_allowed && ERRI_n && ERRU_n` |
 
-`clear_allowed` 要求软件已初始化、有有效的非重复位置、软件清错请求为真、反馈健康、外部故障已解除、位置在硬限以内、命令全有限且原命令字段 8 严格等于 0。它传入驱动外部锁存及 Motion_Control 行程锁存。F_Reset 期间 REL/EN 和参考 PWM 均禁止，OE 仍按表中的组合逻辑计算，物理电平与快速禁止留在硬件绑定阶段确认。[主模型](../simulation/experiment/AXU5EV_Motor_Control_System.slx) · [驱动离线证据](../verification/experiment/pr46_review_01/generated_control_result.json)
+`clear_allowed` 要求软件已初始化、有有效的非重复位置、软件清错请求为真、反馈健康、外部故障已解除、位置在硬限以内、命令全有限且原命令字段 8 严格等于 0。它传入驱动外部锁存及 Motion_Control 行程锁存。F_Reset 期间 REL/EN 和参考 PWM 均禁止，OE 仍按表中的组合逻辑计算。AX-04B 已实现物理脚映射及快速禁止逻辑，真实电气和响应时间仍待现场确认。[主模型](../simulation/experiment/AXU5EV_Motor_Control_System.slx) · [PR46 历史驱动离线证据](../verification/experiment/pr46_review_01/generated_control_result.json) · [当前绑定报告](../coordination/reports/ax04b_hardware_binding.md)
 
 ### 3.3 Bind_Real_Feedback
 
@@ -140,7 +148,7 @@ ISR 的 `Alignment_Permit` 要求初始化已完成、位置与电流有效、�
 | 3 | RAMP_DOWN_ID | 继续选择固定电角，Id 按 0.00025 A/拍下降，2000 拍后进入 DONE |
 | 4 | DONE | Id 对齐分支回零，撤固定电角选择，Init_Done=1，沿用一次性偏置 |
 
-状态 1、2、3 中，Init_Reset、故障、许可撤销优先于时间迁移，撤销本次偏置和锁存位置并返回 IDLE，包含释放末拍。DONE 在 Init_Reset 或故障时返回 IDLE，该迁移未给已保存偏置/位置赋零，后续成功 HOLD 会覆盖。偏置公式为 `mod(theta_align_const − 2π × x_align_mm_latch / Tau_e_mm, 2π)`，取 `theta_align_const=0`、`Tau_e_mm=30`。对齐位置的锁存只用于电角度偏置，机械测量原点仍由测量配置给定。正常流程从启动起按 0、10000、40000、42000 的调用偏移迁移，连续 100 µs 新帧下三段名义合计 4.2 s。[五态验证结果](../verification/experiment/pr46_review_01/alignment_control_result.json) · [安全边界结果](../verification/experiment/pr46_review_01/alignment_safety_result.json)
+状态 1、2、3 中，Init_Reset、故障、许可撤销优先于时间迁移，撤销本次偏置和锁存位置并返回 IDLE，包含释放末拍。DONE 在 Init_Reset 或故障时返回 IDLE，该迁移未给已保存偏置/位置赋零，后续成功 HOLD 会覆盖。偏置公式为 `mod(theta_align_const − 2π × x_align_mm_latch / Tau_e_mm, 2π)`，取 `theta_align_const=0`、`Tau_e_mm=30`。对齐位置的锁存只用于电角度偏置，机械测量原点仍由测量配置给定。正常流程从启动起按 0、10000、40000、42000 的调用偏移迁移，连续 100 µs 新帧下三段名义合计 4.2 s。[PR46 历史五态验证结果](../verification/experiment/pr46_review_01/alignment_control_result.json) · [PR46 历史安全边界结果](../verification/experiment/pr46_review_01/alignment_safety_result.json) · [当前 R1 调度验证](../verification/experiment/ax04b/test_r5_runtime.c)
 
 `Init_Done_Or_Bypass = !Alignment_Enable || Init_Done`。启用对齐时，Runtime 另检查绑定后的复位和故障，形成 Host 所用 `Alignment_Ready`。对齐未就绪且启用时，Host 把位置、速度闭环请求归零并选择零 Iq 测试分支。有效对齐态由 Motion_Control 选用对齐 Id 并强制 Iq=0。对齐相关故障使 Runtime 的 Id 与 Iq 为零，Reference_Commit 继续做独立门控。
 
@@ -171,7 +179,7 @@ ISR 的 `Alignment_Permit` 要求初始化已完成、位置与电流有效、�
 4. `Travel_Safety_Manager` 位于最终速度参考与 Speed_Loop 之间。机械位置 ≥+110 mm 时正速度给定置零，≤−110 mm 时负速度给定置零，向内给定继续通过。直接 Iq 测试绕过这条软限速度路径。机械位置 ≥+120 mm 或 ≤−120 mm 触发行程锁存并把速度给定置零，同时上层资格在同一极限锁存软件故障。上层 `clear_allowed` 单独清除行程状态。参考封装检查行程锁存，未清除时拒发有效参考并禁止 PWM。
 5. `Speed_Loop` 计算 `e_v = v_safe − v_actual`。当前速度环输出为 `sat(0.03 × e_v + x_s, ±0.3 A)`。摩擦补偿子系统在图中标为注释禁用。令 `ΔIq = Iq_unsat − Iq_sat`，积分更新为 `sat(x_s + 0.00005 × e_v − 0.4 × ΔIq_prev, ±0.20 A)`，饱和差通过一拍延迟反馈。硬复位由对齐态、有效 PI_Reset、Iq 测试或速度闭环关闭触发，速度 PI 的输出和积分归零。超速分支在 `abs(v_safe)>0.5` 且 `sign(v_safe)×e_v<−3` 时额外清积分。零速积分比较是 `abs(v_safe)<v_ref_zero_eps`，当前阈值为 0，比较恒假。
 
-Runtime 对速度 PI 的有效复位组合使用绑定后的 PI_Reset、无 PWM 请求和开启对齐时的故障。上述内部复位作用在各自子系统事件上。参考封装直接由本次资格撤销 PWM，故障停发不等待 1 kHz PI 触发。[实验参数源](../simulation/experiment/parameters/axu5ev_experiment_parameters.m) · [行程离线验证](../verification/experiment/pr46_review_01/travel_control_result.json) · [生成算法对照](../generated/experiment/pr46_review_01/r5_final_03/AXU5EV_Motor_Control_System.c)
+Runtime 对速度 PI 的有效复位组合使用绑定后的 PI_Reset、无 PWM 请求和开启对齐时的故障。上述内部复位作用在各自子系统事件上。参考封装直接由本次资格撤销 PWM，故障停发不等待 1 kHz PI 触发。[实验参数源](../simulation/experiment/parameters/axu5ev_experiment_parameters.m) · [PR46 历史行程离线验证](../verification/experiment/pr46_review_01/travel_control_result.json) · [当前生成算法对照](../generated/experiment/ax04b_r1_01/r5/AXU5EV_Motor_Control_System.c)
 
 #### Runtime 的 41 字段输出
 
@@ -190,7 +198,7 @@ Runtime 对速度 PI 的有效复位组合使用绑定后的 PI_Reset、无 PWM 
 
 ## 4. 参考、遥测和复位合同
 
-`Reference_Commit` 在新帧时递增 uint32 版本（最大值下一次为 0），并保存本次 `sample_id`。版本计数随 `new_frame` 更新，最终发布有效性由另一组条件决定。没有新帧时版本和 `commit_sample_id` 保持，当前输出仍会重新计算。根输出是模型数据合同，硬件适配需要定义对应的原子提交与读回行为。
+`Reference_Commit` 在新帧时递增 uint32 版本（最大值下一次为 0），并保存本次 `sample_id`。版本计数随 `new_frame` 更新，最终发布有效性由另一组条件决定。没有新帧时版本和 `commit_sample_id` 保持，当前输出仍会重新计算。根输出是模型数据合同；实际原子提交、接受回执及下一 P0 采用由 AX-04B 绑定层实现，不能把模型封装完成等同于 PL 已采用。[实时接口](../integration/ps_pl/AX04B_INTERFACE.md)
 
 | 参考槽 | 含义和条件 |
 |---|---|
@@ -201,7 +209,7 @@ Runtime 对速度 PI 的有效复位组合使用绑定后的 PI_Reset、无 PWM 
 | 7 | PI reset，Host PI_Reset 非零、PWM 禁止或参考无效三者任一成立 |
 | 8 | ReferenceValid，新帧、健康、速度有效、外部故障未锁存、行程未锁存、Runtime 全有限同时成立 |
 
-`Capture_Latest_Observation` 每次 ISR 写入 `LatestTelemetry`。服务导出的 12 字段依序为当前读入的 `sample_id`、参考版本、机械位置、实测速度、对齐状态号、Id 参考、Iq 参考、电角速度、自动偏置、PWM 许可、参考有效、Control_Fault。服务入口读取最近记录并递增 uint32 服务计数，计数在最大值后回绕。该入口当前是轻量复制机制，通信协议、抢占时防撕裂及长程记录由集成层实现。[主模型](../simulation/experiment/AXU5EV_Motor_Control_System.slx) · [生成接口](../generated/experiment/pr46_review_01/r5_final_03/AXU5EV_Motor_Control_System.h)
+`Capture_Latest_Observation` 每次 ISR 写入 `LatestTelemetry`。服务导出的 12 字段依序为当前读入的 `sample_id`、参考版本、机械位置、实测速度、对齐状态号、Id 参考、Iq 参考、电角速度、自动偏置、PWM 许可、参考有效、Control_Fault。服务入口读取最近记录并递增 uint32 服务计数，计数在最大值后回绕。该入口是轻量复制机制；当前 C 绑定在有界中断屏蔽区内调用服务并复制快照，随后在前台打印或导出，真实抢占时延仍待 ARM 实测，不能视为完整长程记录系统。[主模型](../simulation/experiment/AXU5EV_Motor_Control_System.slx) · [生成接口](../generated/experiment/ax04b_r1_01/r5/AXU5EV_Motor_Control_System.h) · [服务绑定](../firmware/r5/motor_control/ax04b/ax04b_main.c)
 
 | 操作或条件 | 作用边界 |
 |---|---|
@@ -218,11 +226,13 @@ R5 的活动实现是主模型三处已经固化的普通子系统 `Feedback_Mea
 
 定位时可先看根输出和两类有效性，再沿局部 From/Goto 标签回读来源。速度一直为 0 时，同时查看 `speed_valid`、`history_count`、`feedback_status`。PWM 请求有而许可无时，沿根 `reference_commit` 第 8、6、7 项检查帧健康、行程、驱动四个输出及软件复位。点位未接受时同时查看 `move_ready`、`move_busy`、`command_status` 和 `move_interrupted`。调试对齐需一同查看状态号、许可、固定角使能、对齐 Id 和偏置字段。
 
-既有 PR46 最终 C 1.95 主机验证覆盖 317 项、275136 次 IRQ 调用，含 42 项对齐安全断言与 227186 次相关调用。硬件阶段状态为 `HW_BINDING_PENDING`、`BOARD_NOT_RUN`，物理 IRQ/GIC、原子 AXI、驱动 IO、服务快照抢占一致性和匹配 bit/XSA/ELF 待绑定。既有 C 和 RTL 证据按其生成版本追踪，根接口的实际物理事务以交付 B 绑定为准。[PR46 最终结果](../verification/experiment/pr46_review_01/results.json) · [实施记录](../coordination/reports/ax04_experiment_model_and_layout.md)
+当前 PR48 模型及生成 C 为 **1.173**。提交的记录包括 317 项、275136 次主机 IRQ 调用、Switch 与 PI_Reset 阈值检查，以及链接同一份生成 C 的 12 个真实调度代码主机场景。三个旧许可反例单列为预期失败行为，不算修复 PASS。两种新 ELF 的目标编译、源选择和离线启动匹配检查已记录完成；这些检查没有运行真实 ARM 或电机。[当前模型基线](../verification/experiment/ax04b/r1_model_baseline.json) · [R1 调度测试](../verification/experiment/ax04b/test_r5_runtime.c) · [当前结果索引](../verification/experiment/ax04b/results.json) · [R1 报告](../coordination/reports/ax04b_hardware_binding.md#pr48-复审基线)
+
+PR46 的 1.95 生成结果和当时的 `HW_BINDING_PENDING` 仅作为历史交付 A 证据保留，不能用于描述当前绑定状态，也不能替代当前 1.173 的源选择。当前为**代码绑定与构建离线完成、板上运行未测**；`BOARD_SELFTEST`、`REAL_IO`、`ARM_EXECUTION`、IRQ/COMMIT 时延和功率运动继续为 `NOT_RUN`。[PR46 历史最终结果](../verification/experiment/pr46_review_01/results.json) · [PR46 历史实施记录](../coordination/reports/ax04_experiment_model_and_layout.md)
 
 ## 6. PL 数值链与 HDL 生成边界
 
-实机方案把位置 P、速度 PI、对齐、行程和参考封装放在 R5，把电流闭环留在 PL。实机主模型提供 PL 反馈入口与参考输出，PL 数值链在四个独立模型中生成。下面是对接时的数据走向，箭头经过的采样锁存、PS/PL 交换和 PWM 采用边界属于板级集成。
+实机方案把位置 P、速度 PI、对齐、行程和参考封装放在 R5，把电流闭环留在 PL。实机主模型提供 PL 反馈入口与参考输出，PL 电流、角度、FOC、比较值四个边界独立生成，AX-04B 另接入可见的控制角选择模型。下面是对接时的数据走向，箭头经过的采样锁存、PS/PL 交换和 PWM 采用边界属于板级集成。
 
 ```text
 双路 ADC 原始码 ──> Current_Preprocess ──> ia / ib / ic、valid、标定状态
@@ -260,7 +270,7 @@ ABZ 解码计数 ─────> Encoder_Angle ──────> 快电角度
 
 `Encoder_Angle/Electric_Angle_Core` 使用每电周期 30,000 个已解码计数。空闲时锁存事件和配置，首帧或零点改变时从零点计数建立基准，连续帧使用相邻 `uint32` 原始计数的模 2³² 有符号差分。方向改变时翻转保留的无偏移相位坐标及新差分。恰好半范围的差分、未就绪或 `phase_offset_count ≥ 30000` 会给出无效结果，并使后续采样重新建立基准。串行状态机逐位求余 32 拍，再由收尾状态合成环内相位并叠加配置偏移，忙期间的 `sample_strobe` 不会另开任务。
 
-相位缩放在图中可见。对 `phase_count ∈ [0,29999]` 计算 `theta_q32 = (phase_count×943231700270 + 524288) >> 20`，对应将 2π/30000 rad/count 的 Q52 系数换成 Q32 弧度码。角度、相位、有效、结果事件和本次配置版本经同一输出寄存边界。此处的 `phase_offset_count` 属于 PL 角度端口配置，R5 参考中的 `Theta_Offset_auto` 属于弧度字段，两者落地时须明确单位、符号、配置版本和采用边界。 [串行状态机](../simulation/experiment/pl/axu5ev_experiment_encoder_phase_serial.m) · [角度生成模块](../generated/experiment/ax04_01/pl/AXU5EV_Experiment_Angle_HDL/AX04_Angle_Encoder_Angle.sv)
+相位缩放在图中可见。对 `phase_count ∈ [0,29999]` 计算 `theta_q32 = (phase_count×943231700270 + 524288) >> 20`，对应将 2π/30000 rad/count 的 Q52 系数换成 Q32 弧度码。角度、相位、有效、结果事件和本次配置版本经同一输出寄存边界。此处的 `phase_offset_count` 属于 PL 角度端口配置，R5 参考中的 `Theta_Offset_auto` 属于弧度字段。AX-04B 将源编码器相位偏置固定为零，另由已生成的 `Control_Angle` 按已采用参考选择固定角或叠加一次归一化弧度偏置；固定角期间电角速度为零。 [串行状态机](../simulation/experiment/pl/axu5ev_experiment_encoder_phase_serial.m) · [角度生成模块](../generated/experiment/ax04_01/pl/AXU5EV_Experiment_Angle_HDL/AX04_Angle_Encoder_Angle.sv) · [控制角生成模块](../generated/experiment/ax04b_01/pl/AXU5EV_Experiment_Control_Angle_HDL/AX04B_Angle_Control_Angle.sv)
 
 ### 定点电流环与 SVPWM
 
@@ -286,24 +296,26 @@ FOC 的工作量和系数为有符号 64 位 Q40，定点配置使用收敛舍�
 | AQM30-B2 Parallel | 每相 Rs = 1.45 Ω，Ld = Lq = 11.8 mH，取线间 R/L 的一半并采用等电感假设 |
 | 位置与磁链 | 电周期 30 mm，光栅 0.001 mm/count，推力常数 30.4/√2 N/Apeak，由推力关系推得 ψf ≈ 0.068424 Wb |
 | 电流 PI | ξ = 1/√2，Kp = Lq/(4ξ²Ts) = 59，连续 Ki = Kp·Rs/Lq = 7250，每拍 Ki·Ts = 0.725，两轴 Kaw ≈ 0.0122881 |
-| 供电与调试参考 | 固定控制参考 48 V，R5 调试限值 Id ±0.50 A、Iq ±0.30 A。物理母线采集待集成 |
+| 供电与调试参考 | 固定控制参考 48 V，R5 调试限值 Id ±0.50 A、Iq ±0.30 A；不是物理母线实测值 |
 | ADC 标定默认值 | 双路手工有效均为 false，`cal_log2_N=10` 对应每路 1024 个合格样本，增益与偏置经 PL 显式配置端口输入 |
 
 `axu5ev_experiment('generate_pl', <新运行目录>, <新版输出目录>)` 读取已保存的四个边界，执行 `checkhdl` 和 `makehdl`，以 `AX04_Current_`、`AX04_Angle_`、`AX04_Duty_`、`AX04_FOC_` 标记输出。R5 可独立用 `generate_r5`，两者共同生成用 `generate`。新版本导出到 `generated/experiment/<版本>`，工作缓存与生成日志归入 `.runtime/experiment/<新目录>`。纯仿真由 `START_SIMULATION.m` 进入，其闭环和参数归 `simulation/closed_loop`。 [PL 生成器](../simulation/experiment/scripts/axu5ev_experiment_generate_pl.m) · [当前 SV 源索引](../verification/experiment/generated_sources.list) · [纯仿真入口](../simulation/START_SIMULATION.m)
 
-### PS/PL 联调需落实的边界
+### PS/PL 已实现的离线绑定与待实测边界
 
-- **反馈发布与 IRQ。** PL 需要在同一采样身份下收集计数、非法转移、采样时戳、编码器就绪及电流有效，并整组发布给 R5。主模型用 50 MHz 时戳、名义 5000 tick 间隔及 500 个 `sample_id` 单位增量判定帧。GIC/IRQ 注册、快照读取与释放、跨时钟域传递及超时策略由集成层落实。
-- **参考提交与采用。** R5 给出 8 个 double 字段、`commit_sample_id` 和 `reference_version`。后者标识模型参考版本，前者追溯触发本次更新的反馈。集成层需定义目标采用帧、原子写入/确认和时限，并完成从 A、rad、rad/s 到 FOC 指定定点宽度的转换。对齐角选择、机械零/方向、自动偏置和快角的合成在同一采用条件下落实。故障或未许可时的禁止/复位优先级也须由外层承接。
-- **PWM 与驱动。** 模型给出 `RELCON`、`ENCON`、`F_Reset`、`OE_disable` 与外部故障锁存合同。有效低故障输入、外部故障锁存清除和发送给驱动器的 `F_Reset` 分别处理。板级电平、默认态、互锁、三相统一采用、晚到与故障快速切断、ADC/ABZ 捕获沿及死区需要在真实时钟与硬件上确认。
-- **服务快照。** `Service_Request()` 在模型层复制最近遥测并计数。若通信处理可被 PL IRQ 抢占，必须由绑定层保证读取的是同一份完整记录，同时定义何时发布新快照。
+- **反馈发布与 IRQ。** AX-04B 在选中帧的电流资格寄存事件后，连同 P0 编码器元数据冻结最小反馈并置高电平 IRQ；当前 RTL 记录为 P76 发布。R5 通过精确序号 ACK，检查同帧身份。GIC 注册、原子读、超时及丢帧处理已有代码和离线证据，目标处理器响应时间仍待实测。
+- **参考提交与采用。** R5 模型给出 8 个 double 字段、`commit_sample_id` 和 `reference_version`；传输层有独立版本和目标下一 P0 样本号，完成定点转换、整组提交与接受回执读取。实际采用身份另行读回。R1 将真实许可撤销反馈给模型；模型封装、总线接受与 PL 采用是三个不同阶段。
+- **PWM 与驱动。** 低有效故障、快速禁止、整组三相采用和 J16 引脚约束已接入离线工程。当前 SELFTEST 外部输出硬禁止；REAL 六 PWM、缓冲使能及 RELCON/ENCON 也硬禁止，仅保留真实输入与禁止态验收用途。外部电平、响应时间、正常 PWM 波形/死区及物理标定仍需单独验证，不能用本离线基线代替。
+- **服务快照。** `Service_Request()` 在模型层复制最近遥测并计数。当前绑定在有界屏蔽区完成快照复制，打印与 CSV 在前台执行；实际抢占窗口和 IRQ 时限必须在目标板测量。
 
-交付 A 已生成 51 份 SV（50 模块、1 包）。独立 FOC 模型检查 1188 帧，连续 RTL 192 帧以及动态前馈 RTL 48 帧共 720 项 duty 逐字检查零差。辅助 gm FOC 模型的输出延时插入有警告，gm 等价验证标为 `NOT_RUN`。这些证据对应保存的独立实机候选。该候选的硬件状态仍为 `HW_BINDING_PENDING`、`BOARD_NOT_RUN`，AX-04 匹配 bit/XSA/ELF、实现/STA/CDC/SDF、R5 ARM 执行、物理标定及总运动质量均待落实。PR41 的集成链和观察合同可追溯历史接口与验证方法，其结果归属于当时的候选。 [AX-04 交付 A 验证](../verification/experiment/model_layout/results.json) · [实施与硬件交接记录](../coordination/reports/ax04_experiment_model_and_layout.md) · [PR41 集成链记录](../coordination/reports/motor_control_chain.md)
+以上对应[AX-04B 实时接口](../integration/ps_pl/AX04B_INTERFACE.md)、[当前绑定报告](../coordination/reports/ax04b_hardware_binding.md)和[首运行指南](../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md)。两种当前候选的 bit/ltx/XSA、ELF、BSP 及启动检查已有离线交付记录；PL 路由、STA、CDC 复用同一未变硬件的 B4 结果，R1 没有重新实现。ARM 执行、真实 IO、时限实测、功率运动与动态 SDF 不因文档更新或合并而变成 PASS。
 
-## 7. 2026-11-18 布局整理与复查
+**历史交付 A 记录：** 当时生成 51 份 SV（50 模块、1 包），独立 FOC 模型检查 1188 帧，连续 RTL 192 帧以及动态前馈 RTL 48 帧共 720 项 duty 逐字检查零差；辅助 gm FOC 输出延时插入有警告，gm 等价验证为 `NOT_RUN`。当时的 `HW_BINDING_PENDING` 及未构建状态是交付 A 的历史边界，后续绑定与构建以 AX-04B/R1 记录为准。PR41 证据也只归属当时的候选；物理标定及总运动质量仍待落实。[AX-04 历史交付 A 验证](../verification/experiment/model_layout/results.json) · [历史实施与交接](../coordination/reports/ax04_experiment_model_and_layout.md) · [PR41 历史集成链记录](../coordination/reports/motor_control_chain.md)
+
+## 7. 2026-11-18 布局整理与复查（历史记录）
 
 四个入口及其内部的 16 张 Simulink 图按功能划为 42 个区域。新增 41 个 Goto 和 55 个对应的 From，Goto 全部采用 `local`，从各自区域即可读到标签。Inport/Outport 采用 30×14 像素的标准胶囊外观。五态图通过外层接口查看，MATLAB Function 的算法在各函数块中查看。视觉核对涵盖所有整理图。复查也检查了分区与块边框重叠、直角走线和线段穿越块内部的情况。
 
 以整理前磁盘快照比较，16 张图的 432 条逻辑连接按端口消解 From/Goto 后一致。核对同时覆盖信号名、算法参数、Stateflow 内容、Model Workspace 和 ISR 顶层几何。以 SLX 中保存的显式折线段计，`Qualified_Runtime` 最长的一段从 4199 像素缩短到 300 像素，块体和分区重叠归零。工程检查在磁盘重开后通过，检查覆盖 944 个块。整理前与整理后都出现 `runtime_y` 的既有信号对象初值警告 `Simulink:blocks:WarnSigObjWithICIgnoredDefaultIC`。检查中诊断曾指向 `Init_Done` 或 `Angle_Init_EN`，该端口采用默认初值 0。
 
-使用现有 ERT 生成入口隔离输出了 15 份 C/H。实际生成的 5 个 C 源文件由主机 MEX 执行，317 项验证通过，共 275136 次 IRQ 调用，含对齐、安全、行程、反馈和非实时服务用例。另做了第 3.3 节的测速有效后 PI 复位观察。当前验证等级为静态检查、Simulink 编译和主机生成代码复查。ARM 执行、硬件绑定和板验状态见第 6 节。本次图像和运行结果保存在 `.runtime/experiment/ax04_isr_layout_01`。[R5 生成入口](../simulation/experiment/scripts/axu5ev_experiment_generate_control.m) · [现有主机检查](../simulation/tests/experiment/ax04_validate_generated_control.m)
+使用现有 ERT 生成入口隔离输出了 15 份 C/H。实际生成的 5 个 C 源文件由主机 MEX 执行，317 项验证通过，共 275136 次 IRQ 调用，含对齐、安全、行程、反馈和非实时服务用例。另做了第 3.3 节的测速有效后 PI 复位观察。该次布局验证等级为静态检查、Simulink 编译和主机生成代码复查；当前版本与硬件绑定状态见本文开头及第 5、6 节。该次图像和运行结果保存在 `.runtime/experiment/ax04_isr_layout_01`。[R5 生成入口](../simulation/experiment/scripts/axu5ev_experiment_generate_control.m) · [现有主机检查](../simulation/tests/experiment/ax04_validate_generated_control.m)
