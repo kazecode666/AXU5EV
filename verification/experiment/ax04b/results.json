@@ -1,4 +1,25 @@
 {
+  "current_revision": {
+    "source_commit": "f31aa8ce996e054c065c6e5bab372cbb44998349",
+    "scope": "OFFLINE_BASELINE_ONLY",
+    "model_version": "1.173",
+    "generated_r5": "generated/experiment/ax04b_r1_01/r5",
+    "application_id": "0x41585203",
+    "candidate_paths": {
+      "selftest": ".runtime/experiment/ax04b/selftest_r1_02",
+      "real": ".runtime/experiment/ax04b/real_r1_02"
+    },
+    "evidence_json_pointer": "/r1_review",
+    "target_builds_json_pointer": "/r1_review/target_builds",
+    "first_run_guide": "firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md",
+    "whitebox_guide": "docs/AXU5EV_EXPERIMENT_WHITEBOX_ZH.md",
+    "separate_workstream": "PR49 is independent J16-MBDL4 interface-board verification; it is not included in this baseline."
+  },
+  "record_roles": {
+    "top_level_candidate_paths_and_builds": "Historical B4 candidates *_02, application 0x41585201; do not select their old ELF for the current R1 baseline.",
+    "top_level_tests": "Original offline RTL and hardware implementation evidence; unchanged hardware is reused, not rerun by this documentation update.",
+    "r1_review": "Current R1 firmware/model evidence and matched *_r1_02 candidates. Board execution, physical IO and power motion remain NOT_RUN."
+  },
   "base": "21847326e4e0d8e100f3aaa5f31b612f24f75e01",
   "pr46_model_and_c_version": "1.95",
   "implementation_branch": "codex/ax04b-hardware-binding",
