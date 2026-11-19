@@ -249,7 +249,7 @@ static StopReason pl_stop_reason(uint32_t status)
     return (status & AX04B_ARMED) == 0u ? AX04B_STOP_ARM_LOST : AX04B_STOP_NONE;
 }
 
-static void revoke_permission(StopReason reason, uint32_t status, uint32_t start_ticket)
+static void revoke_permission(StopReason reason, uint32_t status, const Ax04bCommand *command)
 {
     stop_pl();
     safety.armed = false;
@@ -257,7 +257,10 @@ static void revoke_permission(StopReason reason, uint32_t status, uint32_t start
     safety.stop_pending = true;
     safety.reason = reason;
     safety.status = status;
-    consumed_start = start_ticket;
+    /* A later STOP invalidates both earlier operator actions. Only tickets
+     * newly published after this command snapshot may be processed. */
+    consumed_clear = command->clear_ticket;
+    consumed_start = command->start_ticket;
     latest.drive_permitted = false;
     latest.stop_pending = true;
     latest.stop_reason = reason;
@@ -265,11 +268,11 @@ static void revoke_permission(StopReason reason, uint32_t status, uint32_t start
     ++counters.transport_stop;
 }
 
-static void observe_pl_permission(uint32_t status, uint32_t start_ticket)
+static void observe_pl_permission(uint32_t status, const Ax04bCommand *command)
 {
     const StopReason reason = pl_stop_reason(status);
     if (safety.armed && reason != AX04B_STOP_NONE) {
-        revoke_permission(reason, status, start_ticket);
+        revoke_permission(reason, status, command);
     }
 }
 
@@ -388,7 +391,7 @@ static void frame_interrupt(void *unused)
         /* External/reset race. Do not ACK an identity we did not process.
          * Mask the level interrupt so a bad pending record cannot livelock. */
         ++counters.bad_snapshot;
-        revoke_permission(AX04B_STOP_SNAPSHOT, check_status, command->start_ticket);
+        revoke_permission(AX04B_STOP_SNAPSHOT, check_status, command);
         XScuGic_Disable(&interrupt_controller, ax04b_fabric_irq);
         return;
     }
@@ -400,16 +403,16 @@ static void frame_interrupt(void *unused)
     const bool transport_invalid = !contract_ok || new_overrun;
     if (transport_invalid) {
         revoke_permission(!contract_ok ? AX04B_STOP_CONTRACT : AX04B_STOP_OVERRUN,
-            status, command->start_ticket);
+            status, command);
     } else {
-        observe_pl_permission(status, command->start_ticket);
+        observe_pl_permission(status, command);
     }
     const bool init_reset = command->init_reset_ticket != consumed_init_reset;
     const bool driver_reset = command->freset_ticket != consumed_freset;
     const Ax04bDispatch dispatch = ax04b_dispatch(have_feedback ? &last_feedback : NULL,
         &feedback, safety.stop_pending || init_reset || driver_reset);
     if (dispatch == AX04B_SAFETY_DUPLICATE && safety.armed) {
-        revoke_permission(AX04B_STOP_SAFETY_DUPLICATE, status, command->start_ticket);
+        revoke_permission(AX04B_STOP_SAFETY_DUPLICATE, status, command);
     }
     record.read_done_tick = pmu_tick();
     ++counters.frames;
@@ -499,7 +502,7 @@ static void frame_interrupt(void *unused)
             const bool encoded = ax04b_encode_reference(&result, feedback.id,
                 ++transport_version, allow_drive || allow_reset, &reference);
             if (!encoded) {
-                revoke_permission(AX04B_STOP_ENCODE, status, command->start_ticket);
+                revoke_permission(AX04B_STOP_ENCODE, status, command);
             } else {
                 record.target = reference.target;
                 record.offered_version = reference.word[7];
@@ -510,12 +513,11 @@ static void frame_interrupt(void *unused)
                         /* AXI acceptance alone does not prove PL remained
                          * armed through the model invocation and transfer. */
                         const uint32_t after = read_rt(AX04B_STATUS);
-                        observe_pl_permission(after, command->start_ticket);
+                        observe_pl_permission(after, command);
                     }
                 } else {
                     ++counters.rejected;
-                    revoke_permission(AX04B_STOP_COMMIT, read_rt(AX04B_STATUS),
-                        command->start_ticket);
+                    revoke_permission(AX04B_STOP_COMMIT, read_rt(AX04B_STATUS), command);
                 }
             }
             if (safety.stop_pending) {
@@ -596,7 +598,7 @@ static void disarm(void)
 {
     const uint32_t cpsr = irq_lock();
     const Ax04bCommand command = stopped_command();
-    revoke_permission(AX04B_STOP_REQUEST, read_rt(AX04B_STATUS), command.start_ticket);
+    revoke_permission(AX04B_STOP_REQUEST, read_rt(AX04B_STATUS), &command);
     publish_command(&command);
     irq_unlock(cpsr);
 }
@@ -663,8 +665,8 @@ static void arm_test(void)
     }
     const uint32_t cpsr = irq_lock();
     const uint32_t status = read_rt(AX04B_STATUS);
-    const uint32_t ticket = command_slots[active_command].start_ticket;
-    observe_pl_permission(status, ticket);
+    const Ax04bCommand *const requested = &command_slots[active_command];
+    observe_pl_permission(status, requested);
     const bool ready = latest.position_valid && latest.speed_valid &&
         latest.reference_valid && safety.clear_confirmed && !safety.stop_pending;
     if (!ready || safety.armed ||
@@ -679,7 +681,7 @@ static void arm_test(void)
     const StopReason stopped = pl_stop_reason(after);
     if (stopped != AX04B_STOP_NONE) {
         if (stopped != AX04B_STOP_ARM_LOST) {
-            revoke_permission(stopped, after, ticket);
+            revoke_permission(stopped, after, requested);
         }
         irq_unlock(cpsr);
         xil_printf("AX04B PL ARM rejected\r\n");
@@ -703,7 +705,7 @@ static void clear_request(void)
 {
     const uint32_t cpsr = irq_lock();
     Ax04bCommand command = command_slots[active_command];
-    observe_pl_permission(read_rt(AX04B_STATUS), command.start_ticket);
+    observe_pl_permission(read_rt(AX04B_STATUS), &command);
     if (safety.armed) {
         irq_unlock(cpsr);
         xil_printf("AX04B CLEAR DENIED: stop first\r\n");
@@ -721,7 +723,7 @@ static void test_command(char key)
     const uint32_t cpsr = irq_lock();
     Ax04bCommand command = command_slots[active_command];
     const uint32_t status = read_rt(AX04B_STATUS);
-    observe_pl_permission(status, command.start_ticket);
+    observe_pl_permission(status, &command);
     /* Init_Reset and a reset-only F_Reset packet remain available while
      * stopped. The independent REAL output policy continues to deny them. */
     if (ax04b_build_mode != AX04B_SELFTEST ||
@@ -755,7 +757,7 @@ static void status_report(void)
     const uint32_t cpsr = irq_lock();
     const uint32_t service_start = pmu_tick();
     const uint32_t status = read_rt(AX04B_STATUS);
-    observe_pl_permission(status, command_slots[active_command].start_ticket);
+    observe_pl_permission(status, &command_slots[active_command]);
     const uint32_t services = ax04b_model_service(values);
     const FrameRecord record = latest;
     const Counters counts = counters;

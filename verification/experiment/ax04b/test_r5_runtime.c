@@ -639,6 +639,16 @@ static void normal_cycle(void)
 static void clear_and_arm_receipts(void)
 {
     qualified_history();
+    /* A clear waiting for its qualifying frame must not survive a later stop. */
+    clear_request();
+    disarm();
+    const uint32_t before = frame(true);
+    arm_test();
+    print_frame("clear", "clear_requested_before_stop", before);
+    printf("R1 clear_before_stop clear_writes=%" PRIu32 " arm_writes=%" PRIu32 "\n",
+        pl.clears, pl.arms);
+    assert(pl.clears == 0u && pl.arms == 0u && (pl.status & AX04B_INHIBIT_LATCHED));
+
     pl.reject_clear = true;
     clear_request();
     frame(true);
