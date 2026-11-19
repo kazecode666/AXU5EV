@@ -1,4 +1,11 @@
-# AXU5EV 当前交接 — AX-04B 离线候选
+# AXU5EV 当前交接 — AX-04B R1 复审候选
+
+2026-11-19，按 PR48 复审任务在原 `codex/ax04b-hardware-binding` 纳入已保存的实机模型 1.173、初始化参数与白盒说明 `bcbb1bca750636494f211cffa710891aff1e5f34`。新生成源 `generated/experiment/ax04b_r1_01/r5` 提交 `9f5cbb606dc41216e7e69d590496866eb6659fc5`，由该模型生成 Cortex-R ERT。317 项、275136 次 IRQ 的既有主机验证以及 Switch 和 PI_Reset 阈值直测通过。[Draft PR48](https://github.com/kazecode666/AXU5EV/pull/48) · [复审报告](reports/ax04b_hardware_binding.md)
+
+- `b411733a2ee69331c132d914c885842c2b88b822` 修复 PL 停止后 R5 的对齐许可，`c6a2539bf86e5f5deaa51b0560dd342f15c61e13` 作废 STOP 前排队的 CLEAR。用同一份 1.173 生成 C 复现了三个旧反例，最终 12 个定向场景通过。运行许可撤销时立即停止 PL，必要时同一帧执行一次独立安全调用。显式 CLEAR 及 ARM 均有 PL 读回，重新对齐需要新的 Start。
+- 当前 SELFTEST／REAL 候选分别为 `.runtime/experiment/ax04b/selftest_r1_02` 和 `.runtime/experiment/ax04b/real_r1_02`，应用身份 `0x41585203`。各自使用原 `*_02` 的匹配 PL 成果与新 R5 ELF。此次未重新构建 Vivado。两个候选的实际 ARM 执行、IRQ 实测时延、板内 SELFTEST、真实 IO 和功率运动均为 `NOT_RUN`。[无功率首运行指南](../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md) · [验证状态](../verification/experiment/ax04b/results.json)
+
+## 原 B1～B4 离线候选记录
 
 2026-11-19，从合并 PR47 的完整 main `21847326e4e0d8e100f3aaa5f31b612f24f75e01` 建立 `codex/ax04b-hardware-binding`。PR46 经 PR45 分支再由 PR47 带入主线。本轮完成 B1～B4 并停在 [kazecode666/AXU5EV Draft PR48](https://github.com/kazecode666/AXU5EV/pull/48) Review。执行依据为 [PR47 任务书](tasks/ax04b_hardware_binding_and_first_run.md)、[Issue42 执行评论](https://github.com/kazecode666/AXU5EV/issues/42#issuecomment-6974714393)及 [Issue44 执行评论](https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-6974720049)。
 

@@ -186,5 +186,340 @@
         }
       }
     }
+  },
+  "r1_review": {
+    "status": "OFFLINE_R1_PASS",
+    "model_generation": "verification/experiment/ax04b/r1_model_baseline.json",
+    "firmware_commit": "c6a2539bf86e5f5deaa51b0560dd342f15c61e13",
+    "baseline_firmware": "d345e28398734d1bf5343f52c5e576e971546192",
+    "old_counterexamples": {
+      "status": "EXPECTED_OLD_COUNTEREXAMPLE",
+      "count": 3,
+      "log": ".runtime/experiment/ax04b/r1/old_verified_02/result.txt"
+    },
+    "queued_clear_stop_order": {
+      "preliminary_firmware": "b411733a2ee69331c132d914c885842c2b88b822",
+      "before_clear_and_arm_writes": [
+        1,
+        1
+      ],
+      "after_clear_and_arm_writes": [
+        0,
+        0
+      ],
+      "preliminary_log": ".runtime/experiment/ax04b/r1/stale_clear_before_01/result.txt"
+    },
+    "fixed_host": {
+      "status": "PASS",
+      "cases": [
+        "late",
+        "rejected",
+        "armed",
+        "inhibit",
+        "accepted-loss",
+        "stale",
+        "duplicate",
+        "boundary",
+        "boundary-late",
+        "normal",
+        "clear",
+        "real"
+      ],
+      "log": ".runtime/experiment/ax04b/r1/fixed_commit_02/result.txt",
+      "adapter": ".runtime/experiment/ax04b/r1/adapter_01/result.txt",
+      "actual_irq_and_generated_c": true
+    },
+    "late_same_model_old_vs_fixed": {
+      "before": {
+        "old": {
+          "id": 27500,
+          "tick": 275000,
+          "seq": 55,
+          "fault": 0,
+          "encoder": 1,
+          "current": 1,
+          "rel_in": 1,
+          "en_in": 1,
+          "oe_in": 0,
+          "ticket": 1,
+          "consumed": 1,
+          "state": 1,
+          "done": 0,
+          "result": 1,
+          "transported_version": 55,
+          "commits": 55,
+          "acks": 55,
+          "pwm_in": 1.0,
+          "start_in": 0.0,
+          "align_id": 5e-05,
+          "pos": 1.0,
+          "model_pwm": 1.0,
+          "rv": 1.0,
+          "pl_before": "0x355",
+          "pl_after": "0x35c",
+          "flags": "0x3b"
+        },
+        "fixed": {
+          "id": 27500,
+          "tick": 275000,
+          "seq": 55,
+          "fault": 0,
+          "encoder": 1,
+          "current": 1,
+          "rel_in": 1,
+          "en_in": 1,
+          "oe_in": 0,
+          "ticket": 1,
+          "consumed": 1,
+          "state": 1,
+          "done": 0,
+          "result": 1,
+          "transported_version": 55,
+          "commits": 55,
+          "acks": 55,
+          "pwm_in": 1.0,
+          "start_in": 0.0,
+          "align_id": 5e-05,
+          "pos": 1.0,
+          "model_pwm": 1.0,
+          "rv": 1.0,
+          "pl_before": "0x35c",
+          "pl_after": "0x35c",
+          "flags": "0x3b"
+        }
+      },
+      "failure": {
+        "old": {
+          "id": 28000,
+          "tick": 280000,
+          "seq": 56,
+          "fault": 0,
+          "encoder": 1,
+          "current": 1,
+          "rel_in": 1,
+          "en_in": 1,
+          "oe_in": 0,
+          "ticket": 1,
+          "consumed": 1,
+          "state": 1,
+          "done": 0,
+          "result": 2,
+          "transported_version": 56,
+          "commits": 56,
+          "acks": 56,
+          "pwm_in": 1.0,
+          "start_in": 0.0,
+          "align_id": 0.0001,
+          "pos": 1.0,
+          "model_pwm": 1.0,
+          "rv": 1.0,
+          "pl_before": "0x355",
+          "pl_after": "0x342",
+          "flags": "0x3b"
+        },
+        "fixed": {
+          "id": 28000,
+          "tick": 280000,
+          "seq": 56,
+          "fault": 0,
+          "encoder": 1,
+          "current": 1,
+          "rel_in": 0,
+          "en_in": 0,
+          "oe_in": 1,
+          "ticket": 1,
+          "consumed": 1,
+          "state": 0,
+          "done": 0,
+          "result": 2,
+          "transported_version": 56,
+          "commits": 56,
+          "acks": 56,
+          "pwm_in": 0.0,
+          "start_in": 0.0,
+          "align_id": 0.0,
+          "pos": 1.0,
+          "model_pwm": 0.0,
+          "rv": 0.0,
+          "pl_before": "0x355",
+          "pl_after": "0x342",
+          "flags": "0x3b"
+        }
+      },
+      "next_healthy": {
+        "old": {
+          "id": 28500,
+          "tick": 285000,
+          "seq": 57,
+          "fault": 0,
+          "encoder": 1,
+          "current": 1,
+          "rel_in": 1,
+          "en_in": 1,
+          "oe_in": 0,
+          "ticket": 1,
+          "consumed": 1,
+          "state": 1,
+          "done": 0,
+          "result": 1,
+          "transported_version": 57,
+          "commits": 57,
+          "acks": 57,
+          "pwm_in": 1.0,
+          "start_in": 0.0,
+          "align_id": 0.00015,
+          "pos": 1.0,
+          "model_pwm": 1.0,
+          "rv": 1.0,
+          "pl_before": "0x343",
+          "pl_after": "0x34a",
+          "flags": "0x8d"
+        },
+        "fixed": {
+          "id": 28500,
+          "tick": 285000,
+          "seq": 57,
+          "fault": 0,
+          "encoder": 1,
+          "current": 1,
+          "rel_in": 0,
+          "en_in": 0,
+          "oe_in": 1,
+          "ticket": 1,
+          "consumed": 1,
+          "state": 0,
+          "done": 0,
+          "result": 1,
+          "transported_version": 57,
+          "commits": 57,
+          "acks": 57,
+          "pwm_in": 0.0,
+          "start_in": 0.0,
+          "align_id": 0.0,
+          "pos": 1.0,
+          "model_pwm": 0.0,
+          "rv": 1.0,
+          "pl_before": "0x343",
+          "pl_after": "0x34a",
+          "flags": "0x8c"
+        }
+      }
+    },
+    "target_builds": {
+      "SELFTEST": {
+        "status": "OFFLINE_STARTUP_CHECK_PASS",
+        "mode": 1,
+        "candidate": ".runtime/experiment/ax04b/selftest_r1_02",
+        "hardware_source": ".runtime/experiment/ax04b/selftest_02/hardware",
+        "startup_evidence": ".runtime/experiment/ax04b/selftest_r1_02/vitis/startup_validation.json",
+        "application_id": "0x41585203",
+        "model_version": "1.173",
+        "mmio": "0x80002000",
+        "gic_intid": 121,
+        "irq_trigger": "high_level",
+        "irq_stack_bytes": 16384,
+        "linker_sources": [
+          "AXU5EV_Motor_Control_System.c",
+          "AXU5EV_Motor_Control_System_data.c",
+          "rtGetInf.c",
+          "rtGetNaN.c",
+          "rt_nonfinite.c",
+          "ax04b_adapter.c",
+          "ax04b_main.c"
+        ],
+        "unchanged_hardware": "BYTE_MATCH",
+        "routed_evidence": ".runtime/experiment/ax04b/selftest_02/hardware/reports",
+        "files": {
+          "bitstream": {
+            "path": ".runtime/experiment/ax04b/selftest_r1_02/hardware/ax04b_selftest.bit",
+            "bytes": 7797907
+          },
+          "ltx": {
+            "path": ".runtime/experiment/ax04b/selftest_r1_02/hardware/ax04b_selftest.ltx",
+            "bytes": 42946
+          },
+          "xsa": {
+            "path": ".runtime/experiment/ax04b/selftest_r1_02/hardware/ax04b_selftest.xsa",
+            "bytes": 3130940
+          },
+          "elf": {
+            "path": ".runtime/experiment/ax04b/selftest_r1_02/vitis/ax04b_realtime/build/ax04b_realtime.elf",
+            "bytes": 441100
+          },
+          "map": {
+            "path": ".runtime/experiment/ax04b/selftest_r1_02/vitis/ax04b_realtime/build/ax04b_realtime.map",
+            "bytes": 285261
+          },
+          "psu_init": {
+            "path": ".runtime/experiment/ax04b/selftest_r1_02/vitis/ax04b_platform/hw/sdt/psu_init.tcl",
+            "bytes": 665897
+          },
+          "fsbl": {
+            "path": ".runtime/experiment/ax04b/selftest_r1_02/vitis/ax04b_platform/export/ax04b_platform/sw/boot/fsbl.elf",
+            "bytes": 341592
+          }
+        }
+      },
+      "REAL": {
+        "status": "OFFLINE_STARTUP_CHECK_PASS",
+        "mode": 2,
+        "candidate": ".runtime/experiment/ax04b/real_r1_02",
+        "hardware_source": ".runtime/experiment/ax04b/real_02/hardware",
+        "startup_evidence": ".runtime/experiment/ax04b/real_r1_02/vitis/startup_validation.json",
+        "application_id": "0x41585203",
+        "model_version": "1.173",
+        "mmio": "0x80002000",
+        "gic_intid": 121,
+        "irq_trigger": "high_level",
+        "irq_stack_bytes": 16384,
+        "linker_sources": [
+          "AXU5EV_Motor_Control_System.c",
+          "AXU5EV_Motor_Control_System_data.c",
+          "rtGetInf.c",
+          "rtGetNaN.c",
+          "rt_nonfinite.c",
+          "ax04b_adapter.c",
+          "ax04b_main.c"
+        ],
+        "unchanged_hardware": "BYTE_MATCH",
+        "routed_evidence": ".runtime/experiment/ax04b/real_02/hardware/reports",
+        "files": {
+          "bitstream": {
+            "path": ".runtime/experiment/ax04b/real_r1_02/hardware/ax04b_real.bit",
+            "bytes": 7797907
+          },
+          "ltx": {
+            "path": ".runtime/experiment/ax04b/real_r1_02/hardware/ax04b_real.ltx",
+            "bytes": 42946
+          },
+          "xsa": {
+            "path": ".runtime/experiment/ax04b/real_r1_02/hardware/ax04b_real.xsa",
+            "bytes": 3187618
+          },
+          "elf": {
+            "path": ".runtime/experiment/ax04b/real_r1_02/vitis/ax04b_realtime/build/ax04b_realtime.elf",
+            "bytes": 440708
+          },
+          "map": {
+            "path": ".runtime/experiment/ax04b/real_r1_02/vitis/ax04b_realtime/build/ax04b_realtime.map",
+            "bytes": 281757
+          },
+          "psu_init": {
+            "path": ".runtime/experiment/ax04b/real_r1_02/vitis/ax04b_platform/hw/sdt/psu_init.tcl",
+            "bytes": 665897
+          },
+          "fsbl": {
+            "path": ".runtime/experiment/ax04b/real_r1_02/vitis/ax04b_platform/export/ax04b_platform/sw/boot/fsbl.elf",
+            "bytes": 341352
+          }
+        }
+      }
+    },
+    "board_selftest": "NOT_RUN",
+    "real_io": "NOT_RUN",
+    "arm_execution": "NOT_RUN",
+    "irq_latency": "NOT_RUN",
+    "power_motion": "NOT_RUN",
+    "vivado_rebuild": "NOT_RUN"
   }
 }

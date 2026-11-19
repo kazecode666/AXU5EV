@@ -27,13 +27,32 @@ AX04B=PROFILE!='Legacy'
 APP='ax04b_realtime' if AX04B else 'motor_control_observer'
 PLATFORM='ax04b_platform' if AX04B else 'motor_control_platform'
 LAUNCH='ax04b_realtime_manual' if AX04B else 'motor_control_manual'
-APP_ID=0x41585201
+APP_ID=int(C['application_id'],0) if AX04B else None
 RTL_MODE={'SELFTEST':1,'REAL':2}
 IRQ_STACK_BYTES=0x4000
-GENERATED_R5=ROOT/'generated/experiment/pr46_review_01/r5_final_03'
+GENERATED_R5=(ROOT/C['generated_r5']).resolve() if AX04B else None
+MODEL_VERSION=C['model_version'] if AX04B else None
 
 
-def ax04b_hardware_set():
+def ax04b_reused_hardware(files,prepare):
+    """Copy only the explicitly selected PL bundle into the new candidate."""
+    source=(ROOT/C['hardware_source']).resolve()
+    if not source.is_relative_to(ROOT/'.runtime/experiment/ax04b') or source==XSA.parent:
+        raise ValueError('The reused hardware must be in its original AX04B candidate')
+    for dest in files:
+        original=source/dest.name
+        if not original.is_file():
+            raise ValueError('Missing original PL artifact: '+str(original))
+        if prepare and not dest.exists():
+            dest.parent.mkdir(parents=True,exist_ok=True)
+            with original.open('rb') as inp, dest.open('xb') as out:
+                shutil.copyfileobj(inp,out)
+        if dest.read_bytes()!=original.read_bytes():
+            raise ValueError('Candidate PL artifact differs from its source: '+dest.name)
+    return source
+
+
+def ax04b_hardware_set(prepare=False):
     """Require one Vivado candidate and compare the actual embedded bit."""
     bit=(ROOT/C['bitstream']).resolve()
     ltx=(ROOT/C['ltx']).resolve()
@@ -45,7 +64,9 @@ def ax04b_hardware_set():
         raise ValueError('Requested Vivado bundle does not match the chosen profile')
     if bit.parent!=XSA.parent or ltx.parent!=XSA.parent:
         raise ValueError('The XSA, bit and ltx must be from the same Vivado build')
-    if (XSA.parent/'ax04b_build_profile.txt').read_text().strip()!=PROFILE:
+    marker=XSA.parent/'ax04b_build_profile.txt'
+    source=ax04b_reused_hardware((XSA,bit,ltx,marker),prepare)
+    if marker.read_text().strip()!=PROFILE:
         raise ValueError('Vivado integrated another profile')
     debug=json.loads(ltx.read_text(encoding='utf-8'))['ltx_root']['ltx_data']
     ila={core['name'].rsplit('/',1)[-1]:core
@@ -84,7 +105,7 @@ def ax04b_hardware_set():
                       for param in modules[instance].findall('./PARAMETERS/PARAMETER')}
             if any(observed.get(name)!=value for name,value in expected.items()):
                 raise ValueError('XSA parameters disagree with the chosen profile: '+instance)
-    return bit,ltx
+    return bit,ltx,source
 
 
 def ax04b_bsp():
@@ -145,14 +166,18 @@ def ax04b_bsp():
 
 
 def ax04b_sources():
-    """Use the five actual model-generated compilation units from PR46."""
+    """Use the five actual compilation units from the selected model export."""
     model='AXU5EV_Motor_Control_System'
     names=[model+'.c',model+'_data.c','rtGetInf.c','rtGetNaN.c','rt_nonfinite.c']
+    if not GENERATED_R5.is_relative_to(ROOT/'generated/experiment'):
+        raise ValueError('Expected a versioned experiment model export')
     sources=[GENERATED_R5/name for name in names]
     sources+=sorted(GENERATED_R5.glob('*.h'))
     header=(GENERATED_R5/(model+'.h')).read_text(encoding='utf-8')
-    if not re.search(r'Model version\s+: 1\.95\b',header) or 'ARM Compatible->ARM Cortex-R' not in header:
-        raise ValueError('The actual PR46 Cortex-R generated model v1.95 is required')
+    version=re.search(r'^ \* Model version\s+: (\d+\.\d+)\s*$',header,re.M)
+    if (not version or version[1]!=MODEL_VERSION or f"model '{model}'" not in header
+            or 'ARM Compatible->ARM Cortex-R' not in header or 'ert.tlc' not in header):
+        raise ValueError(f'Expected Cortex-R ERT export of {model} v{MODEL_VERSION}')
     app_sources=ROOT/'firmware/r5/motor_control/ax04b'
     sources+=sorted(p for p in app_sources.glob('*') if p.suffix in ('.c','.h'))
     if not all(s.is_file() for s in sources) or not any(s.parent==app_sources and s.suffix=='.c' for s in sources):
@@ -163,7 +188,7 @@ def ax04b_sources():
 
 
 def ax04b_check_startup():
-    bit,ltx=ax04b_hardware_set()
+    bit,ltx,hardware_source=ax04b_hardware_set()
     r=passive_startup(WS,0,PLATFORM,APP,LAUNCH)
     bsp=ax04b_bsp()
     elf=WS/APP/'build'/(APP+'.elf')
@@ -186,19 +211,31 @@ def ax04b_check_startup():
     irq_stack=linked['__irq_stack']['address']-linked['_irq_stack_end']['address']
     if irq_stack!=IRQ_STACK_BYTES or not mapping.is_file():
         raise ValueError('Expected 16 KiB IRQ stack and a matching linker map')
+    sources=ax04b_sources()
+    loaded_objects=set(re.findall(r'^LOAD[^\n]*[\\/]([^\\/\s]+\.obj)\s*$',
+                                  mapping.read_text(),re.M))
+    for source in sources:
+        imported=WS/APP/source.name
+        if not imported.is_file() or imported.read_bytes()!=source.read_bytes():
+            raise ValueError('Vitis imported source differs from selected source: '+source.name)
+        if source.suffix=='.c' and source.name+'.obj' not in loaded_objects:
+            raise ValueError('Selected translation unit is absent from linker map: '+source.name)
     psu_init=platform/'hw/sdt/psu_init.tcl'
     psu=psu_init.read_text()
     for name in ('psu_ps_pl_isolation_removal','psu_ps_pl_reset_config'):
         if f'proc {name} {{}}' not in psu:
             raise ValueError('Missing matching PS initialization procedure: '+name)
     r.update(profile=PROFILE,application_id=f'0x{APP_ID:08x}',build_mode=RTL_MODE[PROFILE],
-             model_version='1.95',generated_r5=GENERATED_R5.relative_to(ROOT).as_posix(),
+             model_version=MODEL_VERSION,generated_r5=GENERATED_R5.relative_to(ROOT).as_posix(),
+             sources_match=True,linked_sources=[s.name for s in sources if s.suffix=='.c'],
              workspace=WS.as_posix(),elf=elf.as_posix(),map=mapping.as_posix(),
              bitstream=bit.as_posix(),ltx=ltx.as_posix(),xsa=XSA.as_posix(),
+             hardware_source=hardware_source.as_posix(),matching_reused_hardware=True,
              exported_xsa=exported_xsa.as_posix(),
              psu_init=psu_init.as_posix(),matching_embedded_bit=True,
              bsp=bsp,irq_stack_bytes=irq_stack,arm_execution='NOT_RUN',
-             board_selftest='NOT_RUN',real_io='PENDING',power_motion='NOT_RUN')
+             board_selftest='NOT_RUN',real_io='NOT_RUN',power_motion='NOT_RUN',
+             irq_commit_latency_measurement='NOT_RUN')
     return r
 
 
@@ -239,8 +276,8 @@ def build(resume):
     if (WS/'startup_validation.json').exists():raise ValueError('Completed workspace preserved')
     if WS.exists() and not resume:raise ValueError('Use a new workspace; --resume only for this unfinished build')
     if AX04B:
-        ax04b_hardware_set()
         sources=ax04b_sources()
+        ax04b_hardware_set(prepare=True)
     else:
         sources=[ROOT/'firmware/r5/motor_control/main.c']+[ROOT/'firmware/r5/encoder_feedback'/n for n in ('numeric_adapter.c','numeric_adapter.h')]
         sources.append(ROOT/'generated/encoder/encoder_test_scale.h')
@@ -264,6 +301,7 @@ def build(resume):
                               f'#define AX04B_DIAG_BASE {bsp["diag_macro"]}\n'
                               f'#define AX04B_FABRIC_IRQ_SDT 0x{bsp["irq_sdt"]:x}U\n'
                               f'#define AX04B_FABRIC_IRQ {bsp["irq"]}U\n'
+                              f'#define AX04B_APPLICATION_ID 0x{APP_ID:08x}U\n'
                               f'#define AX04B_BUILD_MODE {RTL_MODE[PROFILE]}U\n',encoding='utf-8')
         else:
             _,macro=bsp_address()

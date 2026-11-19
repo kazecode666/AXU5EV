@@ -1,5 +1,58 @@
 # AX-04B 硬件绑定与首次无功率候选
 
+## PR48 复审基线
+
+本轮从 PR48 原实现 `d345e28398734d1bf5343f52c5e576e971546192` 接续。模型提交 `bcbb1bca750636494f211cffa710891aff1e5f34` 纳入已保存的主模型 1.173、初始化参数和白盒说明。生成前从磁盘重开了干净的实机主模型，逐项比较 Model Workspace 与 `axu5ev_experiment_parameters.m`。对 21 个 Switch 核对严格 `>0.5` 配置，检查 `CommandFrame(9)` 的非零 PI_Reset 解释，并用 Simulink 编译核对 77 个业务 Mux/Demux 端口及 20／41／5 槽接口。电流、速度、位置周期仍为 100 µs、1 ms、10 ms，测速需要 50 个间隔，帧步长为 500 个 ID 单位及 5000 个时戳 tick。独立纯仿真和历史生成目录原位保留。[原执行评论](https://github.com/kazecode666/AXU5EV/pull/48#issuecomment-7002641585) · [最新补充](https://github.com/kazecode666/AXU5EV/pull/48#issuecomment-7004130803) · [白盒说明](../../docs/AXU5EV_EXPERIMENT_WHITEBOX_ZH.md)
+
+生成提交 `9f5cbb606dc41216e7e69d590496866eb6659fc5` 采用新的 `generated/experiment/ax04b_r1_01/r5`。MATLAB R2026b 生成 Cortex-R ERT 1.173，并以实际生成的五份 C 构建 host MEX。既有回归通过 317 项和 275136 次 IRQ 调用。Iq 测试模式输入 `0 / 0.5 / 1` 时，实际 Runtime Iq 输出为 `0 / 0 / 0.125 A`。PI_Reset 输入 `0 / 0.25 / −1` 时，Runtime 和 PL 参考的复位位均为 `0 / 1 / 1`。编译仍报告 `runtime_y` 信号对象初值被默认 0 取代的既有诊断。[模型及生成证据](../../verification/experiment/ax04b/r1_model_baseline.json) · [阈值用例](../../verification/experiment/ax04b/test_model_thresholds.m)
+
+### R1 旧反例
+
+保留原 `d345e28` 的实际 `frame_interrupt`、STOP/CLEAR/ARM 和命令槽处理，与本轮同一份 1.173 生成 C 一起编译。主机桩只提供平台和寄存器行为。在三个独立用例内，故障字为 0、电流和编码器均有效，软件请求保持开启。采样步长和 ACK 均通过断言。
+
+| 触发 | 先前帧 27500 | 事件帧 28000 | 健康后续帧 28500 |
+| --- | --- | --- | --- |
+| COMMIT LATE | RAMP_ID，Id 0.000050 A | 回执 2、PL STOP，模型仍为 RAMP_ID，Id 0.000100 A | PL 已禁止，模型 PWM/REL/EN 请求仍开启，Id 0.000150 A |
+| ARMED 丢失 | RAMP_ID，Id 0.000050 A | 未 armed、LIVE_INVALID=0，Id 0.000100 A | 模型仍许可，Id 0.000150 A |
+| INHIBIT_LATCHED | RAMP_ID，Id 0.000050 A | 禁止锁存、LIVE_INVALID=0，Id 0.000100 A | 模型仍许可，Id 0.000150 A |
+
+旧日志 `.runtime/experiment/ax04b/r1/old_01/result.txt` 的 `EXPECTED_OLD_COUNTEREXAMPLE` 表示预期的旧失败行为已复现。复跑命令使用新输出目录。
+
+```powershell
+python verification/experiment/ax04b/run_r5_runtime_test.py --cc C:/mingw64/bin/gcc.exe --output .runtime/experiment/ax04b/r1/old_replay_01 --expect-old --firmware-ref d345e28398734d1bf5343f52c5e576e971546192
+```
+
+### 停止与显式恢复
+
+命令双槽仍由前台单写。IRQ 在栈上生成当次有效命令，从本地 ARM 会话与 PL 的 `ARMED`、`INHIBIT_LATCHED`、`LIVE_INVALID` 得出驱动许可。许可撤销时，实际模型输入为 PWM/REL/EN 关闭、OE 禁止、PI 复位。冻结帧的质量字段仍决定反馈有效性，未 armed 的启动过程能建立 51 项历史。
+
+PL 禁止或软件 STOP 立即撤销许可并作废已排队的 CLEAR 与 Start。前台 STOP 在没有后续帧时保留 `stop_pending`，状态输出立即显示禁止。下一可处理的 IRQ 把停止传到模型。在普通帧调用之后遇到编码失败、COMMIT 失败或提交读回后的硬件许可丢失时，固件先 STOP 并精确 ACK，再用同一 ID/tick 执行一次安全调用。该调用独立标记为 `safety_pass`，无需第二次普通积分、Host 调度、COMMIT 或 ACK。首次到达 DONE 时，以本帧的匹配 COMMIT 回执与回读许可为本地完成边界，失败会撤销临时 DONE。已经正常完成的对齐状态沿用模型合同。下一 P0 采用仍使用独立的 PL 读回字段。
+
+清错在新且有效的帧上请求 PL CLEAR，以读回的禁止、ARM、掉帧和实时状态确认。收到确认后，SELFTEST 才可显式 ARM 并再次读回；重新对齐需要新的 Start。机械位置及连续计数沿用模型状态。SELFTEST 的 Init_Reset 和 F_Reset 仍分别可用，停止时可编码独立 F_Reset 包。REAL 继续拒绝运动许可并保留校准、反馈和诊断。[IRQ 与命令处理](../../firmware/r5/motor_control/ax04b/ax04b_main.c) · [模型薄适配](../../firmware/r5/motor_control/ax04b/ax04b_adapter.c)
+
+`s` 和 CSV 提供原 PL 状态、触发停止时的 PL 状态、停止原因、停止待处理、有效许可、Start ticket、对齐状态及 `safety_pass`。`stop_reason` 数值 0～10 依次为无、显式请求、快照异常、反馈合同、overrun、ARM 丢失、禁止锁存、实时故障、安全重复、编码失败、COMMIT 失败。失败记录的 `flags` 是提交时尝试发送的字，是否接受须看 `result`。快照身份读不一致继续走 STOP、屏蔽 GIC 并保留未确认事件的既有故障路径，本轮未对该分支做动态异常注入。串口及 CSV 输出位于前台。
+
+### R1 定向验证
+
+许可修复提交 `b411733a2ee69331c132d914c885842c2b88b822`，恢复顺序最终修订 `c6a2539bf86e5f5deaa51b0560dd342f15c61e13`。用最终提交运行同一个测试入口，通过 12 个场景。LATE 帧 28000 当帧归 IDLE，模型 PWM/REL/EN 均撤销，位置保持 1 mm，编码器和电流仍有效。健康帧 28500 保持 IDLE 和零 Id，并提交安全参考。对齐票据 1 在重臂后保持已消费，直至新票据 2 进入 RAMP_ID。一次在读到匹配的接受回执期间出现禁止锁存的注入也触发 STOP，同一帧只提交和确认一次。
+
+复审额外验证先排队 `r`、后发 `x`、等待一帧再尝试 `a`。中间提交的 CLEAR/ARM 写计数为 1／1，最终修订为 0／0。重新显式 `r` 后可以确认 CLEAR 和 ARM。其余用例覆盖 CLEAR/ARM 被拒并重试、待命测速、硬件状态自行恢复而无新 Start、纯重复与许可变化重复、完成边界上的显式 STOP 和 LATE、已正常完成的五态及 0.1 A 内部 q 轴请求、两个独立重置和 REAL 的输入诊断。完成边界的 STOP 在下一 IRQ 前报告 `armed=0 permit=0 stop_pending=1`。无功率候选继续硬禁止外部功率输出。薄适配器的格式、回绕及服务用例也使用本轮生成 C 通过。[定向测试](../../verification/experiment/ax04b/test_r5_runtime.c)
+
+```powershell
+python verification/experiment/ax04b/run_r5_runtime_test.py --cc C:/mingw64/bin/gcc.exe --output .runtime/experiment/ax04b/r1/fixed_replay_01 --firmware-ref c6a2539bf86e5f5deaa51b0560dd342f15c61e13
+```
+
+### R1 部署与验收边界
+
+| 配置 | 当前候选 | 同套硬件文件 | R5 目标文件 |
+| --- | --- | --- | --- |
+| SELFTEST | `.runtime/experiment/ax04b/selftest_r1_02` | `hardware/ax04b_selftest.{bit,ltx,xsa}`，来自 `selftest_02/hardware` | `vitis/ax04b_realtime/build/ax04b_realtime.{elf,map}` |
+| REAL | `.runtime/experiment/ax04b/real_r1_02` | `hardware/ax04b_real.{bit,ltx,xsa}`，来自 `real_02/hardware` | `vitis/ax04b_realtime/build/ax04b_realtime.{elf,map}` |
+
+Vitis 2026.1 使用各自匹配的 XSA 生成 BSP 和应用。两个 ELF 均为 ARMv7-R、小端、VFPv3-D16 硬浮点，SELFTEST 441100 字节、REAL 440708 字节。两套分别通过 `OFFLINE_STARTUP_CHECK_PASS`，核对 1.173 的五份生成 C、两份绑定 C、ELF 的身份 `0x41585203` 与模式、实时基址 `0x80002000`、高电平 GIC INTID 121 及 16 KiB IRQ 栈。bit、ltx 与 XSA 按配置逐文件核对原实现，XSA 中的 bit 与对应外置 bit 一致。布线、STA、CDC 证据沿用下面的 B4 记录。本轮未运行 Vivado、完整 SDF 或板卡操作。`BOARD_SELFTEST`、`REAL_IO`、`ARM_EXECUTION`、`IRQ_COMMIT_LATENCY_MEASUREMENT`、`POWER_MOTION` 均为 `NOT_RUN`。[首运行指南](../../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md) · [候选与验证状态](../../verification/experiment/ax04b/results.json)
+
+以下 B1～B4 记录对应原候选及其硬件实现。
+
 ## 基线与源选用
 
 实现分支从 `main` 的 `21847326e4e0d8e100f3aaa5f31b612f24f75e01` 建立。PR45 的合并提交为 `3fdd140609b0ff91f1348965ebbd76c13c8821b3`。PR46 先合入 PR45 分支，合并提交为 `3884eed0c3088fe5941754523c7fa2cd48ef251f`，后由 PR47 补入。用 Git 核对 `8fd02bb91ef76fefb520fad501e7fbe2939c84e1` 是本轮基线的祖先，且两个树之间只增加了任务书。[PR47 任务书](../tasks/ax04b_hardware_binding_and_first_run.md) · [Issue42 执行评论](https://github.com/kazecode666/AXU5EV/issues/42#issuecomment-6974714393) · [Issue44 接入评论](https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-6974720049)
