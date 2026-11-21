@@ -6,7 +6,7 @@
 
 本文当前算法对照为 PR48 已复审提交 `f31aa8c` 中的主模型及 Cortex-R ERT **1.173**，生成源位于 `generated/experiment/ax04b_r1_01/r5`。SELFTEST 与 REAL 固件候选分别为 `.runtime/experiment/ax04b/selftest_r1_02` 和 `.runtime/experiment/ax04b/real_r1_02`，应用身份均为 **`0x41585203`**。各自复用原 `*_02/hardware` 的未变 bit/ltx/XSA；旧 `*_02/vitis` 与 PR46 的 1.95 C 是历史来源，不是当前R5部署选择。[当前生成头文件](../generated/experiment/ax04b_r1_01/r5/AXU5EV_Motor_Control_System.h) · [模型基线记录](../verification/experiment/ax04b/r1_model_baseline.json) · [当前候选索引](../verification/experiment/ax04b/results.json) · [首运行指南](../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md)
 
-IRQ/GIC、原子 AXI、许可撤销与显式恢复的代码绑定及成套构建已经离线完成；**ARM 实际执行、IRQ/COMMIT 实测时延、板内 SELFTEST、真实 IO 和功率运动仍为 NOT_RUN**。两种候选均保持外部功率输出硬禁止，REAL 当前只用于后续获授权的真实输入及禁止态检查。本文与 PR48 的离线基线不包含 PR49 的独立 J16-MBDL4 接口板功能验证，也不以其结果替代整机验收。本会话后续先讲解模型，不因文档收尾或合并自动开始板卡实验。
+IRQ/GIC、原子 AXI、许可撤销与显式恢复的代码绑定及成套构建已经离线完成。**ARM 实际执行、IRQ/COMMIT 实测时延、板内 SELFTEST、真实 IO 和功率运动仍为 NOT_RUN**。两种候选均保持外部功率输出硬禁止，REAL 当前用于后续获授权的真实输入及禁止态检查。PR49 独立验证 J16-MBDL4 接口板，实测范围见[首板静态记录](https://github.com/kazecode666/J16-MBDL4-Module/blob/main/docs/writing/interface_board_static_test_record.md)。
 
 AX-04B 部署使用上述 1.173 R5 生成源和独立的 PL 实机源。其新增控制角模型在同帧选择固定对齐角或编码器角加偏置，PL 通过实时 AXI 接口与 R5 交换冻结反馈及下一帧参考。硬件调度和无功率候选见对应的交付文档。[控制角模型](../simulation/experiment/pl/AXU5EV_Experiment_Control_Angle_HDL.slx) · [实时接口](../integration/ps_pl/AX04B_INTERFACE.md) · [交付 B 报告](../coordination/reports/ax04b_hardware_binding.md)
 
@@ -27,7 +27,7 @@ AX-04B 部署使用上述 1.173 R5 生成源和独立的 PL 实机源。其新�
 
 数值型 0/1 Switch 统一采用严格的 `> 0.5`，因此 `0.5` 和零附近的微小值走假分支。原生 `boolean` 控制线只有真、假两种值，编译后的 Switch 直接按布尔值选择。`CommandFrame` 第 9 项 PI_Reset 仍按 PR46 的非零立即复位协议解释，包含正的非整数和负值。常量和初始化参数在使用点用 Constant 引用，局部标签用于运行时信号。[Switch 控制口规则](https://www.mathworks.com/help/simulink/slref/switch.html)
 
-修改 `axu5ev_experiment_parameters.m` 后，用 `axu5ev_experiment('parameters')` 经检查更新模型工作区，再保存已审查的模型。`Ts_ACR`、`Ts_ASR`、`Ts_POS`、`delay_N` 和反馈时戳参数共同决定 R5 的时序。已部署候选的周期与 PL 的 50 MHz、5000 拍帧合同成对，改变硬件周期时要同步复核两端。当前 ERT 使用 `Inlined`，模型工作区的数值参数适合重新生成；若以后指定需要在线调参的字段，在同一初始化文件定义初值，并为该字段配套明确的可调存储接口和上位机／调试器写入范围。[初始化入口](../simulation/experiment/scripts/axu5ev_experiment.m) · [R5/PL 接口](../integration/ps_pl/AX04B_INTERFACE.md)
+修改 `axu5ev_experiment_parameters.m` 后，用 `axu5ev_experiment('parameters')` 经检查更新模型工作区，再保存已审查的模型。`Ts_ACR`、`Ts_ASR`、`Ts_POS`、`delay_N` 和反馈时戳参数共同决定 R5 的时序。离线构建候选的周期与 PL 的 50 MHz、5000 拍帧合同成对，改变硬件周期时要同步复核两端。当前 ERT 使用 `Inlined`，模型工作区的数值参数适合重新生成；若以后指定需要在线调参的字段，在同一初始化文件定义初值，并为该字段配套明确的可调存储接口和上位机／调试器写入范围。[初始化入口](../simulation/experiment/scripts/axu5ev_experiment.m) · [R5/PL 接口](../integration/ps_pl/AX04B_INTERFACE.md)
 
 ## 2. 主模型根接口与 ISR 执行链
 

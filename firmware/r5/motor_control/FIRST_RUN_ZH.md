@@ -1,6 +1,6 @@
-# 统一无功率数字链与本地有限板测
+# PR41 历史手册：统一无功率数字链与本地有限板测
 
-> **当前状态（2026-11-13）：本文件是未来的无功率现场操作手册，不是自动执行授权。** 板测和R5实机连续采集均为NOT_RUN；已布线PWM局部slow/max、fast/min SDF均PASS，但完整链路动态SDF为NOT_COMPLETED。服务器SDF工作线已收口，当前不应执行旧的长跑命令。唯一现行状态入口：[HANDOFF](../../../coordination/HANDOFF.md) / [聚合结果](../../../verification/motor_control/results.json)。
+> **PR41 冻结候选记录（2026-11-13）。** 本手册保留旧候选的操作设想和离线边界。该候选板测和 R5 实机连续采集为 `NOT_RUN`。已布线 PWM 局部 slow/max、fast/min SDF 均通过，完整链路动态 SDF 为 `NOT_COMPLETED`。现行部署见 [AX-04B R1 首运行指南](FIRST_RUN_AX04B_ZH.md)与[当前交接](../../../coordination/HANDOFF.md)。[PR41 结果](../../../verification/motor_control/results.json)
 
 本手册基于已经冻结的 hardware_02 / vitis_01 候选描述未来操作。2026-11-11的服务器全量SDF与本地板测并行计划已经结束；实际板测尚未启动。用户过去报告具有ADC模块和测试输入，但具体接线、供电及安全条件仍须在每次现场操作前重新确认。
 
@@ -79,4 +79,4 @@ PWM ILA为4096点、名义100MHz，连续窗口约40.96us。采用、死区、�
 
 ## 已有数值与生成入口
 
-统一模型`simulation/motor_control/AXU5EV_Motor_Control_System.slx`及`motor_control_run`，原电流/角度库、原p3 FOC与模型生成mapper，继续沿已验收来源复用。生成和工程索引见motor_control README。既有55帧模型、19帧FOC比较、RTL、STA/CDC及R5构建证据按原结果保留，第二次固定六帧oracle历史为NOT_RUN/NOT_REQUIRED_DUPLICATE。
+原统一数字链模型现保留为 [AXU5EV_DigitalChain_Test.slx](../../../simulation/tests/digital_chain/AXU5EV_DigitalChain_Test.slx)，由 `motor_control_run` 运行。原电流/角度库、p3 FOC 与模型生成的 mapper 沿用当时已验收来源。既有55帧模型、19帧FOC比较、RTL、STA/CDC及R5构建证据按原结果保留，第二次固定六帧oracle历史为NOT_RUN/NOT_REQUIRED_DUPLICATE。[工程历史](../../../hardware/axu5ev/motor_control/README.md#pr41-数字链历史)

@@ -4,7 +4,7 @@ AX-04 将原长篇操作内容保留于本目录。双入口索引见 [运行说
 
 ## 数字链测试 fixture
 
-ADC/QEP→电流/电角度→原FOC→PWM比较值的历史数值测试入口为 [`AXU5EV_DigitalChain_Test.slx`](../tests/digital_chain/AXU5EV_DigitalChain_Test.slx)，通过 `motor_control_run(<新结果目录>)` 实际运行。它复用原组件和FOC，包含R5位置/测速旁路，外设接口和谷值显示明确为SIM_ONLY。运行器隔离原已接受依赖，保护本地修改的ADC/共享库/Hybrid和交互参数；不要为运行此任务执行旧初始化或保存用户模型。具体命令、帧对齐与生成来源见 [数字链模型说明](../tests/digital_chain/motor_control_README.md)。本轮完整外环、Runtime和自动对齐未接实时反馈。
+ADC/QEP→电流/电角度→原FOC→PWM比较值的历史数值测试入口为 [`AXU5EV_DigitalChain_Test.slx`](../tests/digital_chain/AXU5EV_DigitalChain_Test.slx)，通过 `motor_control_run(<新结果目录>)` 实际运行。它复用原组件和FOC，包含R5位置/测速旁路，外设接口和谷值显示明确为SIM_ONLY。运行器隔离原已接受依赖，保护本地修改的ADC/共享库/Hybrid和交互参数；不要为运行此任务执行旧初始化或保存用户模型。具体命令、帧对齐与生成来源见 [数字链模型说明](../tests/digital_chain/motor_control_README.md)。实机 Runtime 与自动对齐的离线集成和验收状态见[当前交接](../../coordination/HANDOFF.md)。
 
 ## 原完整闭环日常入口
 

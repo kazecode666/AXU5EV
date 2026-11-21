@@ -1,98 +1,24 @@
 # AXU5EV 协作与工作区规则
 
-## AX-04B 当前执行入口
+开始前读 [当前交接](coordination/HANDOFF.md)，从实际仓库状态和本次用户授权接续。旧阶段状态、操作背景和证据见[历史交接](coordination/HANDOFF_HISTORY_2026-10-31.md)。
 
-2026-11-19，PR47 已将完整 PR46 带入 main `21847326`。`codex/ax04b-hardware-binding` 完成 B1～B4 和 R1 复审离线修订，停在 [kazecode666/AXU5EV Draft PR48](https://github.com/kazecode666/AXU5EV/pull/48) Review。当前入口为 [HANDOFF](coordination/HANDOFF.md) 首节、[交付报告](coordination/reports/ax04b_hardware_binding.md) 和 [首运行指南](firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md)。
+## 工作区与资料
 
-- 当前两个候选分别在 `.runtime/experiment/ax04b/selftest_r1_02` 和 `.runtime/experiment/ax04b/real_r1_02`。R5 使用已保存的实机模型 1.173 及本轮新生成 C，应用身份 `0x41585203`。各自复用原 `*_02/hardware` 实现，bit/ltx/XSA、R5 ELF、FSBL 和启动项必须成套使用。停止恢复按确认 CLEAR、确认 ARM、再次显式 Start 的顺序。
-- B5 板内 SELFTEST、B6 真实 IO 和功率运动均为 `NOT_RUN`，后续分别取得明确授权。REAL 物理门极、PWM 缓冲及 RELCON/ENCON 硬禁止，目前可用于将来获准的真实输入及禁止态核对。实际 IRQ 计算窗口继续等待 ARM 实测。
+- 使用现有 `D:/Project/AXU5EV` 与 `kazecode666/AXU5EV`。旧 `D:/Project/FPGA_XC7A200T` 只读。另建 clone 或 worktree 须由用户授权。
+- 先检查分支、工作树及相关未提交差异。保留用户文件、未保存窗口、历史 Workspace、冻结产物与原始实验数据。禁用自动 reset、clean、stash、强制 pull 或 push。MATLAB/Simulink 通过 MCP 操作，未经授权不保存或关闭用户模型。
+- 禁止批量删除。删除时一次只能处理一个明确路径的文件；需要批量删除时交由用户手动处理。厂商原件和大包默认留本地，只提交原创整理、必要索引及许可允许的精简证据。
+- 继承[原 MIL/DSP 硬件接口需求](references/legacy/PMLSM_Hardware_Interface_Map.md)，将 AXU5EVB-E 的 ADC、电平和接线适配单列。板型以 AXU5EVB-E 为准，厂商原理图与实物器件需按[板卡资料](hardware/axu5ev/ALINX_BOARD_FACTS.md)核对；旧 DSP 和 Artix 引脚仅作来源参考。
 
-## AX-04A 历史入口
+## 模型、接口与生成
 
-2026-11-17，按 Issue42 评论6941278055及PR43任务书完成交付A，已发布 [kazecode666/AXU5EV Draft PR46](https://github.com/kazecode666/AXU5EV/pull/46)，停在Review。分支 `codex/ax04-experiment-model`，叠加在PR45 `codex/issue42-task1-dsp-reuse`。最终验证记录见 `coordination/HANDOFF.md` 首节。本文以下AX-03及更早阶段的授权/待Review措辞保留作历史。
+- 纯仿真与实机各用独立的模型、算法、参数和显式路径。入口分别为 `simulation/START_SIMULATION.m` 和 `simulation/START_EXPERIMENT.m`。避免根目录递归 `genpath`，历史、测试和冻结产物按用途引用。
+- 算法源为 Simulink/Stateflow。算法修改在模型源中进行，生成 C/SV 通过对应入口重生成。以新版本目录保存必要生成源，本地缓存、Workspace 和大结果放独立的 `.runtime/` 子目录。
+- 保持已确认的 PI、位置 P、采样周期、五态对齐与手动 Start。区分 PI_Reset、Init_Reset、global reset、故障清除，保留死区、应用延迟和 PWM 禁止后机械继续的语义。新增算法与整定须明确授权。
+- 保留用户现有紫色分区与 Host/Alignment_Task/Motion_Control 布局。只微调受影响的区域，逐层检查连线和排版；From/Goto 使用局部作用域，Inport/Outport 保持默认外观。
+- 向量接口变更应同步模型 Mux、Demux、旁注和 C 生成来源。按对应接口合同区分字段索引和向量端口号。原 Runtime 的 `[11 3 1 1 1 1 1 1]` 分组及位置字段 20 属于其既有接口，实机 AX-04B 帧以[实时接口合同](integration/ps_pl/AX04B_INTERFACE.md)为准。
 
-- 纯仿真入口为 `simulation/START_SIMULATION.m`，兼容入口为 `START_HERE.m`，参数源为 `closed_loop/parameters/init_AXU5EV.m`。
-- 实机入口为 `simulation/START_EXPERIMENT.m`，算法、参数、生成入口位于 `experiment`。实机采用独立副本与ModelWorkspace参数，后续修改在各自用途目录进行。
-- 实机R5主模型导出初始化、`PL_Frame_IRQ`及非实时服务函数，PL电流控制及数值预处理采用独立HDL生成边界。硬件驱动/IRQ绑定为 `HW_BINDING_PENDING`，板卡状态为 `BOARD_NOT_RUN`。
-- 新生成源位于 `generated/experiment/<版本>`，缓存与本地结果采用 `.runtime/experiment/<新目录>`。原PR41冻结成果及历史实验目录原位保留。
-- 目录迁移逐文件保留用户本地修改，打开入口保留Dirty内容和已有参数。库/模型切换仅使用显式用途路径。交付A完成后提交独立Draft PR，停在Review。
+## 验证、权限与交付
 
-> AX-03B1交付入口：[kazecode666/AXU5EV Draft PR29](https://github.com/kazecode666/AXU5EV/pull/29)，关联Issue28，停在Review。本机Git HTTPS不可用，已通过连接器发布并核对本地/远端实现树一致；提交映射见当前HANDOFF，不强推或reset来抹平历史。后续B2/C、板卡、参数/PI恢复仍未授权。
-
-> 当前开发：2026-11-05，用户已启动Issue28 AX-03B1；从含已合并PR27的main d3a10cf建立codex/ax03b1-feedback-observer，独立无功率观测模型/新数值生成/ADC与ABZ薄RTL/只读原子快照已离线实现并通过新增验证。当前交接以coordination/HANDOFF.md首节与coordination/reports/ax03b1_feedback_observer.md为准。只读观测无功率许可，所有硬件未知保留SIM_ASSUMPTION/PENDING；未改电机/PI/旧模型/FOC/Runtime，未重跑PR24、未操作板卡。提交本轮Draft PR后停在Review，不自动合并/关闭Issue、不进入B2/C。PR24、PR27均已合并，以下待Review/旧关机措辞为历史；保留全部Workspace、用户修改和实验数据。
-
-> 当前签收：2026-11-04，按PR24评论6622743887归档用户已完成的perf_r1单次current_motion实板：身份0x43324302，64536条完整处理、2645976个Runtime值原判据零失败、193608个duty位串零差，帧/命令/采用及完整停止PASS。PMU7812421Hz：Runtime均值/最大25.025/39.040us，上一read_begin到下一commit_end均值/P99/最大70.204/83.457/86.017us；COMMIT后328B日志及返回开销均值/最大9.245/10.880us，计入日志的完整窗口均值/P99/最大79.449/92.929/95.617us。后者204条超名义93.68us但提交在先、实际采用均正确，不能宣称全部软件工作在93.68us内完成或WCET。原失败k1200提交95.873us，新同记录75.009us，含日志窗口96.257→84.481us。Workspace.runtime/ax02c2/vitis_runtime_pl_perf_r1，Launch ax02c2_runtime_manual；原native64平台/FSBL与hardware_02不变。精简证据verification/ax02c2/board_perf_r1_01，主报告及唯一指南已更新。原失败目录/备份及全部Workspace/数据保留。本轮仅离线读文件归档，不连接/操作板卡、不构建/回归；PR24待用户最终Review，不自动合并。以下性能候选BOARD_NOT_RUN、旧关机等记录均为历史，不作为当前动作。
-
-> 最新交付：AX-02C2离线实现及必要适配/构建/启动检查PASS，已推送kazecode666/AXU5EV Draft PR24（https://github.com/kazecode666/AXU5EV/pull/24）。用户已回复将接回原ETH02直连网卡，随后最新要求离线完成后关机；本轮不再执行C2加载/运行，BOARD_NOT_RUN，留待后续继续。交接推送完成后正常关机，不强制关闭或自动保存未保存窗口。C1实板不复现，原模型参数和所有工作区/数据保留，PR24待Review，不自动合并。
-
-> 当前：PR22已合并，从当前origin/main实施Issue23 AX-02C2，分支codex/ax02c2-runtime-pl-replay。真实R5 Runtime→原模型生成薄适配→原AXI轮询→真实PL FOC连续记录回放已离线实现；同源current_motion64536条，最终adapter709896+88words零差，原生构建及现有启动检查PASS。唯一Workspace.runtime/ax02c2/vitis_runtime_pl_native64，Launch ax02c2_runtime_manual，build43324301；复用hardware_02 bit/XSA，不重跑C1/RTL/ETH02。数据prepared_04/data/current_motion，最终adapter_native_01；主报告coordination/reports/ax02c2_runtime_pl_replay.md，唯一指南firmware/r5/ax02c2/FIRST_EXPERIMENT_ZH.md。C2板测NOT_RUN；用户已说明将接回原ETH02直连网卡，最新要求离线完成后关机，本轮不执行C2加载或实验，后续从Draft PR24继续；不扩展为无限操作，不接功率级、不写启动介质、不自动合并。保留所有旧Workspace/用户模型参数/数据。下述PR22待Review及旧PID/暂停状态均为当时历史，PR22已合并，C1成功已验收不复现。
-
-> 当前：PR22 AX-02C1原hardware_01的AUX reset低有效却接0，已最小改接1（debug仍0）。hardware_02 bit/XSA完整构建及aux_fixed启动检查PASS，时序WNS+3.149ns/WHS+0.011ns、TNS/THS=0。2026-11-03用户明确授权在线诊断，并另准一次复位/加载新bit及原FSBL/R5 ELF、一次17帧；新首读PC1031BC→1031C0实得ID43314301，同次实板17帧/51duty/完整17帧PASS、mismatch0。旧故障现场PC未取得，不能与新首读实测混同。当前证据verification/ax02c/board_aux_fixed_01/evidence.json，原始UART.runtime/ax02c/board/uart_17_aux_fixed_01.txt；hardware_aux_fixed.json的NOT_RUN仅为构建快照。沿用原Workspace/Launch/ELF/FSBL，当前bit用hardware_02，不自动加载旧平台镜像。最终R5已halt于0010333C WFI，DSCR03186003/HALTED1；自建XSDB31752已断开退出，3121仅hw_server30848监听/无Established，用户可单一Vitis会话接手。本次授权动作已完成，进一步复位/下载/破坏现场寄存器写入仍须说明并征得确认。保留原工程及全部数据，PR22待最终Review，不自动合并。
-
-## 当前开发
-
-- AX-02C1已推送[kazecode666/AXU5EV Draft PR22](https://github.com/kazecode666/AXU5EV/pull/22)，停在待Review；实际结果与产物以本轮主报告为准；保留全部用户修改和旧工作区/数据。
-
-### 已合并AX-02B记录
-
-- AX-02B已通过并合并[kazecode666/AXU5EV PR20](https://github.com/kazecode666/AXU5EV/pull/20)；当时OOC结果以AX-02B主报告为准；保留全部旧workspace/ELF、用户未提交SLX/参数和原始实验数据，不自动合并或关闭Issue15。
-
-### 历史阶段记录
-
-- ETH-02当前实现已推送[kazecode666/AXU5EV Draft PR18](https://github.com/kazecode666/AXU5EV/pull/18)，停在待Review；未执行两次新应用板测，不自动合并。
-
-- 2026-11-03 ETH-02：PR17已合并，从当前main建立codex/eth02-runtime-ethernet，执行评论6595084647。新产物.runtime/ethernet/eth02，新Workspace vitis_runtime_ethernet、应用eth02_runtime、Launch eth02_runtime_manual、build0x45303201；GEM3+TTC0平台/真实文件传输/停网回放恢复/原分析与RUN_ETH02入口已离线实现、构建及现有启动检查PASS，两次整合板测NOT_RUN。唯一指南firmware/r5/ethernet_runtime/FIRST_EXPERIMENT_ZH.md，待新Draft PR Review后用户先current_motion再同应用current_alignment_reset。保留R1、ETH01 r3及所有实验数据，不操作板卡、不新增测试套件/额外功能/哈希清单、不重跑旧RTL、不自动合并、不关闭Issue15。下条ETH01待Review等状态按历史理解，PR17已合并。
-
-- 2026-11-03 ETH-01：按PR17评论6577441490精简归档用户r3实板结果。当前workspace为.runtime/ethernet/eth01/vitis_ethernet_r3、launch eth01_tcp_manual_r3、build0x45303103；JL2121 ID=937c4032、PHYSR=182e、1000Mbps全双工。PHY_LINK/TCP_IO/MODEL_BOARD_IO/BULK_TRANSFER均用户实板PASS；small计数0→4，64KiB/1MiB/32MiB完整性PASS，32MiB上传/下载0.990/1.412MiB/s，上传未达1MiB/s目标，本轮不优化。精简证据verification/ethernet/eth01/board_r3，原始数据仍在.runtime/ethernet/eth01/board，r2/旧R1均保留。PR17保持Draft待最终Review和用户决定合并；不重建、不加功能/测试、不操作板卡、不接完整电机Runtime、不合并、不关闭Issue15。阶段状态status.json，唯一上板入口firmware/r5/ethernet/FIRST_BOARD_RUN_ZH.md。下列PR16待合并等记录按历史阶段理解。
-
-- 2026-11-02最新：R1 motion64536帧与alignment_reset43100帧真实mode1均数值/时序/板报交叉PASS，精简证据分别在verification/ax02a/runtime_r1_motion_01和runtime_r1_alignment_reset_01。alignment本次两CLI均exit0，motion既有结果只读归档。详见coordination/reports/ax02a_full_board_results_2026-11-02.md的Issue15逐条审计：A5冷启动条件未明确、A4严格mode0分阶段口径待Review，不能自动全签。PR16保持Draft、Issue15开放，待最终Review/用户决定；不重跑实验、不改模型参数/TTC、不操作板卡。以下NOT_RUN按历史阶段理解。
-
-- 最新R1 P1000用户实测已复算PASS：1000×41/数值零失败、deadline/sequence PASS、相位无趋势、PC/板报一致，证据 `verification/ax02a/runtime_r1_p1000_01/`。本轮完整场景准备已离线完成：现有R1 ELF不重建，描述符在 `.runtime/ax02a/full_scene_descriptors/`，readback_short.tcl末尾显式场景支持current_motion64536/current_alignment_reset43100。下一步指南第14节及FULL_SCENE_RUN_ZH.md，用户Review后手动逐次执行；两次完整板验NOT_RUN，73/73离线回归不代替ARM实测。保留全部workspace/原始数据，不重复ABA/不清理/不改算法参数。
-
-- PR16 Review5722212233从f6c0fcb接续：板报假PASS、初始化失败现场保存及完整构建显式runtime_mapping=1保护已离线修复，72/72相关回归通过，待复审。当前R1 ELF不重建，TTC映射/deadline/生成代码/模型不改，不操作板卡。用户已手动清理旧临时目录，不恢复、不再清理；本轮新测试隔离于 `.runtime/ax02a/review_5722212233/`。
-
-- 目录/上板/数据保存统一索引为 `docs/WORKSPACE_GUIDE_ZH.md`；当前状态读 `coordination/HANDOFF.md`，历史交接见 `coordination/HANDOFF_HISTORY_2026-10-31.md`。下一次Runtime R1完整场景用指南第14节及 `vitis_runtime_100us_r1`；历史清理候选已由用户手动删除，不恢复、不再清理；workspace/原始数据不搬动。
-
-- 当前执行PR16任务6541052405 T1—T3：用户`ttc_aba_01`三组真实IRQ已复算，全窗口RAW_PLUS_ONE_COMPATIBLE、A1/A2可重复；只读兼容旧uint32签名元数据，原始run/samples保留。Runtime平台仅对已验证TTC0通道0/1内部同源100MHz、无分频、10kHz映射raw9999/logical10000，其他配置拒绝；不改expected/deadline。新候选workspace `.runtime/ax02a/vitis_runtime_100us_r1`，旧workspace/ELF全保留。T4必须Review后用户按指南第13节手动P1000，Runtime候选板验NOT_RUN，不重复ABA/C，不操作板卡、不合并。
-
-- PR16评论6525374617的T1—T3已离线实施：最新phase_p1000_01独立数值PASS，趋势仍约+0.99779tick/frame；新TTC-only workspace `.runtime/ax02a/vitis_ttc_characterize`及应用`ax02a_ttc_characterize`真实构建，OFFLINE_READY_FOR_REVIEW。原三个workspace/ELF保留。用户Review后按指南第12节逐次A1(10000)→B(9999)→A2(10000)，每次1000真实IRQ/16000B；9999仅实验条件，nominal10000与原deadline不变。T4用户上板NOT_RUN、物理根因UNCONFIRMED、正式修复NOT_RUN；Codex不连接/操作板卡，不合并。
-
-- 相位候选为`.runtime/ax02a/vitis_phase_diagnostic`，v2报告2400B，原两个workspace及ELF保留。exp2本次数值PASS、deadline/sequence PASS，但ISR phase趋势0.999271tick/帧被新PC/C诊断拒绝；硬件根因未确认，interval/logical period仍10000，不盲减1、不宽deadline。GUI只读配置取证/复验见指南第8节；候选板上NOT_RUN。
-
-- 最新执行PR16评论6516979286/6517272543及Review5708766094：exp2新capture已完整，数值PASS但存在约1tick/帧ISR相位累积趋势，周期一致性未确认。先提交数据结论，再诊断/核查TTC/证据充分后最小修正；不能盲改9999、修改名义period掩盖漂移或放宽deadline。保留`vitis_target_a53fsbl`与`vitis_postprocess`及全部原始数据，候选新目录；不连接/发现/操作板卡，寄存器步骤交用户。
-
-- C1已提交64466414773038524dce40c120dd99434102e7e8；C2/C3新固件只在`.runtime/ax02a/vitis_postprocess`离线构建，默认后处理关闭，目标后处理/P1000周期未验证。当前执行PR16评论6514858529的C1—C3。用户BOARD_BOOT/FIRST_WAIT及motion_03首次64536×41真板数值PASS已有评论/本地报告证据；A4第二次motion、alignment/reset及完整A5仍待验收。先提交C1不改固件，再做C2/C3离线后处理。用户正在调试`.runtime/ax02a/vitis_target_a53fsbl`，禁止覆盖/重建其ELF；新固件独立输出。Codex不得连接、发现、暂停/恢复、复位、下载、读写或运行板卡。原始output/ticks保留；比较/时间摘要只在实验结束且计时器停止后做，开关默认关闭，不改算法/cache/TCM/采样首相，不重跑RTL。
-
-- 目标板：AXU5EVB-E，用户已确认。具体PCB修订、芯片完整料号及厂商工程XA/-1与手册XC/-2差异，在板级适配前核对，不阻塞R5软件整理。
-- R5F：位置P、速度PI、原五态对齐及一次性偏置、Reference_Manager/轨迹/命令与恢复管理。
-- PL：复用已接受的电流FOC，负责同步采样/位置接口、运行中角度/偏置应用、PWM及快速禁止。
-- 算法源为现有Simulink/Stateflow；不手改生成SV/C补算法，不重做PI/FOC和定点化，不强制三环全部HDL化。
-- Simulink搭建完成后逐层检查连线与排版；From/Goto使用局部作用域，Inport/Outport保持默认大小与外观。
-- 先读 `coordination/HANDOFF.md`。AX-00迁移已完成；旧迁移任务、Issue #3及旧M4仅作历史记录，不作为继续开发的流程清单。
-- 当前优先Issue #15的AX-02A（A1—A6）：先真实R5目标工程、数值与100µs时间证据，不重规划全项目、不默认重跑完整RTL。PR #14已合并（ae9a11d2d59abc952cce0b979d004a315878639a），Issue #13仿真收尾仅作既有证据。当前Cortex-R生成/全采样导出/主机比较及真实5EV PS-only XSA、R5 standalone BSP/FSBL/ELF/map构建通过；10月27日历史BOARD_BOOT/REPLAY/PERIODIC为NOT_RUN；10月30日新状态见本节首条及`coordination/reports/ax02a_r5_target_validation.md`。不得以构建或主机结果关闭板上验收。
-- 继续取消C源码学习、逐行讲解及教学配置更改。Ready是当拍许可，Busy=0不保证Ready=1；status3未Ready拒绝、不排队。Issue #11和AX-02B/C不在本轮实施。活动模型与必要.m按用途集中在`simulation/`。纯仿真参数入口为`closed_loop/parameters/init_AXU5EV.m`，实机参数入口为`experiment/parameters/axu5ev_experiment_parameters.m`，分别使用`START_SIMULATION.m`与`START_EXPERIMENT.m`。`START_HERE.m`转到纯仿真入口。保留用户本地SLX/参数修改；旧PR14输入可复用，但当前参数参考必须独立标识。目标生成不覆盖PC目录/MEX、不保存未保存模型。板卡复位/JTAG加载运行须本次明确授权。
-- 当前按PR16“用户手动上板与首次PS开发学习”评论补齐离线操作交接，上板由用户本人完成；Codex不连接、复位、写内存、加载或运行板卡，也不自动探测已接好的线。首次手动测试只到现有R5应用等待输入；操作见`firmware/r5/ax02a/FIRST_BOARD_RUN_ZH.md`。不恢复C语法教学，不另建Hello World/LED/QEMU项目，不把后续回放段自动执行。
-- PR16首次故障已定位旧GUI将R5 FSBL加载到A53_0；当前离线启动工程为`.runtime/ax02a/vitis_target_a53fsbl`，A53_0 FSBL＋R5_0应用，launch为`ax02a_first_wait_a53fsbl`。先用构建入口的`--check-startup`核对实际架构/域/路径；保留旧workspace，旧`ax02a_first_wait_manual`不再用于GUI重试。用户修正后BOARD_BOOT和首次motion已有PASS；其他板上验收见C1—C3首条，不把旧R5 Suspended当初始化成功。
-- 板型以《AXU5EVB-E开发板用户手册》为依据；用户确认核心板可参考`ACU5EV核心板原理图.pdf`，底板可参考`AXU5EVB-E开发板原理图.pdf`（与AXU3EG底板共用），实物以太网收发芯片JL2121。不得仅凭图框AXU3EG否定底板资料，也不因此在AX-02A扩展网络适配。
-- 保留用户现有紫色分区与Host/Alignment_Task/Motion_Control布局；修改仅微调受影响区域。MATLAB/Simulink操作使用MCP，不使用Computer Use。
-
-## 工作区与接口
-
-- 使用已确认的 `D:/Project/AXU5EV` 和 `kazecode666/AXU5EV`，旧 `D:/Project/FPGA_XC7A200T` 只读；不额外clone/worktree，不复制旧`.git`。
-- 继承 `references/legacy/PMLSM_Hardware_Interface_Map.md`、MBDL4参数及MIL/DSP的三相电流、光栅、RELCON/ENCON/F_Reset与ERRI/ERRU需求；单列AXU5EVB-E的新ADC、电平和接线适配，不要求用户重述已有定义，不照搬DSP引脚。
-- 不自动stash/reset/clean、强制pull/push、覆盖用户修改、保存未保存窗口或关闭全部模型。活动模型与冻结/历史副本分开；不用根目录递归genpath。
-- 禁止批量删除。需要删除时，一次只删除一个明确路径的文件；批量删除交由用户手动进行。
-
-## 开发与验证
-
-- 保持已有PI/位置P、采样周期、五态对齐与手动Start；PI_Reset、Init_Reset、global reset、故障清除分别处理。保留一次死区、应用延迟和PWM禁止后机械继续的语义。
-- 向量接口同时维护Mux、Demux、旁注与C生成来源；当前Runtime输入分组宽度`[11 3 1 1 1 1 1 1]`，位置在字段20。Demux前两路仍是向量，不把输出端口号当字段索引。
-- 只做变更所需验证；不要求提交文件哈希/清单，不做全资料哈希遍历、快照保护报表、字节一致性专项或额外资料冒烟测试。历史证据原样保留；文字修订不重跑旧仿真/RTL。
-- 报告说明做了什么、相关文件/章节、可复用点和真正未完成项；区分静态检查、主机仿真/SIL、RTL、综合、布线、ARM实测和实机，未运行写NOT_RUN。
-- 不增加位置积分、运动中重规划、CORDIC、标幺化、缩位或旧全HDL对齐优化，除非用户另行要求。
-
-## 协作与交付
-
-- ChatGPT负责架构/Review；Codex在本仓库实施并按需验证，普通小步Git提交与PR正常进行。记录完整owner/repo、PR和提交SHA，旧新编号分开。
-- 用户决定研究方向与合并、硬件操作；明确授权后可执行指定PR合并。烧录bitstream、功率级上电须另行授权。
-- 使用现有登录与权限，不索要/打印token，不复制密钥或全局工具配置。厂商原件默认本地保留，只提交原创整理和必要索引；第三方文件遵守许可。
+- 只做本次变更需要的验证。区分静态检查、主机仿真/SIL、RTL、综合、布线、ARM 实测和物理实验。未运行写 `NOT_RUN`，保留旧报告和失败证据。文档维护使用路径、链接及提交范围检查，无需复跑历史验证或编制全库哈希清单。
+- 用户决定研究方向、合并和现场操作。板卡连接、调查、JTAG 复位/下载/运行、改接线、启动介质写入及功率上电须本次明确授权。历史会话中的现场许可只用于追溯。
+- 正常提交小步变更并记录完整仓库名、PR 和提交 SHA。使用现有登录权限，不索取、打印或复制凭据及全局工具配置。按任务约定交付并停在 Review，合并须用户明确授权。

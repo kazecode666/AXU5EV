@@ -1,8 +1,8 @@
 # 数字链测试入口
 
-AX-04 将本目录保留为 PR45 数字链验证 fixture。实机主模型入口为 `simulation/START_EXPERIMENT.m`，纯仿真入口为 `simulation/START_SIMULATION.m`。
+AX-04 将本目录保留为 PR45 数字链验证 fixture。日常使用见[实机入口](../../START_EXPERIMENT.m)和[纯仿真入口](../../START_SIMULATION.m)。当前部署见 [AX-04B 首运行指南](../../../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md)。
 
-> **当前项目结论（PR41）：** 统一数值模型和整链RTL已有离线PASS证据，PWM局部已布线slow/max及fast/min SDF均PASS；完整功能PL动态SDF仍NOT_COMPLETED，无功率板测和R5实机采集NOT_RUN。现行入口：[HANDOFF](../../../coordination/HANDOFF.md)、[结果矩阵](../../../verification/motor_control/results.json)。下文模型运行方法描述算法数值仿真，不表示板上控制或全链物理动态已经验收。
+> **PR41 数字链历史结果。** 统一数值模型和整链 RTL 离线通过，PWM 局部已布线 slow/max 及 fast/min SDF 通过。完整功能 PL 动态 SDF 仍为 `NOT_COMPLETED`，该候选的无功率板测和 R5 实机采集为 `NOT_RUN`。[原结果矩阵](../../../verification/motor_control/results.json)
 
 打开 `AXU5EV_DigitalChain_Test.slx` 查看并跟随实际数值路径：
 
@@ -43,7 +43,7 @@ motor_control_run('D:/Project/AXU5EV/.runtime/motor_control/<另一个新目录>
 | Q30→比较尺度 | 唯一新数值源 `duty_to_compare.m`，模型 `AXU5EV_Duty_Adapter_HDL/Duty_To_Compare`，`motor_control_generate_mapper(new_dir)` 生成两个SV |
 | 位置/50间隔测速C | 共享 Caculate_measurement / AXU5EV_Encoder_Feedback，`encoder_generate_c.m` 写新结果目录的 `exported_c`；PR45历史输出为 `generated/dsp_reuse/feedback_c` |
 | ADC/QEP/PWM/AXI/跨频 | 同一motor_control源清单、手写RTL与BD，不由系统SIM_ONLY块生成 |
-| 板级/R5构建 | 新统一构建入口和匹配Workspace见HANDOFF及本轮操作说明 |
+| 历史板级/R5候选 | [PR41 冻结候选说明](../../../firmware/r5/motor_control/FIRST_RUN_ZH.md) |
 
 新映射公式只在MATLAB源中：unsigned Q30先饱和到1.0，再round-half-up到0..5000，三个uint16输出及result_strobe共同寄存一拍。31组模型向量含0/100%、溢出与量化决策边界；由实际生成RTL另行对比，不手写RTL换算公式。
 
