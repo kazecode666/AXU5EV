@@ -69,7 +69,10 @@ def main():
                         default=Path("generated/experiment/ax04b_r1_01/r5"))
     parser.add_argument("--firmware-ref", help="Git revision of the firmware, for old counterexamples")
     parser.add_argument("--expect-old", action="store_true")
+    parser.add_argument("--online", action="store_true", help="run AX-05A API and MMIO scenarios")
     args = parser.parse_args()
+    if args.online and (args.expect_old or args.firmware_ref):
+        parser.error("--online requires the current AX-05A sources")
     root = Path(__file__).resolve().parents[3]
     output = args.output.resolve()
     output.mkdir(parents=True)  # An existing result is evidence and must not be overwritten.
@@ -80,7 +83,10 @@ def main():
     if compiler.is_absolute():
         env["PATH"] = str(compiler.parent) + os.pathsep + env["PATH"]
 
-    for file in ("ax04b_main.c", "ax04b_adapter.c", "ax04b_adapter.h", "ax04b_registers.h"):
+    firmware_files = ["ax04b_main.c", "ax04b_adapter.c", "ax04b_adapter.h", "ax04b_registers.h"]
+    if args.online:
+        firmware_files.append("ax05a_online.h")
+    for file in firmware_files:
         relative = (firmware / file).as_posix()
         source = (subprocess.check_output(["git", "show", f"{args.firmware_ref}:{relative}"],
                                           cwd=root).decode("utf-8")
@@ -108,15 +114,20 @@ def main():
              "boundary", "boundary-late", "normal", "clear"]),
         (2, ["real"]),
     ]
+    if args.online:
+        profile_cases = [(1, ["commands", "position", "alignment", "snapshot", "trace"]),
+                         (2, ["real"])]
     with (output / "result.txt").open("x", encoding="utf-8") as log:
         print(f"model={version.group(1)} source={generated}", file=log, flush=True)
         print(f"firmware={args.firmware_ref or subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip() + '+worktree'}", file=log, flush=True)
         for mode, scenarios in profile_cases:
             binary = output / f"r5_runtime_{mode}.exe"
+            online_flags = (["-DAX05A_ONLINE=1", "-DAX04B_APPLICATION_ID=0x41585204u",
+                             "-Wno-unused-function"] if args.online else [])
             subprocess.run([args.cc, "-std=c11", "-O2", "-Wall", "-Wextra", "-Werror",
                             "-fno-fast-math", "-ffp-contract=off", f"-DAX04B_BUILD_MODE={mode}",
                             f"-DAX04B_TEST_FIXED={int(not args.expect_old)}",
-                            f"-I{output}", f"-I{generated}",
+                            *online_flags, f"-I{output}", f"-I{generated}",
                             str(Path(__file__).with_name("test_r5_runtime.c")),
                             str(output / "ax04b_adapter.c"), *map(str, sources), "-lm",
                             "-o", str(binary)], cwd=root, env=env, check=True)

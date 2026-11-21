@@ -56,6 +56,9 @@ proc mc_build {out} {
         set integrated_profile [string trim [read $intent]]
         close $intent
         if {$integrated_profile ne $profile} {error "AX04B integrated profile differs from requested profile"}
+        if {[file exists $out/ax05a_dq_schema.txt] != [mc_foc_observation]} {
+            error "AX05A observation setting differs from the integrated candidate"
+        }
     }
     open_project $out/project/ax02a_ps.xpr
     set synth synth_1
@@ -191,6 +194,11 @@ if {$mc_stage in {integrate validate all}} {
         set intent [open $mc_out/ax04b_build_profile.txt {WRONLY CREAT EXCL}]
         puts $intent $mc_profile
         close $intent
+        if {[mc_foc_observation]} {
+            set schema [open $mc_out/ax05a_dq_schema.txt {WRONLY CREAT EXCL}]
+            puts $schema 0x41583501
+            close $schema
+        }
     }
 }
 if {$mc_stage in {synth validate}} {mc_synth $mc_out}

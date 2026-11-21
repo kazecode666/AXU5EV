@@ -35,6 +35,11 @@ static struct {
 static jmp_buf ready;
 static Xil_ExceptionHandler irq_handler;
 static void *irq_data;
+#ifdef AX05A_ONLINE
+static uint32_t observation[80], frozen_observation[80], observation_seq;
+static bool frozen;
+static uint32_t diagnostic_finishes;
+#endif
 
 typedef struct {
     double host_tick, speed_ticks, position_ticks, speed_integral;
@@ -74,6 +79,42 @@ static void assert_no_control_advance(const ModelProgress *before)
 
 uint32_t Xil_In32(UINTPTR address)
 {
+#ifdef AX05A_ONLINE
+    if (address >= AX04B_DIAG_BASE && address < AX04B_DIAG_BASE + 0x14cu) {
+        assert(!pl.irq_masked);
+        const UINTPTR offset = address - AX04B_DIAG_BASE;
+        if (offset == 0u) {
+            assert(!frozen);
+            memcpy(frozen_observation, observation, sizeof(observation));
+            frozen = true;
+            return observation_seq;
+        }
+        assert(frozen);
+        if (offset == 4u) return UINT32_C(0x4d430003);
+        if (offset == 8u) return 1u;
+        const unsigned index = (unsigned)(offset - 12u) / 4u;
+        if (index == 79u) {
+            frozen = false;
+            ++diagnostic_finishes;
+        }
+        return frozen_observation[index];
+    }
+    if (address >= 0x80001000u && address <= 0x80001044u) {
+        assert(!pl.irq_masked);
+        switch (address - 0x80001000u) {
+        case 0x00: return 0x50574d01u;
+        case 0x04: return 8u;
+        case 0x0c: return 500u;
+        case 0x24: return 0u;
+        case 0x30: return 1000u;
+        case 0x34: return 2500u;
+        case 0x38: return 4000u;
+        case 0x40: return 5000u;
+        case 0x44: return 0x00640064u;
+        default: assert(!"unexpected PWM read");
+        }
+    }
+#endif
     const UINTPTR offset = address - AX04B_MMIO_BASE;
     switch (offset) {
     case AX04B_IDENT: return AX04B_INTERFACE_ID;
@@ -361,6 +402,7 @@ static void clear_ok(void)
     assert((pl.status & (AX04B_ARMED | AX04B_INHIBIT_LATCHED)) == 0u);
 }
 
+#ifndef AX05A_ONLINE
 static void start_alignment(void)
 {
     test_command('i');
@@ -743,3 +785,6 @@ int main(int argc, char **argv)
     printf("AX04B_R1_SCENARIO PASS %s\n", scenario);
     return 0;
 }
+#else
+#include "../ax05a/test_online.c"
+#endif

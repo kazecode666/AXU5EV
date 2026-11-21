@@ -1,6 +1,10 @@
 #include "ax04b_adapter.h"
 #include "ax04b_bsp.h"
 #include "ax04b_registers.h"
+#ifdef AX05A_ONLINE
+#include "ax05a_online.h"
+#include <math.h>
+#endif
 
 #include <ctype.h>
 #include <errno.h>
@@ -145,9 +149,33 @@ static uint32_t real_gain_a, real_gain_b;
 static bool real_gains_supplied;
 static volatile bool trace_on;
 static volatile unsigned trace_count;
+#ifndef AX05A_ONLINE
 static FrameRecord trace[TRACE_CAPACITY];
+#else
+/* The cooperative business recorder and IRQ timing trace share RAM, with
+ * one capture owner. A new capture explicitly replaces the prior one. */
+static union {
+    FrameRecord irq[TRACE_CAPACITY];
+    Ax05aSample online[AX05A_TRACE_CAPACITY];
+} trace_storage;
+#define trace trace_storage.irq
+#define online_records trace_storage.online
+#endif
 static FrameRecord latest;
 static Counters counters;
+
+#ifdef AX05A_ONLINE
+enum { PS_HISTORY = 4 };
+static Ax05aPsFrame ps_history[PS_HISTORY];
+static unsigned ps_count, ps_next;
+static Ax04bCommand selected;
+static uint32_t online_revision, confirmed_revision, last_request_id;
+static uint32_t consumed_pi_reset, online_ack_count, move_pending_revision;
+static uint32_t move_accept_baseline, move_reject_baseline, host_receipt_revision;
+static uint32_t host_receipt_status;
+static bool have_request, have_selection, selection_confirmed;
+static Ax05aTraceInfo online_trace;
+#endif
 
 static inline void barrier(void)
 {
@@ -223,6 +251,10 @@ static Ax04bCommand stopped_command(void)
     command.start_ticket = command_slots[active_command].start_ticket;
     command.init_reset_ticket = command_slots[active_command].init_reset_ticket;
     command.freset_ticket = command_slots[active_command].freset_ticket;
+#ifdef AX05A_ONLINE
+    command.pi_reset_ticket = command_slots[active_command].pi_reset_ticket;
+    command.frame[AX04B_CMD_MOVE] = command_slots[active_command].frame[AX04B_CMD_MOVE];
+#endif
     command.frame[AX04B_CMD_PI_RESET] = 1.0;
     command.oe_disable = true;
     return command;
@@ -261,6 +293,14 @@ static void revoke_permission(StopReason reason, uint32_t status, const Ax04bCom
      * newly published after this command snapshot may be processed. */
     consumed_clear = command->clear_ticket;
     consumed_start = command->start_ticket;
+#ifdef AX05A_ONLINE
+    if (move_pending_revision != 0u) {
+        host_receipt_revision = move_pending_revision;
+        host_receipt_status = 7u;
+        move_pending_revision = 0u;
+    }
+    selection_confirmed = false;
+#endif
     latest.drive_permitted = false;
     latest.stop_pending = true;
     latest.stop_reason = reason;
@@ -409,6 +449,11 @@ static void frame_interrupt(void *unused)
     }
     const bool init_reset = command->init_reset_ticket != consumed_init_reset;
     const bool driver_reset = command->freset_ticket != consumed_freset;
+#ifdef AX05A_ONLINE
+    const bool pi_reset = command->pi_reset_ticket != consumed_pi_reset;
+    Ax04bCommand effective;
+    bool ps_valid = false;
+#endif
     const Ax04bDispatch dispatch = ax04b_dispatch(have_feedback ? &last_feedback : NULL,
         &feedback, safety.stop_pending || init_reset || driver_reset);
     if (dispatch == AX04B_SAFETY_DUPLICATE && safety.armed) {
@@ -438,6 +483,7 @@ static void frame_interrupt(void *unused)
      * ordinary call. This path runs after the exact ACK and never commits. */
     bool cancel_after_submit = false;
     bool discard_provisional_done = false;
+    Ax04bModelResult result;
     if (dispatch == AX04B_DUPLICATE) {
         ++counters.duplicate;
         record.model_version = latest.model_version;
@@ -456,15 +502,23 @@ static void frame_interrupt(void *unused)
         const bool allow_drive = ax04b_build_mode == AX04B_SELFTEST && safety.armed;
         const bool start = new_frame && command->start_ticket != consumed_start;
         const bool was_done = safety.model_alignment_done;
+#ifdef AX05A_ONLINE
+        effective = *command;
+#else
         Ax04bCommand effective = *command;
+#endif
         if (!allow_drive) {
             deny_drive(&effective);
         }
+#ifdef AX05A_ONLINE
+        if (pi_reset) {
+            effective.frame[AX04B_CMD_PI_RESET] = 1.0;
+        }
+#endif
         record.start_delivered = allow_drive && !driver_reset && !init_reset && start;
         record.drive_permitted = allow_drive && !driver_reset &&
             effective.frame[AX04B_CMD_PWM] > 0.5 && effective.relcon &&
             effective.encon && !effective.oe_disable;
-        Ax04bModelResult result;
         ax04b_model_run(&feedback, &effective, transport_invalid, clear,
             record.start_delivered, init_reset, driver_reset, &result);
         record.model_done_tick = pmu_tick();
@@ -473,6 +527,12 @@ static void frame_interrupt(void *unused)
         record.position_valid = result.position_valid;
         record.speed_valid = result.speed_valid;
         record_alignment(&record, &result);
+#ifdef AX05A_ONLINE
+        ps_valid = new_frame && !transport_invalid && result.model_sample == feedback.id;
+        if (new_frame && !transport_invalid) {
+            consumed_pi_reset = command->pi_reset_ticket;
+        }
+#endif
         safety.stop_pending = false;
         if (start) {
             consumed_start = command->start_ticket;
@@ -499,8 +559,17 @@ static void frame_interrupt(void *unused)
              * can represent an explicit SELFTEST F_Reset even while stopped. */
             const bool allow_reset = ax04b_build_mode == AX04B_SELFTEST &&
                 driver_reset && result.drives[2];
+#ifdef AX05A_ONLINE
+            const double auto_phase_rad = result.value[3];
+            if (allow_drive && command->fine_phase_rad != 0.0) {
+                result.value[3] += command->fine_phase_rad;
+            }
+#endif
             const bool encoded = ax04b_encode_reference(&result, feedback.id,
                 ++transport_version, allow_drive || allow_reset, &reference);
+#ifdef AX05A_ONLINE
+            result.value[3] = auto_phase_rad;
+#endif
             if (!encoded) {
                 revoke_permission(AX04B_STOP_ENCODE, status, command);
             } else {
@@ -569,6 +638,61 @@ static void frame_interrupt(void *unused)
         maximum(&counters.max_submit, record.accept_done_tick - record.model_done_tick);
     }
     latest = record;
+#ifdef AX05A_ONLINE
+    ++online_ack_count;
+    if (ps_valid) {
+        if (move_pending_revision != 0u &&
+            (result.host_accept_count != move_accept_baseline ||
+             result.host_reject_count != move_reject_baseline || result.host_status == 5u)) {
+            host_receipt_revision = move_pending_revision;
+            host_receipt_status = result.host_status;
+            move_pending_revision = 0u;
+        }
+        Ax05aPsFrame ps_frame = {
+            .sample_id = feedback.id, .tick = feedback.tick,
+            .command_revision = command->online_revision, .mode = safety.armed ? command->online_mode : AX05A_IDLE,
+            .quality = feedback.quality, .fault = feedback.fault,
+            .host_status = host_receipt_status, .host_receipt_revision = host_receipt_revision,
+            .position_mm = result.position_mm, .speed_mm_s = result.speed_mm_s,
+            .position_ref_mm = result.position_ref_mm, .speed_ref_mm_s = result.speed_ref_mm_s,
+            .position_loop_speed_ref_mm_s = result.position_loop_speed_ref_mm_s,
+            .selected_position_mm = effective.frame[AX04B_CMD_POSITION],
+            .selected_speed_mm_s = effective.frame[AX04B_CMD_SPEED],
+            .selected_id_a = effective.frame[AX04B_CMD_ID_REF],
+            .selected_iq_a = effective.frame[AX04B_CMD_IQ_TEST_REF],
+            .fine_phase_rad = command->fine_phase_rad, .auto_phase_rad = result.value[3],
+            .host_ready = result.host_ready,
+            .position_valid = result.position_valid, .speed_valid = result.speed_valid
+        };
+        if (move_pending_revision == 0u) {
+            move_accept_baseline = result.host_accept_count;
+            move_reject_baseline = result.host_reject_count;
+        }
+        ps_frame.commit_version = record.offered_version;
+        ps_frame.commit_target = record.target;
+        ps_frame.commit_result = record.result;
+        ps_frame.accepted_version = record.accepted_version;
+        ps_frame.accepted_target = record.accepted_target;
+        ps_frame.commit_accepted = record.result == AX04B_COMMIT_ACCEPTED &&
+            record.accepted_target == record.target && record.accepted_version == record.offered_version;
+        ps_frame.p0_version = record.applied_version;
+        ps_frame.p0_target = record.applied_target;
+        ps_frame.p0_valid = record.applied_coherent && record.applied_target == feedback.id;
+        ps_frame.stop_reason = (uint32_t)record.stop_reason;
+        ps_frame.alignment_state = record.alignment_state;
+        ps_frame.alignment_done = record.alignment_done;
+        ps_frame.reference_permitted = record.drive_permitted && record.reference_valid &&
+            (record.flags & AX04B_PWM_ENABLE) != 0u;
+        if (record.safety_pass) {
+            ps_frame.host_ready = false;
+        }
+        ps_history[ps_next] = ps_frame;
+        ps_next = (ps_next + 1u) % PS_HISTORY;
+        if (ps_count < PS_HISTORY) {
+            ++ps_count;
+        }
+    }
+#endif
     if (trace_on && trace_count < TRACE_CAPACITY) {
         trace[trace_count] = record;
         ++trace_count;
@@ -603,11 +727,11 @@ static void disarm(void)
     irq_unlock(cpsr);
 }
 
-static void configure_zero_current(void)
+static bool configure_zero_current(void)
 {
     if (ax04b_build_mode == AX04B_REAL && !real_gains_supplied) {
         xil_printf("AX04B CAL DENIED: supply measured REAL Q24 gains with g first\r\n");
-        return;
+        return false;
     }
     disarm();
     const bool test = ax04b_build_mode == AX04B_SELFTEST;
@@ -625,6 +749,7 @@ static void configure_zero_current(void)
     }
     xil_printf("AX04B %s calibration requested, output disabled\r\n",
         test ? "synthetic" : "REAL provisional no-power");
+    return true;
 }
 
 static void read_real_gains(void)
@@ -654,14 +779,18 @@ static void read_real_gains(void)
     real_gain_a = (uint32_t)(int32_t)a;
     real_gain_b = (uint32_t)(int32_t)b;
     real_gains_supplied = true;
+#ifdef AX05A_ONLINE
+    xil_printf("AX05A REAL gains staged, request CALIBRATE with zero current\r\n");
+#else
     xil_printf("AX04B REAL gain words staged in PS, use c with zero current\r\n");
+#endif
 }
 
-static void arm_test(void)
+static bool arm_test(void)
 {
     if (ax04b_build_mode != AX04B_SELFTEST) {
         xil_printf("AX04B REAL ARM DENIED: physical validation pending\r\n");
-        return;
+        return false;
     }
     const uint32_t cpsr = irq_lock();
     const uint32_t status = read_rt(AX04B_STATUS);
@@ -673,7 +802,7 @@ static void arm_test(void)
         (status & (AX04B_ARMED | AX04B_INHIBIT_LATCHED | AX04B_LIVE_INVALID)) != 0u) {
         irq_unlock(cpsr);
         xil_printf("AX04B ARM DENIED: wait for qualification and explicit clear\r\n");
-        return;
+        return false;
     }
     write_rt(AX04B_CONTROL, AX04B_ARM);
     completion_barrier();
@@ -685,23 +814,26 @@ static void arm_test(void)
         }
         irq_unlock(cpsr);
         xil_printf("AX04B PL ARM rejected\r\n");
-        return;
+        return false;
     }
     Ax04bCommand command = stopped_command();
+#ifndef AX05A_ONLINE
     command.frame[AX04B_CMD_PWM] = 1.0;
     command.frame[AX04B_CMD_PI_RESET] = 0.0;
     command.relcon = true;
     command.encon = true;
     command.oe_disable = false;
+#endif
     consumed_start = command.start_ticket;
     safety.armed = true;
     safety.clear_confirmed = false;
     publish_command(&command);
     irq_unlock(cpsr);
-    xil_printf("AX04B internal SELFTEST armed with zero current reference\r\n");
+    xil_printf("AX04B internal SELFTEST armed\r\n");
+    return true;
 }
 
-static void clear_request(void)
+static bool clear_request(void)
 {
     const uint32_t cpsr = irq_lock();
     Ax04bCommand command = command_slots[active_command];
@@ -709,15 +841,17 @@ static void clear_request(void)
     if (safety.armed) {
         irq_unlock(cpsr);
         xil_printf("AX04B CLEAR DENIED: stop first\r\n");
-        return;
+        return false;
     }
     safety.clear_confirmed = false;
     ++command.clear_ticket;
     publish_command(&command);
     irq_unlock(cpsr);
     xil_printf("AX04B clear requested on the next clean frame\r\n");
+    return true;
 }
 
+#ifndef AX05A_ONLINE
 static void test_command(char key)
 {
     const uint32_t cpsr = irq_lock();
@@ -750,6 +884,254 @@ static void test_command(char key)
     irq_unlock(cpsr);
     xil_printf("AX04B internal SELFTEST command %c queued\r\n", key);
 }
+#endif
+
+#ifdef AX05A_ONLINE
+static uint32_t next_revision(void)
+{
+    if (++online_revision == 0u) {
+        ++online_revision;
+    }
+    return online_revision;
+}
+
+static Ax05aDecision validate_setpoints(const Ax05aRequest *request, Ax05aMode mode)
+{
+    if (!isfinite(request->position_mm) || !isfinite(request->speed_mm_s) ||
+        !isfinite(request->id_a) || !isfinite(request->iq_a)) {
+        return AX05A_BAD_REQUEST;
+    }
+    if (fabs(request->position_mm) > 110.0 || fabs(request->speed_mm_s) > 20.0 ||
+        fabs(request->id_a) > 0.50 || fabs(request->iq_a) > 0.30) {
+        return AX05A_OUT_OF_RANGE;
+    }
+    if ((mode != AX05A_POSITION && request->position_mm != 0.0) ||
+        (mode != AX05A_SPEED && request->speed_mm_s != 0.0) ||
+        (mode != AX05A_CURRENT && request->iq_a != 0.0) ||
+        (mode == AX05A_ALIGNMENT && request->id_a != 0.0)) {
+        return AX05A_BAD_REQUEST;
+    }
+    return AX05A_ACCEPTED;
+}
+
+static void setpoints(Ax04bCommand *command, const Ax05aRequest *request)
+{
+    command->frame[AX04B_CMD_POSITION] = request->position_mm;
+    command->frame[AX04B_CMD_SPEED] = request->speed_mm_s;
+    command->frame[AX04B_CMD_ID_REF] = request->id_a;
+    command->frame[AX04B_CMD_IQ_TEST_REF] = request->iq_a;
+}
+
+static Ax05aDecision change_selection(const Ax05aRequest *request, uint32_t *revision)
+{
+    if (safety.armed) {
+        return AX05A_STOP_FIRST;
+    }
+    if (request->action == AX05A_SELECT) {
+        if (request->mode < AX05A_CURRENT || request->mode > AX05A_ALIGNMENT) {
+            return AX05A_BAD_REQUEST;
+        }
+        const Ax05aDecision decision = validate_setpoints(request, request->mode);
+        if (decision != AX05A_ACCEPTED) {
+            return decision;
+        }
+        selected.online_mode = (uint32_t)request->mode;
+        setpoints(&selected, request);
+        have_selection = true;
+    } else if (request->action == AX05A_FINE_PHASE) {
+        if (!have_selection || request->selected_revision != selected.online_revision) {
+            return AX05A_NOT_READY;
+        }
+        if (!isfinite(request->fine_phase_rad)) {
+            return AX05A_BAD_REQUEST;
+        }
+        if (fabs(request->fine_phase_rad) > 0x1.921fb54442d18p+1) {
+            return AX05A_OUT_OF_RANGE;
+        }
+        selected.fine_phase_rad = request->fine_phase_rad;
+    } else {
+        if (!have_selection || request->selected_revision != selected.online_revision) {
+            return AX05A_NOT_READY;
+        }
+        confirmed_revision = selected.online_revision;
+        selection_confirmed = true;
+        *revision = confirmed_revision;
+        return AX05A_ACCEPTED;
+    }
+    selected.online_revision = next_revision();
+    selection_confirmed = false;
+    *revision = selected.online_revision;
+    return AX05A_ACCEPTED;
+}
+
+static Ax05aDecision apply_command(const Ax05aRequest *request, uint32_t *revision)
+{
+    Ax04bCommand command = command_slots[active_command];
+    observe_pl_permission(read_rt(AX04B_STATUS), &command);
+    switch (request->action) {
+    case AX05A_SELECT:
+    case AX05A_FINE_PHASE:
+    case AX05A_CONFIRM:
+        return change_selection(request, revision);
+    case AX05A_START:
+    case AX05A_ALIGN_START: {
+        const bool align = request->action == AX05A_ALIGN_START;
+        if (ax04b_build_mode == AX04B_REAL) {
+            return AX05A_REAL_INHIBITED;
+        }
+        if (!safety.armed || safety.stop_pending || !selection_confirmed ||
+            request->selected_revision != confirmed_revision ||
+            command.online_mode != AX05A_IDLE ||
+            align != (selected.online_mode == AX05A_ALIGNMENT)) {
+            return AX05A_NOT_READY;
+        }
+        command.online_mode = selected.online_mode;
+        command.fine_phase_rad = selected.fine_phase_rad;
+        command.frame[AX04B_CMD_IQ_TEST] = command.online_mode == AX05A_CURRENT;
+        command.frame[AX04B_CMD_POSITION_LOOP] = command.online_mode == AX05A_POSITION;
+        command.frame[AX04B_CMD_SPEED_LOOP] = command.online_mode == AX05A_POSITION ||
+            command.online_mode == AX05A_SPEED;
+        command.frame[AX04B_CMD_ALIGN_ENABLE] = align;
+        command.frame[AX04B_CMD_PWM] = 1.0;
+        command.frame[AX04B_CMD_PI_RESET] = 0.0;
+        command.relcon = true;
+        command.encon = true;
+        command.oe_disable = false;
+        command.frame[AX04B_CMD_ID_REF] = selected.frame[AX04B_CMD_ID_REF];
+        command.frame[AX04B_CMD_IQ_TEST_REF] = selected.frame[AX04B_CMD_IQ_TEST_REF];
+        command.frame[AX04B_CMD_SPEED] = selected.frame[AX04B_CMD_SPEED];
+        command.frame[AX04B_CMD_POSITION] = selected.frame[AX04B_CMD_POSITION];
+        /* Ready is produced by the running Host; a position SEND is separate. */
+        if (align) {
+            ++command.start_ticket;
+        }
+        break;
+    }
+    case AX05A_SETPOINT: {
+        if (ax04b_build_mode == AX04B_REAL) {
+            return AX05A_REAL_INHIBITED;
+        }
+        const Ax05aMode mode = (Ax05aMode)command.online_mode;
+        if (!safety.armed || mode == AX05A_IDLE || mode == AX05A_ALIGNMENT ||
+            request->mode != mode || request->selected_revision != confirmed_revision) {
+            return AX05A_NOT_READY;
+        }
+        const Ax05aDecision decision = validate_setpoints(request, mode);
+        if (decision != AX05A_ACCEPTED) {
+            return decision;
+        }
+        if (mode == AX05A_POSITION) {
+            if (move_pending_revision != 0u) {
+                return AX05A_PENDING;
+            }
+            if (ps_count == 0u || !ps_history[(ps_next + PS_HISTORY - 1u) % PS_HISTORY].host_ready) {
+                return AX05A_NOT_READY;
+            }
+            command.frame[AX04B_CMD_MOVE] = 1.0 - command.frame[AX04B_CMD_MOVE];
+        }
+        setpoints(&command, request);
+        break;
+    }
+    case AX05A_ALIGN_RESET:
+    case AX05A_DRIVER_RESET:
+        if (ax04b_build_mode == AX04B_REAL) {
+            return AX05A_REAL_INHIBITED;
+        }
+        if (safety.armed) {
+            return AX05A_STOP_FIRST;
+        }
+        if (request->action == AX05A_ALIGN_RESET) {
+            if (command.init_reset_ticket != consumed_init_reset) {
+                return AX05A_PENDING;
+            }
+            ++command.init_reset_ticket;
+        } else {
+            if (command.freset_ticket != consumed_freset) {
+                return AX05A_PENDING;
+            }
+            ++command.freset_ticket;
+        }
+        break;
+    case AX05A_PI_RESET:
+        if (command.pi_reset_ticket != consumed_pi_reset) {
+            return AX05A_PENDING;
+        }
+        ++command.pi_reset_ticket;
+        break;
+    default:
+        return AX05A_BAD_REQUEST;
+    }
+    command.online_revision = next_revision();
+    if (request->action == AX05A_SETPOINT && command.online_mode == AX05A_POSITION) {
+        move_pending_revision = command.online_revision;
+    }
+    publish_command(&command);
+    *revision = command.online_revision;
+    return AX05A_ACCEPTED;
+}
+
+Ax05aReply ax05a_submit(const Ax05aRequest *request)
+{
+    Ax05aReply reply = {.decision = AX05A_BAD_REQUEST};
+    if (request == NULL) {
+        return reply;
+    }
+    reply.request_id = request->request_id;
+    if (request->schema == AX05A_SCHEMA && request->action == AX05A_STOP) {
+        disarm();
+        reply.decision = AX05A_ACCEPTED;
+        return reply;
+    }
+    const uint32_t distance = request->request_id - last_request_id;
+    if (request->schema != AX05A_SCHEMA ||
+        (have_request && (distance == 0u || distance >= UINT32_C(0x80000000)))) {
+        return reply;
+    }
+    have_request = true;
+    last_request_id = request->request_id;
+    if (request->action == AX05A_ARM) {
+        if (ax04b_build_mode == AX04B_REAL) {
+            reply.decision = AX05A_REAL_INHIBITED;
+        } else if (!selection_confirmed || request->selected_revision != confirmed_revision) {
+            reply.decision = AX05A_NOT_READY;
+        } else {
+            reply.decision = arm_test() ? AX05A_ACCEPTED : AX05A_PL_DENIED;
+        }
+    } else if (request->action == AX05A_CLEAR) {
+        reply.decision = clear_request() ? AX05A_ACCEPTED : AX05A_STOP_FIRST;
+    } else if (request->action == AX05A_CALIBRATE) {
+        if (ax05a_control_status().armed) {
+            reply.decision = AX05A_STOP_FIRST;
+        } else {
+            reply.decision = configure_zero_current() ? AX05A_ACCEPTED : AX05A_NOT_READY;
+        }
+    } else {
+        const uint32_t cpsr = irq_lock();
+        reply.decision = apply_command(request, &reply.accepted_revision);
+        irq_unlock(cpsr);
+    }
+    return reply;
+}
+
+Ax05aControlStatus ax05a_control_status(void)
+{
+    const uint32_t cpsr = irq_lock();
+    const bool permission_lost = safety.armed &&
+        pl_stop_reason(read_rt(AX04B_STATUS)) != AX04B_STOP_NONE;
+    const Ax05aControlStatus control = {
+        .selected_revision = selected.online_revision,
+        .confirmed_revision = confirmed_revision,
+        .dispatched_revision = command_slots[active_command].online_revision,
+        .selected_mode = (Ax05aMode)selected.online_mode,
+        .selection_confirmed = selection_confirmed && !permission_lost,
+        .armed = safety.armed && !permission_lost,
+        .clear_confirmed = safety.clear_confirmed,
+        .stop_pending = safety.stop_pending || permission_lost
+    };
+    irq_unlock(cpsr);
+    return control;
+}
+#endif
 
 static void status_report(void)
 {
@@ -800,6 +1182,13 @@ static void status_report(void)
 static void trace_start(void)
 {
     const uint32_t cpsr = irq_lock();
+#ifdef AX05A_ONLINE
+    if (online_trace.active) {
+        irq_unlock(cpsr);
+        return;
+    }
+    online_trace.count = 0u;
+#endif
     trace_count = 0u;
     trace_on = true;
     irq_unlock(cpsr);
@@ -841,22 +1230,391 @@ static void trace_dump(void)
     }
 }
 
-static void diagnostics_dump(void)
+static bool diagnostic_begin(uint32_t *sequence)
 {
     if ((read_rt(AX04B_STATUS) & AX04B_APPLIED_SEEN) == 0u) {
+        return false;
+    }
+    *sequence = read_diag(0x0u);
+    return true;
+}
+
+static uint32_t diagnostic_word(unsigned index)
+{
+    return read_diag(0x0cu + index * 4u);
+}
+
+static void diagnostics_dump(void)
+{
+#ifdef AX05A_ONLINE
+    Ax05aDiagnostics diagnostics;
+    if (!ax05a_read_diagnostics(&diagnostics)) {
+        xil_printf("AX05A no diagnostic snapshot yet\r\n");
+        return;
+    }
+    printf("AX05A diag seq=%" PRIu32 " rt_sample=%" PRIu32 " fault=%08" PRIx32
+        " ack=%" PRIu32 " commit=%" PRIu32 " rejected=%" PRIu32
+        " adopted_compare=%" PRIu32 ":%" PRIu32 ",%" PRIu32 ",%" PRIu32 " coherent=%u\r\n",
+        diagnostics.sequence, diagnostics.rt_sample_id, diagnostics.rt_fault,
+        diagnostics.exact_ack_count, diagnostics.commits, diagnostics.rejects,
+        diagnostics.pwm_adopted_sequence, diagnostics.pwm_compare[0], diagnostics.pwm_compare[1],
+        diagnostics.pwm_compare[2], (unsigned)diagnostics.pwm_receipt_coherent);
+    for (unsigned i = 0u; i < DIAG_WORDS; ++i) {
+        printf("%u,%08" PRIx32 "\r\n", i, diagnostics.words[i]);
+    }
+#else
+    uint32_t words[DIAG_WORDS];
+    uint32_t sequence;
+    if (!diagnostic_begin(&sequence)) {
         xil_printf("AX04B wait for first adopted frame before diagnostic snapshot\r\n");
         return;
     }
-    uint32_t words[DIAG_WORDS];
-    const uint32_t sequence = read_diag(0x0u);
     for (unsigned i = 0u; i < DIAG_WORDS; ++i) {
-        words[i] = read_diag(0x0cu + i * 4u);
+        words[i] = diagnostic_word(i);
     }
     printf("AX04B legacy 80-word adopted-PWM diagnostic seq=%" PRIu32 "\r\n", sequence);
     for (unsigned i = 0u; i < DIAG_WORDS; ++i) {
         printf("%u,%08" PRIx32 "\r\n", i, words[i]);
     }
+#endif
 }
+
+#ifdef AX05A_ONLINE
+static double diagnostic_fixed(uint32_t raw, double scale)
+{
+    const int64_t signed_raw = raw <= INT32_MAX ? raw : (int64_t)raw - INT64_C(4294967296);
+    return (double)signed_raw * scale;
+}
+
+static bool matching_ps_frame(Ax05aSample *sample)
+{
+    const uint32_t cpsr = irq_lock();
+    const uint32_t service_start = pmu_tick();
+    bool found = false;
+    for (unsigned i = 0u; i < ps_count; ++i) {
+        const Ax05aPsFrame *frame = &ps_history[(ps_next + PS_HISTORY - 1u - i) % PS_HISTORY];
+        if (frame->sample_id == sample->sample_id && frame->tick == sample->tick) {
+            sample->ps = *frame;
+            found = true;
+            break;
+        }
+    }
+    maximum(&counters.max_service_mask, pmu_tick() - service_start);
+    irq_unlock(cpsr);
+    return found;
+}
+
+bool ax05a_read_sample(Ax05aSample *sample)
+{
+    if (sample == NULL) {
+        return false;
+    }
+    *sample = (Ax05aSample){.schema = AX05A_SCHEMA};
+    if (!diagnostic_begin(&sample->pl_sequence)) {
+        return false;
+    }
+    const uint32_t epoch = read_diag(0x04u);
+    const uint32_t flags = read_diag(0x08u);
+    const uint32_t ident = diagnostic_word(0);
+    const uint32_t schema = diagnostic_word(1);
+    sample->adc_quality = diagnostic_word(2);
+    sample->sample_id = diagnostic_word(3);
+    const uint32_t tick_lo = diagnostic_word(4);
+    sample->tick = ax04b_join_words(tick_lo, diagnostic_word(5));
+    sample->ia_a = diagnostic_fixed(diagnostic_word(8), 0x1p-24);
+    sample->ib_a = diagnostic_fixed(diagnostic_word(9), 0x1p-24);
+    sample->ic_a = diagnostic_fixed(diagnostic_word(10), 0x1p-24);
+    sample->offset_a_counts = diagnostic_fixed(diagnostic_word(11), 0x1p-16);
+    sample->offset_b_counts = diagnostic_fixed(diagnostic_word(12), 0x1p-16);
+    sample->adc_calibration_version = diagnostic_word(15);
+    const uint32_t encoder_angle_lo = diagnostic_word(32);
+    sample->encoder_angle_rad = diagnostic_fixed(diagnostic_word(33), 1.0) +
+        (double)encoder_angle_lo * 0x1p-32;
+    const uint32_t foc_flags = diagnostic_word(41);
+    const uint32_t foc_id = diagnostic_word(42);
+    const uint32_t foc_tick_lo = diagnostic_word(43);
+    const uint64_t foc_tick = ax04b_join_words(foc_tick_lo, diagnostic_word(44));
+    sample->foc_reference_version = diagnostic_word(45);
+    sample->id_ref_a = diagnostic_fixed(diagnostic_word(49), 0x1p-24);
+    sample->iq_ref_a = diagnostic_fixed(diagnostic_word(50), 0x1p-24);
+    const uint32_t theta_lo = diagnostic_word(51);
+    const uint32_t theta_hi = diagnostic_word(52);
+    sample->electrical_angle_rad = diagnostic_fixed(theta_hi, 1.0) + (double)theta_lo * 0x1p-32;
+    const bool dq_extension = diagnostic_word(77) == AX05A_DQ_IDENT;
+    if (dq_extension) {
+        sample->dq_extension_id = AX05A_DQ_IDENT;
+        sample->id_a = diagnostic_fixed(diagnostic_word(73), 0x1p-20);
+        sample->iq_a = diagnostic_fixed(diagnostic_word(74), 0x1p-20);
+        sample->ud_v = diagnostic_fixed(diagnostic_word(75), 0x1p-20);
+        sample->uq_v = diagnostic_fixed(diagnostic_word(76), 0x1p-20);
+    }
+    (void)diagnostic_word(DIAG_WORDS - 1u); /* Always release, including invalid observations. */
+    if (epoch != UINT32_C(0x4d430003) || ident != UINT32_C(0x4d435431) ||
+        schema != 3u || (flags & 1u) == 0u) {
+        return false;
+    }
+    sample->groups = AX05A_ADC;
+    sample->calibration_done_a = (sample->adc_quality & (1u << 5)) != 0u;
+    sample->calibration_done_b = (sample->adc_quality & (1u << 6)) != 0u;
+    sample->current_valid = (sample->adc_quality & UINT32_C(0x1ff)) == UINT32_C(0xe7);
+    sample->encoder_angle_valid = (sample->adc_quality & (1u << 11)) != 0u;
+    if (matching_ps_frame(sample)) {
+        sample->groups |= AX05A_PS;
+    }
+    if ((foc_flags & 6u) == 2u && foc_id == sample->sample_id && foc_tick == sample->tick) {
+        sample->groups |= AX05A_FOC_REF;
+        if (dq_extension && (foc_flags & 1u) != 0u) {
+            sample->groups |= AX05A_DQ;
+        }
+    }
+    return true;
+}
+
+static uint32_t read_pwm(uint32_t offset)
+{
+    return Xil_In32((UINTPTR)UINT32_C(0x80001000) + offset);
+}
+
+bool ax05a_read_diagnostics(Ax05aDiagnostics *diagnostics)
+{
+    if (diagnostics == NULL) {
+        return false;
+    }
+    *diagnostics = (Ax05aDiagnostics){0};
+    if (!diagnostic_begin(&diagnostics->sequence)) {
+        return false;
+    }
+    for (unsigned i = 0u; i < DIAG_WORDS; ++i) {
+        diagnostics->words[i] = diagnostic_word(i);
+    }
+    if (read_pwm(0) == UINT32_C(0x50574d01)) {
+        diagnostics->pwm_status = read_pwm(0x04u);
+        const uint32_t seq = read_pwm(0x0cu);
+        for (unsigned i = 0u; i < 3u; ++i) {
+            diagnostics->pwm_compare[i] = read_pwm(0x30u + i * 4u);
+        }
+        diagnostics->pwm_adopted_sequence = seq;
+        diagnostics->pwm_receipt_coherent = (diagnostics->pwm_status & 8u) != 0u &&
+            seq == read_pwm(0x0cu) && diagnostics->pwm_status == read_pwm(0x04u);
+        diagnostics->pwm_period = read_pwm(0x40u);
+        diagnostics->pwm_deadtime = read_pwm(0x44u);
+        diagnostics->pwm_use_permission = read_pwm(0x24u);
+    }
+    const uint32_t cpsr = irq_lock();
+    diagnostics->status = read_rt(AX04B_STATUS);
+    diagnostics->irq_frames = counters.frames;
+    diagnostics->exact_ack_count = online_ack_count;
+    diagnostics->overruns = previous_overrun;
+    diagnostics->commits = counters.accepted;
+    diagnostics->rejects = counters.rejected;
+    diagnostics->stop_reason = (uint32_t)safety.reason;
+    diagnostics->rt_sample_id = latest.sample_id;
+    diagnostics->rt_quality = latest.quality;
+    diagnostics->rt_fault = latest.fault;
+    diagnostics->rt_drive_flags = latest.flags;
+    diagnostics->rt_tick = latest.feedback_tick;
+    diagnostics->rt_ctrl_enable = read_rt(AX04B_IO_CONTROL);
+    irq_unlock(cpsr);
+    return true;
+}
+
+bool ax05a_trace_start(uint32_t groups)
+{
+    if (online_trace.active || groups == 0u || (groups & ~AX05A_ALL) != 0u) {
+        return false;
+    }
+    const uint32_t capture_id = online_trace.capture_id + 1u;
+    const uint32_t cpsr = irq_lock();
+    if (trace_on) {
+        irq_unlock(cpsr);
+        return false;
+    }
+    trace_count = 0u;
+    irq_unlock(cpsr);
+    online_trace = (Ax05aTraceInfo){
+        .schema = AX05A_SCHEMA, .application_id = ax04b_application_id,
+        .pl_interface_id = AX04B_INTERFACE_ID, .hardware_profile = ax04b_build_mode,
+        .pl_ticks_hz = 50000000u, .channel_mask = groups, .capture_id = capture_id, .active = true
+    };
+    return true;
+}
+
+bool ax05a_trace_poll(void)
+{
+    if (!online_trace.active) {
+        return false;
+    }
+    Ax05aSample sample;
+    if (!ax05a_read_sample(&sample)) {
+        return false;
+    }
+    if (online_trace.count == 0u) {
+        online_trace.first_groups = sample.groups;
+        online_trace.first_mode = sample.ps.mode;
+        online_trace.first_command_revision = sample.ps.command_revision;
+        online_trace.first_foc_reference_version = sample.foc_reference_version;
+        online_trace.first_id_ref_a = sample.id_ref_a;
+        online_trace.first_iq_ref_a = sample.iq_ref_a;
+        online_trace.first_offset_a_counts = sample.offset_a_counts;
+        online_trace.first_offset_b_counts = sample.offset_b_counts;
+    }
+    if (online_trace.count != 0u) {
+        const Ax05aSample *previous = &online_records[online_trace.count - 1u];
+        const uint64_t delta = sample.tick - previous->tick;
+        if (delta == 0u && sample.sample_id == previous->sample_id &&
+            sample.pl_sequence == previous->pl_sequence &&
+            sample.dq_extension_id == previous->dq_extension_id) {
+            ++online_trace.duplicates;
+            return false;
+        }
+        const uint64_t frames = delta / AX04B_TICK_STEP;
+        if (sample.dq_extension_id != previous->dq_extension_id ||
+            delta % AX04B_TICK_STEP != 0u || frames == 0u ||
+            frames > UINT32_MAX || sample.sample_id - previous->sample_id !=
+                (uint32_t)frames * AX04B_ID_STEP ||
+            sample.pl_sequence - previous->pl_sequence != (uint32_t)frames) {
+            online_trace.discontinuous = true;
+            online_trace.active = false;
+            return false;
+        }
+        const uint64_t missed = (uint64_t)online_trace.missed + frames - 1u;
+        online_trace.missed = missed > UINT32_MAX ? UINT32_MAX : (uint32_t)missed;
+    }
+    sample.groups &= online_trace.channel_mask;
+    online_trace.dq_extension_id = sample.dq_extension_id;
+    online_records[online_trace.count++] = sample;
+    if (online_trace.count == AX05A_TRACE_CAPACITY) {
+        online_trace.full = true;
+        online_trace.active = false;
+    }
+    return true;
+}
+
+void ax05a_trace_stop(void)
+{
+    online_trace.active = false;
+}
+
+Ax05aTraceInfo ax05a_trace_info(void)
+{
+    return online_trace;
+}
+
+bool ax05a_trace_read(uint32_t capture_id, uint32_t index, Ax05aSample *sample)
+{
+    if (sample == NULL || online_trace.active || capture_id != online_trace.capture_id ||
+        index >= online_trace.count) {
+        return false;
+    }
+    *sample = online_records[index];
+    return true;
+}
+
+static void print_sample(const Ax05aSample *sample)
+{
+    printf("AX05A id=%" PRIu32 " tick=%" PRIu64 " groups=%x"
+        " mode=%" PRIu32 " revision=%" PRIu32 " move=%" PRIu32 ":%" PRIu32
+        " pos=%.6f/%.6f speed=%.6f/%.6f pos_valid=%u speed_valid=%u"
+        " align=%" PRIu32 " fault=%08" PRIx32 " commit=%" PRIu32 ":%" PRIu32
+        ":%" PRIu32 " p0=%" PRIu32 ":%" PRIu32 ":%u"
+        " abc=%.6f,%.6f,%.6f current_valid=%u dq_ref=%.6f,%.6f theta=%.6f"
+        " offset=%.4f,%.4f cal=%u,%u enc_theta=%.6f:%u"
+        " dq=%.6f,%.6f uv=%.6f,%.6f\r\n",
+        sample->sample_id, sample->tick, (unsigned)sample->groups,
+        sample->ps.mode, sample->ps.command_revision,
+        sample->ps.host_receipt_revision, sample->ps.host_status,
+        sample->ps.position_mm, sample->ps.position_ref_mm, sample->ps.speed_mm_s,
+        sample->ps.speed_ref_mm_s, (unsigned)sample->ps.position_valid,
+        (unsigned)sample->ps.speed_valid, sample->ps.alignment_state, sample->ps.fault,
+        sample->ps.commit_version, sample->ps.commit_target, sample->ps.commit_result,
+        sample->ps.p0_version, sample->ps.p0_target, (unsigned)sample->ps.p0_valid,
+        sample->ia_a, sample->ib_a, sample->ic_a, (unsigned)sample->current_valid,
+        sample->id_ref_a, sample->iq_ref_a, sample->electrical_angle_rad,
+        sample->offset_a_counts, sample->offset_b_counts,
+        (unsigned)sample->calibration_done_a, (unsigned)sample->calibration_done_b,
+        sample->encoder_angle_rad, (unsigned)sample->encoder_angle_valid,
+        sample->id_a, sample->iq_a, sample->ud_v, sample->uq_v);
+}
+
+static void online_uart_command(void)
+{
+    char line[192];
+    if (fgets(line, sizeof(line), stdin) == NULL) {
+        return;
+    }
+    if (strchr(line, '\n') == NULL) {
+        int byte;
+        do {
+            byte = getchar();
+        } while (byte != '\n' && byte != EOF);
+        xil_printf("AX05A command line too long\r\n");
+        return;
+    }
+    Ax05aRequest request = {.schema = AX05A_SCHEMA, .request_id = last_request_id + 1u};
+    unsigned header[3];
+    double *const value[] = {
+        &request.position_mm, &request.speed_mm_s, &request.id_a,
+        &request.iq_a, &request.fine_phase_rad
+    };
+    char *read_from = line, *end;
+    errno = 0;
+    for (unsigned i = 0u; i < 3u; ++i) {
+        const intmax_t parsed = strtoimax(read_from, &end, 10);
+        if (end == read_from || errno != 0 || parsed < 0 || parsed > UINT32_MAX) {
+            goto malformed;
+        }
+        header[i] = (unsigned)parsed;
+        read_from = end;
+    }
+    for (unsigned i = 0u; i < sizeof(value) / sizeof(*value); ++i) {
+        *value[i] = strtod(read_from, &end);
+        if (end == read_from || errno != 0 || !isfinite(*value[i])) {
+            goto malformed;
+        }
+        read_from = end;
+    }
+    while (isspace((unsigned char)*read_from)) {
+        ++read_from;
+    }
+    if (*read_from != '\0' || header[0] > AX05A_DRIVER_RESET || header[1] > AX05A_ALIGNMENT) {
+        goto malformed;
+    }
+    request.action = (Ax05aAction)header[0];
+    request.mode = (Ax05aMode)header[1];
+    request.selected_revision = header[2];
+    const Ax05aReply reply = ax05a_submit(&request);
+    const Ax05aControlStatus status = ax05a_control_status();
+    printf("AX05A request=%" PRIu32 " decision=%u revision=%" PRIu32
+        " selected=%" PRIu32 " confirmed=%" PRIu32 " valid=%u dispatched=%" PRIu32
+        " armed=%u clear_confirmed=%u\r\n", reply.request_id, (unsigned)reply.decision,
+        reply.accepted_revision, status.selected_revision, status.confirmed_revision,
+        (unsigned)status.selection_confirmed, status.dispatched_revision,
+        (unsigned)status.armed, (unsigned)status.clear_confirmed);
+    return;
+
+malformed:
+    xil_printf("AX05A expected o <action> <mode> <selected_rev> <x> <v> <id> <iq> <fine>\r\n");
+}
+
+static void online_trace_dump(void)
+{
+    ax05a_trace_stop();
+    const Ax05aTraceInfo info = ax05a_trace_info();
+    printf("AX05A trace=%" PRIu32 " schema=%" PRIu32 " app=%08" PRIx32
+        " pl=%08" PRIx32 " dq_schema=%08" PRIx32 " profile=%" PRIu32 " tick_hz=%" PRIu32
+        " mask=%" PRIx32 " frames=%" PRIu32 " missed=%" PRIu32
+        " duplicate=%" PRIu32 " full=%u discontinuous=%u\r\n",
+        info.capture_id, info.schema, info.application_id, info.pl_interface_id,
+        info.dq_extension_id, info.hardware_profile, info.pl_ticks_hz, info.channel_mask, info.count,
+        info.missed, info.duplicates, (unsigned)info.full, (unsigned)info.discontinuous);
+    for (uint32_t i = 0; i < info.count; ++i) {
+        Ax05aSample sample;
+        if (ax05a_trace_read(info.capture_id, i, &sample)) {
+            print_sample(&sample);
+        }
+    }
+}
+#endif
 
 int main(void)
 {
@@ -895,19 +1653,44 @@ int main(void)
         " GIC_INTID=%" PRIu32 " feedback_nm_per_count=%u PMU_divider=%" PRIu32 "\r\n",
         ax04b_application_id, ax04b_build_mode, ax04b_mmio_base, ax04b_fabric_irq,
         AX04B_NM_PER_COUNT, pmu_divisor());
+#ifdef AX05A_ONLINE
+    xil_printf("o=AX05A command s=status g=REAL gains x=stop d=diagnostics n=sample "
+        "L=trace start K=trace poll P=trace freeze/download l/p=IRQ trace\r\n");
+#else
     xil_printf("c=calibrate g=REAL gains r=clear a=SELFTEST arm j=q-test i=align "
         "z=alignment-reset f=SELFTEST driver-reset x=stop s=status l=capture p=CSV d=PL snapshot\r\n");
+#endif
     for (;;) {
         const char command = inbyte();
         switch (command) {
-        case 'c': configure_zero_current(); break;
         case 'g': read_real_gains(); break;
+#ifdef AX05A_ONLINE
+        case 'o': online_uart_command(); break;
+        case 'n': {
+            Ax05aSample sample;
+            if (ax05a_read_sample(&sample)) {
+                print_sample(&sample);
+            } else {
+                xil_printf("AX05A no diagnostic snapshot yet\r\n");
+            }
+            break;
+        }
+        case 'L':
+            if (ax05a_trace_start(AX05A_ALL)) {
+                xil_printf("AX05A trace enabled, use K to sample\r\n");
+            }
+            break;
+        case 'K': (void)ax05a_trace_poll(); break;
+        case 'P': online_trace_dump(); break;
+#else
+        case 'c': configure_zero_current(); break;
         case 'r': clear_request(); break;
         case 'a': arm_test(); break;
         case 'j':
         case 'i':
         case 'z':
         case 'f': test_command(command); break;
+#endif
         case 'x': disarm(); xil_printf("AX04B STOPPED\r\n"); break;
         case 's': status_report(); break;
         case 'l': trace_start(); break;

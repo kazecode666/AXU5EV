@@ -5,11 +5,22 @@ proc mc_sources {root kind} {
     foreach line [split [read $f] "\n"] {
         set fields [split [string trim $line] |]
         if {[lindex $fields 0] eq $kind} {
-            lappend sources [file normalize [file join $root [lindex $fields 1]]]
+            set relative [lindex $fields 1]
+            if {$kind eq "experiment" && [mc_foc_observation] &&
+                [file tail $relative] in {AX04_FOC_FOC_DUT.sv AX04_FOC_Id.sv AX04_FOC_dq_voltage_limiter.sv}} {
+                set relative [string map {
+                    generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/
+                    generated/experiment/ax05a_03/pl/AXU5EV_Experiment_FOC/
+                } $relative]
+            }
+            lappend sources [file normalize [file join $root $relative]]
         }
     }
     close $f
     return $sources
+}
+proc mc_foc_observation {} {
+    return [expr {[info exists ::env(MC_AX05A)] && $::env(MC_AX05A) eq "1"}]
 }
 proc mc_hdl_sources {root with_auto {profile ""}} {
     # Register declarations and their consumers together, packages first.
@@ -43,7 +54,9 @@ proc mc_integrate {root out} {
     if {$profile ni {"" SELFTEST REAL}} {error "Unknown AX04B build profile: $profile"}
     if {$profile ne ""} {
         set_property CONFIG.PSU__USE__IRQ0 1 $ps
-        set_property verilog_define AX04B_EXPERIMENT [get_filesets sources_1]
+        set defines {AX04B_EXPERIMENT}
+        if {[mc_foc_observation]} {lappend defines AX05A_FOC_OBSERVATION}
+        set_property verilog_define $defines [get_filesets sources_1]
     }
     set with_auto [expr {[info exists ::env(MC_AUTO)] && $::env(MC_AUTO)==1}]
     add_files -norecurse [mc_hdl_sources $root $with_auto $profile]

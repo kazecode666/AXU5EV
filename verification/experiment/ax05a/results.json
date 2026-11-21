@@ -1,0 +1,88 @@
+{
+  "issue": "kazecode666/AXU5EV#52",
+  "base": "9e5ff3d69e6d00a25dd10482bee68043fee3e467",
+  "api_schema": 1,
+  "app_id": "0x41585204",
+  "dq_extension_id": "0x41583501",
+  "r5_model": {
+    "version": "1.173",
+    "source": "generated/experiment/ax04b_r1_01/r5",
+    "new_codegen": "NOT_NEEDED_NO_R5_MODEL_CHANGE"
+  },
+  "foc_model": {
+    "version": "1.30",
+    "model": "simulation/experiment/pl/AXU5EV_Experiment_FOC.slx",
+    "connected_ports": "PASS",
+    "hdl_codegen": "PASS",
+    "generator_warnings": 4,
+    "modules": 28,
+    "packages": 1,
+    "reused_header_only_differences": 26,
+    "new_generated_overlay": "generated/experiment/ax05a_03/pl/AXU5EV_Experiment_FOC"
+  },
+  "host": {
+    "status": "PASS",
+    "scenarios": ["commands", "position", "alignment", "snapshot", "trace", "real"],
+    "log": ".runtime/experiment/ax05a/host_online_05/result.txt",
+    "ax04b_compatibility_scenarios": 12,
+    "ax04b_compatibility_log": ".runtime/experiment/ax05a/host_legacy_02/result.txt"
+  },
+  "standalone_r5_compile": {
+    "status": "PASS",
+    "scope": "AX-05A adapter and firmware translation units, GCC Cortex-R5 with real standalone BSP and -Werror",
+    "irq_function_stack_bytes": 1104,
+    "shared_trace_storage_bytes": 86016,
+    "note": "Static compiler function frame size, excluding callees. Runtime stack use and timing are not measured."
+  },
+  "foc_rtl": {
+    "status": "PASS",
+    "frames": 48,
+    "phase": 314,
+    "dq_q40_words_vs_model": 192,
+    "duty_uq30_words_vs_model": 144,
+    "duty_uq30_words_vs_old_model": 144,
+    "mismatches": 0,
+    "log": ".runtime/experiment/ax05a/rtl_dq_model_01/xsim.console.log"
+  },
+  "chain_rtl": {
+    "status": "PASS",
+    "selftest_checks": 110443,
+    "real_checks": 110445,
+    "baseline_duty_words_identical": 12,
+    "matched_dq_sample_id": 2500,
+    "matched_dq_tick": 25000,
+    "phase": {"irq": 76, "join": 110, "capture": 127, "result": 443, "apply": 2500, "confirmation": 2504},
+    "selftest_log": ".runtime/experiment/ax05a/rtl_selftest_final/xsim.console.log",
+    "real_log": ".runtime/experiment/ax05a/rtl_real_final/xsim.console.log"
+  },
+  "target_builds": {
+    "selftest": {
+      "status": "OFFLINE_STARTUP_CHECK_PASS",
+      "candidate": ".runtime/experiment/ax04b/selftest_ax05a_02",
+      "wns_ns": 0.733,
+      "whs_ns": 0.011,
+      "tns_ns": 0.0,
+      "ths_ns": 0.0,
+      "routing_errors": 0
+    },
+    "real": {
+      "status": "OFFLINE_STARTUP_CHECK_PASS",
+      "candidate": ".runtime/experiment/ax04b/real_ax05a_02",
+      "wns_ns": 0.704,
+      "whs_ns": 0.010,
+      "tns_ns": 0.0,
+      "ths_ns": 0.0,
+      "routing_errors": 0
+    },
+    "irq_stack_bytes": 16384,
+    "matching_embedded_bit": true,
+    "sources_match": true
+  },
+  "BOARD_SELFTEST": "NOT_RUN",
+  "ARM_EXECUTION": "NOT_RUN",
+  "IRQ_COMMIT_LATENCY_MEASUREMENT": "NOT_RUN",
+  "SUSTAINED_CAPTURE_RATE": "NOT_RUN",
+  "REAL_IO": "NOT_RUN",
+  "POWER_MOTION": "NOT_RUN",
+  "DYNAMIC_SDF": "NOT_RUN"
+}

@@ -1,5 +1,6 @@
-function result=ax04_validate_feedforward(output_dir)
+function result=ax04_validate_feedforward(output_dir,observe_dq)
 % Short dynamic feedforward trace for the independent B2 FOC and RTL.
+if nargin<2,observe_dq=false;end
 root=axu5ev_project_root(mfilename('fullpath'));
 assert(~isfolder(output_dir) && ~isfile(output_dir),'Choose a new verification directory.');
 mkdir(output_dir);
@@ -71,11 +72,31 @@ assert(max(max(actual(5:44,:),[],2)-min(actual(5:44,:),[],2))>.05);
 assert(isequal(actual(45:48,:),repmat(actual(4,:),4,1)), ...
     'Held PI reset differs from its initial zero-command duty.');
 writematrix([time values actual],fullfile(output_dir,'foc_feedforward_model.csv'));
+if observe_dq
+    assert(numElements(out.yout)==7);
+    hex_words=cell(1,4);
+    for index=1:4
+        tap=out.yout{index+3}.Values;
+        assert(isequal(size(tap.Time),size(time)) && all(abs(tap.Time-time)<1e-14));
+        values_fi=squeeze(tap.Data);
+        value_type=numerictype(values_fi);
+        assert(issigned(values_fi) && value_type.WordLength==64 && value_type.FractionLength==40);
+        hex_words{index}=dec2hex(typecast(storedInteger(values_fi),'uint64'),16);
+    end
+    fid=fopen(fullfile(output_dir,'foc_dq_vectors.hex'),'w');
+    assert(fid>=0);
+    finish_dq=onCleanup(@()fclose(fid)); %#ok<NASGU>
+    rows=[hex_words{:}];
+    for index=1:frames
+        fprintf(fid,'%s\n',rows(index,:));
+    end
+end
 result=struct('status','PASS','frames',frames,'active_frames',40, ...
     'angle_velocity_cases',cases,'case_columns','first_frame,last_frame,theta_rad,omega_rad_s', ...
     'phase_currents_A',[.2 -.12 -.08],'id_ref_A',.15,'iq_ref_A',-.1, ...
     'start_reset_frames',4,'tail_reset_frames',4,'Ts_ACR',p.Ts_ACR, ...
-    'expected_duty_words',3*frames,'input_quantization','Nearest fi constructor', ...
+    'expected_duty_words',3*frames,'expected_dq_words',4*frames*observe_dq, ...
+    'input_quantization','Nearest fi constructor', ...
     'FOC_parameters',p.FOC_Fixed_Parameters,'hardware','HW_BINDING_PENDING','board','BOARD_NOT_RUN');
 stream=fopen(fullfile(output_dir,'feedforward_model_result.json'),'w');assert(stream>=0);
 closer=onCleanup(@()fclose(stream)); %#ok<NASGU>

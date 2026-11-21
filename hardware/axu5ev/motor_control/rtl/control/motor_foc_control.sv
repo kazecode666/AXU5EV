@@ -13,6 +13,9 @@ module motor_foc_control(
  input wire auto_ready,auto_online,input wire [31:0] auto_applied_seq,
  output reg auto_valid,output reg [38:0] auto_compare,output reg [31:0] auto_seq,
  output wire auto_inhibit,output reg status_strobe,output reg [1023:0] debug_o
+`ifdef AX05A_FOC_OBSERVATION
+ ,output wire [127:0] dq_observation
+`endif
 );
  reg tracking,core_started;
  reg [12:0] sample_age;
@@ -36,7 +39,11 @@ module motor_foc_control(
   .ia(foc_ia),.ib(foc_ib),.ic(foc_ic),.iq_ref(foc_iq),.id_ref(foc_id),
   .theta_e(foc_theta),.omega_e(foc_omega),.integrator_clear(foc_pi),.vdc(foc_vdc),
   .duty_u(core_du),.duty_v(core_dv),.duty_w(core_dw),.frame_id(core_frame_id),
-  .capture_edge(core_capture_edge),.result_valid(core_result_valid),.hold_violation(hold_violation));
+  .capture_edge(core_capture_edge),.result_valid(core_result_valid),.hold_violation(hold_violation)
+`ifdef AX05A_FOC_OBSERVATION
+  ,.dq_observation(dq_observation)
+`endif
+ );
  reg [31:0] result_frame_seen;
  wire foc_result_pulse=core_result_valid && core_frame_id!=result_frame_seen;
  reg map_strobe;

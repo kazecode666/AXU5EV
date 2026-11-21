@@ -32,6 +32,12 @@ RTL_MODE={'SELFTEST':1,'REAL':2}
 IRQ_STACK_BYTES=0x4000
 GENERATED_R5=(ROOT/C['generated_r5']).resolve() if AX04B else None
 MODEL_VERSION=C['model_version'] if AX04B else None
+AX05A=C.get('online_schema')==1
+if AX05A and (not AX04B or APP_ID!=0x41585204):
+    raise ValueError('AX-05A schema 1 requires an isolated AX04B profile with app ID 0x41585204')
+AX05A_DQ=C.get('dq_extension_id')
+if AX05A_DQ is not None and (AX05A_DQ!='0x41583501' or not AX05A or 'hardware_source' in C):
+    raise ValueError('AX-05A dq extension requires a new routed hardware bundle')
 
 
 def ax04b_reused_hardware(files,prepare):
@@ -65,7 +71,15 @@ def ax04b_hardware_set(prepare=False):
     if bit.parent!=XSA.parent or ltx.parent!=XSA.parent:
         raise ValueError('The XSA, bit and ltx must be from the same Vivado build')
     marker=XSA.parent/'ax04b_build_profile.txt'
-    source=ax04b_reused_hardware((XSA,bit,ltx,marker),prepare)
+    if AX05A_DQ:
+        source=XSA.parent
+        if not all(p.is_file() for p in (XSA,bit,ltx,marker)):
+            raise ValueError('Build the independent AX-05A PL bundle first')
+        schema=source/'ax05a_dq_schema.txt'
+        if not schema.is_file() or schema.read_text().strip()!=AX05A_DQ:
+            raise ValueError('Missing matching AX-05A PL observation schema')
+    else:
+        source=ax04b_reused_hardware((XSA,bit,ltx,marker),prepare)
     if marker.read_text().strip()!=PROFILE:
         raise ValueError('Vivado integrated another profile')
     debug=json.loads(ltx.read_text(encoding='utf-8'))['ltx_root']['ltx_data']
@@ -160,6 +174,8 @@ def ax04b_bsp():
     irq=index+32
     if base!=0x80002000 or diag_base!=0x80000000 or not 32<=irq<=1019:
         raise ValueError('BSP map disagrees with the AX04B register contract')
+    if AX05A and unique_macro('PWM_CONFIG_BRIDGE','BASEADDR')[0]!=0x80001000:
+        raise ValueError('BSP PWM diagnostics aperture disagrees with the AX05A contract')
     return dict(base=base,base_macro=base_macro,diag_base=diag_base,diag_macro=diag_macro,
                 irq=irq,irq_sdt=(trigger<<12)|index,irq_source=dts.as_posix(),
                 gic_base=gic_base,irq_trigger='high_level')
@@ -206,6 +222,12 @@ def ax04b_check_startup():
     linked=symbols(elf)
     required={'PL_Frame_IRQ','Service_Request','AXU5EV_Motor_Control_System_initialize',
               'XScuGic_InterruptHandler','_irq_stack_end','__irq_stack'}
+    if AX05A:
+        # Functions used by the debugger/next transport are independently
+        # visible even if the first console does not call every operation.
+        required.update({'ax05a_submit','ax05a_read_sample','ax05a_read_diagnostics',
+                         'ax05a_trace_start','ax05a_trace_poll','ax05a_trace_stop',
+                         'ax05a_trace_info','ax05a_trace_read','ax05a_control_status'})
     if not required.issubset(linked):
         raise ValueError('ELF missing model, IRQ or IRQ stack symbols: '+str(sorted(required-linked.keys())))
     irq_stack=linked['__irq_stack']['address']-linked['_irq_stack_end']['address']
@@ -230,12 +252,14 @@ def ax04b_check_startup():
              sources_match=True,linked_sources=[s.name for s in sources if s.suffix=='.c'],
              workspace=WS.as_posix(),elf=elf.as_posix(),map=mapping.as_posix(),
              bitstream=bit.as_posix(),ltx=ltx.as_posix(),xsa=XSA.as_posix(),
-             hardware_source=hardware_source.as_posix(),matching_reused_hardware=True,
+             hardware_source=hardware_source.as_posix(),matching_reused_hardware=not AX05A_DQ,
              exported_xsa=exported_xsa.as_posix(),
              psu_init=psu_init.as_posix(),matching_embedded_bit=True,
              bsp=bsp,irq_stack_bytes=irq_stack,arm_execution='NOT_RUN',
              board_selftest='NOT_RUN',real_io='NOT_RUN',power_motion='NOT_RUN',
              irq_commit_latency_measurement='NOT_RUN')
+    if AX05A:
+        r.update(online_schema=1,dq_extension_id=AX05A_DQ)
     return r
 
 
@@ -319,6 +343,8 @@ def build(resume):
         flags='-mcpu=cortex-r5 -mfpu=vfpv3-d16 -mfloat-abi=hard'
         if AX04B:
             flags+=' -fno-fast-math -ffp-contract=off -fstack-usage'
+        if AX05A:
+            flags+=' -DAX05A_ONLINE=1'
             app.set_app_config(key='USER_LINK_LIBRARIES',values=['m'])
         app.set_app_config(key='USER_COMPILE_OTHER_FLAGS',values=flags)
         app.set_app_config(key='USER_LINK_OTHER_FLAGS',values=f'-Wl,-Map={APP}.map')

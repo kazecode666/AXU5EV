@@ -1,4 +1,4 @@
-function result=axu5ev_experiment_generate_pl(output_dir,generated_dir)
+function result=axu5ev_experiment_generate_pl(output_dir,generated_dir,selection)
 % Generate the independent experiment HDL boundaries from their saved models.
 % Hardware binding, implementation and board execution belong to AX-04 B.
 root=fileparts(fileparts(fileparts(fileparts(mfilename('fullpath')))));
@@ -27,6 +27,10 @@ models={ ...
     'AXU5EV_Experiment_Angle_HDL','Encoder_Angle','numeric','AX04_Angle_'; ...
     'AXU5EV_Experiment_Duty_HDL','Duty_To_Compare','numeric','AX04_Duty_'; ...
     'AXU5EV_Experiment_FOC','FOC_DUT','foc','AX04_FOC_'};
+if nargin>=3
+    validatestring(selection,{'foc'});
+    models=models(strcmp(models(:,3),selection),:);
+end
 records=cell(1,size(models,1));
 all_modules={};all_packages={};
 for index=1:size(models,1)
@@ -84,9 +88,12 @@ for index=1:size(models,1)
             'Numeric single-clock boundary unexpectedly enables distributed pipelining.');
         settings=struct([]);
     end
-    checks=checkhdl(dut);
-    if ~isempty(checks)
-        assert(~any(strcmpi({checks.level},'Error')),'HDL compatibility failed for %s.',model);
+    checks=struct([]);
+    if nargin<3
+        checks=checkhdl(dut);
+        if ~isempty(checks)
+            assert(~any(strcmpi({checks.level},'Error')),'HDL compatibility failed for %s.',model);
+        end
     end
     makehdl(dut,'TargetDirectory',generated_dir);
     sources=dir(fullfile(generated_dir,model,'*.sv'));

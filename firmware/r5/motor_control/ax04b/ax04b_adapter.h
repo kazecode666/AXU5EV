@@ -9,10 +9,16 @@ enum {
     AX04B_MODEL_REF_WORDS = 8,
     AX04B_REF_WORDS = 8,
     AX04B_TELEMETRY_WORDS = 12,
+    AX04B_CMD_POSITION = 0,
+    AX04B_CMD_SPEED = 1,
+    AX04B_CMD_ID_REF = 2,
     AX04B_CMD_IQ_TEST = 3,
     AX04B_CMD_IQ_TEST_REF = 4,
+    AX04B_CMD_POSITION_LOOP = 5,
+    AX04B_CMD_SPEED_LOOP = 6,
     AX04B_CMD_PWM = 7,
     AX04B_CMD_PI_RESET = 8,
+    AX04B_CMD_MOVE = 10,
     AX04B_CMD_ALIGN_ENABLE = 15,
     AX04B_CMD_ALIGN_START = 16,
     AX04B_CMD_ALIGN_RESET = 17
@@ -39,6 +45,10 @@ typedef struct {
     bool relcon;
     bool encon;
     bool oe_disable;
+#ifdef AX05A_ONLINE
+    uint32_t online_revision, online_mode, pi_reset_ticket;
+    double fine_phase_rad;
+#endif
 } Ax04bCommand;
 
 typedef struct {
@@ -52,6 +62,11 @@ typedef struct {
     bool position_valid;
     bool speed_valid;
     bool drives[5];
+#ifdef AX05A_ONLINE
+    double position_mm, speed_mm_s, position_ref_mm, speed_ref_mm_s, position_loop_speed_ref_mm_s;
+    uint32_t host_status, host_accept_count, host_reject_count;
+    bool host_ready;
+#endif
 } Ax04bModelResult;
 
 typedef struct {
