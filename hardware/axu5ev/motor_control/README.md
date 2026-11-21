@@ -1,24 +1,30 @@
-# motor_control 统一模型与 PL 工程入口
+# motor_control 板级 PL 工程
 
-> **当前验收状态（2026-11-13，Issue40 / Draft PR41）：** 统一模型、数值对照、完整ADC/QEP→FOC→PWM整链RTL和原冻结候选的完整STA已有独立PASS证据。已布线PWM桥局部切点的slow/max与fast/min门级SDF均PASS；**完整功能PL动态SDF仍NOT_COMPLETED**。本轮无功率板测、R5实机采集、真实PWM驱动输出均NOT_RUN。现行入口：[HANDOFF](../../../coordination/HANDOFF.md)、[聚合结果](../../../verification/motor_control/results.json)、[PWM局部两角SDF最终报告](../../../verification/motor_control/evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md)。历史SDF长跑计划不再执行；PR41是否按限定范围合并等待用户决定。
+## AX-04B R1
 
-## Issue40：同帧反馈到 FOC/PWM 的自动通路
+现行板级工程使用 [build.tcl](build.tcl)、[sources.list](sources.list) 和 [BD 装配](bd/adc.tcl)，按 `SELFTEST` 或 `REAL` 选用独立实机 PL 源。实机模型与 HDL 生成从 [START_EXPERIMENT.m](../../../simulation/START_EXPERIMENT.m) 进入。PL 源清单包含 [AX-04 独立电流、编码角、FOC 和比较值 HDL](../../../generated/experiment/ax04_01/pl)以及[单独生成的控制角](../../../generated/experiment/ax04b_01/pl/AXU5EV_Experiment_Control_Angle_HDL)。早期 IRQ、下一帧参考采用以及独立诊断窗口见[实时接口](../../../integration/ps_pl/AX04B_INTERFACE.md)。
 
-从PR39已合并的项目基础继续开发，当前工作分支为 `codex/motor-control-chain`。本轮不复制ADC/QEP/PWM工程，不接完整外环、Runtime或自动对齐。原始ADC针脚/ABZ接收器→原电流/角度生成HDL→原p3 FOC→新模型生成比较值→原整组三相PWM的路径实际连通。六路仍只在内部观察，physical_link_verified=0，板卡操作NOT_RUN。
+本地部署候选为 `.runtime/experiment/ax04b/selftest_r1_02` 和 `.runtime/experiment/ax04b/real_r1_02`。各自复用原 `*_02/hardware` 的布线产物，配套 R5 应用 `0x41585203` 对应模型 1.173。SELFTEST 使用数字 ADC/ABZ，REAL 用于获授权后的真实输入和禁止态检查。板内 SELFTEST、真实 IO、ARM 执行、IRQ→COMMIT 时延及功率运动仍为 `NOT_RUN`。[当前交接](../../../coordination/HANDOFF.md) · [成套候选与首运行指南](../../../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md) · [离线验证记录](../../../verification/experiment/ax04b/results.json)
+
+## PR41 数字链历史
+
+PR41 在 PR39 基线上连通原 ADC/ABZ→电流与电角度 HDL→p3 FOC→比较值→三相 PWM。六路输出仅在内部观察，`physical_link_verified=0`。该阶段的统一模型、数值对照、整链 RTL、完整 STA 和已布线 PWM 局部 slow/max、fast/min SDF 有限定离线证据，完整功能 PL 动态 SDF 保留为 `NOT_COMPLETED`，该冻结候选的板测及 R5 实机采集为 `NOT_RUN`。[原冻结结果](../../../verification/motor_control/results.json) · [PWM 局部两角 SDF](../../../verification/motor_control/evidence/pwm_cut_windows_20261113_04/RESULT_REPORT.md) · [历史首运行手册](../../../firmware/r5/motor_control/FIRST_RUN_ZH.md)
+
+下文记录旧数字链、编码器、ADC 和 PWM 的实现及验证合同。原路径示例按各节对应阶段理解，现存测试入口见 [Simulink 双入口](../../../simulation/README_运行说明.md)。
 
 | 工作 | 唯一入口/来源 |
 |---|---|
-| 查看/运行整个数值链 | `simulation/motor_control/AXU5EV_Motor_Control_System.slx`；`motor_control_run(<新结果目录>)` |
-| 电流数值/生成 | `simulation/real_io/ax03b1_current_preprocess.m`、原 `Current_Preprocess` 库块；`adc_generate_hdl` |
-| PL电角度数值/生成 | `simulation/encoder/encoder_angle_step.m`、`Encoder_Angle` 库块；`encoder_generate_hdl` |
-| 原FOC数值/生成合同 | `baselines/pr53_p3/source/PMLSM_FOC_FixedPoint.slx`、`baselines/pr53_p3/codegen/candidate.json`；独立目标生成入口 `simulation/axu5ev_build_pl_target.m`（隔离batch）。本轮直接复用 `generated/legacy_m3_p3/manifest.json` 列出的29份设计SV及原帧壳，未调用该生成或手改 |
-| duty到PWM比较值 | `simulation/motor_control/duty_to_compare.m`；`motor_control_generate_mapper`，生成两份SV到 `generated/motor_control/AXU5EV_Duty_Adapter_HDL/` |
-| R5位置/50间隔测速 | `simulation/encoder/encoder_position_speed.m`；原 `encoder_generate_c`，复用其生成C和原字段适配器 |
+| 查看数字链测试模型 | [AXU5EV_DigitalChain_Test.slx](../../../simulation/tests/digital_chain/AXU5EV_DigitalChain_Test.slx)和[数字链运行说明](../../../simulation/tests/digital_chain/motor_control_README.md) |
+| 电流数值/生成 | [simulation/tests/adc](../../../simulation/tests/adc)内的 `ax03b1_current_preprocess.m` 和 `adc_generate_hdl`，以及原 `Current_Preprocess` 库块 |
+| PL电角度数值/生成 | [simulation/tests/encoder](../../../simulation/tests/encoder)内的 `encoder_angle_step.m`、`Encoder_Angle` 库块和 `encoder_generate_hdl` |
+| 原FOC数值/生成合同 | [p3 模型](../../../baselines/pr53_p3/source/PMLSM_FOC_FixedPoint.slx)、[候选记录](../../../baselines/pr53_p3/codegen/candidate.json)和[历史独立生成入口](../../../simulation/archive/axu5ev_build_pl_target.m)。PR41 直接复用 `generated/legacy_m3_p3/manifest.json` 列出的29份设计SV及原帧壳 |
+| duty到PWM比较值 | [simulation/tests/digital_chain](../../../simulation/tests/digital_chain)内的 `duty_to_compare.m` 和 `motor_control_generate_mapper`。冻结输出在 `generated/motor_control/AXU5EV_Duty_Adapter_HDL/` |
+| R5位置/50间隔测速 | [simulation/tests/encoder](../../../simulation/tests/encoder)内的 `encoder_position_speed.m` 和 `encoder_generate_c`，复用其生成C和原字段适配器 |
 | 外设/冻结/调度/跨频接口 | 本目录 `rtl/` 与原 `integration/rtl/ax03b1/ax03b1_abz_receiver.sv`；`sources.list` 为实际清单 |
 | 板级装配/时钟/XDC/构建 | 本目录 `build.tcl`、`bd/`、`constraints/`；`scripts/motor_control_build_hw.ps1` |
 | 匹配R5观察器/操作 | `scripts/motor_control_build.py`、`firmware/r5/motor_control/build_config.json`、该目录 `FIRST_RUN_ZH.md` |
 
-系统壳实际调用同一个电流/角度库组件、原FOC Model Reference和原R5函数。ADC/QEP/PWM的系统模型部分明确标为SIM_ONLY，逻辑参考采用一帧对齐，不能将其显示延迟当作物理调度；实际接收器、同步资格和互补/死区由RTL和路由后定向测试验证。数值类型、受控原依赖及模型运行方法详见 `simulation/motor_control/README.md`。安全入口在新结果目录从上述Git基线取原库/FOC依赖进行隔离运行，不保存用户已修改的模型或改变交互MATLAB的电机/PI参数。
+系统壳实际调用同一个电流/角度库组件、原FOC Model Reference和原R5函数。ADC/QEP/PWM的系统模型部分明确标为SIM_ONLY，逻辑参考采用一帧对齐；实际接收器、同步资格和互补/死区由RTL和路由后定向测试验证。数值类型、受控原依赖及隔离运行方法见[数字链运行说明](../../../simulation/tests/digital_chain/motor_control_README.md)。
 
 ### 自动候选及时间合同
 
@@ -47,7 +53,7 @@ ADC原基址0x80000000不变。参考shadow写0x180/184=id/iq signedQ24，0x188/
 
 新快照MCT1（0x4d435431）/schema3/epoch0x4d430003为80字；BEGIN、冻结及原前41字单位保留，最后word79 **0x148读响应** 才释放。原写寄存器与读取空间独立，不能沿用0x88或0xac作为新候选释放位置。word41为控制标志，42–44=FOC采样ID/tick，45=参考版本，46–56=完整冻结九字段，57–59=Q30 duty，60–62=比较值，63=提交采样ID，64=最后确认采用ID，65–67=提交/晚到/无效计数，68/69=原核帧号/capture_edge，70–71=目标tick，72=结果数；73–79保留0。word64是采用历史，须与禁止/有效/late位联合判断，不能表示禁止后仍有输出。
 
-最终候选、模型/RTL逐位对比、完整STA/CDC、PWM局部两角SDF及R5构建结果见 `verification/motor_control/results.json` 和HANDOFF首节。所有旧结果目录/Workspace、用户8个模型/参数修改及未跟踪文件均保留。以下段落是PR39及先前工程的历史入口说明，不能用其旧“未接FOC”或旧时序证据替代本轮结果。
+PR41 冻结候选、模型/RTL 逐位对比、完整 STA/CDC、PWM 局部两角 SDF 及 R5 构建见[原结果矩阵](../../../verification/motor_control/results.json)。下文保留 PR39 及更早工程的历史合同。
 
 本轮MC_AUTO时序仿真视图只将不支持仿真的PWM ILA黑盒化，保留结构dbg_hub；同时黑盒两个debug对象会在此大设计上触发Vivado内部NULL ParentLH异常，完整原始导出与ILA-only对照已用于定位。旧非AUTO导出策略保持原样。原路由DCP、bit和完整STA包含实际调试IP，仿真视图不写回检查点、不重布局布线、不手改网表/SDF；PS时钟、复位和AXI事务源由测试台替代。ILA/JTAG采集功能和ARM执行不由该仿真证明。
 
@@ -143,7 +149,7 @@ TNS/THS/TPWS及失败端点均0；no_clock、未约束内部端点、no_input_de
 
 SDF slow/max与fast/min均PASS，各515检查、9次选样、37次开通边沿、6完整周期，1ps精度、注释成功且无告警/时序违例/未知失败。内部关断间隔slow为999.977–1000.023ns、fast为999.991–1000.009ns；ADC引脚采样沿相对内部峰值分别固定晚2.772ns/1.332ns（路由传播，无整拍偏移或漂移）。两角均完成阶跃、禁止、失锁取消及显式恢复。动态边界不覆盖PS执行/调试采集，也不代表全部四种PVT列组合；完整覆盖仍依靠STA。精简证据为 `verification/pwm_adc/results.json`，采用 `sdf_pl_slow_02` / `sdf_pl_fast_02`；早期失败/中断输出全部保留。板卡/驱动板/电机操作NOT_RUN，外部接口与ILA实际采集PENDING。
 
-## 模型：一份算法，一个共享组件
+## ADC 整理历史：当时的共享组件
 
 在 MATLAB 中（通过 MCP）打开：
 
@@ -162,7 +168,7 @@ open_system('AXU5EV_ADC_Observer');
 
 原 `simulation/AXU5EV_RealIO_NoPower.slx` 有用户本地修改，原样保留，不作为活动HDL生成源。新观察壳取自 PR33 已审查版本并改成库链接，未取用或覆盖用户未提交的模型/参数。旧名称仅保留历史，不维护第二套活动算法组件。
 
-## 生成与验证
+## ADC 整理历史：生成与验证
 
 唯一 ADC HDL 生成入口：
 
@@ -181,7 +187,7 @@ adc_generate_hdl('D:/Project/AXU5EV/.runtime/adc_consolidation/matlab_01');
 
 这些目录为本次已占用证据目录；重跑需另取新目录。旧 `generated/ax03b1/` 为历史生成记录，活动工程与短测试不加载它。
 
-## PL：统一源清单与装配
+## ADC 整理历史：PL 源清单与装配
 
 唯一活动板级入口为 `hardware/axu5ev/motor_control/build.tcl`，通过 `sources.list` 分开收集手写RTL、两份生成RTL和XDC；`bd/adc.tcl` 装配 PS、SmartConnect、时钟复位、ILA。复用现有厂商PS配置，不复制厂商工程。PS基址与R5寄存器布局、冻结读取协议不变。
 
@@ -194,9 +200,9 @@ $env:AX03B3_TEST='0'  # 默认REAL；TEST明确设1，使用另一个新目录
 
 采样语义保持：名义50MHz逻辑、10拍一次约5MHz转换、500次转换选一帧约100µs；不是500次平均，尚未与PWM同步。七转换事件身份/tick关联保留；一级结果寄存与result_strobe、numeric_valid区别不变。双路独立1024合格帧校准、完成当帧无效、Q16偏置/Q24电流和宽结果重构c相均不变。REAL/TEST共用处理链、来源标记与physical_link_verified=0保留。真实零流/增益/极性/噪声仍待后续物理验证。
 
-## 旧 → 新路径
+## ADC 整理历史：当时的路径迁移
 
-| 旧路径 | 当前入口/落点 |
+| 旧路径 | 当时的入口/落点 |
 |---|---|
 | `AXU5EV_RealIO_NoPower/Current_Preprocess` | `AXU5EV_PL_Algorithm_Library/Current_Preprocess`，由ADC_HDL和ADC_Observer库链接引用 |
 | `simulation/real_io/ax03b1_run_no_power.m` 的生成段 | `simulation/adc/adc_generate_hdl.m`；旧入口薄转发 |

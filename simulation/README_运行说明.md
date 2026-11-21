@@ -6,9 +6,13 @@
 
 参数位于 [closed_loop/parameters/init_AXU5EV.m](closed_loop/parameters/init_AXU5EV.m)。首次进入时初始化，已有 base 参数及已打开模型的未保存编辑继续保留。停止后需要应用参数文件修改时，显式运行 `init_AXU5EV`。`model_fixed` 可直接准备，C/RTL 后端缺少产物时按提示显式构建。日常操作见[闭环操作说明](closed_loop/README_闭环操作.md)。
 
+### 模块怎样组成闭环
+
+参见闭环操作说明中的[模型调度、Runtime 与 FOC](closed_loop/README_闭环操作.md#模块怎样组成闭环)。
+
 ## 实机模型
 
-运行 [START_EXPERIMENT.m](START_EXPERIMENT.m)，打开 [AXU5EV_Motor_Control_System.slx](experiment/AXU5EV_Motor_Control_System.slx)。实机算法、函数和参数位于 `experiment/{r5,pl,parameters,scripts}`，参数快照存入实机模型的 ModelWorkspace。
+运行 [START_EXPERIMENT.m](START_EXPERIMENT.m)，打开 [AXU5EV_Motor_Control_System.slx](experiment/AXU5EV_Motor_Control_System.slx)。实机算法、函数和参数位于 `experiment/{r5,pl,parameters,scripts}`，与纯仿真源分别维护。参数快照存入实机模型的 ModelWorkspace。
 
 [axu5ev_experiment_parameters.m](experiment/parameters/axu5ev_experiment_parameters.m)提供独立参数。`axu5ev_experiment('parameters')` 显式刷新停止且已保存的实机模型，写入内存后可显式保存实机源。普通打开保留已有参数和未保存编辑。
 
@@ -24,10 +28,10 @@ axu5ev_experiment('generate', ...
     'D:/Project/AXU5EV/generated/experiment/version_new')
 ```
 
-硬件 IRQ、驱动 IO 与板级绑定为 `HW_BINDING_PENDING`，板卡运行状态为 `BOARD_NOT_RUN`。本入口用于模型与代码生成阶段。
+本入口用于模型与代码生成。AX-04B R1 的 IRQ、跨帧接口和驱动 IO 代码绑定已经离线完成。当前 R5 生成 C 对应模型 1.173 和应用 `0x41585203`，实板执行仍为 `NOT_RUN`。成套部署从 [当前交接](../coordination/HANDOFF.md)和 [AX-04B 首运行指南](../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md)进入。[R5 生成源](../generated/experiment/ax04b_r1_01/r5)
 
 ## 测试与历史
 
-原数字链壳正确另名为 [AXU5EV_DigitalChain_Test.slx](tests/digital_chain/AXU5EV_DigitalChain_Test.slx)。ADC、编码器、数字链和以太网 fixture 保存在 `tests`，通过 `axu5ev_test_paths` 显式选用。测试方法见[数字链说明](tests/digital_chain/motor_control_README.md)。
+原数字链壳保留为测试模型 [AXU5EV_DigitalChain_Test.slx](tests/digital_chain/AXU5EV_DigitalChain_Test.slx)。ADC、编码器、数字链和以太网 fixture 保存在 `tests`，通过 `axu5ev_test_paths` 显式选用。测试方法见[数字链说明](tests/digital_chain/motor_control_README.md)。
 
 `archive` 保存历史生成入口。新纯仿真缓存、MEX 与结果位于 `.runtime/closed_loop/<session>`，新实机生成使用调用者指定的新目录。历史 `.runtime/ax01b` 的 MEX/XSI 可供纯仿真只读复用。

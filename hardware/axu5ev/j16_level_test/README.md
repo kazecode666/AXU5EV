@@ -2,6 +2,12 @@
 
 面向 AXU5EVB-E 和 J16-MBDL4 V0.3 接口板。VIO 的 11 个输出可独立写入并保持静态值。上电配置完成后的默认值为 `F_Reset=1`，其余十路为 `0`。五个反馈脚经过两级同步器接到 VIO 输入，供下一阶段使用。
 
+## 首板实际测试
+
+PR49 提供独立静态 VIO 工程。2026-11-19 至 20 日，用户自行焊接 J1 并插入 AXU5EVB-E J16，记录了 9 路输出与 QEPA 一路反馈的空载静态验证（`USER_REPORTED`）。QEPB、QEPZ、ERRI、ERRU 仅观察到默认低电平，仍缺外部高电平逐路测试。动态 PWM/死区、真实驱动器负载和电机运动仍未测。装配、测点及实际范围以 [J16 首板实测记录](https://github.com/kazecode666/J16-MBDL4-Module/blob/main/docs/writing/interface_board_static_test_record.md) 为准。
+
+接口含 14 路业务信号和两路独立使能。U1 由 `PWM_EN` 控制，U2 与 U3 共用 `CTRL_EN`。AX-04B R1 的运行、真实 IO 和 IRQ 时延验收见[当前交接](../../../coordination/HANDOFF.md)。
+
 ## 工程与构建
 
 使用 Vivado 2026.1、`xczu5ev-sfvc784-2-i`、AX02C 所用的最小 PS 基线和 IOPLL 的 50 MHz `pl_clk0`。Vivado 计算频率为 49.9995 MHz，VIO 和 Debug Hub 使用同一时钟。工程的 PL 只含静态 VIO 和反馈同步器。
@@ -27,7 +33,7 @@ try {
 
 2026-11-19 本地 `build_01` 完成综合、实现及布线。1,362 条可布线网络全部完成，布线错误为 0。布线后 WNS +14.796 ns、WHS +0.022 ns、WPWS +9.468 ns，TNS、THS、TPWS 均为 0。四项 Debug Hub 总线偏斜检查均通过，最小裕量 +19.564 ns。
 
-内部未约束端点为 0。五路异步输入只在外部脚到同步器第一级之间设时序例外，十一路静态输出以外部端口为例外终点。布线 DRC 为 0 错误、0 严重告警，有 `PDCN-1569` 三条和 `RTSTAT-10` 一条。另有 `LUTAR-1` 方法学告警五条。报告列出的告警对象均位于 Vivado 生成的 Debug Hub。硬件测量状态为 `NOT_RUN`。
+内部未约束端点为 0。五路异步输入只在外部脚到同步器第一级之间设时序例外，十一路静态输出以外部端口为例外终点。布线 DRC 为 0 错误、0 严重告警，有 `PDCN-1569` 三条和 `RTSTAT-10` 一条。另有 `LUTAR-1` 方法学告警五条。报告列出的告警对象均位于 Vivado 生成的 Debug Hub。构建时记录的硬件测量状态为 `NOT_RUN`。后续实测见[首板实际测试](#首板实际测试)。
 
 布线端口读回 `reports/j16_io.csv` 的 16 项球号、方向、Bank 和 `LVCMOS33` 全部通过。Bitstream 和 LTX 从同一布线设计导出。LTX 中的 VIO UUID 与实现日志一致，已读回 11 个单比特输出和 5 个单比特输入的顺序，Debug Hub 标称 50 MHz。
 
@@ -55,6 +61,8 @@ J16 第 3–18 针的 16 路信号逐项对照接口板 CSV、ALINX《AXU5EVB-E 
 | 18 | CTRL_EN | B14 | 46 | 输出 | `probe_out10` |
 
 ## 用户手动测量
+
+以下为获得现场授权后使用的工程操作与预期值。实际首板结果统一记录于上方链接。
 
 1. 断电插合 AXU5EVB-E 与接口板，接口板 J2 保持与 MBDL4 断开。功率级和电机保持断开。用 Hardware Manager 为 PL 手动选择同一次构建的 `.bit` 和 `.ltx`，JTAG 建议 10 MHz 或更低。 [AMD 调试时钟指南](https://docs.amd.com/r/en-US/ug908-vivado-programming-debugging/Debug-Cores-Clocking-Guidelines)
 2. 冷上电的 JTAG 启动需要初始化 PS 才有 `pl_clk0`。若板上尚无匹配的 PS 初始化，完成 PL 配置后在 XSDB 连接同一硬件服务器，用 `targets` 找到该板的 `PSU` 并选中其编号。`source` 本次生成的 `psu_init.tcl`，依次运行 `psu_init`、`after 1000`、`psu_ps_pl_isolation_removal`、`after 1000`、`psu_ps_pl_reset_config`。结束 XSDB 会话，在 Hardware Manager 刷新器件。该操作只用于专用 JTAG 测试会话。 [AMD Zynq UltraScale+ MPSoC 初始化顺序](https://docs.amd.com/r/2023.1-English/ug1400-vitis-embedded/Debugging-Applications-on-Zynq-UltraScale-MPSoC)
