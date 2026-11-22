@@ -1,22 +1,32 @@
 #include "eth_service.h"
 #include "eth_model_if.h"
+#ifdef MOTOR_CONTROL_ETHERNET
+#include "motor_control_ethernet.h"
+#endif
 #ifdef ETH02_RUNTIME
 #include "eth02_runtime.h"
 #endif
 #include <string.h>
-static uint8_t rx[8192],tx[ETH_HEADER+ETH_PAYLOAD],reply[ETH_PAYLOAD];
+static uint8_t rx[8192],tx[ETH_HEADER+ETH_PAYLOAD];
 static size_t used,txsize,txsent,credit;
+#ifndef MOTOR_CONTROL_ETHERNET
+static uint8_t reply[ETH_PAYLOAD];
 static uint8_t *bulk;
 static uint32_t build_id,link_speed,transfer,lastseq,total,written,bulk_tid;
 static int session,sealed;
+#endif
 void EthSessionReset(void){
- used=txsize=txsent=credit=0;transfer=lastseq=total=written=bulk_tid=0;session=sealed=0;
+ used=txsize=txsent=credit=0;
+#ifndef MOTOR_CONTROL_ETHERNET
+ transfer=lastseq=total=written=bulk_tid=0;session=sealed=0;
 #ifdef ETH02_RUNTIME
  Eth02TransferReset();
 #else
  EthModelDisconnect();
 #endif
+#endif
 }
+#ifndef MOTOR_CONTROL_ETHERNET
 void EthSessionInit(uint8_t *data,uint32_t build,uint32_t speed){
  bulk=data;build_id=build;link_speed=speed;
 #ifdef ETH02_RUNTIME
@@ -26,6 +36,7 @@ void EthSessionInit(uint8_t *data,uint32_t build,uint32_t speed){
 #endif
  EthSessionReset();
 }
+#endif
 int EthRxTryPush(const uint8_t *p,size_t len){
  if(len>sizeof(rx)-used)return ETH_FULL;
  memcpy(rx+used,p,len);used+=len;return ETH_OK;
@@ -35,6 +46,20 @@ void EthTxConsume(size_t n){if(n<=txsize-txsent){txsent+=n;if(txsent==txsize)txs
 size_t EthRxTakeCredit(void){size_t n=credit;credit=0;return n;}
 size_t EthRxBuffered(void){return used;}
 int EthNetService(void){
+#ifdef MOTOR_CONTROL_ETHERNET
+ if(txsize)return 0;
+ const uint8_t *end=memchr(rx,'\n',used);
+ if(!end)return used==sizeof(rx)?-1:0;
+ const size_t length=(size_t)(end-rx);
+ txsize=motor_control_reply((char *)tx,sizeof(tx),rx,length);
+ if(!txsize)return -1;
+ txsent=0;
+ const size_t consumed=length+1;
+ credit+=consumed;
+ used-=consumed;
+ memmove(rx,rx+consumed,used);
+ return 1;
+#else
  EthFrame f;int rc;
 #ifndef ETH02_RUNTIME
  uint32_t count,seq;uint16_t n;uint8_t b[256];
@@ -91,4 +116,5 @@ int EthNetService(void){
  used-=ETH_HEADER+f.len;memmove(rx,rx+ETH_HEADER+f.len,used);
  f.len=length;txsize=EthEncode(tx,&f,reply);txsent=0;
  return 1;
+#endif
 }

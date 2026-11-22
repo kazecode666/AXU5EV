@@ -24,20 +24,23 @@ PROFILE=C.get('profile','Legacy')
 if PROFILE not in ('Legacy','SELFTEST','REAL'):
     raise ValueError('Motor-control profile must be Legacy, SELFTEST or REAL')
 AX04B=PROFILE!='Legacy'
+ETHERNET=C.get('gem3_ethernet',False)
 APP='ax04b_realtime' if AX04B else 'motor_control_observer'
 PLATFORM='ax04b_platform' if AX04B else 'motor_control_platform'
-LAUNCH='ax04b_realtime_manual' if AX04B else 'motor_control_manual'
+LAUNCH=C.get('launch','ax04b_realtime_manual' if AX04B else 'motor_control_manual')
 APP_ID=int(C['application_id'],0) if AX04B else None
 RTL_MODE={'SELFTEST':1,'REAL':2}
 IRQ_STACK_BYTES=0x4000
 GENERATED_R5=(ROOT/C['generated_r5']).resolve() if AX04B else None
 MODEL_VERSION=C['model_version'] if AX04B else None
 AX05A=C.get('online_schema')==1
-if AX05A and (not AX04B or APP_ID!=0x41585204):
-    raise ValueError('AX-05A schema 1 requires an isolated AX04B profile with app ID 0x41585204')
+if AX05A and (not AX04B or APP_ID!=(0x41585205 if ETHERNET else 0x41585204)):
+    raise ValueError('Online schema 1 requires the corresponding AX04B application identity')
 AX05A_DQ=C.get('dq_extension_id')
-if AX05A_DQ is not None and (AX05A_DQ!='0x41583501' or not AX05A or 'hardware_source' in C):
+if AX05A_DQ is not None and (AX05A_DQ!='0x41583501' or not AX05A):
     raise ValueError('AX-05A dq extension requires a new routed hardware bundle')
+if ETHERNET and not AX05A_DQ:
+    raise ValueError('Motor control with GEM3 requires schema 1 and its PL observations')
 
 
 def ax04b_reused_hardware(files,prepare):
@@ -63,7 +66,7 @@ def ax04b_hardware_set(prepare=False):
     bit=(ROOT/C['bitstream']).resolve()
     ltx=(ROOT/C['ltx']).resolve()
     stem=f'ax04b_{PROFILE.lower()}'
-    base=ROOT/'.runtime/experiment/ax04b'
+    base=ROOT/('.runtime/experiment' if ETHERNET else '.runtime/experiment/ax04b')
     if not XSA.is_relative_to(base.resolve()) or WS.parent!=XSA.parent.parent:
         raise ValueError('AX04B hardware and workspace must share one isolated candidate directory')
     if (XSA.name,bit.name,ltx.name)!=(stem+'.xsa',stem+'.bit',stem+'.ltx'):
@@ -72,11 +75,12 @@ def ax04b_hardware_set(prepare=False):
         raise ValueError('The XSA, bit and ltx must be from the same Vivado build')
     marker=XSA.parent/'ax04b_build_profile.txt'
     if AX05A_DQ:
-        source=XSA.parent
-        if not all(p.is_file() for p in (XSA,bit,ltx,marker)):
+        schema=XSA.parent/'ax05a_dq_schema.txt'
+        files=(XSA,bit,ltx,marker,schema)
+        source=ax04b_reused_hardware(files,prepare) if 'hardware_source' in C else XSA.parent
+        if not all(p.is_file() for p in files):
             raise ValueError('Build the independent AX-05A PL bundle first')
-        schema=source/'ax05a_dq_schema.txt'
-        if not schema.is_file() or schema.read_text().strip()!=AX05A_DQ:
+        if schema.read_text().strip()!=AX05A_DQ:
             raise ValueError('Missing matching AX-05A PL observation schema')
     else:
         source=ax04b_reused_hardware((XSA,bit,ltx,marker),prepare)
@@ -196,6 +200,12 @@ def ax04b_sources():
         raise ValueError(f'Expected Cortex-R ERT export of {model} v{MODEL_VERSION}')
     app_sources=ROOT/'firmware/r5/motor_control/ax04b'
     sources+=sorted(p for p in app_sources.glob('*') if p.suffix in ('.c','.h'))
+    if ETHERNET:
+        ethernet=app_sources.parent/'ethernet'
+        sources+=sorted(ethernet.glob('motor_control_*.[ch]'))
+        transport=ROOT/'firmware/r5/ethernet'
+        sources+=[transport/name for name in ('eth_platform.c','eth_service.c','eth_service.h','eth_protocol.h')]
+        sources.append(ROOT/'integration/r5_ethernet/eth_model_if.h')
     if not all(s.is_file() for s in sources) or not any(s.parent==app_sources and s.suffix=='.c' for s in sources):
         raise ValueError('Missing AX04B model or R5 binding source')
     if len({s.name for s in sources})!=len(sources):
@@ -228,6 +238,12 @@ def ax04b_check_startup():
         required.update({'ax05a_submit','ax05a_read_sample','ax05a_read_diagnostics',
                          'ax05a_trace_start','ax05a_trace_poll','ax05a_trace_stop',
                          'ax05a_trace_info','ax05a_trace_read','ax05a_control_status'})
+    if ETHERNET:
+        required.update({'MotorControlGemConnect','XEmacPs_IntrHandler','emac_bd_space',
+                         'motor_control_net_poll','motor_control_reply','__wrap_outbyte'})
+        removed={'motor_control_console_input','uart_send','uart_dump_next','uart_tx'}
+        if removed.intersection(linked):
+            raise ValueError('GEM3 ELF still contains a UART business console')
     if not required.issubset(linked):
         raise ValueError('ELF missing model, IRQ or IRQ stack symbols: '+str(sorted(required-linked.keys())))
     irq_stack=linked['__irq_stack']['address']-linked['_irq_stack_end']['address']
@@ -252,7 +268,7 @@ def ax04b_check_startup():
              sources_match=True,linked_sources=[s.name for s in sources if s.suffix=='.c'],
              workspace=WS.as_posix(),elf=elf.as_posix(),map=mapping.as_posix(),
              bitstream=bit.as_posix(),ltx=ltx.as_posix(),xsa=XSA.as_posix(),
-             hardware_source=hardware_source.as_posix(),matching_reused_hardware=not AX05A_DQ,
+             hardware_source=hardware_source.as_posix(),matching_reused_hardware='hardware_source' in C,
              exported_xsa=exported_xsa.as_posix(),
              psu_init=psu_init.as_posix(),matching_embedded_bit=True,
              bsp=bsp,irq_stack_bytes=irq_stack,arm_execution='NOT_RUN',
@@ -260,7 +276,35 @@ def ax04b_check_startup():
              irq_commit_latency_measurement='NOT_RUN')
     if AX05A:
         r.update(online_schema=1,dq_extension_id=AX05A_DQ)
+    if ETHERNET:
+        r.update(check_gem(platform, linked, bsp['irq']))
     return r
+
+
+def check_gem(platform, linked, frame_irq):
+    include=platform/'export'/PLATFORM/'sw/r5_standalone/include'
+    params=(include/'xparameters.h').read_text()
+    options=(include/'lwipopts.h').read_text()
+    timer=(include/'xtimer_config.h').read_text()
+    number=lambda name: int(re.search(rf'^#define {name}\s+(0x[\da-fA-F]+)',params,re.M)[1],16)
+    gem_base=number('XPAR_XEMACPS_0_BASEADDR')
+    gem_sdt=number('XPAR_XEMACPS_0_INTERRUPTS')
+    gem_irq=(gem_sdt & 0xfff)+32
+    if (gem_base,gem_sdt,gem_irq,frame_irq)!=(0xff0e0000,0x403f,95,121):
+        raise ValueError('Expected independent GEM3 and PL frame SPIs from the BSP')
+    if ('#define SYS_LIGHTWEIGHT_PROT 0' not in options or
+            re.search(r'^#define NO_SYS_NO_TIMERS\s+1',options,re.M) or
+            '#define XTIMER_NO_TICK_TIMER' not in timer or 'XPAR_CPU_CORE_CLOCK_FREQ_HZ/64' not in timer):
+        raise ValueError('Expected foreground-only lwIP and the ETH-02 PMU timebase')
+    if '--wrap=outbyte' not in (WS/APP/'build/build.ninja').read_text():
+        raise ValueError('Expected startup-only UART output in the link command')
+    for name in ('emac_bd_space','_heap','_stack'):
+        symbol=linked[name]
+        if symbol['address']+symbol['bytes']>=0x10000000:
+            raise ValueError('GEM DMA and app storage must be in low DDR')
+    return dict(gem3_base=hex(gem_base),gem3_intid=gem_irq,gem3_trigger='high_level',
+                gem3_priority='0xa0',frame_priority='0x90',tcp_port=5002,
+                board_ethernet='NOT_RUN',network_irq_timing='NOT_RUN')
 
 
 def ax04b_irq_stack():
@@ -311,10 +355,20 @@ def build(resume):
     client=vitis.create_client()
     try:
         client.set_workspace(str(WS))
+        if ETHERNET:
+            from eth01_lwip_overlay import prepare
+            client.add_embedded_sw_repo(level='LOCAL',path=str(prepare(ROOT,WS.parent,deferred_gem=True)))
         if resume:platform=client.get_component(name=PLATFORM)
         else:platform=client.create_platform_component(name=PLATFORM,hw_design=str(XSA),
             cpu='psu_cortexr5_0',os='standalone',domain_name='r5_standalone',
             no_boot_bsp=False,fsbl_target='psu_cortexa53_0',generate_dtb=False,compiler='gcc')
+        if ETHERNET:
+            domain=platform.get_domain('r5_standalone')
+            if not (WS/PLATFORM/'psu_cortexr5_0/r5_standalone/bsp/libsrc/lwip220').exists():
+                domain.set_lib('lwip220')
+            for option,value in {'tcp_wnd':'8192','no_sys_no_timers':'false',
+                                 'n_rx_descriptors':'16','n_tx_descriptors':'16'}.items():
+                domain.set_config(option='lib',param='lwip220_'+option,value=value,lib_name='lwip220')
         if platform.build()!=0:raise RuntimeError('Platform build failed')
         inputs=WS/'inputs';inputs.mkdir(exist_ok=True)
         if AX04B:
@@ -346,11 +400,23 @@ def build(resume):
         if AX05A:
             flags+=' -DAX05A_ONLINE=1'
             app.set_app_config(key='USER_LINK_LIBRARIES',values=['m'])
+        if ETHERNET:
+            flags+=' -DMOTOR_CONTROL_ETHERNET=1'
         app.set_app_config(key='USER_COMPILE_OTHER_FLAGS',values=flags)
-        app.set_app_config(key='USER_LINK_OTHER_FLAGS',values=f'-Wl,-Map={APP}.map')
-        ld=app.get_ld_script();ld.set_stack_size('0x10000');ld.set_heap_size('0x4000')
+        link_flags=f'-Wl,-Map={APP}.map'
+        if ETHERNET:
+            link_flags+=' -Wl,--wrap=outbyte'
+        app.set_app_config(key='USER_LINK_OTHER_FLAGS',values=link_flags)
+        ld=app.get_ld_script();ld.set_stack_size('0x10000');ld.set_heap_size('0x40000' if ETHERNET else '0x4000')
         if AX04B:
             ax04b_irq_stack()
+        if ETHERNET:
+            script=WS/APP/'src/lscript.ld'
+            text,count=re.subn(r'(psu_r5_ddr_0_memory_0[^\n]*LENGTH\s*=\s*)0x[0-9a-fA-F]+',
+                              r'\g<1>0xFF00000',script.read_text())
+            if count!=1:
+                raise ValueError('Expected R5 DDR linker region for GEM')
+            script.write_text(text,encoding='utf-8')
         if app.build()!=0:raise RuntimeError('Motor-control R5 build failed')
         (WS/APP/'build/.buildstatus').write_text('hw=SUCCESS\n',encoding='utf-8')
         launch_path=WS/APP/'_ide/launch.json'
