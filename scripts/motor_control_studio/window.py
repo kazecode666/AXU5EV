@@ -1,8 +1,11 @@
 """Windows operator interface for the existing no-power GEM3 candidates."""
 
+from datetime import datetime
+from pathlib import Path
+
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout, QFrame, QGridLayout, QGroupBox,
+    QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout, QFrame, QGridLayout, QGroupBox,
     QHBoxLayout, QLabel, QLineEdit, QMainWindow, QScrollArea, QSpinBox, QTabWidget,
     QVBoxLayout, QWidget,
 )
@@ -11,7 +14,7 @@ from scripts.motor_control_client import Action, Mode
 
 from .charts import Charts
 from .panels import Diagnostics, Preparation, Records, button, label
-from .telemetry import PROFILES, Timeline
+from .telemetry import PROFILES, Timeline, TrendCsv
 from .worker import Connection
 
 MODES = {
@@ -35,6 +38,7 @@ ACTION_NAMES = {
     Action.PI_RESET: "PI 复位", Action.DRIVER_RESET: "驱动复位", Action.CALIBRATE: "零偏校准",
     Action.FINE_PHASE: "提交角度微调",
 }
+TREND_WINDOWS = (10, 20, 60)
 
 
 class Studio(QMainWindow):
@@ -50,7 +54,8 @@ class Studio(QMainWindow):
         self.identity = {}
         self.control = {}
         self.latest = {}
-        self.timeline = Timeline(window=20)
+        self.timeline = Timeline(window=max(TREND_WINDOWS))
+        self.trend_file = None
         self.redraw = True
         self.actions = {}
         self.refs = {}
@@ -184,14 +189,30 @@ class Studio(QMainWindow):
         trend_layout = QVBoxLayout(trend)
         trend_layout.setContentsMargins(4, 0, 0, 0)
         trend_bar = QHBoxLayout()
-        self.sample_line = label("实时趋势 · 约 10 Hz · 最近 20 s")
+        self.sample_line = label("实时趋势 · 约 10 Hz")
+        self.trend_window = QComboBox()
+        self.trend_window.setAccessibleName("实时趋势时间窗")
+        for seconds in TREND_WINDOWS:
+            self.trend_window.addItem(f"{seconds} 秒", seconds)
+        self.trend_window.setCurrentIndex(self.trend_window.findData(20))
         self.pause_draw = QCheckBox("暂停绘图")
         self.pause_draw.toggled.connect(self.resume_drawing)
         self.charts = Charts()
+        self.trend_window.currentIndexChanged.connect(self.change_trend_window)
         trend_bar.addWidget(self.sample_line, 1)
+        trend_bar.addWidget(QLabel("时间窗"))
+        trend_bar.addWidget(self.trend_window)
         trend_bar.addWidget(self.pause_draw)
         trend_bar.addWidget(self.charts.channel_button())
         trend_layout.addLayout(trend_bar)
+        recording_bar = QHBoxLayout()
+        self.start_trend_button = button("开始保存趋势", self.choose_trend_file)
+        self.stop_trend_button = button("停止保存趋势", self.stop_trend)
+        self.trend_status = label("PC 趋势 CSV · 未保存")
+        recording_bar.addWidget(self.start_trend_button)
+        recording_bar.addWidget(self.stop_trend_button)
+        recording_bar.addWidget(self.trend_status, 1)
+        trend_layout.addLayout(recording_bar)
         trend_layout.addWidget(self.charts, 1)
         layout.addWidget(trend, 1)
         self.mode.currentIndexChanged.connect(self.refresh_controls)
@@ -224,8 +245,8 @@ class Studio(QMainWindow):
             self.report("演示仅连接本地回环。")
             return
         self.control, self.latest = {}, {}
-        self.timeline = Timeline(window=20)
-        self.charts.show_rows((), 20)
+        self.timeline = Timeline(window=max(TREND_WINDOWS))
+        self.charts.show_rows((), self.trend_window.currentData())
         self.requested.setText("尚未提交请求")
         self.receipt.setText("等待命令回执")
         self.profile_badge.setText("连接中")
@@ -249,6 +270,7 @@ class Studio(QMainWindow):
             worker.deleteLater()
         self.disconnecting = False
         self.identity, self.control, self.latest = {}, {}, {}
+        self.stop_trend()
         self.timeline.interrupt()
         self.redraw = True
         self.profile_badge.setText("已断开")
@@ -272,6 +294,7 @@ class Studio(QMainWindow):
             self.disconnect_target()
             event.ignore()
         else:
+            self.stop_trend()
             super().closeEvent(event)
 
     def refresh_controls(self):
@@ -283,6 +306,8 @@ class Studio(QMainWindow):
         self.host.setEnabled(self.worker is None)
         self.port.setEnabled(self.worker is None)
         self.diagnostics.read.setEnabled(connected)
+        self.start_trend_button.setEnabled(connected and self.trend_file is None)
+        self.stop_trend_button.setEnabled(self.trend_file is not None)
         draft = Mode(self.mode.currentData())
         board_mode = self.control.get("selected_mode")
         for field, widget in self.refs.items():
@@ -358,9 +383,10 @@ class Studio(QMainWindow):
         elif topic == "sample":
             self.latest = data
             self.timeline.append(data)
+            self.save_trend_sample(data)
             self.redraw = True
             self.sample_line.setText(f"趋势 10 Hz ｜ ID {data['sample_id']} ｜ tick {data['tick']} ｜"
-                                     f"有效组 0x{data['groups']:X} ｜ 窗口 20 s")
+                                     f"有效组 0x{data['groups']:X}")
             self.update_frame(data)
         elif topic == "sample_gap":
             self.timeline.interrupt()
@@ -412,5 +438,54 @@ class Studio(QMainWindow):
 
     def draw_trend(self):
         if self.redraw and not self.pause_draw.isChecked() and self.tabs.currentIndex() == 0:
-            self.charts.show_rows(self.timeline.rows, 20)
+            self.charts.show_rows(self.timeline.rows, self.trend_window.currentData())
             self.redraw = False
+
+    def change_trend_window(self):
+        self.charts.set_window(self.trend_window.currentData())
+
+    def choose_trend_file(self):
+        profile = {1: "SELFTEST", 2: "REAL_IO"}.get(self.identity.get("hardware_profile"), "GEM3")
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path, _ = QFileDialog.getSaveFileName(self, "保存 PC 实时趋势",
+                                              f"motor_control_{profile}_trend_{stamp}.csv", "CSV (*.csv)")
+        if path:
+            path = Path(path)
+            self.begin_trend(path if path.suffix else path.with_suffix(".csv"))
+
+    def begin_trend(self, path):
+        if not self.identity or self.disconnecting or self.trend_file is not None:
+            return
+        try:
+            self.trend_file = TrendCsv(path)
+        except OSError as error:
+            self.report(f"无法开始保存趋势：{error}")
+            return
+        self.trend_status.setText(f"正在保存 {path.name} ｜ 0 条")
+        self.refresh_controls()
+
+    def save_trend_sample(self, sample):
+        recording = self.trend_file
+        if recording is None:
+            return
+        try:
+            recording.append(sample)
+        except OSError as error:
+            self.stop_trend()
+            self.trend_status.setText(f"写入中止 ｜ {recording.path.name}")
+            self.report(f"趋势 CSV 写入失败：{error}")
+        else:
+            self.trend_status.setText(f"正在保存 {recording.path.name} ｜ {recording.count} 条")
+
+    def stop_trend(self):
+        recording = self.trend_file
+        if recording is None:
+            return
+        self.trend_file = None
+        try:
+            recording.close()
+            self.trend_status.setText(f"已保存 {recording.path.name} ｜ {recording.count} 条")
+        except OSError as error:
+            self.trend_status.setText(f"关闭失败 ｜ {recording.path.name}")
+            self.report(f"趋势 CSV 关闭失败：{error}")
+        self.refresh_controls()

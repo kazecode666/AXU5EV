@@ -37,6 +37,10 @@ PANELS = (
     )),
 )
 SERIES = tuple(line for _, _, lines in PANELS for line in lines)
+TREND_FLAGS = ("current_valid", "position_valid", "speed_valid")
+TREND_COLUMNS = tuple(
+    f"{line[1]} [{unit}]" for _, unit, lines in PANELS for line in lines
+)
 
 
 def measured(sample, series):
@@ -47,6 +51,32 @@ def measured(sample, series):
     return value if isinstance(value, (int, float)) and math.isfinite(value) else None
 
 
+class TrendCsv:
+    """Persist each received sample independently of drawing and firmware Trace."""
+
+    def __init__(self, path):
+        self.path = path
+        self.count = 0
+        self.stream = path.open("x", encoding="utf-8-sig", newline="")
+        self.writer = csv.writer(self.stream)
+        try:
+            self.writer.writerow(("pl_tick [50 MHz ticks]", "sample_id", "groups", *TREND_FLAGS,
+                                  *(f"{line[1]}_valid" for line in SERIES), *TREND_COLUMNS))
+        except OSError:
+            self.stream.close()
+            raise
+
+    def append(self, sample):
+        values = [measured(sample, line) for line in SERIES]
+        self.writer.writerow((sample["tick"], sample["sample_id"], sample["groups"],
+                              *(int(bool(sample[flag])) for flag in TREND_FLAGS),
+                              *(int(value is not None) for value in values), *values))
+        self.count += 1
+
+    def close(self):
+        self.stream.close()
+
+
 class Timeline:
     """Keep integer tick differences until conversion to seconds."""
 
@@ -55,12 +85,12 @@ class Timeline:
         self.window = window
         self.gap = gap
         self.rows = deque(maxlen=1000)
-        self.elapsed = 0.0
+        self.elapsed_ticks = 0
         self.last_tick = None
 
     def interrupt(self):
         if self.rows and self.rows[-1][1] is not None:
-            self.rows.append((self.elapsed, None))
+            self.rows.append((self.rows[-1][0], None))
 
     def append(self, sample):
         tick = sample["tick"]
@@ -70,16 +100,16 @@ class Timeline:
                 return
             if delta > TICK_MASK // 2:
                 self.rows.clear()
-                self.elapsed = 0.0
+                self.elapsed_ticks = 0
             else:
-                seconds = delta / self.frequency
-                if seconds > self.gap:
+                if delta > self.gap * self.frequency:
                     self.interrupt()
-                self.elapsed += seconds
-        self.rows.append((self.elapsed, sample))
+                self.elapsed_ticks += delta
+        self.rows.append((self.elapsed_ticks / self.frequency, sample))
         self.last_tick = tick
         if self.window is not None:
-            while self.rows[0][0] < self.elapsed - self.window:
+            cutoff = (self.elapsed_ticks - self.window * self.frequency) / self.frequency
+            while self.rows[0][0] < cutoff:
                 self.rows.popleft()
 
 

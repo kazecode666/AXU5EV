@@ -14,6 +14,7 @@ class Charts(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
         self.plots, self.curves = [], {}
+        self.last_drawn_time = 0.0
         for index, (title, unit, series) in enumerate(PANELS):
             chart = pg.PlotWidget(background="#152331")
             chart.setMinimumHeight(128)
@@ -49,14 +50,17 @@ class Charts(QWidget):
 
     def show_rows(self, rows, window=None):
         x = np.array([time for time, _ in rows], dtype=float)
+        self.last_drawn_time = float(x[-1]) if len(x) else 0.0
         for line in SERIES:
             data = np.array([measured(sample, line) for _, sample in rows], dtype=float)
             self.curves[line[1]].setData(x, data, connect="finite")
         if window is not None:
-            right = max(.1, float(x[-1])) if len(x) else window
-            left = max(0, right - window)
-            for plot in self.plots:
-                plot.setXRange(left, right, padding=0)
+            self.set_window(window)
         else:
             for plot in self.plots:
                 plot.enableAutoRange(axis=pg.ViewBox.XAxis)
+
+    def set_window(self, seconds):
+        right = max(seconds, self.last_drawn_time)
+        for plot in self.plots:
+            plot.setXRange(right - seconds, right, padding=0)

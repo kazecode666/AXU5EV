@@ -8,7 +8,7 @@
     "pyqtgraph": "0.14.0",
     "native_window": {
       "status": "PASS",
-      "log": ".runtime/studio/studio_windows.log"
+      "log": ".runtime/studio/studio_trend_windows.log"
     },
     "continuous_demo": {
       "status": "PASS",
@@ -17,18 +17,19 @@
     "studio_tests": {
       "status": "PASS",
       "scenarios": [
+        "live_window_switch_preserves_history_when_paused",
         "selftest_widgets_and_stop_during_download",
         "real_widgets_calibrate_without_motion",
         "validity_and_tick_gaps",
         "preparation_script_offline"
       ],
-      "log": ".runtime/studio/verify_release.log",
-      "scope": "Qt widgets using localhost TCP, production C business dispatch and simulated PL"
+      "log": ".runtime/studio/trend_review_final.log",
+      "scope": "Qt widgets using localhost TCP, production C business dispatch and simulated PL. Covers trend windows, CSV tick and validity fields, pause, explicit stop, window close, peer disconnect, and independent firmware Trace."
     },
     "existing_ethernet_tests": {
       "status": "PASS",
       "scenarios": 2,
-      "log": ".runtime/studio/cli_regression_01.log"
+      "log": ".runtime/studio/trend_tcp_01.log"
     }
   },
   "preparation": {

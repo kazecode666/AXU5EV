@@ -9,6 +9,7 @@ import sys
 from threading import Event
 from time import monotonic
 import unittest
+from unittest.mock import patch
 import uuid
 
 from run_motor_control_studio_demo import native_compiler
@@ -24,7 +25,7 @@ from PySide6.QtWidgets import QApplication
 from scripts.motor_control_client import Action, Mode
 from scripts.motor_control_studio.prepare import Candidate
 from scripts.motor_control_studio.style import style
-from scripts.motor_control_studio.telemetry import SERIES, Timeline, load_record, measured
+from scripts.motor_control_studio.telemetry import SERIES, Timeline, TrendCsv, load_record, measured
 from scripts.motor_control_studio.window import Studio
 
 
@@ -34,6 +35,11 @@ def until(predicate, seconds=5):
         if monotonic() >= deadline:
             raise AssertionError("Studio event did not arrive before timeout")
         QTest.qWait(20)
+
+
+def csv_rows(path):
+    with path.open(encoding="utf-8-sig", newline="") as stream:
+        return list(csv.DictReader(stream))
 
 
 class StudioTests(unittest.TestCase):
@@ -114,9 +120,17 @@ class StudioTests(unittest.TestCase):
 
                 drawn = window.charts.curves["ia_a"].xData.copy()
                 before = window.latest["sample_id"]
+                trend_path = self.output / "motor_control_SELFTEST_trend.csv"
+                with patch("scripts.motor_control_studio.window.QFileDialog.getSaveFileName",
+                           return_value=(str(trend_path), "CSV (*.csv)")) as dialog:
+                    window.start_trend_button.click()
+                    self.assertIn("motor_control_SELFTEST_trend_", dialog.call_args.args[2])
+                self.assertTrue(window.stop_trend_button.isEnabled())
                 window.pause_draw.setChecked(True)
                 board.advance(20, 8)
                 until(lambda: window.latest["sample_id"] != before)
+                paused_sample = window.latest
+                self.assertGreater(window.trend_file.count, 0)
                 self.assertEqual(window.charts.curves["ia_a"].xData.tolist(), drawn.tolist())
                 window.pause_draw.setChecked(False)
                 until(lambda: len(window.charts.curves["ia_a"].xData) > len(drawn))
@@ -147,10 +161,24 @@ class StudioTests(unittest.TestCase):
                 self.assertEqual(samples[1]["tick"] - samples[0]["tick"], 100_000)
                 output = self.output / "studio_capture.csv"
                 window.records.export_record(output)
-                with output.open(encoding="utf-8-sig", newline="") as stream:
-                    data = list(csv.DictReader(stream))
-                    self.assertEqual(len(data), len(samples))
-                    self.assertEqual(int(data[0]["sample_id"]), samples[0]["sample_id"])
+                data = csv_rows(output)
+                self.assertEqual(len(data), len(samples))
+                self.assertEqual(int(data[0]["sample_id"]), samples[0]["sample_id"])
+                self.assertTrue(window.stop_trend_button.isEnabled())
+                window.tabs.setCurrentIndex(0)
+                window.stop_trend_button.click()
+                self.assertIsNone(window.trend_file)
+                trend_rows = csv_rows(trend_path)
+                self.assertTrue(any(
+                    int(row["pl_tick [50 MHz ticks]"]) == paused_sample["tick"]
+                    and int(row["sample_id"]) == paused_sample["sample_id"]
+                    and int(row["groups"]) == paused_sample["groups"]
+                    for row in trend_rows
+                ))
+                before = window.latest["sample_id"]
+                board.advance(20, 24)
+                until(lambda: window.latest["sample_id"] != before)
+                self.assertEqual(csv_rows(trend_path), trend_rows)
                 window.disconnect_button.click()
                 until(lambda: window.worker is None)
                 self.assertIsNone(window.timeline.rows[-1][1])
@@ -179,8 +207,45 @@ class StudioTests(unittest.TestCase):
                 until(lambda: "已暂存" in window.notice.text())
                 self.action(window, Action.CALIBRATE)
                 self.assertFalse(window.control["armed"])
+                close_path = self.output / "motor_control_REAL_IO_close_trend.csv"
+                window.begin_trend(close_path)
+                until(lambda: window.trend_file.count > 0)
+                self.close_window(window)
+                self.assertIsNone(window.trend_file)
+                closed = csv_rows(close_path)
+                self.assertTrue(closed)
+                self.assertTrue(all(row["ud_v [V]"] == "" and row["ud_v_valid"] == "0" for row in closed))
+
+                window = self.setup_window(board)
+                loss_path = self.output / "motor_control_REAL_IO_disconnect_trend.csv"
+                window.begin_trend(loss_path)
+                until(lambda: window.trend_file.count > 0)
+                board.reply_hook = lambda _: False
+                until(lambda: window.worker is None)
+                self.assertIsNone(window.trend_file)
+                self.assertFalse(window.stop_trend_button.isEnabled())
+                self.assertTrue(csv_rows(loss_path))
             finally:
                 self.close_window(window)
+
+    def test_live_window_switch_preserves_history_when_paused(self):
+        window = Studio()
+        self.addCleanup(self.close_window, window)
+        self.assertEqual(window.trend_window.currentData(), 20)
+        for tenth in range(751):
+            window.timeline.append({"tick": tenth * 5_000_000})
+        window.draw_trend()
+        retained = window.charts.curves["ia_a"].xData.copy()
+        self.assertAlmostEqual(retained[0], 15)
+        window.pause_draw.setChecked(True)
+        window.timeline.append({"tick": 3_800_000_000})
+        for seconds in (10, 60, 20):
+            window.trend_window.setCurrentIndex(window.trend_window.findData(seconds))
+            for plot in window.charts.plots:
+                left, right = plot.getViewBox().viewRange()[0]
+                self.assertAlmostEqual(right, 75)
+                self.assertAlmostEqual(right - left, seconds)
+            self.assertEqual(window.charts.curves["ia_a"].xData.tolist(), retained.tolist())
 
     def test_validity_and_tick_gaps(self):
         timeline = Timeline(frequency=50_000_000)
@@ -195,6 +260,25 @@ class StudioTests(unittest.TestCase):
         self.assertIsNone(timeline.rows[-2][1])
         self.assertIsNone(measured(timeline.rows[-1][1], ia))
         self.assertIsNone(measured({**sample, "ia_a": None}, ia))
+
+        path = self.output / "motor_control_sample_validity.csv"
+        recording = TrendCsv(path)
+        recording.append({**sample, "sample_id": 4_294_967_295, "groups": 11,
+                          "id_a": 0, "id_ref_a": .5, "ud_v": 8,
+                          "position_mm": 0, "speed_mm_s": -2,
+                          "position_valid": False, "speed_valid": True})
+        recording.close()
+        row, = csv_rows(path)
+        self.assertEqual(int(row["pl_tick [50 MHz ticks]"]), sample["tick"])
+        self.assertEqual(row["sample_id"], "4294967295")
+        self.assertEqual(row["groups"], "11")
+        self.assertEqual(row["position_valid"], "0")
+        self.assertEqual((row["id_a [A]"], row["id_a_valid"]), ("0", "1"))
+        self.assertEqual((row["id_ref_a [A]"], row["id_ref_a_valid"]), ("", "0"))
+        self.assertEqual((row["ib_a [A]"], row["ib_a_valid"]), ("", "0"))
+        self.assertEqual((row["position_mm [mm]"], row["position_mm_valid"]), ("", "0"))
+        self.assertEqual(row["ud_v [V]"], "8")
+        self.assertEqual(row["speed_mm_s [mm/s]"], "-2")
 
     def test_preparation_script_offline(self):
         from tkinter import Tcl
