@@ -19,6 +19,9 @@ static void observe(void)
     observation[74] = 0xfff80000u;
     observation[75] = 0x00800000u;
     observation[76] = 0xff600000u;
+    if (ax04b_build_mode == AX04B_REAL) {
+        observation[41] = 0u; /* Inhibited REAL has no qualified FOC capture. */
+    }
 }
 
 EXPORT void fixture_boot(void)

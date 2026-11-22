@@ -84,6 +84,15 @@ class MotorControlClient:
 
     def download(self, path):
         """Download only a frozen capture, preserving its metadata and frame identity."""
+        steps = self.download_steps(path)
+        while True:
+            try:
+                next(steps)
+            except StopIteration as done:
+                return done.value
+
+    def download_steps(self, path):
+        """Yield (downloaded, total) between TCP batches, then return capture metadata."""
         info = self.request("trace-status")
         if info["active"] or not info["schema"]:
             raise RequestError("TRACE_UNAVAILABLE")
@@ -94,6 +103,7 @@ class MotorControlClient:
         with partial.open("x", encoding="utf-8") as out:
             out.write(json.dumps({"capture": info}) + "\n")
             index = 0
+            yield index, info["count"]
             while index < info["count"]:
                 data = self.request("trace-read", info["capture_id"], index)
                 records = data["records"]
@@ -104,6 +114,7 @@ class MotorControlClient:
                 for sample in records:
                     out.write(json.dumps(sample) + "\n")
                 index = end
+                yield index, info["count"]
         partial.rename(path)
         return info
 
