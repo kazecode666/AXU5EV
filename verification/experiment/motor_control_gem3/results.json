@@ -1,0 +1,60 @@
+{
+  "issue": "kazecode666/AXU5EV#53",
+  "base": "81e7f4ce5506c8ddd254500ace81fed0ae22ebad",
+  "application_id": "0x41585205",
+  "api_schema": 1,
+  "tcp": {
+    "protocol": 1,
+    "port": 5002,
+    "default_watch_hz": 10,
+    "trace_minimum_interval_ms": 2,
+    "trace_frames_per_reply": 2
+  },
+  "interrupts": {
+    "gic_instances": 1,
+    "pl": {"intid": 121, "priority": "0x90", "trigger": "high_level", "frame_period_us": 100},
+    "gem3": {"intid": 95, "priority": "0xa0", "trigger": "high_level", "dma_service": "foreground"}
+  },
+  "host": {
+    "loopback": {
+      "status": "PASS",
+      "scenarios": ["stream_uart_commands_and_trace", "real_rejects_running_commands"],
+      "log": ".runtime/experiment/motor_control_gem3/loopback_reviewed.log"
+    },
+    "online_api_regression": {
+      "status": "PASS",
+      "scenarios": 6,
+      "log": ".runtime/experiment/motor_control_gem3/online_final/result.txt"
+    },
+    "existing_tcp_callback_regression": {
+      "status": "PASS",
+      "log": ".runtime/experiment/motor_control_gem3/raw_legacy_final.log"
+    }
+  },
+  "target_builds": {
+    "vitis": "2026.1",
+    "pl": "REUSED_BYTE_IDENTICAL",
+    "selftest": {
+      "status": "OFFLINE_STARTUP_CHECK_PASS",
+      "candidate": ".runtime/experiment/GEM3_Control_SELFTEST_R01",
+      "launch": "Motor_Control_GEM3_SELFTEST_NoPower_R01",
+      "build_log": ".runtime/experiment/GEM3_Control_SELFTEST_R01/vitis_rebuild.log",
+      "startup_check": ".runtime/experiment/GEM3_Control_SELFTEST_R01/independent_startup_check_final.json"
+    },
+    "real": {
+      "status": "OFFLINE_STARTUP_CHECK_PASS",
+      "candidate": ".runtime/experiment/GEM3_Control_REAL_IO_R02",
+      "launch": "Motor_Control_GEM3_REAL_IO_NoPower_R02",
+      "build_log": ".runtime/experiment/GEM3_Control_REAL_IO_R02/vitis_build.log",
+      "startup_check": ".runtime/experiment/GEM3_Control_REAL_IO_R02/independent_startup_check.json"
+    }
+  },
+  "BOARD_SELFTEST": "NOT_RUN",
+  "ARM_EXECUTION": "NOT_RUN",
+  "GEM3_PHY_TCP": "NOT_RUN",
+  "UART_TCP_CONCURRENCY_ON_BOARD": "NOT_RUN",
+  "IRQ_COMMIT_LATENCY_UNDER_NETWORK_LOAD": "NOT_RUN",
+  "SUSTAINED_CAPTURE_AND_TCP_THROUGHPUT": "NOT_RUN",
+  "REAL_IO": "NOT_RUN",
+  "POWER_MOTION": "NOT_RUN"
+}

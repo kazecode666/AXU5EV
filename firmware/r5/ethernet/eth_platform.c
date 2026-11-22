@@ -1,5 +1,8 @@
 #include "eth_service.h"
 #include "eth_model_if.h"
+#ifdef MOTOR_CONTROL_ETHERNET
+#include "motor_control_ethernet.h"
+#endif
 #include "lwip/init.h"
 #include "lwip/tcp.h"
 #include "lwip/timeouts.h"
@@ -10,10 +13,13 @@
 #include "xiltimer.h"
 #include "xparameters.h"
 #include <string.h>
+#include <stdbool.h>
+#if defined(ETH02_RUNTIME) || defined(MOTOR_CONTROL_ETHERNET)
+#include "lwip/priv/tcp_priv.h"
+#endif
 #ifdef ETH02_RUNTIME
 #include "eth02_runtime.h"
 #include "netif/xemacpsif.h"
-#include "lwip/priv/tcp_priv.h"
 #include "xinterrupt_wrap.h"
 #ifdef AX02C2_RUNTIME
 #include "replay.h"
@@ -32,7 +38,11 @@ extern const volatile uint32_t ax02c2_application_id,ax02c2_mmio_base;
 #define ETH_IP_LAST 10
 #endif
 #ifndef ETH_TCP_PORT
+#ifdef MOTOR_CONTROL_ETHERNET
+#define ETH_TCP_PORT 5002
+#else
 #define ETH_TCP_PORT 5001
+#endif
 #endif
 extern volatile unsigned eth_phy_error,eth_phy_speed,eth_phy_id;
 static struct netif net;
@@ -41,7 +51,7 @@ static int read_closed;
 #ifdef ETH02_RUNTIME
 static int start_connection_closed;
 #endif
-#ifndef ETH02_RUNTIME
+#if !defined(ETH02_RUNTIME) && !defined(MOTOR_CONTROL_ETHERNET)
 static uint8_t test_ddr[ETH_BULK] __attribute__((section(".eth_bulk"),aligned(64)));
 #endif
 static uint8_t packet[8192];
@@ -72,11 +82,17 @@ static err_t received(void *arg,struct tcp_pcb *pcb,struct pbuf *p,err_t error){
 }
 static err_t accepted(void *arg,struct tcp_pcb *pcb,err_t error){
  (void)arg;(void)error;
+#ifdef MOTOR_CONTROL_ETHERNET
+ /* A new client can recover from a dead, half-open socket. Only the TCP
+  * session is replaced. Commands and captures stay owned by the application. */
+ if(peer)tcp_abort(peer);
+#else
  if(peer
 #ifdef ETH02_RUNTIME
     || Eth02Pending()
 #endif
  ){tcp_abort(pcb);return ERR_ABRT;}
+#endif
  EthSessionReset();peer=pcb;read_closed=0;
 #ifdef ETH02_RUNTIME
  start_connection_closed=0;
@@ -103,7 +119,7 @@ static void NetService(void){
  if(peer && read_closed){
   (void)EthTxPeek(&length);
   if(!length && !progress
-#ifdef ETH02_RUNTIME
+#if defined(ETH02_RUNTIME) || defined(MOTOR_CONTROL_ETHERNET)
      && !peer->unsent && !peer->unacked
 #endif
   ){
@@ -142,9 +158,54 @@ static void RunExperiment(void){
  Eth02ResultReady();
 }
 #endif
-int main(void){
- ip_addr_t ip,mask,gw;struct tcp_pcb *listener;
+static bool NetInterfaceStart(void)
+{
+ ip_addr_t ip,mask,gw;
  unsigned char mac[]={0x02,0x45,0x30,0x31,0x00,0x10};
+ lwip_init();IP4_ADDR(&ip,192,168,50,ETH_IP_LAST);IP4_ADDR(&mask,255,255,255,0);IP4_ADDR(&gw,0,0,0,0);
+ if(!xemac_add(&net,&ip,&mask,&gw,mac,0xff0e0000U) || eth_phy_error || !eth_phy_speed){
+  xil_printf("GEM3 INIT_FAIL phy=%u id=%08x\r\n",eth_phy_error,eth_phy_id);
+  return false;
+ }
+ netif_set_default(&net);netif_set_up(&net);netif_set_link_up(&net);
+ return true;
+}
+
+static bool NetListen(void)
+{
+ struct tcp_pcb *listener=tcp_new_ip_type(IPADDR_TYPE_V4);
+ if(!listener)return false;
+ if(tcp_bind(listener,IP_ADDR_ANY,ETH_TCP_PORT)!=ERR_OK){tcp_close(listener);return false;}
+ struct tcp_pcb *listening=tcp_listen(listener);
+ if(!listening){tcp_close(listener);return false;}
+ tcp_accept(listening,accepted);
+ return true;
+}
+
+#ifdef MOTOR_CONTROL_ETHERNET
+extern volatile const uint32_t ax04b_application_id, ax04b_build_mode;
+static bool listening;
+
+bool motor_control_net_start(void)
+{
+ listening = NetInterfaceStart() && NetListen();
+ if (listening) {
+  motor_control_net_identity(ax04b_application_id, ax04b_build_mode, eth_phy_speed);
+  xil_printf("GEM3 TCP_READY 192.168.50.%u:%u\r\n", ETH_IP_LAST, ETH_TCP_PORT);
+ }
+ return listening;
+}
+
+void motor_control_net_poll(void)
+{
+ if (listening) {
+  motor_control_gem_poll();
+  NetService();
+ }
+ motor_control_record_poll(sys_now());
+}
+#else
+int main(void){
  Xil_DCacheDisable();Xil_ICacheEnable();
  xil_printf(ETH_LABEL " R5_0 standalone build=%08x I-cache=ON D-cache=OFF GEM3=ff0e0000 PMU/64"
 #if defined(AX02C2_RUNTIME)
@@ -159,22 +220,17 @@ int main(void){
 #else
             ETH_BUILD_ID);
 #endif
- lwip_init();IP4_ADDR(&ip,192,168,50,ETH_IP_LAST);IP4_ADDR(&mask,255,255,255,0);IP4_ADDR(&gw,0,0,0,0);
- if(!xemac_add(&net,&ip,&mask,&gw,mac,0xff0e0000U) || eth_phy_error || !eth_phy_speed){
-  xil_printf("ETH01 INIT_FAIL phy=%u id=%08x STOP\r\n",eth_phy_error,eth_phy_id);eth01_fail_stop();
- }
+ if(!NetInterfaceStart())eth01_fail_stop();
  /* SDT AMD init_dma -> XSetupInterruptSystem owns GIC + GEM IRQ setup once.
   * No second XScuGic_DeviceInitialize or TTC/example platform_setup_timer.
   */
- netif_set_default(&net);netif_set_up(&net);netif_set_link_up(&net);Xil_ExceptionEnable();
+ Xil_ExceptionEnable();
 #ifdef ETH02_RUNTIME
  EthSessionInit(NULL,ETH_BUILD_ID,eth_phy_speed);
 #else
  EthSessionInit(test_ddr,ETH_BUILD_ID,eth_phy_speed);
 #endif
- listener=tcp_new_ip_type(IPADDR_TYPE_V4);
- if(!listener || tcp_bind(listener,IP_ADDR_ANY,ETH_TCP_PORT)!=ERR_OK){xil_printf("ETH01 BIND_FAIL STOP\r\n");eth01_fail_stop();}
- listener=tcp_listen(listener);if(!listener)eth01_fail_stop();tcp_accept(listener,accepted);
+ if(!NetListen()){xil_printf("ETH01 BIND_FAIL STOP\r\n");eth01_fail_stop();}
  xil_printf(ETH_LABEL " TCP_READY 192.168.50.%u:%u MAC=02:45:30:31:00:10"
 #ifndef ETH02_RUNTIME
             " DDR=10000000..11ffffff"
@@ -187,3 +243,4 @@ int main(void){
 #endif
  }
 }
+#endif

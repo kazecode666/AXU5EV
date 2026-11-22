@@ -1,10 +1,16 @@
 # AXU5EV 当前交接
 
+## GEM3 电机控制候选
+
+[Issue #53](https://github.com/kazecode666/AXU5EV/issues/53) 整合 GEM3 与现有 R5 实机控制。应用身份 `0x41585205`，PL INTID 121 和 GEM3 INTID 95 共用一套 GIC。GEM IRQ 只屏蔽自身并置标志。驱动、TCP 和串口在同一可抢占的前台运行。控制命令、有效性、回读和记录复用 #52 的在线 API。当前候选为 `.runtime/experiment/GEM3_Control_SELFTEST_R01` 和 `.runtime/experiment/GEM3_Control_REAL_IO_R02`，两套均通过离线启动检查。REAL 硬禁止保留。
+
+#54 可直接使用 [Python 客户端](../scripts/motor_control_client.py)与 [TCP 消息接口](../integration/r5_ethernet/MOTOR_CONTROL_GEM3_ZH.md)。[构建与无功率首运行](../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md) · [离线结果索引](../verification/experiment/motor_control_gem3/results.json) · [验证报告](reports/motor_control_gem3.md)。板上通信、并发负担和时延保持 `NOT_RUN`。
+
 ## AX-05A 在线接口候选
 
-[Issue #52](https://github.com/kazecode666/AXU5EV/issues/52) 复用 AX-04B 实机控制路径。在线 API schema 1 使用应用身份 `0x41585204`、R5 模型/C 1.173 和 FOC 模型 1.30。业务与诊断数据由前台按需读，PS 和 PL 结果按采样 ID 与 tick 匹配，命令回执区分所选、模型处理、COMMIT 接受及 P0 采用。进入下一阶段 #53 时复用这套 API。见[信号和操作合同](../integration/ps_pl/AX05A_ONLINE_ZH.md)、[离线结果](../verification/experiment/ax05a/results.json)和[候选报告](reports/ax05a_online_interface.md)。
+[Issue #52](https://github.com/kazecode666/AXU5EV/issues/52) 复用 AX-04B 实机控制路径。串口候选的在线 API schema 1 使用应用身份 `0x41585204`、R5 模型/C 1.173 和 FOC 模型 1.30。业务与诊断数据由前台按需读，PS 和 PL 结果按采样 ID 与 tick 匹配，命令回执区分所选、模型处理、COMMIT 接受及 P0 采用。GEM3 候选复用这套 API。见[信号和操作合同](../integration/ps_pl/AX05A_ONLINE_ZH.md)、[离线结果](../verification/experiment/ax05a/results.json)和[候选报告](reports/ax05a_online_interface.md)。
 
-当前候选为 `.runtime/experiment/ax04b/selftest_ax05a_03` 和 `.runtime/experiment/ax04b/real_ax05a_03`。两套 R5 ELF 均基于 Ready 修复提交 `19e3b59` 重建并通过离线启动检查，各自使用本目录内的 bit/ltx/XSA、R5 ELF、A53 FSBL 与 `ax04b_realtime_manual`。PL 产物逐文件核对后从同 profile 的 `*_ax05a_02/hardware` 复用。`*_ax05a_02` 的 R5 ELF 是修复前固件，按历史候选保留。
+串口候选为 `.runtime/experiment/ax04b/selftest_ax05a_03` 和 `.runtime/experiment/ax04b/real_ax05a_03`。两套 R5 ELF 均基于 Ready 修复提交 `19e3b59` 重建并通过离线启动检查，各自使用本目录内的 bit/ltx/XSA、R5 ELF、A53 FSBL 与 `ax04b_realtime_manual`。PL 产物逐文件核对后从同 profile 的 `*_ax05a_02/hardware` 复用。`*_ax05a_02` 的 R5 ELF 是修复前固件，按历史候选保留。
 
 板内 SELFTEST、实际 ARM 执行／IRQ→COMMIT 负担、持续记录率、REAL IO、功率运动和动态 SDF 均为 `NOT_RUN`。REAL 保持硬禁止。下方 AX-04B R1 记录保留对应旧候选及现场验收入口。
 
