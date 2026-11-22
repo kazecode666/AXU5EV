@@ -23,6 +23,13 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
     wire [2:0] high, low, j16_high, j16_low;
 
     reg [11:0] adc_addr=0, rt_addr=0, rt_read_addr=0;
+`ifdef AX05A_FOC_OBSERVATION
+    reg [11:0] diag_addr=0;
+    reg diag_arvalid=0;
+    wire diag_arready, diag_rvalid;
+    wire [1:0] diag_rresp;
+    wire [31:0] diag_rdata;
+`endif
     reg [31:0] adc_wdata=0, rt_wdata=0;
     reg adc_awvalid=0, adc_wvalid=0, rt_awvalid=0, rt_wvalid=0, rt_arvalid=0;
     wire adc_awready, adc_wready, adc_bvalid, rt_awready, rt_wready, rt_bvalid, rt_arready, rt_rvalid;
@@ -45,7 +52,13 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
         .s_axi_awaddr(adc_addr), .s_axi_awprot(3'd0), .s_axi_awvalid(adc_awvalid), .s_axi_awready(adc_awready),
         .s_axi_wdata(adc_wdata), .s_axi_wstrb(4'hf), .s_axi_wvalid(adc_wvalid), .s_axi_wready(adc_wready),
         .s_axi_bvalid(adc_bvalid), .s_axi_bready(1'b1), .s_axi_bresp(adc_bresp),
-        .s_axi_araddr(12'd0), .s_axi_arprot(3'd0), .s_axi_arvalid(1'b0), .s_axi_rready(1'b1));
+`ifdef AX05A_FOC_OBSERVATION
+        .s_axi_araddr(diag_addr), .s_axi_arvalid(diag_arvalid), .s_axi_arready(diag_arready),
+        .s_axi_rdata(diag_rdata), .s_axi_rvalid(diag_rvalid), .s_axi_rresp(diag_rresp),
+`else
+        .s_axi_araddr(12'd0), .s_axi_arvalid(1'b0),
+`endif
+        .s_axi_arprot(3'd0), .s_axi_rready(1'b1));
 
     ax04b_realtime_axi #(.SELFTEST(SELFTEST)) realtime_axi (
         .s_axi_aclk(clk), .s_axi_aresetn(rst_n),
@@ -132,6 +145,9 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
             if (result_phase < 0) result_phase=phase;
             check(phase >= 442 && phase <= 444 && phase == result_phase && !`AX04B_FOC.hold_violation,
                 "continuous generated FOC results keep the frozen input phasing");
+            if (`AX04B_FOC.capture_valid)
+                $display("FOC_BITS %0d %h %h %h", sampled_id,
+                    `AX04B_FOC.core_du, `AX04B_FOC.core_dv, `AX04B_FOC.core_dw);
         end
         if (`AX04B_FOC.waiting_applied && applied_seq == sampled_id) begin
             confirmation_phase=phase;
@@ -172,6 +188,38 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
         else begin wait(adc_bvalid); check(adc_bresp==0,"calibration AXI response"); end
         repeat(2) @(negedge clk);
     endtask
+
+`ifdef AX05A_FOC_OBSERVATION
+    task automatic read_diag(input logic [11:0] address, output logic [31:0] value);
+        @(negedge clk);
+        check(diag_arready, "diagnostic AXI read ready");
+        diag_addr=address; diag_arvalid=1;
+        @(negedge clk);
+        diag_arvalid=0;
+        check(diag_rvalid && diag_rresp==0, "diagnostic AXI read response");
+        value=diag_rdata;
+    endtask
+
+    task automatic verify_dq(input logic [31:0] sample_id, input logic [63:0] tick);
+        logic [31:0] word, id, lo, hi;
+        logic [127:0] dq;
+        wait(adc.auto_path.bank_strobe);
+        repeat(2) @(negedge clk);
+        read_diag(0,word);
+        read_diag(12+42*4,id); read_diag(12+43*4,lo); read_diag(12+44*4,hi);
+        check(id==sample_id && {hi,lo}==tick, "same diagnostic FOC capture identity");
+        read_diag(12+73*4,dq[31:0]); read_diag(12+74*4,dq[63:32]);
+        read_diag(12+75*4,dq[95:64]); read_diag(12+76*4,dq[127:96]);
+        read_diag(12+77*4,word);
+        check(word==32'h41583501 && !$isunknown(dq) && dq==`AX04B_FOC.dq_observation,
+            "post-valley snapshot publishes frozen generated dq results");
+        check(dq[127:64] != 0, "active dq voltage tap is not a zero placeholder");
+        read_diag(12+78*4,word);
+        check(word[10:7]==4'b1000, "final F_Reset_n high and power enables held low");
+        read_diag(12+79*4,word);
+        $display("AX05A_DQ sample=%0d tick=%0d dq_Q20=%h",sample_id,tick,dq);
+    endtask
+`endif
 
     task automatic read_rt(input logic [11:0] address, output logic [31:0] value);
         @(negedge clk);
@@ -240,6 +288,9 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
         put(1,'h80,sequence_number);
         stage="PWM adoption";
         wait(applied_seq==sample && |{high,low});
+`ifdef AX05A_FOC_OBSERVATION
+        verify_dq(sample,sampled_tick);
+`endif
         @(negedge clk);
         #2;
         if (SELFTEST) locked=0; else erri_n=0;

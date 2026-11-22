@@ -16,6 +16,11 @@ module ax04_foc_duty_tb;
   logic [31:0] Vdc;
   wire ce_out;
   wire [31:0] duty_u_cmd, duty_v_cmd, duty_w_cmd;
+`ifdef AX05A_FOC_OBSERVATION
+  wire signed [63:0] obs_id, obs_iq, obs_ud, obs_uq;
+  logic [255:0] dq_vectors [0:MAX_FRAMES-1];
+  integer dq_checks = 0;
+`endif
   logic [RECORD_BITS-1:0] vectors [0:MAX_FRAMES-1];
   integer frames, row, fd;
   integer observed_frames = 0;
@@ -33,6 +38,9 @@ module ax04_foc_duty_tb;
     .id_ref(id_ref), .PI_Reset_EN(PI_Reset_EN), .Vdc(Vdc),
     .ce_out(ce_out), .duty_u_cmd(duty_u_cmd),
     .duty_v_cmd(duty_v_cmd), .duty_w_cmd(duty_w_cmd)
+`ifdef AX05A_FOC_OBSERVATION
+    ,.obs_id(obs_id), .obs_iq(obs_iq), .obs_ud(obs_ud), .obs_uq(obs_uq)
+`endif
   );
   always #10 clk = ~clk;
 
@@ -77,6 +85,12 @@ module ax04_foc_duty_tb;
       compare_word(frame, "u", duty_u_cmd, expected_u);
       compare_word(frame, "v", duty_v_cmd, expected_v);
       compare_word(frame, "w", duty_w_cmd, expected_w);
+`ifdef AX05A_FOC_OBSERVATION
+      if ($isunknown(dq_vectors[frame]) || {obs_id,obs_iq,obs_ud,obs_uq} !== dq_vectors[frame])
+        $fatal(1, "AX05A_DQ_MISMATCH frame=%0d actual=%h expected=%h",
+               frame, {obs_id,obs_iq,obs_ud,obs_uq}, dq_vectors[frame]);
+      dq_checks += 4;
+`endif
       repeat (FRAME_CLOCKS - OUTPUT_PHASE) @(posedge clk);
       #1;
       accepted_clocks = accepted_clocks + FRAME_CLOCKS;
@@ -91,6 +105,9 @@ module ax04_foc_duty_tb;
     if (!$value$plusargs("frames=%d", frames)) $fatal(1, "Missing frame count");
     if (frames < 1 || frames > MAX_FRAMES) $fatal(1, "Invalid frame count");
     $readmemh("foc_vectors.hex", vectors, 0, frames - 1);
+`ifdef AX05A_FOC_OBSERVATION
+    $readmemh("foc_dq_vectors.hex", dq_vectors, 0, frames - 1);
+`endif
     for (row = 0; row < frames; row = row + 1)
       if ($isunknown(vectors[row])) $fatal(1, "Missing vector frame %0d", row);
     // Match the existing accepted reset phase with CE disabled.
@@ -104,6 +121,10 @@ module ax04_foc_duty_tb;
     end
     for (row = 0; row < frames; row = row + 1)
       run_frame(row);
+`ifdef AX05A_FOC_OBSERVATION
+    if(dq_checks != 4*frames) $fatal(1, "AX05A missing modeled dq observation");
+    $display("AX05A_DQ_MODEL_PASS frames=%0d checks=%0d",frames,dq_checks);
+`endif
     if (observed_frames != frames || checks != 3 * frames ||
         accepted_clocks != frames * FRAME_CLOCKS)
       protocol_errors = protocol_errors + 1;

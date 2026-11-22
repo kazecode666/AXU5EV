@@ -366,6 +366,9 @@ module ax03b3_adc_observer #(
     generate if(AUTO_CONTROL) begin: auto_path
       reg [SNAP_WORDS*32-1:0] feedback_bank,control_bank;
       reg bank_strobe;
+`ifdef AX05A_FOC_OBSERVATION
+      wire [127:0] dq_observation;
+`endif
       // The feedback event remains P110. Publish schema3 after the controller's
       // fixed post-valley status event, joining the SAME captured feedback bank.
       always @(posedge s_axi_aclk) begin
@@ -377,6 +380,15 @@ module ax03b3_adc_observer #(
             control_bank<=feedback_bank;
             control_bank[0+:32]<=32'h4d435431;control_bank[32+:32]<=3;
             control_bank[41*32+:1024]<=control_debug;
+`ifdef AX05A_FOC_OBSERVATION
+            if(AX04B) begin
+              control_bank[73*32+:128]<=dq_observation;
+              control_bank[77*32+:32]<=32'h41583501;
+              control_bank[78*32+:32]<={20'd0,ax04b_ctrl_enable_o,ax04b_f_reset_n_o,
+                 ax04b_encon_o,ax04b_relcon_o,ax04b_pwm_enable_o,ax04b_pwm_stop_o,
+                 ax04b_ref_valid_i,ref_flags[7:6],ref_flags[5:4],ref_flags[1]};
+            end
+`endif
           end
         end
       end
@@ -404,7 +416,11 @@ module ax03b3_adc_observer #(
         .invalidate(AX04B ? ax04b_pwm_stop_o : (apply || restart || manual_disarm)),
         .auto_ready(auto_ready_i),.auto_online(auto_online_i),.auto_applied_seq(auto_applied_seq_i),
         .auto_valid(auto_valid_o),.auto_compare(auto_compare_o),.auto_seq(auto_seq_o),.auto_inhibit(auto_inhibit_o),
-        .debug_o(control_debug),.status_strobe(control_status_strobe));
+        .debug_o(control_debug),.status_strobe(control_status_strobe)
+`ifdef AX05A_FOC_OBSERVATION
+        ,.dq_observation(dq_observation)
+`endif
+      );
       assign snapshot_payload=control_bank;assign snapshot_strobe=bank_strobe;
     end else begin: no_auto_control
       assign auto_valid_o=0;assign auto_compare_o=0;assign auto_seq_o=0;assign auto_inhibit_o=1;

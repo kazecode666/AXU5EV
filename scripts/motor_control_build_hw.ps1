@@ -1,14 +1,17 @@
 param([ValidateSet('all','base','integrate','synth','audit','validate','build','reports','sdf')][string]$Stage='all',
       [Parameter(Mandatory=$true)][string]$Output,
-      [ValidateSet('Legacy','SELFTEST','REAL')][string]$Profile='Legacy')
+      [ValidateSet('Legacy','SELFTEST','REAL')][string]$Profile='Legacy',
+      [switch]$Ax05aObservation)
 $ErrorActionPreference='Stop'
 $savedEnvironment=@{}
-foreach($name in @('MC_AUTO','MC_PWM','MC_ENCODER','MC_AX04B','AX03B3_TEST')){
+foreach($name in @('MC_AUTO','MC_PWM','MC_ENCODER','MC_AX04B','MC_AX05A','AX03B3_TEST')){
  $savedEnvironment[$name]=[Environment]::GetEnvironmentVariable($name,'Process')
 }
 try {
  $env:MC_AUTO='1'
+ $env:MC_AX05A=if($Ax05aObservation){'1'}else{$null}
  if($Profile -eq 'Legacy'){
+  if($Ax05aObservation){throw 'AX05A observation requires an AX04B profile'}
   $env:MC_AX04B=$null
   & "$PSScriptRoot/encoder_feedback_build_hw.ps1" -Stage $Stage -Output $Output
  } else {

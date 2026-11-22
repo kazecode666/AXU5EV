@@ -8,6 +8,9 @@ module axu5ev_foc_frame_top(
  output logic [31:0] duty_u,duty_v,duty_w,frame_id,
  output logic [12:0] capture_edge,
  output logic result_valid,hold_violation
+`ifdef AX05A_FOC_OBSERVATION
+ ,output logic [127:0] dq_observation
+`endif
 );
  logic [12:0] phase;
  logic signed [31:0] ia_h,ib_h,ic_h,iq_h,id_h;
@@ -15,6 +18,16 @@ module axu5ev_foc_frame_top(
  logic pi_h;
  logic [31:0] vdc_h,du,dv,dw;
  logic ce_unused;
+`ifdef AX05A_FOC_OBSERVATION
+ wire signed [63:0] obs_id,obs_iq,obs_ud,obs_uq;
+ // Arithmetic remains in the generated core. Reduce Q40 to signed Q20
+ // only on this monitor branch, saturating values outside the wire range.
+ function automatic [31:0] monitor_q20(input logic signed [63:0] value);
+  if(value[63:51]!={13{value[51]}})
+   monitor_q20=value[63] ? 32'h80000000 : 32'h7fffffff;
+  else monitor_q20=value[51:20];
+ endfunction
+`endif
  logic [272:0] previous_inputs;
  wire [272:0] held_inputs={ia_h,ib_h,ic_h,theta_h,omega_h,iq_h,id_h,pi_h,vdc_h};
  // 首有效边沿前锁存；314拍之后仍运行完整5000拍。
@@ -30,6 +43,9 @@ module axu5ev_foc_frame_top(
   if(global_reset || timing_restart) begin
    phase<=0;frame_id<=0;capture_edge<=0;result_valid<=0;hold_violation<=0;previous_inputs<=0;
    duty_u<=32'd536870912;duty_v<=32'd536870912;duty_w<=32'd536870912;
+`ifdef AX05A_FOC_OBSERVATION
+   dq_observation<=0;
+`endif
   end else begin
    phase <= phase==4999 ? 0 : phase+1;
    if(phase!=0 && held_inputs!==previous_inputs) hold_violation<=1;
@@ -38,6 +54,10 @@ module axu5ev_foc_frame_top(
    if(phase==314) begin
     duty_u<=du;duty_v<=dv;duty_w<=dw;frame_id<=frame_id+1;
     capture_edge<=phase+1;result_valid<=1;
+`ifdef AX05A_FOC_OBSERVATION
+    dq_observation<={monitor_q20(obs_uq),monitor_q20(obs_ud),
+                     monitor_q20(obs_iq),monitor_q20(obs_id)};
+`endif
    end
   end
  end
@@ -54,5 +74,9 @@ module axu5ev_foc_frame_top(
 `else
   .Vdc_V(vdc_h),
 `endif
-  .ce_out(ce_unused),.duty_u_cmd(du),.duty_v_cmd(dv),.duty_w_cmd(dw));
+  .ce_out(ce_unused),.duty_u_cmd(du),.duty_v_cmd(dv),.duty_w_cmd(dw)
+`ifdef AX05A_FOC_OBSERVATION
+  ,.obs_id(obs_id),.obs_iq(obs_iq),.obs_ud(obs_ud),.obs_uq(obs_uq)
+`endif
+ );
 endmodule

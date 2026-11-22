@@ -2,7 +2,7 @@
 param([ValidateSet('chain','mapper','timing-preflight','ax04b-chain','ax04b-axi')][string]$Suite='chain',[string]$RunDir,[string]$Vectors,
       [string]$VivadoBin='E:/AMDDesignTools/2026.1/Vivado/bin',
       [ValidateSet('SELFTEST','REAL')][string]$Ax04bMode='SELFTEST',
-      [switch]$BadAdoptionExpectation)
+      [switch]$BadAdoptionExpectation,[switch]$Ax05aObservation)
 $ErrorActionPreference='Stop'
 $axRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 if(-not $RunDir){
@@ -46,13 +46,23 @@ $sources=@(Get-Content -LiteralPath $manifest | ForEach-Object {
 $defines=@()
 $generics=@()
 if($BadAdoptionExpectation -and $Suite -ne 'timing-preflight'){throw 'Counterexample is only for timing-preflight'}
+if($Ax05aObservation -and $Suite -ne 'ax04b-chain'){throw 'AX05A observation uses ax04b-chain'}
 if($Suite -eq 'ax04b-chain'){
  $sources=@(Get-Content -LiteralPath $manifest | ForEach-Object {
   $entry=$_ -split '\|',2
-  if($entry[0] -in @('handwritten','experiment')) {Join-Path $axRoot $entry[1]}
+  if($entry[0] -in @('handwritten','experiment')) {
+   $relative=$entry[1]
+   if($Ax05aObservation -and (Split-Path -Leaf $relative) -in @(
+       'AX04_FOC_FOC_DUT.sv','AX04_FOC_Id.sv','AX04_FOC_dq_voltage_limiter.sv')){
+    $relative=$relative.Replace('generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC/',
+      'generated/experiment/ax05a_03/pl/AXU5EV_Experiment_FOC/')
+   }
+   Join-Path $axRoot $relative
+  }
  })
  $sources += @(Join-Path $axRoot 'verification/experiment/ax04b/ax04b_chain_tb.sv')
  $top='ax04b_chain_tb';$defines=@('-d','AX04B_EXPERIMENT')
+ if($Ax05aObservation){$defines+=@('-d','AX05A_FOC_OBSERVATION')}
  if($Ax04bMode -eq 'REAL'){$generics=@('-generic_top','SELFTEST=0')}
 }elseif($Suite -eq 'ax04b-axi'){
  $sources=@((Join-Path $axRoot 'hardware/axu5ev/motor_control/rtl/axi/ax04b_realtime_axi.sv'),

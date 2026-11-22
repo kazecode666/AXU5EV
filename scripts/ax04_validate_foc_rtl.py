@@ -6,6 +6,7 @@ import json
 import math
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import time
 
@@ -67,17 +68,25 @@ def run_tool(bin_dir, name, arguments, output_dir):
     return {"exit_code": exit_code, "elapsed_seconds": elapsed}
 
 
-def validate(csv_path, output_dir, bin_dir, maximum_frames):
+def validate(csv_path, output_dir, bin_dir, maximum_frames, source_dir=None, dq_vectors=None):
     assert not output_dir.exists(), "Choose a new RTL verification directory"
     output_dir.mkdir(parents=True)
     assert maximum_frames is None or maximum_frames > 0
     frames = packed_vectors(csv_path, output_dir / "foc_vectors.hex", maximum_frames)
-    source_dir = ROOT / "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC"
-    sources = sorted(source_dir.glob("*.sv"), key=lambda path: (not path.name.endswith("_pkg.sv"), path.name))
+    baseline = ROOT / "generated/experiment/ax04_01/pl/AXU5EV_Experiment_FOC"
+    sources = sorted(baseline.glob("*.sv"), key=lambda path: (not path.name.endswith("_pkg.sv"), path.name))
+    if source_dir is not None:
+        if not source_dir.is_dir() or not (source_dir / "AX04_FOC_FOC_DUT.sv").is_file():
+            raise FileNotFoundError(f"Missing FOC DUT overlay: {source_dir}")
+        sources = [(source_dir / path.name) if (source_dir / path.name).is_file() else path
+                   for path in sources]
     assert len(sources) == 29
     assert all(path.name.startswith("AX04_FOC_") for path in sources)
     testbench = ROOT / "simulation/tests/experiment/ax04_foc_duty_tb.sv"
     arguments = ["--sv", "--work work", *[f'"{path.as_posix()}"' for path in sources + [testbench]]]
+    if dq_vectors is not None:
+        shutil.copyfile(dq_vectors, output_dir / "foc_dq_vectors.hex")
+        arguments.insert(1, "--define AX05A_FOC_OBSERVATION")
     (output_dir / "xvlog.args").write_text("\n".join(arguments) + "\n", encoding="utf-8")
     tools = {}
     tools["xvlog"] = run_tool(bin_dir, "xvlog", ["-f", "xvlog.args"], output_dir)
@@ -88,6 +97,10 @@ def validate(csv_path, output_dir, bin_dir, maximum_frames):
     result = json.loads((output_dir / "foc_rtl_result.json").read_text())
     assert result["status"] == "PASS", result
     assert result["frames"] == frames and result["checks"] == 3 * frames
+    if dq_vectors is not None:
+        marker = f"AX05A_DQ_MODEL_PASS frames={frames} checks={4 * frames}"
+        assert marker in (output_dir / "xsim.console.log").read_text(encoding="utf-8", errors="replace")
+        result["dq_checks"] = 4 * frames
     result.update(model_trace=str(csv_path), dut="AX04_FOC_FOC_DUT", tools=tools,
                   stimulus_scope=f"First {frames} consecutive model-trace frames",
                   synthesis="NOT_RUN", implementation="NOT_RUN", sta_cdc_sdf="NOT_RUN",
@@ -102,7 +115,11 @@ if __name__ == "__main__":
                         ".runtime/experiment/ax04_01/pl_b2_01/numeric_04/foc/foc_short_model.csv")
     parser.add_argument("--run-dir", type=Path, required=True)
     parser.add_argument("--max-frames", type=int)
+    parser.add_argument("--source-dir", type=Path, help="versioned experiment FOC HDL directory")
+    parser.add_argument("--dq-vectors", type=Path, help="model-exported Q40 observation words")
     parser.add_argument("--vivado-bin", type=Path, default=Path("E:/AMDDesignTools/2026.1/Vivado/bin"))
     args = parser.parse_args()
     print(json.dumps(validate(args.csv.resolve(), args.run_dir.resolve(),
-                              args.vivado_bin.resolve(), args.max_frames), indent=2))
+                              args.vivado_bin.resolve(), args.max_frames,
+                              args.source_dir.resolve() if args.source_dir else None,
+                              args.dq_vectors.resolve() if args.dq_vectors else None), indent=2))

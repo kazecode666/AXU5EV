@@ -1,4 +1,7 @@
 #include "ax04b_adapter.h"
+#ifdef AX05A_ONLINE
+#include "ax05a_online.h"
+#endif
 #include "ax04b_registers.h"
 
 #include "AXU5EV_Motor_Control_System.h"
@@ -202,6 +205,17 @@ void ax04b_model_run(const Ax04bFeedback *feedback, const Ax04bCommand *command,
     result->alignment_id = y->runtime_frame[5];
     result->position_valid = y->position_valid;
     result->speed_valid = y->speed_valid;
+#ifdef AX05A_ONLINE
+    result->position_mm = y->position_mm;
+    result->speed_mm_s = y->speed_mm_s;
+    result->position_ref_mm = y->runtime_frame[12];
+    result->speed_ref_mm_s = y->runtime_frame[2];
+    result->position_loop_speed_ref_mm_s = AXU5EV_Motor_Control_System_DW.obs_v_ref_pos;
+    result->host_status = (uint32_t)y->runtime_frame[26];
+    result->host_ready = y->runtime_frame[30] != 0.0;
+    result->host_accept_count = (uint32_t)y->runtime_frame[31];
+    result->host_reject_count = (uint32_t)y->runtime_frame[32];
+#endif
 }
 
 uint32_t ax04b_model_service(double telemetry[AX04B_TELEMETRY_WORDS])
