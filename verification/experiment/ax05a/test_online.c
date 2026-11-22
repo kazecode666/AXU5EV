@@ -97,11 +97,31 @@ static void test_commands(void)
 
 static void test_position(void)
 {
-    const uint32_t revision = prepare(AX05A_POSITION);
+    uint32_t revision = prepare(AX05A_POSITION);
     send(AX05A_START, AX05A_POSITION, revision, AX05A_ACCEPTED);
     Ax05aRequest move = request(AX05A_SETPOINT, AX05A_POSITION, revision);
     move.position_mm = 2.0;
     assert(ax05a_submit(&move).decision == AX05A_NOT_READY);
+    for (unsigned i = 0u; i < 650u; ++i) frame(true);
+    const Ax05aPsFrame previous_ready = ps_history[(ps_next + PS_HISTORY - 1u) % PS_HISTORY];
+    assert(previous_ready.host_ready && previous_ready.mode == AX05A_POSITION);
+
+    send(AX05A_STOP, AX05A_IDLE, 0u, AX05A_ACCEPTED);
+    revision = prepare(AX05A_POSITION);
+    const uint32_t start_revision =
+        send(AX05A_START, AX05A_POSITION, revision, AX05A_ACCEPTED).accepted_revision;
+    assert(previous_ready.command_revision != start_revision);
+    send(AX05A_SETPOINT, AX05A_POSITION, revision, AX05A_NOT_READY);
+
+    /* Exercise a retained Ready observation from the previous POSITION run
+     * before the restarted command has produced a new PS record. */
+    ps_history[(ps_next + PS_HISTORY - 1u) % PS_HISTORY] = previous_ready;
+    const double move_level = command_slots[active_command].frame[AX04B_CMD_MOVE];
+    send(AX05A_SETPOINT, AX05A_POSITION, revision, AX05A_NOT_READY);
+    assert(command_slots[active_command].online_revision == start_revision &&
+        command_slots[active_command].frame[AX04B_CMD_MOVE] == move_level &&
+        move_pending_revision == 0u);
+
     for (unsigned i = 0u; i < 650u; ++i) frame(true);
     move = request(AX05A_SETPOINT, AX05A_POSITION, revision);
     move.position_mm = 2.0;

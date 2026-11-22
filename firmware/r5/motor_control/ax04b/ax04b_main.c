@@ -1024,7 +1024,13 @@ static Ax05aDecision apply_command(const Ax05aRequest *request, uint32_t *revisi
             if (move_pending_revision != 0u) {
                 return AX05A_PENDING;
             }
-            if (ps_count == 0u || !ps_history[(ps_next + PS_HISTORY - 1u) % PS_HISTORY].host_ready) {
+            if (ps_count == 0u) {
+                return AX05A_NOT_READY;
+            }
+            /* Ready must come from a control frame that consumed this command. */
+            const Ax05aPsFrame *ready_frame = &ps_history[(ps_next + PS_HISTORY - 1u) % PS_HISTORY];
+            if (!ready_frame->host_ready || ready_frame->mode != AX05A_POSITION ||
+                ready_frame->command_revision != command.online_revision) {
                 return AX05A_NOT_READY;
             }
             command.frame[AX04B_CMD_MOVE] = 1.0 - command.frame[AX04B_CMD_MOVE];
