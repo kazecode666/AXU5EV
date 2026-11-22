@@ -1,0 +1,47 @@
+{
+  "issue": "kazecode666/AXU5EV#54",
+  "base": "a237a2c7fcd85eb198fd20d3c993dbba2aaf92d5",
+  "host": {
+    "platform": "Windows x64",
+    "python": "3.14.6",
+    "pyside6": "6.12.0",
+    "pyqtgraph": "0.14.0",
+    "native_window": {
+      "status": "PASS",
+      "log": ".runtime/studio/studio_windows.log"
+    },
+    "continuous_demo": {
+      "status": "PASS",
+      "log": ".runtime/studio/demo_windows.log"
+    },
+    "studio_tests": {
+      "status": "PASS",
+      "scenarios": [
+        "selftest_widgets_and_stop_during_download",
+        "real_widgets_calibrate_without_motion",
+        "validity_and_tick_gaps",
+        "preparation_script_offline"
+      ],
+      "log": ".runtime/studio/verify_release.log",
+      "scope": "Qt widgets using localhost TCP, production C business dispatch and simulated PL"
+    },
+    "existing_ethernet_tests": {
+      "status": "PASS",
+      "scenarios": 2,
+      "log": ".runtime/studio/cli_regression_01.log"
+    }
+  },
+  "preparation": {
+    "status": "PASS",
+    "scope": "Local candidate and launch paths, matching FSBL and ELF, Tcl control flow with stub commands",
+    "selftest": ".runtime/studio/launch_check_01/selftest_no_power.tcl",
+    "real": ".runtime/studio/launch_check_01/real_io_no_power.tcl"
+  },
+  "JTAG_PROGRAM_AND_RUN": "NOT_RUN",
+  "GEM3_PHY_TCP": "NOT_RUN",
+  "IRQ_COMMIT_LATENCY_UNDER_NETWORK_LOAD": "NOT_RUN",
+  "SUSTAINED_CAPTURE_AND_TCP_THROUGHPUT": "NOT_RUN",
+  "BOARD_SELFTEST": "NOT_RUN",
+  "REAL_IO": "NOT_RUN",
+  "POWER_MOTION": "NOT_RUN"
+}

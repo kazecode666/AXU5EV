@@ -1,10 +1,14 @@
 # AXU5EV 当前交接
 
+## Motor Control Studio
+
+[Issue #54](https://github.com/kazecode666/AXU5EV/issues/54) 在合并 PR #56 后接入 Windows 桌面。日常操作走 GEM3 TCP，连接后从固件读取实际 profile。可观察控制版本及帧回执、回看 NDJSON 并导出 CSV。启动入口为 [start_motor_control_studio.ps1](../scripts/start_motor_control_studio.ps1)，操作和演示见 [Windows 使用说明](../docs/MOTOR_CONTROL_STUDIO_ZH.md)，离线结果见 [Studio 结果索引](../verification/experiment/motor_control_studio/results.json)。准备页面从现有无功率候选生成 XSDB 辅助脚本；实机加载、通信和功率运动为 `NOT_RUN`。
+
 ## GEM3 电机控制候选
 
 [Issue #53](https://github.com/kazecode666/AXU5EV/issues/53) 整合 GEM3 与现有 R5 实机控制。应用身份 `0x41585205`，PL INTID 121 和 GEM3 INTID 95 共用一套 GIC。GEM IRQ 只屏蔽自身并置标志。GEM3 驱动和 TCP 在可抢占的前台运行，UART 仅输出少量启动信息。控制命令、有效性、回读和记录复用 #52 的在线 API。当前候选为 `.runtime/experiment/final/GEM3_Control_SELFTEST_R01` 和 `.runtime/experiment/final/GEM3_Control_REAL_IO_R02`，两套均通过离线启动检查。REAL 硬禁止保留。
 
-#54 可直接使用 [Python 客户端](../scripts/motor_control_client.py)与 [TCP 消息接口](../integration/r5_ethernet/MOTOR_CONTROL_GEM3_ZH.md)。[构建与无功率首运行](../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md) · [离线结果索引](../verification/experiment/motor_control_gem3/results.json) · [验证报告](reports/motor_control_gem3.md)。板上通信、并发负担和时延保持 `NOT_RUN`。
+Studio 复用 [Python 客户端](../scripts/motor_control_client.py)与 [TCP 消息接口](../integration/r5_ethernet/MOTOR_CONTROL_GEM3_ZH.md)。[构建与无功率首运行](../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md) · [离线结果索引](../verification/experiment/motor_control_gem3/results.json) · [验证报告](reports/motor_control_gem3.md)。板上通信、并发负担和时延保持 `NOT_RUN`。
 
 ## AX-05A 在线接口候选
 

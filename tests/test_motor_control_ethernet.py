@@ -55,6 +55,7 @@ class Loopback:
 
     def __init__(self, fixture):
         self.c = fixture
+        self.reply_hook = None
         self.c.EthRxTryPush.argtypes = (ctypes.c_char_p, ctypes.c_size_t)
         self.c.EthRxTakeCredit.restype = ctypes.c_size_t
         self.c.EthTxPeek.argtypes = (ctypes.POINTER(ctypes.c_size_t),)
@@ -103,6 +104,8 @@ class Loopback:
                                 count = ctypes.c_size_t()
                                 pointer = self.c.EthTxPeek(ctypes.byref(count))
                                 packet = ctypes.string_at(pointer, count.value)
+                                if self.reply_hook is not None:
+                                    self.reply_hook(packet)
                                 connection.sendall(packet[:7])
                                 self.c.EthTxConsume(7)
                                 connection.sendall(packet[7:])
