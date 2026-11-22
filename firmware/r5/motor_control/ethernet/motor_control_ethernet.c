@@ -204,6 +204,13 @@ static bool uint_arg(const char **text, uint32_t *value)
 
 static const char *dispatch(Response *response, const char *verb, const char *args)
 {
+    if (strcmp(verb, "calibration-gains") == 0) {
+        if (!motor_control_stage_real_gains(args)) {
+            return "BAD_GAINS";
+        }
+        append(response, ",\"staged\":true");
+        return NULL;
+    }
     if (strcmp(verb, "command") == 0) {
         Ax05aRequest request;
         if (!motor_control_parse_request(args, &request)) {

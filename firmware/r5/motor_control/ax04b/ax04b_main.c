@@ -19,10 +19,7 @@
 #include "xparameters.h"
 #include "xscugic.h"
 #ifdef MOTOR_CONTROL_ETHERNET
-#include "motor_control_console.h"
 #include "motor_control_ethernet.h"
-#include "bspconfig.h"
-#include "xuartps_hw.h"
 #endif
 
 _Static_assert(AX04B_BUILD_MODE == AX04B_SELFTEST || AX04B_BUILD_MODE == AX04B_REAL,
@@ -43,7 +40,9 @@ volatile const uint32_t ax04b_fabric_irq = AX04B_FABRIC_IRQ;
 volatile const uint32_t ax04b_build_mode = AX04B_BUILD_MODE;
 volatile const uint32_t ax04b_diag_base = AX04B_DIAG_BASE;
 
+#ifndef MOTOR_CONTROL_ETHERNET
 extern char inbyte(void);
+#endif
 
 enum {
     TRACE_CAPACITY = 256,
@@ -134,16 +133,21 @@ typedef struct {
 
 static XScuGic interrupt_controller;
 #ifdef MOTOR_CONTROL_ETHERNET
-enum { GEM_PRIORITY = 0xa0u, UART_BUFFER = 4096u, UART_POLL_BYTES = 32u };
+enum { GEM_PRIORITY = 0xa0u };
 #define GEM_IRQ ((XPAR_XEMACPS_0_INTERRUPTS & 0xfffu) + 32u)
 static volatile bool gem_pending;
 static Xil_InterruptHandler gem_handler;
 static void *gem_device;
-static unsigned uart_head, uart_tail;
-static char uart_tx[UART_BUFFER];
-static unsigned uart_dump_index, uart_dump_count;
-static uint32_t uart_capture_id;
-static bool uart_irq_dump;
+static bool startup_uart = true;
+
+void __real_outbyte(char byte);
+void __wrap_outbyte(char byte)
+{
+    /* Vendor DMA recovery can log from the foreground. Keep UART at startup. */
+    if (startup_uart) {
+        __real_outbyte(byte);
+    }
+}
 
 static void gem_interrupt(void *unused)
 {
@@ -180,26 +184,6 @@ void motor_control_gem_poll(void)
     }
 }
 
-/* Both newlib and xil_printf enqueue bytes. Actual UART writes are polled. */
-void __wrap_outbyte(char byte)
-{
-    const unsigned next = (uart_head + 1u) % UART_BUFFER;
-    if (next != uart_tail) {
-        uart_tx[uart_head] = byte;
-        uart_head = next;
-    }
-}
-
-static void uart_send(void)
-{
-    for (unsigned i = 0; i < UART_POLL_BYTES && uart_tail != uart_head; ++i) {
-        if (XUartPs_IsTransmitFull(STDOUT_BASEADDRESS)) {
-            break;
-        }
-        XUartPs_WriteReg(STDOUT_BASEADDRESS, XUARTPS_FIFO_OFFSET, (uint8_t)uart_tx[uart_tail]);
-        uart_tail = (uart_tail + 1u) % UART_BUFFER;
-    }
-}
 #endif
 static Ax04bCommand command_slots[2];
 static volatile unsigned active_command;
@@ -268,6 +252,7 @@ static inline uint32_t pmu_tick(void)
     return value;
 }
 
+#ifndef MOTOR_CONTROL_ETHERNET
 static uint32_t pmu_divisor(void)
 {
     uint32_t control;
@@ -275,6 +260,7 @@ static uint32_t pmu_divisor(void)
     __asm__ volatile("mrc p15, 0, %0, c9, c12, 0" : "=r"(control));
     return (control & 8u) != 0u ? 64u : 1u;
 }
+#endif
 
 static inline uint32_t irq_lock(void)
 {
@@ -804,7 +790,9 @@ static void disarm(void)
 static bool configure_zero_current(void)
 {
     if (ax04b_build_mode == AX04B_REAL && !real_gains_supplied) {
+#ifndef MOTOR_CONTROL_ETHERNET
         xil_printf("AX04B CAL DENIED: supply measured REAL Q24 gains with g first\r\n");
+#endif
         return false;
     }
     disarm();
@@ -821,55 +809,67 @@ static bool configure_zero_current(void)
     if (!test) {
         write_rt(AX04B_IO_CONTROL, 1u);
     }
+#ifndef MOTOR_CONTROL_ETHERNET
     xil_printf("AX04B %s calibration requested, output disabled\r\n",
         test ? "synthetic" : "REAL provisional no-power");
+#endif
     return true;
 }
 
-static void stage_real_gains(const char *line)
+bool motor_control_stage_real_gains(const char *line)
 {
     if (ax04b_build_mode != AX04B_REAL) {
-        xil_printf("AX04B TEST gains fixed\r\n");
-        return;
+        return false;
     }
     char *end_a, *end_b;
     errno = 0;
     const intmax_t a = strtoimax(line, &end_a, 10);
     const intmax_t b = strtoimax(end_a, &end_b, 10);
-    const bool parsed = errno == 0 && end_a != line && end_b != end_a;
+    const bool parsed = errno == 0 && end_a != line &&
+        isspace((unsigned char)*end_a) && end_b != end_a;
     while (isspace((unsigned char)*end_b)) {
         ++end_b;
     }
     if (!parsed || *end_b != '\0' || a == 0 || b == 0 ||
         a < INT32_MIN || a > INT32_MAX || b < INT32_MIN || b > INT32_MAX) {
-        xil_printf("AX04B expected g <signed_gain_a_q24> <signed_gain_b_q24>\r\n");
-        return;
+        return false;
     }
     disarm();
     real_gain_a = (uint32_t)(int32_t)a;
     real_gain_b = (uint32_t)(int32_t)b;
     real_gains_supplied = true;
+    return true;
+}
+
+#ifndef MOTOR_CONTROL_ETHERNET
+static void read_real_gains(void)
+{
+    if (ax04b_build_mode != AX04B_REAL) {
+        xil_printf("AX04B TEST gains fixed\r\n");
+        return;
+    }
+    char line[80];
+    if (fgets(line, sizeof(line), stdin) == NULL) {
+        return;
+    }
+    if (!motor_control_stage_real_gains(line)) {
+        xil_printf("AX04B expected g <signed_gain_a_q24> <signed_gain_b_q24>\r\n");
+        return;
+    }
 #ifdef AX05A_ONLINE
     xil_printf("AX05A REAL gains staged, request CALIBRATE with zero current\r\n");
 #else
     xil_printf("AX04B REAL gain words staged in PS, use c with zero current\r\n");
 #endif
 }
-
-#ifndef MOTOR_CONTROL_ETHERNET
-static void read_real_gains(void)
-{
-    char line[80] = "";
-    if (ax04b_build_mode != AX04B_REAL || fgets(line, sizeof(line), stdin) != NULL) {
-        stage_real_gains(line);
-    }
-}
 #endif
 
 static bool arm_test(void)
 {
     if (ax04b_build_mode != AX04B_SELFTEST) {
+#ifndef MOTOR_CONTROL_ETHERNET
         xil_printf("AX04B REAL ARM DENIED: physical validation pending\r\n");
+#endif
         return false;
     }
     const uint32_t cpsr = irq_lock();
@@ -881,7 +881,9 @@ static bool arm_test(void)
     if (!ready || safety.armed ||
         (status & (AX04B_ARMED | AX04B_INHIBIT_LATCHED | AX04B_LIVE_INVALID)) != 0u) {
         irq_unlock(cpsr);
+#ifndef MOTOR_CONTROL_ETHERNET
         xil_printf("AX04B ARM DENIED: wait for qualification and explicit clear\r\n");
+#endif
         return false;
     }
     write_rt(AX04B_CONTROL, AX04B_ARM);
@@ -893,7 +895,9 @@ static bool arm_test(void)
             revoke_permission(stopped, after, requested);
         }
         irq_unlock(cpsr);
+#ifndef MOTOR_CONTROL_ETHERNET
         xil_printf("AX04B PL ARM rejected\r\n");
+#endif
         return false;
     }
     Ax04bCommand command = stopped_command();
@@ -909,7 +913,9 @@ static bool arm_test(void)
     safety.clear_confirmed = false;
     publish_command(&command);
     irq_unlock(cpsr);
+#ifndef MOTOR_CONTROL_ETHERNET
     xil_printf("AX04B internal SELFTEST armed\r\n");
+#endif
     return true;
 }
 
@@ -920,14 +926,18 @@ static bool clear_request(void)
     observe_pl_permission(read_rt(AX04B_STATUS), &command);
     if (safety.armed) {
         irq_unlock(cpsr);
+#ifndef MOTOR_CONTROL_ETHERNET
         xil_printf("AX04B CLEAR DENIED: stop first\r\n");
+#endif
         return false;
     }
     safety.clear_confirmed = false;
     ++command.clear_ticket;
     publish_command(&command);
     irq_unlock(cpsr);
+#ifndef MOTOR_CONTROL_ETHERNET
     xil_printf("AX04B clear requested on the next clean frame\r\n");
+#endif
     return true;
 }
 
@@ -1219,6 +1229,7 @@ Ax05aControlStatus ax05a_control_status(void)
 }
 #endif
 
+#ifndef MOTOR_CONTROL_ETHERNET
 static void status_report(void)
 {
     double values[AX04B_TELEMETRY_WORDS];
@@ -1275,9 +1286,6 @@ static void trace_start(void)
     }
     online_trace.count = 0u;
 #endif
-#ifdef MOTOR_CONTROL_ETHERNET
-    uart_dump_count = 0u;
-#endif
     trace_count = 0u;
     trace_on = true;
     irq_unlock(cpsr);
@@ -1318,16 +1326,12 @@ static void trace_dump(void)
         "entry_pmu,read_pmu,model_pmu,accept_pmu,ack_pmu,pv,sv,rv,applied_coherent,"
         "pl_status,stop_pl,stop_reason,stop_pending,drive_permitted,safety_pass,"
         "start_ticket,start_delivered,alignment_state,alignment_done,alignment_id\r\n");
-#ifdef MOTOR_CONTROL_ETHERNET
-    uart_dump_index = 0u;
-    uart_dump_count = count;
-    uart_irq_dump = true;
-#else
     for (unsigned i = 0u; i < count; ++i) {
         print_irq_record(&trace[i]);
     }
-#endif
 }
+
+#endif
 
 static bool diagnostic_begin(uint32_t *sequence)
 {
@@ -1343,6 +1347,7 @@ static uint32_t diagnostic_word(unsigned index)
     return read_diag(0x0cu + index * 4u);
 }
 
+#ifndef MOTOR_CONTROL_ETHERNET
 static void diagnostics_dump(void)
 {
 #ifdef AX05A_ONLINE
@@ -1377,6 +1382,8 @@ static void diagnostics_dump(void)
     }
 #endif
 }
+
+#endif
 
 #ifdef AX05A_ONLINE
 static double diagnostic_fixed(uint32_t raw, double scale)
@@ -1528,9 +1535,6 @@ bool ax05a_trace_start(uint32_t groups)
         irq_unlock(cpsr);
         return false;
     }
-#ifdef MOTOR_CONTROL_ETHERNET
-    uart_dump_count = 0u;
-#endif
     trace_count = 0u;
     irq_unlock(cpsr);
     online_trace = (Ax05aTraceInfo){
@@ -1612,6 +1616,7 @@ bool ax05a_trace_read(uint32_t capture_id, uint32_t index, Ax05aSample *sample)
     return true;
 }
 
+#ifndef MOTOR_CONTROL_ETHERNET
 static void print_sample(const Ax05aSample *sample)
 {
     printf("AX05A id=%" PRIu32 " tick=%" PRIu64 " groups=%x"
@@ -1637,6 +1642,8 @@ static void print_sample(const Ax05aSample *sample)
         sample->encoder_angle_rad, (unsigned)sample->encoder_angle_valid,
         sample->id_a, sample->iq_a, sample->ud_v, sample->uq_v);
 }
+
+#endif
 
 bool motor_control_parse_request(const char *line, Ax05aRequest *request)
 {
@@ -1687,9 +1694,9 @@ Ax05aReply motor_control_submit(Ax05aRequest request)
     return ax05a_submit(&request);
 }
 
-static void online_uart_command(const char *line)
-{
 #ifndef MOTOR_CONTROL_ETHERNET
+static void online_uart_command(void)
+{
     char input[192];
     if (fgets(input, sizeof(input), stdin) == NULL) {
         return;
@@ -1702,10 +1709,8 @@ static void online_uart_command(const char *line)
         xil_printf("AX05A command line too long\r\n");
         return;
     }
-    line = input;
-#endif
     Ax05aRequest request;
-    if (!motor_control_parse_request(line, &request)) {
+    if (!motor_control_parse_request(input, &request)) {
         xil_printf("AX05A expected o <action> <mode> <selected_rev> <x> <v> <id> <iq> <fine>\r\n");
         return;
     }
@@ -1730,40 +1735,14 @@ static void online_trace_dump(void)
         info.capture_id, info.schema, info.application_id, info.pl_interface_id,
         info.dq_extension_id, info.hardware_profile, info.pl_ticks_hz, info.channel_mask, info.count,
         info.missed, info.duplicates, (unsigned)info.full, (unsigned)info.discontinuous);
-#ifdef MOTOR_CONTROL_ETHERNET
-    uart_dump_index = 0u;
-    uart_dump_count = info.count;
-    uart_capture_id = info.capture_id;
-    uart_irq_dump = false;
-#else
     for (uint32_t i = 0; i < info.count; ++i) {
         Ax05aSample sample;
         if (ax05a_trace_read(info.capture_id, i, &sample)) {
             print_sample(&sample);
         }
     }
-#endif
 }
 #endif
-
-#ifdef MOTOR_CONTROL_ETHERNET
-static void uart_dump_next(void)
-{
-    if (uart_dump_index >= uart_dump_count) {
-        return;
-    }
-    if (uart_irq_dump) {
-        print_irq_record(&trace[uart_dump_index]);
-    } else {
-        Ax05aSample sample;
-        if (ax05a_trace_read(uart_capture_id, uart_dump_index, &sample)) {
-            print_sample(&sample);
-        } else {
-            uart_dump_count = 0u;
-        }
-    }
-    ++uart_dump_index;
-}
 #endif
 
 int main(void)
@@ -1800,13 +1779,16 @@ int main(void)
         return 2;
     }
 #ifdef MOTOR_CONTROL_ETHERNET
-    setvbuf(stdout, NULL, _IONBF, 0);
     if (motor_control_net_start() && gem_device != NULL) {
         XScuGic_Enable(&interrupt_controller, GEM_IRQ);
     } else {
-        xil_printf("GEM3 unavailable; UART console active\r\n");
+        xil_printf("GEM3 unavailable\r\n");
     }
-#endif
+    startup_uart = false;
+    for (;;) {
+        motor_control_net_poll();
+    }
+#else
     printf("AX04B WAIT app=%08" PRIx32 " mode=%" PRIu32 " base=%08" PRIx32
         " GIC_INTID=%" PRIu32 " feedback_nm_per_count=%u PMU_divider=%" PRIu32 "\r\n",
         ax04b_application_id, ax04b_build_mode, ax04b_mmio_base, ax04b_fabric_irq,
@@ -1819,36 +1801,11 @@ int main(void)
         "z=alignment-reset f=SELFTEST driver-reset x=stop s=status l=capture p=CSV d=PL snapshot\r\n");
 #endif
     for (;;) {
-#ifdef MOTOR_CONTROL_ETHERNET
-        motor_control_net_poll();
-        uart_send();
-        if ((uart_head + UART_BUFFER - uart_tail) % UART_BUFFER >= UART_BUFFER / 2u) {
-            continue;
-        }
-        uart_dump_next();
-        if (!XUartPs_IsReceiveData(STDIN_BASEADDRESS)) {
-            continue;
-        }
-        char command;
-        const char *line;
-        const char byte = (char)XUartPs_ReadReg(STDIN_BASEADDRESS, XUARTPS_FIFO_OFFSET);
-        if (!motor_control_console_input(byte, &command, &line)) {
-            continue;
-        }
-#else
         const char command = inbyte();
-#ifdef AX05A_ONLINE
-        const char *line = NULL;
-#endif
-#endif
         switch (command) {
-#ifdef MOTOR_CONTROL_ETHERNET
-        case 'g': stage_real_gains(line); break;
-#else
         case 'g': read_real_gains(); break;
-#endif
 #ifdef AX05A_ONLINE
-        case 'o': online_uart_command(line); break;
+        case 'o': online_uart_command(); break;
         case 'n': {
             Ax05aSample sample;
             if (ax05a_read_sample(&sample)) {
@@ -1882,4 +1839,5 @@ int main(void)
         default: break;
         }
     }
+#endif
 }

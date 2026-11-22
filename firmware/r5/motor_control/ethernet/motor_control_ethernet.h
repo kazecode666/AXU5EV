@@ -6,6 +6,7 @@
 
 bool motor_control_parse_request(const char *line, Ax05aRequest *request);
 Ax05aReply motor_control_submit(Ax05aRequest request);
+bool motor_control_stage_real_gains(const char *line);
 bool motor_control_net_start(void);
 void motor_control_net_poll(void);
 void motor_control_gem_poll(void);

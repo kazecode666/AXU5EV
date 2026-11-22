@@ -18,13 +18,13 @@
   "host": {
     "loopback": {
       "status": "PASS",
-      "scenarios": ["stream_uart_commands_and_trace", "real_rejects_running_commands"],
-      "log": ".runtime/experiment/motor_control_gem3/loopback_reviewed.log"
+      "scenarios": ["stream_commands_and_trace", "real_calibrates_and_rejects_running_commands"],
+      "log": ".runtime/experiment/motor_control_gem3/loopback_tcp_only.log"
     },
     "online_api_regression": {
       "status": "PASS",
       "scenarios": 6,
-      "log": ".runtime/experiment/motor_control_gem3/online_final/result.txt"
+      "log": ".runtime/experiment/motor_control_gem3/online_tcp_only/result.txt"
     },
     "existing_tcp_callback_regression": {
       "status": "PASS",
@@ -36,23 +36,22 @@
     "pl": "REUSED_BYTE_IDENTICAL",
     "selftest": {
       "status": "OFFLINE_STARTUP_CHECK_PASS",
-      "candidate": ".runtime/experiment/GEM3_Control_SELFTEST_R01",
+      "candidate": ".runtime/experiment/final/GEM3_Control_SELFTEST_R01",
       "launch": "Motor_Control_GEM3_SELFTEST_NoPower_R01",
-      "build_log": ".runtime/experiment/GEM3_Control_SELFTEST_R01/vitis_rebuild.log",
-      "startup_check": ".runtime/experiment/GEM3_Control_SELFTEST_R01/independent_startup_check_final.json"
+      "build_log": ".runtime/experiment/final/GEM3_Control_SELFTEST_R01/vitis_build.log",
+      "startup_check": ".runtime/experiment/final/GEM3_Control_SELFTEST_R01/independent_startup_check.json"
     },
     "real": {
       "status": "OFFLINE_STARTUP_CHECK_PASS",
-      "candidate": ".runtime/experiment/GEM3_Control_REAL_IO_R02",
+      "candidate": ".runtime/experiment/final/GEM3_Control_REAL_IO_R02",
       "launch": "Motor_Control_GEM3_REAL_IO_NoPower_R02",
-      "build_log": ".runtime/experiment/GEM3_Control_REAL_IO_R02/vitis_build.log",
-      "startup_check": ".runtime/experiment/GEM3_Control_REAL_IO_R02/independent_startup_check.json"
+      "build_log": ".runtime/experiment/final/GEM3_Control_REAL_IO_R02/vitis_build.log",
+      "startup_check": ".runtime/experiment/final/GEM3_Control_REAL_IO_R02/independent_startup_check.json"
     }
   },
   "BOARD_SELFTEST": "NOT_RUN",
   "ARM_EXECUTION": "NOT_RUN",
   "GEM3_PHY_TCP": "NOT_RUN",
-  "UART_TCP_CONCURRENCY_ON_BOARD": "NOT_RUN",
   "IRQ_COMMIT_LATENCY_UNDER_NETWORK_LOAD": "NOT_RUN",
   "SUSTAINED_CAPTURE_AND_TCP_THROUGHPUT": "NOT_RUN",
   "REAL_IO": "NOT_RUN",

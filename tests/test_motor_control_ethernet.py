@@ -34,7 +34,7 @@ def build_fixture(compiler, output, mode):
     binary = output / f"motor_control_{mode}.dll"
     files = [Path(__file__).with_name("motor_control_ethernet_fixture.c"),
              firmware / "ax04b_adapter.c", service / "motor_control_ethernet.c",
-             service / "motor_control_console.c", transport / "eth_service.c",
+             transport / "eth_service.c",
              *sorted(generated.glob("*.c"))]
     env = dict(os.environ)
     if Path(compiler).is_absolute():
@@ -60,8 +60,6 @@ class Loopback:
         self.c.EthTxPeek.argtypes = (ctypes.POINTER(ctypes.c_size_t),)
         self.c.EthTxPeek.restype = ctypes.c_void_p
         self.c.EthTxConsume.argtypes = (ctypes.c_size_t,)
-        self.c.fixture_uart.argtypes = (ctypes.c_char,)
-        self.c.fixture_uart.restype = ctypes.c_uint32
         self.lock = threading.Lock()
         self.listener = socket.socket()
         self.listener.bind(("127.0.0.1", 0))
@@ -120,11 +118,6 @@ class Loopback:
         with self.lock:
             self.c.fixture_advance(frames, now_ms)
 
-    def uart(self, line):
-        with self.lock:
-            return [self.c.fixture_uart(bytes([byte])) for byte in line]
-
-
 class MotorControlNetworkTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -135,7 +128,7 @@ class MotorControlNetworkTests(unittest.TestCase):
             cls.output = ROOT / ".runtime/experiment/motor_control_gem3" / uuid.uuid4().hex
             cls.output.mkdir(parents=True)
 
-    def test_stream_uart_commands_and_trace(self):
+    def test_stream_commands_and_trace(self):
         with Loopback(build_fixture(self.compiler, self.output, 1)) as board:
             with socket.create_connection(("127.0.0.1", board.port), timeout=3) as raw:
                 raw.sendall(b"1 vers")
@@ -162,15 +155,14 @@ class MotorControlNetworkTests(unittest.TestCase):
                 selected = client.command(Action.SELECT, Mode.CURRENT, iq_a=.125)
                 revision = selected["accepted_revision"]
                 self.assertEqual(selected["decision"], 0)
-                incomplete = f"o 2 1 {revision} 0 ".encode()
-                self.assertEqual(board.uart(incomplete), [0] * len(incomplete))
                 self.assertFalse(client.request("status")["selection_confirmed"])
                 self.assertEqual(client.sample()["sample_id"], sample["sample_id"])
-                uart_id = board.uart(b"0 0 0 0\r\n")[-2]
-                self.assertGreater(uart_id, selected["firmware_request_id"])
+                confirmed = client.command(Action.CONFIRM, Mode.CURRENT, revision)
+                self.assertEqual(confirmed["decision"], 0)
+                self.assertEqual(confirmed["firmware_request_id"], selected["firmware_request_id"] + 1)
                 self.assertTrue(client.request("status")["selection_confirmed"])
                 cleared = client.command(Action.CLEAR)
-                self.assertGreater(cleared["firmware_request_id"], uart_id)
+                self.assertEqual(cleared["firmware_request_id"], confirmed["firmware_request_id"] + 1)
                 self.assertEqual(cleared["decision"], 0)
                 board.advance(1, 1)
                 self.assertEqual(client.command(Action.ARM, Mode.CURRENT, revision)["decision"], 0)
@@ -212,9 +204,17 @@ class MotorControlNetworkTests(unittest.TestCase):
                 again = reconnected.command(Action.SELECT, Mode.SPEED)
                 self.assertEqual(again["firmware_request_id"], stopped["firmware_request_id"] + 1)
 
-    def test_real_rejects_running_commands(self):
+    def test_real_calibrates_and_rejects_running_commands(self):
         with Loopback(build_fixture(self.compiler, self.output, 2)) as board, board.client() as client:
             self.assertEqual(client.request("version")["hardware_profile"], 2)
+            self.assertEqual(client.command(Action.CALIBRATE)["decision"], 4)
+            for gains in ((0, 65536), (65536, -2147483649)):
+                with self.assertRaisesRegex(RequestError, "BAD_GAINS"):
+                    client.request("calibration-gains", *gains)
+            self.assertEqual(client.command(Action.CALIBRATE)["decision"], 4)
+            self.assertTrue(client.request("calibration-gains", -65536, 65536)["staged"])
+            self.assertEqual(client.command(Action.CALIBRATE)["decision"], 0)
+            board.advance(1, 2)
             for action in (Action.ARM, Action.START, Action.SETPOINT, Action.ALIGN_START, Action.DRIVER_RESET):
                 self.assertEqual(client.command(action, Mode.CURRENT)["decision"], 5)
             self.assertFalse(client.request("status")["armed"])

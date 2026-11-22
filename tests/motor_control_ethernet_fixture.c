@@ -2,7 +2,6 @@
 #undef MOTOR_CONTROL_ETHERNET
 #include "../verification/experiment/ax04b/test_r5_runtime.c"
 
-#include "motor_control_console.h"
 #include "motor_control_ethernet.h"
 
 #if defined(_WIN32)
@@ -37,21 +36,4 @@ EXPORT void fixture_advance(unsigned frames, uint32_t now_ms)
     }
     observe();
     motor_control_record_poll(now_ms);
-}
-
-EXPORT uint32_t fixture_uart(char byte)
-{
-    char command;
-    const char *line;
-    if (!motor_control_console_input(byte, &command, &line)) {
-        return 0;
-    }
-    if (command == 'o') {
-        Ax05aRequest request;
-        assert(motor_control_parse_request(line, &request));
-        const Ax05aReply reply = motor_control_submit(request);
-        assert(reply.decision == AX05A_ACCEPTED);
-        return reply.request_id;
-    }
-    return 0;
 }

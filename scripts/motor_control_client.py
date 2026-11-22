@@ -117,6 +117,9 @@ def main():
         commands.add_parser(name)
     start = commands.add_parser("trace-start")
     start.add_argument("--groups", type=int, default=15)
+    gains = commands.add_parser("calibration-gains", help="stage measured signed Q24 ADC gains for REAL")
+    gains.add_argument("gain_a_q24", type=int)
+    gains.add_argument("gain_b_q24", type=int)
     download = commands.add_parser("download")
     download.add_argument("path", type=Path)
     watch = commands.add_parser("watch", help="poll the latest sample at 10 Hz")
@@ -136,6 +139,8 @@ def main():
                                         id_a=args.id_a, iq_a=args.iq_a, fine_phase_rad=args.fine_phase_rad)
             elif args.verb == "trace-start":
                 result = client.request("trace-start", args.groups)
+            elif args.verb == "calibration-gains":
+                result = client.request("calibration-gains", args.gain_a_q24, args.gain_b_q24)
             elif args.verb == "download":
                 result = client.download(args.path)
             elif args.verb == "watch":

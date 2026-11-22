@@ -240,7 +240,10 @@ def ax04b_check_startup():
                          'ax05a_trace_info','ax05a_trace_read','ax05a_control_status'})
     if ETHERNET:
         required.update({'MotorControlGemConnect','XEmacPs_IntrHandler','emac_bd_space',
-                         'motor_control_net_poll','motor_control_reply','motor_control_console_input','__wrap_outbyte'})
+                         'motor_control_net_poll','motor_control_reply','__wrap_outbyte'})
+        removed={'motor_control_console_input','uart_send','uart_dump_next','uart_tx'}
+        if removed.intersection(linked):
+            raise ValueError('GEM3 ELF still contains a UART business console')
     if not required.issubset(linked):
         raise ValueError('ELF missing model, IRQ or IRQ stack symbols: '+str(sorted(required-linked.keys())))
     irq_stack=linked['__irq_stack']['address']-linked['_irq_stack_end']['address']
@@ -294,7 +297,7 @@ def check_gem(platform, linked, frame_irq):
             '#define XTIMER_NO_TICK_TIMER' not in timer or 'XPAR_CPU_CORE_CLOCK_FREQ_HZ/64' not in timer):
         raise ValueError('Expected foreground-only lwIP and the ETH-02 PMU timebase')
     if '--wrap=outbyte' not in (WS/APP/'build/build.ninja').read_text():
-        raise ValueError('Expected the nonblocking UART output in the link command')
+        raise ValueError('Expected startup-only UART output in the link command')
     for name in ('emac_bd_space','_heap','_stack'):
         symbol=linked[name]
         if symbol['address']+symbol['bytes']>=0x10000000:
