@@ -25,7 +25,14 @@
     "scenarios": ["commands", "position", "alignment", "snapshot", "trace", "real"],
     "log": ".runtime/experiment/ax05a/host_online_05/result.txt",
     "ax04b_compatibility_scenarios": 12,
-    "ax04b_compatibility_log": ".runtime/experiment/ax05a/host_legacy_02/result.txt"
+    "ax04b_compatibility_log": ".runtime/experiment/ax05a/host_legacy_02/result.txt",
+    "ready_replay_regression": {
+      "status": "PASS",
+      "source_commit": "19e3b59f398a1ebb954f8a4c4eadf61b60f90c92",
+      "scenarios_passed": 6,
+      "log": ".runtime/experiment/ax05a/review55_ready_green_01/result.txt",
+      "pre_fix_reproduction_log": ".runtime/experiment/ax05a/review55_ready_red_01/result.txt"
+    }
   },
   "standalone_r5_compile": {
     "status": "PASS",
@@ -56,9 +63,22 @@
     "real_log": ".runtime/experiment/ax05a/rtl_real_final/xsim.console.log"
   },
   "target_builds": {
+    "vitis_version": "2026.1",
+    "r5_source_commit": "19e3b59f398a1ebb954f8a4c4eadf61b60f90c92",
+    "pl_build": "REUSED_BYTE_IDENTICAL",
+    "previous_candidates": {
+      "firmware_status": "PRE_READY_FIX_FIRMWARE",
+      "r5_source_commit": "a156bb515b3241a649ade8d043f139ae49d6cc05",
+      "selftest": ".runtime/experiment/ax04b/selftest_ax05a_02",
+      "real": ".runtime/experiment/ax04b/real_ax05a_02"
+    },
     "selftest": {
       "status": "OFFLINE_STARTUP_CHECK_PASS",
-      "candidate": ".runtime/experiment/ax04b/selftest_ax05a_02",
+      "candidate": ".runtime/experiment/ax04b/selftest_ax05a_03",
+      "pl_source": ".runtime/experiment/ax04b/selftest_ax05a_02/hardware",
+      "build_log": ".runtime/experiment/ax04b/selftest_ax05a_03/vitis_build.log",
+      "startup_check": ".runtime/experiment/ax04b/selftest_ax05a_03/independent_startup_check.json",
+      "r5_elf_sha256": "d32abea0b76b7a0ba4359bc684d2467002e634cd936fd87d920212b2769c52fd",
       "wns_ns": 0.733,
       "whs_ns": 0.011,
       "tns_ns": 0.0,
@@ -67,7 +87,11 @@
     },
     "real": {
       "status": "OFFLINE_STARTUP_CHECK_PASS",
-      "candidate": ".runtime/experiment/ax04b/real_ax05a_02",
+      "candidate": ".runtime/experiment/ax04b/real_ax05a_03",
+      "pl_source": ".runtime/experiment/ax04b/real_ax05a_02/hardware",
+      "build_log": ".runtime/experiment/ax04b/real_ax05a_03/vitis_build.log",
+      "startup_check": ".runtime/experiment/ax04b/real_ax05a_03/independent_startup_check.json",
+      "r5_elf_sha256": "3c4282b909070ac8b2669ab68d953c02a92d34098d79d46e191fcff18fd0ef83",
       "wns_ns": 0.704,
       "whs_ns": 0.010,
       "tns_ns": 0.0,

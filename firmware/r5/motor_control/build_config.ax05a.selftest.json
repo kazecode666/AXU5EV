@@ -5,8 +5,8 @@
   "generated_r5": "generated/experiment/ax04b_r1_01/r5",
   "application_id": "0x41585204",
   "dq_extension_id": "0x41583501",
-  "xsa": ".runtime/experiment/ax04b/selftest_ax05a_02/hardware/ax04b_selftest.xsa",
-  "bitstream": ".runtime/experiment/ax04b/selftest_ax05a_02/hardware/ax04b_selftest.bit",
-  "ltx": ".runtime/experiment/ax04b/selftest_ax05a_02/hardware/ax04b_selftest.ltx",
-  "workspace": ".runtime/experiment/ax04b/selftest_ax05a_02/vitis"
+  "xsa": ".runtime/experiment/ax04b/selftest_ax05a_03/hardware/ax04b_selftest.xsa",
+  "bitstream": ".runtime/experiment/ax04b/selftest_ax05a_03/hardware/ax04b_selftest.bit",
+  "ltx": ".runtime/experiment/ax04b/selftest_ax05a_03/hardware/ax04b_selftest.ltx",
+  "workspace": ".runtime/experiment/ax04b/selftest_ax05a_03/vitis"
 }
