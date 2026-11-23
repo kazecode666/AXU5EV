@@ -49,6 +49,12 @@
       "startup_check": ".runtime/experiment/final/GEM3_Control_REAL_IO_R02/independent_startup_check.json"
     }
   },
+  "pr61_board_selftest": {
+    "status": "PASS",
+    "scope": "SELFTEST + dq, no-power zero-reference CURRENT and explicit STOP",
+    "candidate": ".runtime/experiment/final/GEM3_Control_SELFTEST_P61_R01",
+    "report": "coordination/reports/motor_control_gem3.md#pr61-无功率-current-实板验收"
+  },
   "BOARD_SELFTEST": "NOT_RUN",
   "ARM_EXECUTION": "NOT_RUN",
   "GEM3_PHY_TCP": "NOT_RUN",
