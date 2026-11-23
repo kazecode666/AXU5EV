@@ -29,7 +29,11 @@ QPushButton#stop:disabled { background: #3c292d; color: #a78589; border-color: #
 QTabBar::tab { color: #a8bccc; padding: 9px 19px; background: #162331; margin-right: 3px; }
 QTabBar::tab:selected { color: #89ebdd; background: #1b3440; border-bottom: 2px solid #57d5c0; }
 QHeaderView::section { background: #213445; color: #c5dcea; padding: 5px; border: 0; }
-QTableWidget, QMenu, QComboBox QAbstractItemView { background: #152331; gridline-color: #2b3e50; }
+QTableWidget {
+    color: #e4edf6; background: #152331; alternate-background-color: #1b2c3b;
+    gridline-color: #2b3e50; selection-color: #f5fffd; selection-background-color: #346165;
+}
+QMenu, QComboBox QAbstractItemView { background: #152331; gridline-color: #2b3e50; }
 QMenu::item:selected { background: #346165; }
 QProgressBar { border: 1px solid #395064; border-radius: 4px; background: #152331; text-align: center; }
 QProgressBar::chunk { background: #287f77; }
