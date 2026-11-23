@@ -44,9 +44,12 @@ class Candidate:
         fsbl = setup["zuInitialization"]["usingFSBL"]
         expected_elf = "${workspaceFolder}/" + candidate.elf.relative_to(workspace).as_posix()
         expected_fsbl = "${workspaceFolder}/" + candidate.fsbl.relative_to(workspace).as_posix()
+        elf_file, fsbl_file = elf["elfFile"], fsbl["fsblFile"]
         if (setup.get("programDevice") is not False or elf.get("stopAtEntry") is not True
-                or elf["core"] != "psu_cortexr5_0" or elf["elfFile"] != expected_elf
-                or not fsbl["initWithFSBL"] or fsbl["fsblFile"] != expected_fsbl):
+                or elf["core"] != "psu_cortexr5_0" or not isinstance(elf_file, str)
+                or elf_file.replace("\\", "/") != expected_elf
+                or not fsbl["initWithFSBL"] or not isinstance(fsbl_file, str)
+                or fsbl_file.replace("\\", "/") != expected_fsbl):
             raise ValueError("启动项必须使用配套 FSBL/ELF，并将 R5 停在入口")
         return candidate
 
