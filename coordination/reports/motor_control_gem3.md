@@ -20,10 +20,18 @@ PL 的现有窗口是 P76 至 P4984，名义约 98.16 μs，周期保持 100 μs
 | Python 和 C 回环 | SELFTEST、REAL 2 个测试通过。覆盖分片及合并请求、控制和生效回读、TCP 重连与请求编号、REAL 增益校准、限幅拒绝、按需诊断、分批下载及帧身份。主机使用真实 C 服务和 R5 控制代码，PL 和 TCP 端点为主机测试环境。 |
 | 复用 TCP 回调 | 上一轮链式 pbuf、发送背压、接收窗口回收及半关闭主机回归通过。该传输层沿用原实现。 |
 | Vitis | SELFTEST R01 与 REAL IO R02 均以 Vitis 2026.1 完成目标构建及独立启动文件核对，结果为 `OFFLINE_STARTUP_CHECK_PASS`。两套 ELF 均无串口业务入口、输入和输出队列符号，UART 输出仅在启动阶段启用。复用原 Vivado 布线结果。见[结果索引](../../verification/experiment/motor_control_gem3/results.json)。 |
-| 实板 | GEM3 PHY/TCP、网络负荷下 IRQ→COMMIT 时延、持续吞吐、板内 SELFTEST、REAL IO 和功率运动均为 `NOT_RUN`。 |
+| 实板 | 此次 #53 离线验收时尚未上板。后续验收见下方 PR61 记录。 |
 
-可用 `python tests/test_motor_control_ethernet.py --cc <本机GCC> --output <新目录> -v` 重跑两套回环。Vitis 冷启动协商和首次 DMA/MPU 设置在控制停止态进行，现场启动时间和首帧时序也待验证。
+可用 `python tests/test_motor_control_ethernet.py --cc <本机GCC> --output <新目录> -v` 重跑两套回环。Vitis 冷启动协商和首次 DMA/MPU 设置在控制停止态进行。现场启动耗时和首帧时序未测量。
 
 上一轮候选保留在原目录。此次重建存入 `.runtime/experiment/final/`，正式名称、版本和启动项保持原样。
+
+## PR61 无功率 CURRENT 实板验收
+
+PR61 SELFTEST + dq 使用已通过实现后时序的 bit 和独立 Vitis 候选。实体 JTAG Debug、手动 PL 下载、GEM3 通信、单次零给定 CURRENT 及显式 STOP 已完成。B→C 按 50 MHz tick 计为 850.9 ms、8,509 帧。B/C 的 `word[41]=0x03`、`groups=0xF`、`capture_valid=1`、`lock_blocked=0`。内部 PWM offer +8,509，FOC invalid +0，PWM 已采用序号 +4,254,500，两端回执一致。旧 R01 的 756.4 ms、7,564 帧窗口中 `word[41]=0xB1`、`groups=0x3`、invalid +7,564，offer 与采用序号维持 0。
+
+现场 STOP 后核对了 `armed=false`、`stop_pending=false`、业务 `mode=0`、`fault=0`。J15/J16、驱动器、电机和外部功率级断开，外部硬禁止的结论来自软件回读，功率输出端电气未测。4 ns 是定向 XSim 注入，旧 bit 的物理脉冲未被直接观测。REAL 实现后时序及上板、#44 WCET、持续吞吐和功率运动为 `NOT_RUN`。
+
+[PR61 九份原始 JSON](../../verification/experiment/ax04b/evidence/pr61-current/) · [旧 R01 六份 B/C 原始 JSON](../../verification/experiment/ax04b/evidence/r01-current-baseline/) · [字段与计数](https://github.com/kazecode666/AXU5EV/pull/61#issuecomment-7101789649) · [最终实板验收 Review](https://github.com/kazecode666/AXU5EV/pull/61#pullrequestreview-6022081411)。
 
 [部署与启动](../../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md) · [协议和 #54 复用入口](../../integration/r5_ethernet/MOTOR_CONTROL_GEM3_ZH.md)

@@ -85,7 +85,7 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
     int join_phase=-1, result_phase=-1, confirmation_phase=-1;
     string stage="reset";
     reg p0_seen=0;
-    reg [31:0] sampled_id;
+    reg [31:0] sampled_id, expected_capture_version=0;
     reg [63:0] sampled_tick;
     reg [383:0] delivered;
     realtime sampled_at;
@@ -126,6 +126,8 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
             check(phase == 127, "FOC packet frozen at P127");
             #0.001;
             if (`AX04B_FOC.capture_valid) begin
+                check(`AX04B_FOC.capture_ref_version == expected_capture_version,
+                    "FOC captures the scheduled reference version");
                 check(`AX04B_FOC.capture_id == sampled_id && `AX04B_FOC.capture_tick == sampled_tick,
                     "FOC frame identity follows the paired sample");
                 check(`AX04B_FOC.foc_id == REFERENCE_ID && `AX04B_FOC.foc_iq == REFERENCE_IQ &&
@@ -134,7 +136,9 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
                     check(`AX04B_FOC.foc_theta == 0 && `AX04B_FOC.foc_omega == 0 && `AX04B_FOC.foc_pi,
                         "fixed angle and zero omega override live values; PI_Reset passes through");
                     fixed_captures++;
-                end else if (`AX04B_FOC.capture_ref_version == 2) begin
+                end else if (`AX04B_FOC.capture_ref_version == 2 ||
+                             `AX04B_FOC.capture_ref_version == 4 ||
+                             `AX04B_FOC.capture_ref_version == 6) begin
                     check(`AX04B_FOC.foc_theta == EXPECTED_BIASED_THETA && `AX04B_FOC.foc_omega == OMEGA && !`AX04B_FOC.foc_pi,
                         "biased encoder angle wraps once, same packet carries measured omega and PI release");
                     normal_captures++;
@@ -252,6 +256,18 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
     endtask
 
     reg [31:0] sequence_number, sample, quality, good_status;
+    task automatic rearm_current(input logic [31:0] version);
+        next_feedback(sequence_number,sample,quality);
+        put(1,'h84,2); put(1,'h84,4);
+        check(armed && !inhibit,"explicit CLEAR and ARM after stop");
+        submit(sample,version,32'h3a);
+        expected_capture_version=version;
+        put(1,'h80,sequence_number);
+        next_feedback(sequence_number,sample,quality);
+    endtask
+
+    int offers_before_bad_frame;
+    reg [31:0] last_applied;
     initial begin
         repeat(5) @(negedge clk);
         rst_n=1; locked=1;
@@ -277,14 +293,17 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
         check(armed && !inhibit,"qualification allows explicit clear and arm");
         stage="fixed packet";
         submit(sample,1,32'h0f);
+        expected_capture_version=1;
         put(1,'h80,sequence_number);
         next_feedback(sequence_number,sample,quality);
         check(ref_valid && active_ref[255:224]==1, "fixed packet actually adopted at P0");
         stage="normal packet";
         submit(sample,2,32'h0a);
+        expected_capture_version=2;
         put(1,'h80,sequence_number);
         next_feedback(sequence_number,sample,quality);
         check(ref_valid && active_ref[255:224]==2, "normal packet actually adopted at P0");
+        submit(sample,3,32'h8c); // Keep the reference watchdog fed across the fault test.
         put(1,'h80,sequence_number);
         stage="PWM adoption";
         wait(applied_seq==sample && |{high,low});
@@ -304,12 +323,65 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
         check(!good_status[5] && good_status[1], "checked transport remains no-overrun with latched fault");
         check(fixed_captures==1 && normal_captures==1 && adoptions==2 && initial_irqs>=2 && valid_irqs>=3,
             "both generated angle branches, phases and safety paths covered");
+
+        stage="4 ns result skew during CURRENT";
+        fork
+            rearm_current(4);
+            begin
+                wait(ref_valid && active_ref[255:224]==4);
+                wait(`AX04B_FOC.sample_age==74);
+                @(negedge clk);
+                force adc.valid=1'b0;
+                @(posedge adc.result_strobe);
+                #0.001;
+                check(!pwm_stop && auto_online,"result skew must not reset the PWM bridge");
+                #3.999;
+                release adc.valid;
+            end
+        join
+        submit(sample,5,32'h3a);
+        put(1,'h80,sequence_number);
+        wait(applied_seq==sample && |{high,low});
+        check(`AX04B_FOC.capture_valid && `AX04B_FOC.capture_ref_version==4,
+              "skewed CURRENT frame reaches its PWM valley");
+
+        stage="STOP while CURRENT is active";
+        fork
+            put(1,'h84,1);
+            begin
+                wait(realtime_axi.stop_write);
+                @(posedge clk); #0.001;
+                check(!armed && inhibit && !ref_valid && pwm_stop &&
+                      {high,low,j16_high,j16_low}==0,"STOP inhibits on its accepted write edge");
+            end
+        join
+        if (!SELFTEST) put(1,'h90,1); // Restore the input buffer disabled by STOP.
+
+        stage="ADC overrange after rearm";
+        rearm_current(6);
+        submit(sample,7,32'h3a);
+        put(1,'h80,sequence_number);
+        wait(applied_seq==sample && |{high,low});
+        last_applied=applied_seq;
+        offers_before_bad_frame=`AX04B_FOC.offer_count;
+        // Inject sustained OTR at the current adapter boundary (also in SELFTEST).
+        force adc.otr=2'b01;
+        wait(`AX04B_FOC.sample_age==75);
+        @(negedge clk); #0.001;
+        check(armed && !frame[161] && pwm_stop && !auto_online && {high,low,j16_high,j16_low}==0,
+              "real invalid qualification inhibits before the P76 IRQ");
+        @(posedge clk); #0.001;
+        check(irq && !armed && inhibit && !ref_valid,"P76 publishes IRQ and revokes the reference");
+        wait(`AX04B_FOC.status_strobe); #0.001;
+        check(!`AX04B_FOC.capture_valid && `AX04B_FOC.offer_count==offers_before_bad_frame &&
+              applied_seq==last_applied,"overrange frame cannot reach PWM");
+        release adc.otr;
         $display("AX04B_CHAIN PASS mode=%0d checks=%0d invalid_irq=%0d valid_irq=%0d irq_phase=76 join=%0d result=%0d apply=2500 confirm=%0d fixed=%0d normal=%0d",
             SELFTEST,checks,initial_irqs,valid_irqs,join_phase,result_phase,confirmation_phase,fixed_captures,normal_captures);
         $finish;
     end
     initial begin
-        #1_500_000;
+        #2_000_000;
         $fatal(1,"AX04B chain timeout %s checks=%0d early=%0d/%0d phase=%0d join=%0d result=%0d confirm=%0d captures=%0d/%0d adoptions=%0d irq=%b armed=%b online=%b applied=%0d frame_quality=%h",
             stage,checks,initial_irqs,valid_irqs,phase,join_phase,result_phase,confirmation_phase,
             fixed_captures,normal_captures,adoptions,irq,armed,auto_online,applied_seq,frame[191:160]);

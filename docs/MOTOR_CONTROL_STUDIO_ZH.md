@@ -25,7 +25,8 @@ python -m venv .runtime/studio/venv
 
 | 用途 | 候选（位于 `.runtime/experiment/final/`） | Vitis 启动项 |
 | --- | --- | --- |
-| 无功率内部自测 | `GEM3_Control_SELFTEST_R01` | `Motor_Control_GEM3_SELFTEST_NoPower_R01` |
+| 无功率内部自测（旧版对照） | `GEM3_Control_SELFTEST_R01` | `Motor_Control_GEM3_SELFTEST_NoPower_R01` |
+| PR61 无功率内部自测 + dq | `GEM3_Control_SELFTEST_P61_R01` | `Motor_Control_GEM3_SELFTEST_P61_NoPower_R01` |
 | 真实输入、功率硬禁 | `GEM3_Control_REAL_IO_R02` | `Motor_Control_GEM3_REAL_IO_NoPower_R02` |
 
 “实验准备”页核对本地候选并生成 XSDB 辅助文件。也可通过命令行生成到新路径。
@@ -35,9 +36,11 @@ python -m venv .runtime/studio/venv
 .\scripts\start_motor_control_studio.ps1 -Prepare REAL -Output .\real_io_no_power.tcl
 ```
 
-生成脚本时只读取本地文件。得到现场授权后，按 GEM3 首运行说明准备隔离实验网、保持驱动和电机断开。在 Vitis 打开对应 Workspace、执行已有 launch。该配置采用 A53 FSBL，加载 R5_0 ELF，并停在入口，`programDevice=false`。随后在同一 XSDB Console 用 `source` 执行生成脚本，完成 bit 加载以及 PS-PL 隔离移除和复位。核对目标后手动继续 R5_0，再连接 Studio。LTX 可供 Vivado/ILA 使用。两套路径和脚本已离线核对，实机 JTAG 加载为 `NOT_RUN`。[GEM3 首运行](../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md)
+生成脚本时只读取本地文件。`-Prepare SELFTEST` 和实验准备页的 SELFTEST 仍使用旧 R01 默认配置。PR61 已通过实体 JTAG Debug、手动下载和无功率 CURRENT 验收。经现场授权后使用 PR61 专用启动项，在 R5_0 入口暂停时从 PR61 的硬件目录手动下载 bit，执行配套 PS–PL 初始化，再手动继续 R5_0。旧 R01 和 REAL R02 的脚本离线核对记录保留。[GEM3 首运行](../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md)
 
 ## 运行与回读
+
+PR61 的 A/B/C 验收先用 Studio 完成 STOP、校准、CURRENT 选择与确认、CLEAR 和 ARM。断开 Studio 后再用 CLI 采 A、执行单次 START、采 B/C 并显式 STOP。Studio 和 CLI 不并发连接。用业务 sample 的 `mode` 核对实际运行。[实板验收记录](../coordination/reports/motor_control_gem3.md#pr61-无功率-current-实板验收)
 
 - 在 SELFTEST，先点 **STOP 停止**，选择电流、速度、位置或对齐模式并提交相应给定，再点“确认选择”。清除故障并核对 CLEAR 后，显式申请 ARM，再执行 START 或“开始对齐”。运行给定单独提交。IDLE 通过 STOP 进入。模式下拉框编辑拟提交的模式，状态区显示固件已选择和实际运行的模式。
 - 回执区显示命令的接受或拒绝和接受版本。帧回读分列模型消费、Host 回执、COMMIT 接受及当前 P0 采用，按数据有效性显示。连接和重连只读取身份、状态及观测。

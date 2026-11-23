@@ -2,13 +2,15 @@
 
 ## Motor Control Studio
 
-[Issue #54](https://github.com/kazecode666/AXU5EV/issues/54) 在合并 PR #56 后接入 Windows 桌面。日常操作走 GEM3 TCP，连接后从固件读取实际 profile。实时曲线采用 10/20/60 秒视窗，PC 可独立保存约 10 Hz 趋势 CSV。可观察控制版本及帧回执、下载固件 Trace、回看 NDJSON 并导出 CSV。启动入口为 [start_motor_control_studio.ps1](../scripts/start_motor_control_studio.ps1)，操作和演示见 [Windows 使用说明](../docs/MOTOR_CONTROL_STUDIO_ZH.md)，离线结果见 [Studio 结果索引](../verification/experiment/motor_control_studio/results.json)。准备页面从现有无功率候选生成 XSDB 辅助脚本。实机加载、通信和功率运动为 `NOT_RUN`。
+[Issue #54](https://github.com/kazecode666/AXU5EV/issues/54) 在合并 PR #56 后接入 Windows 桌面。日常操作走 GEM3 TCP，连接后从固件读取实际 profile。实时曲线采用 10/20/60 秒视窗，PC 可独立保存约 10 Hz 趋势 CSV。可观察控制版本及帧回执、下载固件 Trace、回看 NDJSON 并导出 CSV。启动入口为 [start_motor_control_studio.ps1](../scripts/start_motor_control_studio.ps1)，操作和演示见 [Windows 使用说明](../docs/MOTOR_CONTROL_STUDIO_ZH.md)，离线结果见 [Studio 结果索引](../verification/experiment/motor_control_studio/results.json)。PR61 SELFTEST 已实测 Studio 停机、校准、选择和 ARM，随后断开 Studio 由 CLI 完成 CURRENT 观测与 STOP。准备页面的 SELFTEST 辅助脚本仍对应旧 R01。功率运动为 `NOT_RUN`。
 
 ## GEM3 电机控制候选
 
 [Issue #53](https://github.com/kazecode666/AXU5EV/issues/53) 整合 GEM3 与现有 R5 实机控制。应用身份 `0x41585205`，PL INTID 121 和 GEM3 INTID 95 共用一套 GIC。GEM IRQ 只屏蔽自身并置标志。GEM3 驱动和 TCP 在可抢占的前台运行，UART 仅输出少量启动信息。控制命令、有效性、回读和记录复用 #52 的在线 API。当前候选为 `.runtime/experiment/final/GEM3_Control_SELFTEST_R01` 和 `.runtime/experiment/final/GEM3_Control_REAL_IO_R02`，两套均通过离线启动检查。REAL 硬禁止保留。
 
-Studio 复用 [Python 客户端](../scripts/motor_control_client.py)与 [TCP 消息接口](../integration/r5_ethernet/MOTOR_CONTROL_GEM3_ZH.md)。[构建与无功率首运行](../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md) · [离线结果索引](../verification/experiment/motor_control_gem3/results.json) · [验证报告](reports/motor_control_gem3.md)。板上通信、并发负担和时延保持 `NOT_RUN`。
+Studio 复用 [Python 客户端](../scripts/motor_control_client.py)与 [TCP 消息接口](../integration/r5_ethernet/MOTOR_CONTROL_GEM3_ZH.md)。[构建与无功率首运行](../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md) · [结果索引](../verification/experiment/motor_control_gem3/results.json) · [验证报告](reports/motor_control_gem3.md)。
+
+[#60](https://github.com/kazecode666/AXU5EV/issues/60) 的旧 R01 在 CURRENT 中出现 FOC 捕获无效、`lock_blocked=1` 和内部 PWM 未采用。[PR #61](https://github.com/kazecode666/AXU5EV/pull/61) 在 P75.5 寄存资格丢失判定，独立候选 `.runtime/experiment/final/GEM3_Control_SELFTEST_P61_R01` 已通过实体 JTAG Debug、手动加载 PR61 bit、GEM3 无功率零给定 CURRENT A/B/C 和显式 STOP。B/C 的 `groups=0xF`、`capture_valid=1`、`lock_blocked=0`，PWM 采用回执一致。旧 bit 的 4 ns 物理脉冲仍未经直接观测。REAL、#44 WCET 和功率运动为 `NOT_RUN`。[实板证据与范围](reports/motor_control_gem3.md#pr61-无功率-current-实板验收)
 
 ## AX-05A 在线接口候选
 
