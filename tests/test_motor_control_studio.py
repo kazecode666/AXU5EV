@@ -301,6 +301,34 @@ class StudioTests(unittest.TestCase):
                 self.assertEqual(calls[1][-1], candidate.bit.as_posix())
                 self.assertEqual(calls[3][-1], candidate.psu_init.as_posix())
 
+                launch_config = json.loads(candidate.config.read_text(encoding="utf-8"))
+                launch = next(option for option in launch_config["configurations"]
+                              if option["name"] == candidate.launch)
+                setup = launch["targetSetup"]
+                fsbl = setup["zuInitialization"]["usingFSBL"]
+                files = ((setup["downloadElf"][0], "elfFile"), (fsbl, "fsblFile"))
+                read_text = Path.read_text
+
+                def read_launch_config(path, *args, **kwargs):
+                    if path == candidate.config:
+                        return json.dumps(launch_config)
+                    return read_text(path, *args, **kwargs)
+
+                with patch.object(Path, "read_text", read_launch_config):
+                    for separator in ("/", "\\"):
+                        with self.subTest(separator=separator):
+                            for entry, field in files:
+                                entry[field] = entry[field].replace("\\", "/").replace("/", separator)
+                            self.assertEqual(Candidate.load(profile), candidate)
+
+                    for entry, field in files:
+                        with self.subTest(wrong_file=field):
+                            original = entry[field]
+                            entry[field] = original.rsplit("\\", 1)[0] + r"\different.elf"
+                            with self.assertRaises(ValueError):
+                                Candidate.load(profile)
+                            entry[field] = original
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
