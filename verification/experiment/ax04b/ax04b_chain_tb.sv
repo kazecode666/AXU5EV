@@ -12,6 +12,9 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
     always #10 clk=~clk;
     initial begin #5; forever #5 pwm_clk=~pwm_clk; end
     reg rst_n=0, locked=0, erri_n=1, erru_n=1;
+    reg adc_otr_a=0;
+    bit inject_valid_skew=0, inject_fast_stop=0;
+    int skew_pulses=0, stop_pulses=0;
     wire irq, p0, frame_publish, fast_fault, invalidate, inhibit, ref_valid, armed, ctrl_enable;
     wire [31:0] p0_id;
     wire [287:0] frame;
@@ -39,7 +42,7 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
     ax03b3_adc_observer #(.ENCODER_FEEDBACK(1), .TEST_INPUT(SELFTEST), .TEST_ABZ(SELFTEST),
         .AUTO_CONTROL(1), .AX04B(1), .ENCODER_INITIAL_COUNT(START_COUNT)) adc (
         .s_axi_aclk(clk), .s_axi_aresetn(rst_n),
-        .adc_data_a_i(12'd2000), .adc_data_b_i(12'd2100), .adc_otr_a_i(1'b0), .adc_otr_b_i(1'b0),
+        .adc_data_a_i(12'd2000), .adc_data_b_i(12'd2100), .adc_otr_a_i(adc_otr_a), .adc_otr_b_i(1'b0),
         .abz_a_i(1'b0), .abz_b_i(1'b0), .abz_z_i(1'b0), .adc_clk_a_o(adc_clock), .pwm_anchor_o(anchor),
         .auto_valid_o(auto_valid), .auto_compare_o(auto_compare), .auto_seq_o(auto_seq), .auto_inhibit_o(auto_inhibit),
         .auto_ready_i(auto_ready), .auto_online_i(auto_online), .auto_applied_seq_i(applied_seq),
@@ -134,11 +137,11 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
                     check(`AX04B_FOC.foc_theta == 0 && `AX04B_FOC.foc_omega == 0 && `AX04B_FOC.foc_pi,
                         "fixed angle and zero omega override live values; PI_Reset passes through");
                     fixed_captures++;
-                end else if (`AX04B_FOC.capture_ref_version == 2) begin
+                end else begin
                     check(`AX04B_FOC.foc_theta == EXPECTED_BIASED_THETA && `AX04B_FOC.foc_omega == OMEGA && !`AX04B_FOC.foc_pi,
                         "biased encoder angle wraps once, same packet carries measured omega and PI release");
                     normal_captures++;
-                end else $fatal(1,"Unexpected usable reference version");
+                end
             end else check(`AX04B_FOC.foc_pi,"invalid sample cannot run FOC with PI release");
         end
         if (`AX04B_FOC.foc_result_pulse) begin
@@ -248,10 +251,72 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
         put(1,'ha8,OMEGA); put(1,'hac,0); put(1,'hb0,0); put(1,'hb4,1);
         put(1,'hb8,flags); put(1,'hbc,version); put(1,'h8c,32'h434f4d4d);
         read_rt('h28,receipt); read_rt('h18,applied_version); read_rt('h1c,accepted_target);
-        check(receipt==1 && applied_version==version && accepted_target==sample+500,"accepted exact next-P0 packet");
+        check(receipt==1 && applied_version==version && accepted_target==sample+500,
+              $sformatf("accepted exact next-P0 packet stage=%s version=%0d receipt=%0d accepted=%0d/%0d expected_target=%0d",
+                        stage,version,receipt,applied_version,accepted_target,sample+500));
     endtask
 
+    // Model 4 ns of arrival skew at the result boundary. The underlying
+    // feedback is valid at the qualification edge and at the P76 IRQ edge.
+    always @(negedge clk) if (inject_valid_skew && `AX04B_FOC.sample_age==74) begin
+        force adc.valid=1'b0;
+        @(posedge adc.result_strobe);
+        #0.001;
+        check(!pwm_stop && auto_online,"result skew must not reset the PWM bridge");
+        #3.999;
+        release adc.valid;
+        #0.001;
+        check(adc.valid && auto_online,"valid settles before qualification");
+        skew_pulses++;
+    end
+
+    // A genuine short pulse applied downstream of qualification still takes
+    // the asynchronous fast-stop path, even between fabric rising edges.
+    always @(negedge clk) if (inject_fast_stop && `AX04B_FOC.sample_age==75) begin
+        force adc.ax04b_pwm_stop_o=1'b1;
+        #0.001;
+        check(pwm_stop && !auto_online && {high,low,j16_high,j16_low}==0,
+              "direct fast stop cancels bridge immediately");
+        #3.999;
+        release adc.ax04b_pwm_stop_o;
+        stop_pulses++;
+    end
+
     reg [31:0] sequence_number, sample, quality, good_status;
+    task automatic rearm_current(input int standby_version);
+        next_feedback(sequence_number,sample,quality);
+        put(1,'h84,4);
+        check(!armed && inhibit,"ARM alone cannot release a latched stop");
+        put(1,'h84,2); put(1,'h84,4);
+        check(armed && !inhibit,"explicit CLEAR and ARM restores standby");
+        submit(sample,standby_version,32'h8c);
+        put(1,'h80,sequence_number);
+        next_feedback(sequence_number,sample,quality);
+        check(ref_valid && auto_online && !`AX04B_FOC.ref_arm && auto_inhibit,
+              "standby returns online without PWM permission");
+        submit(sample,standby_version+1,32'h3a);
+        put(1,'h80,sequence_number);
+    endtask
+
+    task automatic verify_running_frame(input int version);
+        wait(`AX04B_FOC.status_strobe);
+        #0.001;
+        check(armed && auto_online && ref_valid && `AX04B_FOC.capture_ref_version==version &&
+              `AX04B_FOC.capture_valid && !`AX04B_FOC.lock_blocked && !auto_inhibit &&
+              applied_seq==sample,"healthy CURRENT frame captures and adopts at its valley");
+    endtask
+
+    task automatic verify_qualification_stop;
+        wait(`AX04B_FOC.sample_age==75);
+        @(negedge clk); #0.001;
+        check(armed && adc.ax04b_invalidate_o && pwm_stop && !auto_online &&
+              {high,low,j16_high,j16_low}==0,"bad feedback cancels PWM before P76");
+        @(posedge clk); #0.001;
+        check(irq && !armed && inhibit && !ref_valid,"P76 publishes IRQ and revokes the reference");
+    endtask
+
+    int offers_before_stop;
+    reg [31:0] last_applied;
     initial begin
         repeat(5) @(negedge clk);
         rst_n=1; locked=1;
@@ -285,6 +350,7 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
         put(1,'h80,sequence_number);
         next_feedback(sequence_number,sample,quality);
         check(ref_valid && active_ref[255:224]==2, "normal packet actually adopted at P0");
+        submit(sample,3,32'h8c);
         put(1,'h80,sequence_number);
         stage="PWM adoption";
         wait(applied_seq==sample && |{high,low});
@@ -304,12 +370,97 @@ module ax04b_chain_tb #(parameter integer SELFTEST = 1);
         check(!good_status[5] && good_status[1], "checked transport remains no-overrun with latched fault");
         check(fixed_captures==1 && normal_captures==1 && adoptions==2 && initial_irqs>=2 && valid_irqs>=3,
             "both generated angle branches, phases and safety paths covered");
+
+        stage="CURRENT with repeated qualification skew";
+        rearm_current(4);
+        for (int version=5; version<=7; version++) begin
+            // The first frame is a clean control. Inject skew in the next two.
+            inject_valid_skew=version!=5;
+            next_feedback(sequence_number,sample,quality);
+            submit(sample,version+1,32'h3a);
+            put(1,'h80,sequence_number);
+            verify_running_frame(version);
+        end
+        check(skew_pulses==2,"both skew cases exercised");
+        inject_valid_skew=0;
+
+        stage="preserve a direct fast-stop pulse";
+        offers_before_stop=`AX04B_FOC.offer_count;
+        last_applied=applied_seq;
+        inject_fast_stop=1;
+        next_feedback(sequence_number,sample,quality);
+        submit(sample,9,32'h3a);
+        put(1,'h80,sequence_number);
+        wait(`AX04B_FOC.status_strobe); #0.001;
+        check(stop_pulses==1 && auto_online && `AX04B_FOC.lock_blocked &&
+              !`AX04B_FOC.capture_valid && `AX04B_FOC.offer_count==offers_before_stop &&
+              applied_seq==last_applied,"fast stop cancels this frame despite bridge recovery");
+        inject_fast_stop=0;
+        next_feedback(sequence_number,sample,quality);
+        submit(sample,10,32'h3a);
+        put(1,'h80,sequence_number);
+        verify_running_frame(9);
+
+        stage="true ADC overrange";
+        offers_before_stop=`AX04B_FOC.offer_count;
+        last_applied=applied_seq;
+        adc_otr_a=1;
+        if (SELFTEST) force adc.otr=2'b01; // SELFTEST normally hardwires OTR low.
+        verify_qualification_stop();
+        next_feedback(sequence_number,sample,quality);
+        check(!quality[1],"overrange is published as invalid current");
+        // Keep transport alive while disarmed, without issuing drive permission.
+        submit(sample,11,32'h84);
+        put(1,'h80,sequence_number);
+        wait(`AX04B_FOC.status_strobe); #0.001;
+        check(!`AX04B_FOC.capture_valid && `AX04B_FOC.offer_count==offers_before_stop &&
+              applied_seq==last_applied,"bad ADC frame cannot reach PWM");
+        adc_otr_a=0;
+        if (SELFTEST) release adc.otr;
+
+        stage="explicit rearm after bad ADC and then STOP";
+        rearm_current(12);
+        next_feedback(sequence_number,sample,quality);
+        submit(sample,14,32'h3a);
+        put(1,'h80,sequence_number);
+        verify_running_frame(13);
+        fork
+            put(1,'h84,1);
+            begin
+                wait(realtime_axi.stop_write);
+                @(posedge clk); #0.001;
+                check(!armed && inhibit && !ref_valid && pwm_stop &&
+                      {high,low,j16_high,j16_low}==0,"STOP inhibits on its accepted write edge");
+            end
+        join
+        // STOP disables CTRL_EN. Restore the REAL input buffer as R5 would.
+        if (!SELFTEST) put(1,'h90,1);
+
+        stage="encoder illegal count change with valid ADC";
+        rearm_current(15);
+        next_feedback(sequence_number,sample,quality);
+        submit(sample,17,32'h3a);
+        put(1,'h80,sequence_number);
+        verify_running_frame(16);
+        offers_before_stop=`AX04B_FOC.offer_count;
+        last_applied=applied_seq;
+        force adc.frame_illegal=32'd1;
+        verify_qualification_stop();
+        next_feedback(sequence_number,sample,quality);
+        check(quality[1],"encoder change revokes a frame with otherwise valid current");
+        put(1,'h80,sequence_number);
+        wait(`AX04B_FOC.status_strobe); #0.001;
+        check(!`AX04B_FOC.capture_valid && `AX04B_FOC.offer_count==offers_before_stop &&
+              applied_seq==last_applied,"encoder-invalid frame cannot reach PWM");
+        release adc.frame_illegal;
+        $display("AX04B_QUALIFICATION PASS mode=%0d skew=%0d fast_stop=%0d adc_otr=1 illegal=1 stop=1 rearm=1",
+            SELFTEST,skew_pulses,stop_pulses);
         $display("AX04B_CHAIN PASS mode=%0d checks=%0d invalid_irq=%0d valid_irq=%0d irq_phase=76 join=%0d result=%0d apply=2500 confirm=%0d fixed=%0d normal=%0d",
             SELFTEST,checks,initial_irqs,valid_irqs,join_phase,result_phase,confirmation_phase,fixed_captures,normal_captures);
         $finish;
     end
     initial begin
-        #1_500_000;
+        #3_000_000;
         $fatal(1,"AX04B chain timeout %s checks=%0d early=%0d/%0d phase=%0d join=%0d result=%0d confirm=%0d captures=%0d/%0d adoptions=%0d irq=%b armed=%b online=%b applied=%0d frame_quality=%h",
             stage,checks,initial_irqs,valid_irqs,phase,join_phase,result_phase,confirmation_phase,
             fixed_captures,normal_captures,adoptions,irq,armed,auto_online,applied_seq,frame[191:160]);

@@ -306,8 +306,15 @@ module ax03b3_adc_observer #(
       end
       wire current_ok=valid && da && db && pair_complete && !clip && !(|otr);
       assign ax04b_feedback_good=current_ok && frame_ready;
-      wire qualification_lost=result_strobe &&
-            (!ax04b_feedback_good || frame_illegal!=previous_illegal);
+      reg qualification_lost;
+      // P75 launches the generated strobe and quality together. Sample their
+      // settled decision halfway to P76 so skew cannot pulse the async PWM
+      // inhibit. The AXI block still sees the decision at the P76 IRQ edge.
+      always @(negedge s_axi_aclk) begin
+        if (!s_axi_aresetn) qualification_lost<=0;
+        else qualification_lost<=result_strobe &&
+             (!ax04b_feedback_good || frame_illegal!=previous_illegal);
+      end
       assign ax04b_p0_o=s_axi_aresetn && adc_phase==0 && observe_phase==0;
       assign ax04b_p0_id_o=next_sample_id;
       // Schedule from the early current result, even when rejected. Encoder
