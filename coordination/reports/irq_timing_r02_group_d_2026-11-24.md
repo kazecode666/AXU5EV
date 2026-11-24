@@ -42,7 +42,7 @@ D1、D3 的普通 START 由 Detail 中的模式跳变确认。固件的 START �
 
 ## D2 与 B1 的 STOP 取消证据
 
-D2 的 seq 1,748,376 在 CURRENT 中接受 version 1,739,983 / target 874,188,000，接受上界为 29.54 µs。下一 IRQ seq 1,748,377 的 sample_id 为 874,188,000，两帧 PL tick 相差 5,000。STOP 已使 PL 状态从 `0x355` 变为 `0x343`，ARMED、REF_QUEUED 和 ACTIVE_VALID 均已清除。该帧 `fault=0`、`stop_reason=1`（显式 STOP），应用回执仍保留前一采用的 version 1,739,982 / target 874,187,500。停止帧自身的安全参考 version 1,739,984 / target 874,188,500 在 seq 1,748,378 取得下一 P0 采用。[D2 前后帧](../../verification/experiment/ax04b/evidence/irq-timing-r02/D/D2_STOP_1/transition_verification.json)
+D2 的 seq 1,748,376 在 CURRENT 中接受 version 1,739,983 / target 874,188,000，接受上界为 29.54 µs。下一 IRQ seq 1,748,377 的 sample_id 为 874,188,000，两帧 PL tick 相差 5,000。两帧 PL 状态读数分别为 `0x355`、`0x343`。bit2 ARMED 和 bit4 ACTIVE_VALID 从 1 变为 0，bit1 INHIBIT 从 0 变为 1。bit3 REF_QUEUED 两次均读为 0；队列取消由提交、STOP、采用回执及下述 RTL 行为共同支持。该帧 `fault=0`、`stop_reason=1`（显式 STOP），应用回执仍保留前一采用的 version 1,739,982 / target 874,187,500。停止帧自身的安全参考 version 1,739,984 / target 874,188,500 在 seq 1,748,378 取得下一 P0 采用。[D2 前后帧](../../verification/experiment/ax04b/evidence/irq-timing-r02/D/D2_STOP_1/transition_verification.json)
 
 B1 初次尝试的 seq 2,779,800 同样为事件 578、mode 0、stop_reason 1、PL 状态 `0x343` 和 fault 0。期望 version/target 2,366,273 / 1,389,899,500，实际保留 2,366,272 / 1,389,899,000。两次都符合 RTL 的 STOP 写触发 `cancel_all` 并清除 queued/active 的路径。D2 用前一帧已接受、STOP 后许可撤销、实际旧回执及后续安全参考采用把该因果链定位到具体 P0。两个原始窗口各保留 `receipt_errors=1`。D2 的这一次归类为有证据的预期取消，其余正常应采用的参考均已配对。B1 历史尝试仍为提前冻结的 `INCOMPLETE`。[B1 原始分析](../../verification/experiment/ax04b/evidence/irq-timing-r02/attempts/B1_no_studio/recovered_analysis.json) · [PL STOP 逻辑](../../hardware/axu5ev/motor_control/rtl/axi/ax04b_realtime_axi.sv#L127)
 

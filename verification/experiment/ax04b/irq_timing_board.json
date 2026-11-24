@@ -221,7 +221,18 @@
       "D7": {"evidence": "D/D7_DRIVER_RESET", "capture_id": 7, "edge_irq_seq": 1764165}
     }
   },
-  "T4": "NOT_RUN",
+  "T4": "SCOPED_PASS_PENDING_FINAL_REVIEW",
+  "T4_evidence": {
+    "report": "coordination/reports/irq_timing_r02_t4_2026-11-24.md",
+    "reviewed_evidence_commit": "1d827f147bdabec2143a05d6e3c8a4cca3a418ce",
+    "d_review": "https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6038692701",
+    "stable_ABC": {"windows": 7, "valid": 1200000, "applied": 1200000, "unexpected_violations": 0, "max_accept_upper_pl_cycles": 2341, "minimum_margin_pl_cycles": 2567},
+    "transitions_D": {"detail_frames": 1750, "valid": 828, "applied_valid": 827, "expected_stop_cancellations": 1, "transition_or_idle": 922, "max_accept_upper_pl_cycles": 2357, "minimum_margin_pl_cycles": 2551},
+    "independent_pwm_same_frame_endpoints": {"A": "PARTIAL", "B": "PARTIAL", "C1": "PASS"},
+    "full_alignment": "NOT_RUN",
+    "post_submit_irq_safety_reentry_on_board": "NOT_RUN",
+    "formal_wcet": "NOT_ESTABLISHED"
+  },
   "REAL_IO": "NOT_RUN",
   "POWER_MOTION": "NOT_RUN"
 }
