@@ -1,0 +1,11 @@
+{
+  "id": 11,
+  "selected_revision": 7,
+  "confirmed_revision": 7,
+  "dispatched_revision": 8,
+  "selected_mode": 2,
+  "selection_confirmed": true,
+  "armed": true,
+  "clear_confirmed": false,
+  "stop_pending": false
+}

@@ -85,7 +85,59 @@
       "new_overruns": 0
     }
   },
-  "T3_B": "NOT_RUN",
+  "T3_B": "PASS_STABLE_TIMING",
+  "T3_B_evidence": {
+    "report": "coordination/reports/irq_timing_r02_group_b_2026-11-24.md",
+    "reviewed_a_commit": "5f68c30f71502cb9a59388730f060a6d9a7ea439",
+    "session": "sessions/20261124_163054_B",
+    "raw_source": ".runtime/board_tests/irq_timing_r02/20261124_163054_B",
+    "load": "Motor Control Studio desktop, exclusive TCP connection",
+    "capture_filter": "host 192.168.50.10 and tcp port 5002",
+    "window_ms_each": 10000,
+    "delay_ms_each": 55000,
+    "total_window_frames": 300000,
+    "total_applied_frames": 300000,
+    "independent_pwm_same_frame_endpoints": "PARTIAL",
+    "runs": {
+      "B1": {
+        "mode": "CURRENT",
+        "raw_source_subdirectory": "B1_CURRENT_retry2",
+        "capture_id": 3,
+        "sample_requests": 93,
+        "status_requests": 10,
+        "max_accept_upper_pl_cycles": 2241,
+        "minimum_margin_pl_cycles": 2667,
+        "independent_pwm_sample_id_offsets": [0, 500],
+        "independent_pwm_coherent": [true, true]
+      },
+      "B2": {
+        "mode": "SPEED",
+        "raw_source_subdirectory": "B2_SPEED",
+        "capture_id": 4,
+        "sample_requests": 93,
+        "status_requests": 10,
+        "max_accept_upper_pl_cycles": 2237,
+        "minimum_margin_pl_cycles": 2671,
+        "independent_pwm_sample_id_offsets": [500, 0],
+        "independent_pwm_coherent": [true, false]
+      },
+      "B3": {
+        "mode": "POSITION",
+        "raw_source_subdirectory": "B3_POSITION",
+        "capture_id": 5,
+        "sample_requests": 93,
+        "status_requests": 9,
+        "max_accept_upper_pl_cycles": 2257,
+        "minimum_margin_pl_cycles": 2651,
+        "independent_pwm_sample_id_offsets": [500, 0],
+        "independent_pwm_coherent": [true, true]
+      }
+    },
+    "prior_attempts": [
+      "attempts/B1_no_studio",
+      "attempts/B1_capture_delivery_lag"
+    ]
+  },
   "T3_C": "NOT_RUN",
   "T3_D": "NOT_RUN",
   "T4": "NOT_RUN",

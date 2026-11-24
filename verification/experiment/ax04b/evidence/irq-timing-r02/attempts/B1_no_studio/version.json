@@ -1,0 +1,11 @@
+{
+  "id": 1,
+  "protocol": 1,
+  "schema": 1,
+  "application_id": 1096307205,
+  "hardware_profile": 1,
+  "pl_interface_id": 1096303105,
+  "dq_extension_id": 1096299777,
+  "link_mbps": 1000,
+  "timing_schema": 2
+}

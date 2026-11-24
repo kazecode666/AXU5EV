@@ -1,0 +1,120 @@
+{
+  "network": {
+    "capture_id": 4,
+    "studio_stream": 1,
+    "timing_start_pcap_tx": 1795509689.1463573,
+    "timing_start_pcap_rx": 1795509689.1477072,
+    "pc_start_bounds": [
+      1795509744.1463046,
+      1795509744.1479144
+    ],
+    "pc_end_bounds": [
+      1795509754.1463046,
+      1795509754.1479144
+    ],
+    "request_counts": {
+      "sample": 93,
+      "status": 10
+    },
+    "requests_per_second": {
+      "sample": 9.3,
+      "status": 1.0
+    },
+    "response_errors": [],
+    "response_timeouts": [],
+    "no_response": [],
+    "boundary_uncertain": [],
+    "sample_gap_max_ms": 111.29117012023926,
+    "first_covering_sample": {
+      "stream": 1,
+      "id": 95,
+      "verb": "sample",
+      "args": [],
+      "tx": 1795509743.7864616,
+      "request_bytes": 10,
+      "rx": 1795509743.7881272,
+      "error": null,
+      "response_bytes": 1190,
+      "sample_tick": 39054725000
+    },
+    "last_covering_sample": {
+      "stream": 1,
+      "id": 206,
+      "verb": "sample",
+      "args": [],
+      "tx": 1795509754.5228412,
+      "request_bytes": 11,
+      "rx": 1795509754.5244932,
+      "error": null,
+      "response_bytes": 1191,
+      "sample_tick": 39591545000
+    },
+    "request_bytes": 1133,
+    "response_bytes": 112593
+  },
+  "diagnostics": {
+    "frozen_tick": [
+      36322010000,
+      39660640000
+    ],
+    "frozen_frames": 667726,
+    "rt_frames": 667726,
+    "counters": {
+      "irq_frames": 667726,
+      "exact_ack_count": 667726,
+      "commits": 667726,
+      "rejects": 0,
+      "overruns": 0
+    },
+    "foc_offer": 667726,
+    "foc_late": 0,
+    "foc_invalid": 0,
+    "pwm_adopted_delta": 333863000,
+    "independent_pwm_offsets": [
+      500,
+      0
+    ],
+    "pwm_same_frame": false,
+    "historical_overruns": 413525
+  },
+  "A_vs_B": {
+    "A": {
+      "entry_upper_us": 1.34,
+      "max_fg_mask_us": 1.920019219392386,
+      "model_mean_us": [
+        11.816916153997367,
+        12.29438084453003,
+        12.448764612133767
+      ],
+      "irq_mean_us": [
+        33.57451421422061,
+        34.05171152429902,
+        34.16776601933785
+      ],
+      "irq_max_us": 41.600416420168365,
+      "max_upper_cycles": 1752,
+      "max_upper_us": 35.04,
+      "minimum_margin_cycles": 3156,
+      "minimum_margin_us": 63.120000000000005
+    },
+    "B": {
+      "entry_upper_us": 2.7600000000000002,
+      "max_fg_mask_us": 2.304023063270863,
+      "model_mean_us": [
+        12.187933556770458,
+        12.681769611180474,
+        12.905217181223982
+      ],
+      "irq_mean_us": [
+        34.07062015801889,
+        34.57988747800699,
+        34.83542070256123
+      ],
+      "irq_max_us": 52.48052533005855,
+      "max_upper_cycles": 2237,
+      "max_upper_us": 44.74,
+      "minimum_margin_cycles": 2671,
+      "minimum_margin_us": 53.42
+    }
+  }
+}

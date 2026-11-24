@@ -1,0 +1,6 @@
+{
+  "errors": [
+    "RuntimeError('No valid Studio sample after the window')"
+  ],
+  "still_may_be_armed": false
+}

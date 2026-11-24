@@ -1,0 +1,16 @@
+{
+  "tool": "Motor Control Studio desktop",
+  "request_counts": {
+    "sample": 93,
+    "status": 9
+  },
+  "request_rate_hz": {
+    "sample": 9.3,
+    "status": 0.9
+  },
+  "response_errors": [],
+  "unresolved": [],
+  "boundary_uncertain": [],
+  "request_bytes": 1122,
+  "response_bytes": 112047
+}
