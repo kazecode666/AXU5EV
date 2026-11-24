@@ -6,7 +6,9 @@ Draft PR62 的 R02 候选 `.runtime/experiment/final/P61_TIMING_R02`（实测固
 
 2026-11-24，T3 A1 CURRENT、A2 SPEED、A3 POSITION 的 10 s 无主动 TCP 业务请求窗口均为稳定时序 **PASS**。共 300,000 个有效帧及下一 P0 采用，最大接受上界分别为 35.06、35.04、34.92 µs。保留了两次独立上电会话、历史累计 overrun 及完整 STOP 回读。Studio 初次启动布局错位和 Vitis Debug 断联已记录，待独立处理。[A 组报告](reports/irq_timing_r02_group_a_2026-11-24.md) · [A 组复审](https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6035154268)
 
-2026-11-24，T3 B1 CURRENT、B2 SPEED、B3 POSITION 的真实 Studio 10 s Summary 均为稳定时序 **PASS**，共 300,000 个有效帧及下一 P0 采用。抓包确认 `sample` 各 93 次，`status` 10/10/9 次，零错误、超时和缺回复。最大接受上界 44.82/44.74/45.14 µs，保证余量 53.34/53.42/53.02 µs，各组 STOP 已核对。冻结 FOC/PWM 连续计数一致，独立 PWM 严格同帧证据在 A、B 均为 `PARTIAL`。两次先前 B1 尝试保留，C/D 及 T4 为 `NOT_RUN`。[B 组报告](reports/irq_timing_r02_group_b_2026-11-24.md) · [实板索引](../verification/experiment/ax04b/irq_timing_board.json)
+2026-11-24，T3 B1 CURRENT、B2 SPEED、B3 POSITION 的真实 Studio 10 s Summary 均为稳定时序 **PASS**，共 300,000 个有效帧及下一 P0 采用。抓包确认 `sample` 各 93 次，`status` 10/10/9 次，零错误、超时和缺回复。最大接受上界 44.82/44.74/45.14 µs，保证余量 53.34/53.42/53.02 µs，各组 STOP 已核对。冻结 FOC/PWM 连续计数一致，独立 PWM 严格同帧证据在 A、B 均为 `PARTIAL`。两次先前 B1 尝试保留。[B 组报告](reports/irq_timing_r02_group_b_2026-11-24.md) · [B 组复审](https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6036264129)
+
+2026-11-24，T3-C1 POSITION 零给定 60 s Summary 为稳定时序 **PASS**，600,000 个有效帧全部取得下一 P0 采用。试跑和正式抓包均确认单连接串行实测 100/10/10 Hz（sample/status/diagnostics），正式窗 7,200 次请求，零错误、超时、缺回复及抓包接口丢包。接受上界 46.82 µs，保证余量 51.34 µs。冻结 FOC/PWM 连续计数和 C1 独立 PWM 前后同帧端点均通过，已显式 STOP 并回读 IDLE、无故障、未 ARM、`CTRL_EN=0`。初次 ARM 前连接超时已归档，确认 R5 在入口暂停后完成配套 PL 加载并恢复。等待 Draft PR62 的 C1 Review。D 与 T4 为 `NOT_RUN`，B1 STOP 取消回执差异留 D 组核对。[C1 报告](reports/irq_timing_r02_group_c_2026-11-24.md) · [实板索引](../verification/experiment/ax04b/irq_timing_board.json)
 
 ## Motor Control Studio
 
