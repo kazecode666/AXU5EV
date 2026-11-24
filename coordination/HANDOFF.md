@@ -2,7 +2,7 @@
 
 ## Issue #44 实时性测量
 
-Draft PR62 的 R02 候选 `.runtime/experiment/final/P61_TIMING_R02`（实测固件 `cb5ffee8c9453435ee75aada9008c4cb1a31b7d1`）复用 PR61 的 bit、LTX、XSA 和 A53 FSBL。Studio 的 SELFTEST 准备入口选择 R02，R01 保留。[启动、字段和现场步骤](../firmware/r5/motor_control/IRQ_TIMING_ZH.md) · [Draft PR62](https://github.com/kazecode666/AXU5EV/pull/62)
+PR62 的 R02 候选 `.runtime/experiment/final/P61_TIMING_R02`（实测固件 `cb5ffee8c9453435ee75aada9008c4cb1a31b7d1`）复用 PR61 的 bit、LTX、XSA 和 A53 FSBL。Studio 的 SELFTEST 准备入口选择 R02，R01 保留。[启动、字段和现场步骤](../firmware/r5/motor_control/IRQ_TIMING_ZH.md) · [PR62](https://github.com/kazecode666/AXU5EV/pull/62)
 
 2026-11-24，T3 A1 CURRENT、A2 SPEED、A3 POSITION 的 10 s 无主动 TCP 业务请求窗口均为稳定时序 **PASS**。共 300,000 个有效帧及下一 P0 采用，最大接受上界分别为 35.06、35.04、34.92 µs。保留了两次独立上电会话、历史累计 overrun 及完整 STOP 回读。Studio 初次启动布局错位和 Vitis Debug 断联已记录，待独立处理。[A 组报告](reports/irq_timing_r02_group_a_2026-11-24.md) · [A 组复审](https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6035154268)
 
@@ -12,7 +12,7 @@ Draft PR62 的 R02 候选 `.runtime/experiment/final/P61_TIMING_R02`（实测固
 
 2026-11-24，T3-D 完成七个 25 ms Detail 独立窗口，共 1,750 帧。已核对 START、STOP、CLEAR/重新 ARM/START、内部 ALIGN_START、PI_RESET、ALIGN_RESET 和 DRIVER_RESET，以及每窗最终 STOP 的 IDLE、无故障、未 ARM 和 `CTRL_EN=0`。最大接受上界 47.14 µs，最小余量 51.02 µs。D2 再现 B1 型 STOP 取消，原始 `receipt_errors=1` 保留，前一参考已接受但在目标 P0 被预期取消，其他应采用参考均匹配。IRQ 内提交后安全重入与全局复位为 `NOT_RUN`。D 组已通过复审。[D 组报告](reports/irq_timing_r02_group_d_2026-11-24.md) · [实板索引](../verification/experiment/ax04b/irq_timing_board.json)
 
-T4 限定范围验收通过，等待 ChatGPT 最终 Review。稳定窗 1,200,000 有效/采用，最大接受上界 46.82 µs、最小余量 51.34 µs；D 单列 828 有效、827 采用、1 次预期 STOP 取消、922 转换/IDLE，最大上界 47.14 µs、余量 51.02 µs。D2 两次 REF_QUEUED 均为 0，取消由前后回执和 RTL 支持。A/B 独立 PWM 端点 PARTIAL，完整 ALIGNMENT、提交后安全重入及 REAL/功率未测。建议最终复审认可范围后合并，PR62 保持 Draft，#44 开放。[T4 综合验收报告](reports/irq_timing_r02_t4_2026-11-24.md) · [D 组复审](https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6038692701)
+2026-11-25，ChatGPT 最终复审确认 T4 **SCOPED_PASS / READY_TO_MERGE**。稳定窗 1,200,000 有效/采用，最大接受上界 46.82 µs、最小余量 51.34 µs；D 单列 828 有效、827 采用、1 次预期 STOP 取消、922 转换/IDLE，最大上界 47.14 µs、余量 51.02 µs。D2 两次 REF_QUEUED 均为 0，取消由前后回执和 RTL 支持。A/B 独立 PWM 同帧端点 PARTIAL，C1 为 PASS。完整 ALIGNMENT、非零状态对齐复位、IRQ 内提交后安全重入、故障注入、全局复位、外部驱动复位、REAL IO 和功率运动未签核。形式化 WCET 未建立。限定范围无需补测，REAL IO 及功率验收另行跟踪。[T4 最终复审](https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6043508898) · [T4 综合验收报告](reports/irq_timing_r02_t4_2026-11-24.md) · [D 组复审](https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6038692701)
 
 ## Motor Control Studio
 
@@ -59,5 +59,5 @@ Studio 复用 [Python 客户端](../scripts/motor_control_client.py)与 [TCP 消
 ## 下一阶段入口
 
 - [#42 AQM 实机集成](https://github.com/kazecode666/AXU5EV/issues/42)跟踪物理标定、未确认的机械参数和现场验收。实机模型采用 AQM30-B2 Parallel 候选参数，实际 ADC 零偏/增益/极性、编码器尺度与方向、运动总质量及外环候选值的适用性仍需现场证据。
-- [#44 IRQ→COMMIT 实板时延](https://github.com/kazecode666/AXU5EV/issues/44)跟踪实现后的执行时间及目标帧验收。记录 ARM 执行窗口和参考接受/应用的帧身份。
+- [#44 IRQ→COMMIT 实板时延](https://github.com/kazecode666/AXU5EV/issues/44)归档 R02 无功率 SELFTEST 的 ARM 实测、目标帧验收与限定范围签核。
 - 分别取得现场授权后，按[无功率首运行指南](../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md)先进入 B5 SELFTEST，再进入 B6 REAL 真实输入和禁止态核对。功率运动另行授权。

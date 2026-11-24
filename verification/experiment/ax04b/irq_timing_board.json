@@ -221,8 +221,12 @@
       "D7": {"evidence": "D/D7_DRIVER_RESET", "capture_id": 7, "edge_irq_seq": 1764165}
     }
   },
-  "T4": "SCOPED_PASS_PENDING_FINAL_REVIEW",
+  "T4": "SCOPED_PASS",
   "T4_evidence": {
+    "merge_readiness": "READY_TO_MERGE",
+    "final_review": "https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6043508898",
+    "final_reviewed_commit": "034809c15b9a70312f50f371270159548203ca1c",
+    "retest_required_for_scope": false,
     "report": "coordination/reports/irq_timing_r02_t4_2026-11-24.md",
     "reviewed_evidence_commit": "1d827f147bdabec2143a05d6e3c8a4cca3a418ce",
     "d_review": "https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6038692701",
