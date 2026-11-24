@@ -1,0 +1,212 @@
+[
+  {
+    "stream": 0,
+    "id": 1,
+    "request": "version",
+    "sent": 1795509215.4007392,
+    "received": 1795509215.4020889,
+    "request_bytes": 10,
+    "response_bytes": 175,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 2,
+    "request": "status",
+    "sent": 1795509215.4035718,
+    "received": 1795509215.4048824,
+    "request_bytes": 9,
+    "response_bytes": 183,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 3,
+    "request": "sample",
+    "sent": 1795509215.405008,
+    "received": 1795509215.40655,
+    "request_bytes": 9,
+    "response_bytes": 1126,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 4,
+    "request": "command",
+    "sent": 1795509215.4066515,
+    "received": 1795509215.407943,
+    "request_bytes": 36,
+    "response_bytes": 242,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 5,
+    "request": "command",
+    "sent": 1795509215.4088185,
+    "received": 1795509215.4101276,
+    "request_bytes": 36,
+    "response_bytes": 241,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 6,
+    "request": "command",
+    "sent": 1795509215.410908,
+    "received": 1795509215.412191,
+    "request_bytes": 37,
+    "response_bytes": 240,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 7,
+    "request": "status",
+    "sent": 1795509215.5132563,
+    "received": 1795509215.514579,
+    "request_bytes": 9,
+    "response_bytes": 181,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 8,
+    "request": "command",
+    "sent": 1795509215.514707,
+    "received": 1795509215.5159643,
+    "request_bytes": 36,
+    "response_bytes": 240,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 9,
+    "request": "command",
+    "sent": 1795509215.667491,
+    "received": 1795509215.6687946,
+    "request_bytes": 36,
+    "response_bytes": 240,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 10,
+    "request": "sample",
+    "sent": 1795509216.0201538,
+    "received": 1795509216.021984,
+    "request_bytes": 10,
+    "response_bytes": 1187,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 11,
+    "request": "status",
+    "sent": 1795509216.023093,
+    "received": 1795509216.0244682,
+    "request_bytes": 10,
+    "response_bytes": 182,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 12,
+    "request": "diagnostics",
+    "sent": 1795509216.0251994,
+    "received": 1795509216.0268893,
+    "request_bytes": 15,
+    "response_bytes": 886,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 13,
+    "request": "diagnostics",
+    "sent": 1795509216.0270078,
+    "received": 1795509216.0287497,
+    "request_bytes": 15,
+    "response_bytes": 886,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 14,
+    "request": "diagnostics",
+    "sent": 1795509216.0288432,
+    "received": 1795509216.030766,
+    "request_bytes": 15,
+    "response_bytes": 877,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 15,
+    "request": "diagnostics",
+    "sent": 1795509216.0308726,
+    "received": 1795509216.032597,
+    "request_bytes": 15,
+    "response_bytes": 877,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 16,
+    "request": "diagnostics",
+    "sent": 1795509216.0327072,
+    "received": 1795509216.0344348,
+    "request_bytes": 15,
+    "response_bytes": 877,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 17,
+    "request": "diagnostics",
+    "sent": 1795509216.0345595,
+    "received": 1795509216.0363085,
+    "request_bytes": 15,
+    "response_bytes": 886,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 18,
+    "request": "diagnostics",
+    "sent": 1795509216.0364237,
+    "received": 1795509216.038197,
+    "request_bytes": 15,
+    "response_bytes": 886,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 19,
+    "request": "diagnostics",
+    "sent": 1795509216.0382862,
+    "received": 1795509216.0400097,
+    "request_bytes": 15,
+    "response_bytes": 877,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 20,
+    "request": "diagnostics",
+    "sent": 1795509216.040138,
+    "received": 1795509216.0418622,
+    "request_bytes": 15,
+    "response_bytes": 886,
+    "error": null
+  },
+  {
+    "stream": 0,
+    "id": 21,
+    "request": "timing-start",
+    "sent": 1795509216.0442305,
+    "received": 1795509216.0456638,
+    "request_bytes": 30,
+    "response_bytes": 49,
+    "error": null
+  }
+]

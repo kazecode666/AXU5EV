@@ -18,10 +18,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "verification/experiment/ax04b"))
 from motor_control_client import Action, Mode, MotorControlClient, RequestError
+from irq_timing_analyze import analyze, frame_metrics, load_capture
 from run_r5_runtime_test import BSP, local_main
 
 
-def build_fixture(compiler, output, mode):
+def build_fixture(compiler, output, mode, timing=False):
     firmware = ROOT / "firmware/r5/motor_control/ax04b"
     service = firmware.parent / "ethernet"
     transport = ROOT / "firmware/r5/ethernet"
@@ -31,16 +32,19 @@ def build_fixture(compiler, output, mode):
         (output / header).write_text(BSP, encoding="utf-8")
     main = local_main((firmware / "ax04b_main.c").read_text(encoding="utf-8"))
     (output / "ax04b_main_host.inc").write_text(main, encoding="utf-8")
-    binary = output / f"motor_control_{mode}.dll"
+    binary = output / f"motor_control_{mode}{'_timing' if timing else ''}.dll"
     files = [Path(__file__).with_name("motor_control_ethernet_fixture.c"),
              firmware / "ax04b_adapter.c", service / "motor_control_ethernet.c",
              transport / "eth_service.c",
              *sorted(generated.glob("*.c"))]
+    if timing:
+        files.append(firmware / "ax04b_timing.c")
     env = dict(os.environ)
     if Path(compiler).is_absolute():
         env["PATH"] = str(Path(compiler).parent) + os.pathsep + env["PATH"]
     exports = ["-Wl,--export-all-symbols"] if os.name == "nt" else []
     subprocess.run([compiler, "-std=c11", "-DAX05A_ONLINE=1", "-DMOTOR_CONTROL_ETHERNET=1",
+                    *(["-DAX04B_TIMING=1", "-DXPAR_CPU_CORE_CLOCK_FREQ_HZ=499994995u"] if timing else []),
                     f"-DAX04B_BUILD_MODE={mode}", "-DAX04B_APPLICATION_ID=0x41585205u",
                     "-O2", "-Wall", "-Wextra", "-Werror", "-Wno-unused-function",
                     "-fno-fast-math", "-ffp-contract=off", "-shared", *exports,
@@ -221,6 +225,174 @@ class MotorControlNetworkTests(unittest.TestCase):
             for action in (Action.ARM, Action.START, Action.SETPOINT, Action.ALIGN_START, Action.DRIVER_RESET):
                 self.assertEqual(client.command(action, Mode.CURRENT)["decision"], 5)
             self.assertFalse(client.request("status")["armed"])
+
+    def test_timing_window_and_trace_ownership(self):
+        fixture = build_fixture(self.compiler, self.output, 1, timing=True)
+        fixture.fixture_check_timing_math()
+        with Loopback(fixture) as board:
+            with board.client() as client:
+                self.assertEqual(client.request("version")["timing_schema"], 2)
+                revision = client.command(Action.SELECT, Mode.CURRENT)["accepted_revision"]
+                self.assertEqual(client.command(Action.CONFIRM, Mode.CURRENT, revision)["decision"], 0)
+                self.assertEqual(client.command(Action.CLEAR)["decision"], 0)
+                board.advance(1, 1)
+                self.assertEqual(client.command(Action.ARM, Mode.CURRENT, revision)["decision"], 0)
+                self.assertEqual(client.command(Action.START, Mode.CURRENT, revision)["decision"], 0)
+                board.advance(5, 2)
+                self.assertTrue(client.sample()["commit_accepted"])
+                client.request("trace-start", 15)
+                with self.assertRaisesRegex(RequestError, "TRACE_BUSY"):
+                    client.request("timing-start", 0, 30, 1)
+                summary = client.request("timing-start", 0, 1, 0)
+                board.advance(11, 4)
+                self.assertTrue(client.request("trace-status")["active"])
+                self.assertEqual(client.request("timing-status")["capture_id"], summary["capture_id"])
+                client.request("trace-stop")
+                capture = client.request("timing-start", 2, 30, 1)
+                board.advance(20, 6)
+                self.assertTrue(client.request("timing-status")["active"])
+                with self.assertRaisesRegex(RequestError, "TRACE_UNAVAILABLE"):
+                    client.request("timing-read", capture["capture_id"], 0)
+            board.advance(301, 36)
+            with board.client() as client:
+                info = client.request("timing-status")
+                self.assertEqual((info["frames"], info["valid"], info["applied"]), (300, 300, 300))
+                self.assertEqual((info["end_reason"], info["planned_frames"]), ("elapsed", 300))
+                self.assertEqual((info["receipt_errors"], info["receipt_unresolved"], info["missing"]), (0, 0, 0))
+                self.assertEqual(info["count"], 256)
+                self.assertFalse(info["active"])
+                self.assertFalse(client.command(Action.STOP)["armed"])
+                with self.assertRaisesRegex(RequestError, "TRACE_BUSY"):
+                    client.request("trace-start", 15)
+                path = self.output / "timing.ndjson"
+                client.timing_download(path)
+                meta, *frames = map(json.loads, path.read_text().splitlines())
+                self.assertEqual([row["metrics"][1]["count"] for row in meta["rates"]], [270, 27, 3])
+                self.assertEqual(len(frames), 256)
+                for previous, current in zip(frames, frames[1:]):
+                    self.assertTrue(current["applied_coherent"])
+                    self.assertEqual((current["applied_version"], current["applied_target"]),
+                                     (previous["frame"]["version"], previous["frame"]["target"]))
+                report = load_capture(path, "A")
+                self.assertEqual(report["stable_timing"], "PASS")
+                self.assertEqual(report["detail_scope"]["records"], 256)
+                self.assertEqual(report["full_window_bounds"]["minimum_margin_cycles"], 4907)
+                self.assertEqual(report["rates"]["base"]["accept_upper"]["detail_p99_us"], 0.02)
+                meta["rates"][0]["metrics"][7]["count"] -= 1
+                report = analyze(meta["capture"], meta["rates"], meta["evidence"], frames, "A")
+                self.assertEqual(report["stable_timing"], "FAIL")
+                self.assertIsNone(report["full_window_bounds"])
+                client.request("timing-start", 100, 50, 0)
+                board.advance(1, 150)
+                client.request("timing-stop")
+                idle = client.request("timing-status")
+                self.assertEqual((idle["end_reason"], idle["planned_frames"]), ("not_started", 500))
+                self.assertEqual((idle["frames"], idle["applied"], idle["missing"]), (0, 0, 0))
+                idle_path = self.output / "timing-delay-stop.ndjson"
+                client.timing_download(idle_path)
+                self.assertEqual(load_capture(idle_path, "A")["stable_timing"], "INCOMPLETE")
+                self.assertTrue(client.request("trace-start", 15)["active"])
+
+    def test_timing_early_stop_and_events_after_detail_capacity(self):
+        output = self.output / "timing_events"
+        output.mkdir()
+        fixture = build_fixture(self.compiler, output, 1, timing=True)
+        with Loopback(fixture) as board, board.client() as client:
+            def start_current(now):
+                rev = client.command(Action.SELECT, Mode.CURRENT)["accepted_revision"]
+                self.assertEqual(client.command(Action.CONFIRM, Mode.CURRENT, rev)["decision"], 0)
+                self.assertEqual(client.command(Action.CLEAR)["decision"], 0)
+                board.advance(1, now)
+                self.assertEqual(client.command(Action.ARM, Mode.CURRENT, rev)["decision"], 0)
+                self.assertEqual(client.command(Action.START, Mode.CURRENT, rev)["decision"], 0)
+                board.advance(5, now + 1)
+
+            start_current(1)
+            client.request("timing-start", 0, 1, 0)
+            board.advance(10, 3)
+            self.assertTrue(client.request("timing-status")["active"])
+            client.request("timing-stop")
+            partial = client.request("timing-status")
+            self.assertEqual(partial["end_reason"], "early_stop")
+            self.assertEqual((partial["frames"], partial["planned_frames"], partial["applied"]), (10, 10, 9))
+            self.assertEqual((partial["missing"], partial["receipt_unresolved"]), (0, 1))
+            path = output / "early.ndjson"
+            client.timing_download(path)
+            self.assertEqual(load_capture(path, "A")["stable_timing"], "INCOMPLETE")
+
+            client.request("timing-start", 0, 5, 0)
+            board.advance(5, 4)
+            client.request("timing-stop")
+            partial = client.request("timing-status")
+            self.assertEqual((partial["frames"], partial["planned_frames"], partial["missing"]), (5, 50, 0))
+            self.assertEqual(partial["end_reason"], "early_stop")
+
+            capture = client.request("timing-start", 0, 1, 0)
+            board.advance(10, 5)
+            # Cancel the last accepted packet before the drain IRQ reads its P0 receipt.
+            client.command(Action.STOP)
+            board.advance(1, 6)
+            wrong_receipt = client.request("timing-status")
+            self.assertEqual(wrong_receipt["end_reason"], "elapsed")
+            self.assertEqual((wrong_receipt["frames"], wrong_receipt["applied"]), (10, 9))
+            self.assertEqual((wrong_receipt["receipt_errors"], wrong_receipt["receipt_unresolved"]), (1, 0))
+            receipt = client.request("timing-evidence", capture["capture_id"])["first_anomaly"]
+            self.assertEqual(receipt["events"], 2)
+            self.assertEqual(receipt["expected_version"], wrong_receipt["last"]["version"])
+            self.assertEqual(receipt["expected_target"], wrong_receipt["last"]["target"])
+            path = output / "missing-final-receipt.ndjson"
+            client.timing_download(path)
+            self.assertEqual(load_capture(path, "A")["stable_timing"], "FAIL")
+
+            start_current(7)
+            capture = client.request("timing-start", 0, 30, 1)
+            board.advance(260, 30)
+            self.assertFalse(client.command(Action.STOP)["armed"])
+            board.advance(41, 35)
+            stop = client.request("timing-evidence", capture["capture_id"])["transition_peak"]
+            self.assertEqual(stop["frame"]["stop_reason"], 1)  # AX04B_STOP_REQUEST
+            self.assertTrue(stop["events"] & 512)
+            self.assertTrue(stop["ack_done_valid"])
+            path = output / "stop-after-capacity.ndjson"
+            client.timing_download(path)
+            report = load_capture(path, "D")
+            self.assertEqual(report["stable_timing"], "NOT_APPLICABLE")
+            self.assertEqual(report["capture"]["valid"], 260)
+            self.assertIsNone(report["full_window_bounds"])
+            self.assertGreater(stop["frame"]["pl_tick"], report["detail_scope"]["last"]["pl_tick"])
+
+            start_current(36)
+            client.request("timing-start", 0, 30, 1)
+            board.advance(260, 64)
+            fixture.fixture_reject_late()
+            board.advance(41, 70)
+            path = output / "reject-after-capacity.ndjson"
+            client.timing_download(path)
+            report = load_capture(path, "C")
+            capture = report["capture"]
+            self.assertEqual((capture["frames"], capture["valid"], capture["rejects"]), (300, 260, 1))
+            self.assertEqual(capture["late_or_target"], 1)
+            self.assertEqual(report["stable_timing"], "FAIL")
+            events = report["exceptional_irqs"]
+            reject = events["first_anomaly"]["raw"]
+            self.assertEqual(reject["frame"]["result"], 2)
+            self.assertGreater(reject["frame"]["pl_tick"], report["detail_scope"]["last"]["pl_tick"])
+            self.assertTrue(reject["attempted"] and not reject["accepted"] and reject["safety_reentry"])
+            self.assertEqual(reject["before_id"], reject["frame"]["sample_id"])
+            self.assertEqual(reject["after_id"], reject["frame"]["sample_id"])
+            self.assertNotEqual(reject["accepted_target"], reject["frame"]["target"])
+            self.assertEqual(events["anomaly_peak"]["raw"], reject)
+            elapsed = events["anomaly_peak"]["durations_us"]
+            self.assertGreater(elapsed["irq"], elapsed["submit"])
+            self.assertGreater(elapsed["safety_reentry"], 0)
+            self.assertNotIn("accept_upper", elapsed)
+            self.assertEqual(sum(row["irq"]["count"] for row in report["rates"].values()), 260)
+
+            # Stages absent on an early handler return cannot produce modulo differences.
+            omitted = {**reject, "entry": 0xFFFFFFFD, "irq_end": 1,
+                       "read_done_valid": False, "ack_done_valid": False, "model_ran": False,
+                       "attempted": False, "safety_reentry": False}
+            self.assertEqual(frame_metrics(omitted, capture), {"irq": 4})
 
 
 if __name__ == "__main__":

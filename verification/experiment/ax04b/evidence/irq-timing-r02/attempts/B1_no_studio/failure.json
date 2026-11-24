@@ -1,0 +1,6 @@
+{
+  "errors": [
+    "RuntimeError('Studio did not cover the whole timing window or stopped polling')"
+  ],
+  "still_may_be_armed": false
+}

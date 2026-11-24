@@ -1,0 +1,26 @@
+{
+  "start_epoch": 1795518428.3197362,
+  "end_epoch": 1795518491.9225574,
+  "planned_hz": {
+    "sample": 100,
+    "status": 10,
+    "diagnostics": 10
+  },
+  "interval_s": 63.6,
+  "counts": {
+    "sample": 6360,
+    "status": 636,
+    "diagnostics": 636
+  },
+  "missed_send_slots": {
+    "sample": 0,
+    "status": 0,
+    "diagnostics": 0
+  },
+  "actual_hz": {
+    "sample": 100.0,
+    "status": 10.0,
+    "diagnostics": 10.0
+  },
+  "latest_sample_tick": 6197625000
+}

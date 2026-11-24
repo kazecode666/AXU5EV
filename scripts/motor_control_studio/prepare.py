@@ -21,7 +21,8 @@ class Candidate:
 
     @classmethod
     def load(cls, profile):
-        config = json.loads((ROOT / f"firmware/r5/motor_control/build_config.gem3.{profile.lower()}.json")
+        preset = "selftest.timing" if profile == "SELFTEST" else profile.lower()
+        config = json.loads((ROOT / f"firmware/r5/motor_control/build_config.gem3.{preset}.json")
                             .read_text(encoding="utf-8"))
         workspace = ROOT / config["workspace"]
         app = workspace / "ax04b_realtime"

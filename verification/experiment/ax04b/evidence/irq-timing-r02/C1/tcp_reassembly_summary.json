@@ -1,0 +1,116 @@
+{
+  "packets": 18280,
+  "interface_statistics": [
+    {
+      "interface": 0,
+      "ifrecv": 18280,
+      "ifdrop": 0
+    }
+  ],
+  "tcp_diagnostic_frames": [],
+  "application_requests": 9128,
+  "request_stream": "0",
+  "pc_start_bounds": [
+    "1795518431.316904000",
+    "1795518431.3188263"
+  ],
+  "pc_end_bounds": [
+    "1795518491.316904000",
+    "1795518491.3188263"
+  ],
+  "boundary_uncertain": 0,
+  "covering_sample_ids": [
+    "1841",
+    "9042"
+  ],
+  "covering_sample_ticks": [
+    3167615000,
+    6168135000
+  ],
+  "preflight": {
+    "request_counts": {
+      "sample": 1200,
+      "status": 120,
+      "diagnostics": 120
+    },
+    "hz": {
+      "sample": 100.0,
+      "status": 10.0,
+      "diagnostics": 10.0
+    },
+    "request_bytes": 16838,
+    "response_bytes": 1542579,
+    "errors": 0,
+    "missing_replies": 0,
+    "timeouts": 0,
+    "by_verb": {
+      "sample": {
+        "request_bytes": 13532,
+        "response_bytes": 1416602,
+        "request_bytes_s": 1127.6666666666667,
+        "response_bytes_s": 118050.16666666667,
+        "max_request_gap_ms": 11.5349,
+        "max_reply_ms": 3.014
+      },
+      "status": {
+        "request_bytes": 1353,
+        "response_bytes": 21993,
+        "request_bytes_s": 112.75,
+        "response_bytes_s": 1832.75,
+        "max_request_gap_ms": 100.7485,
+        "max_reply_ms": 1.5554
+      },
+      "diagnostics": {
+        "request_bytes": 1953,
+        "response_bytes": 103984,
+        "request_bytes_s": 162.75,
+        "response_bytes_s": 8665.333333333334,
+        "max_request_gap_ms": 100.6207,
+        "max_reply_ms": 1.9873
+      }
+    }
+  },
+  "formal": {
+    "request_counts": {
+      "sample": 6000,
+      "status": 600,
+      "diagnostics": 600
+    },
+    "hz": {
+      "sample": 100.0,
+      "status": 10.0,
+      "diagnostics": 10.0
+    },
+    "request_bytes": 89400,
+    "response_bytes": 7729506,
+    "errors": 0,
+    "missing_replies": 0,
+    "timeouts": 0,
+    "by_verb": {
+      "sample": {
+        "request_bytes": 72000,
+        "response_bytes": 7097455,
+        "request_bytes_s": 1200.0,
+        "response_bytes_s": 118290.91666666667,
+        "max_request_gap_ms": 11.961,
+        "max_reply_ms": 6.2661
+      },
+      "status": {
+        "request_bytes": 7200,
+        "response_bytes": 110400,
+        "request_bytes_s": 120.0,
+        "response_bytes_s": 1840.0,
+        "max_request_gap_ms": 100.6328,
+        "max_reply_ms": 1.9395
+      },
+      "diagnostics": {
+        "request_bytes": 10200,
+        "response_bytes": 521651,
+        "request_bytes_s": 170.0,
+        "response_bytes_s": 8694.183333333332,
+        "max_request_gap_ms": 101.1323,
+        "max_reply_ms": 4.5906
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "start_request_pc_epoch": 1795509554.961544,
+  "start_reply_pc_epoch": 1795509554.9630334,
+  "window_start_earliest": 1795509609.961544,
+  "window_start_latest": 1795509609.9631333,
+  "window_end_earliest": 1795509619.961544,
+  "window_end_latest": 1795509619.9631333,
+  "studio_tcp_stream": 1,
+  "capture_id": 3,
+  "delay_s": 55,
+  "duration_s": 10
+}

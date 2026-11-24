@@ -1,4 +1,7 @@
 #include "ax04b_adapter.h"
+#ifdef AX04B_TIMING
+#include "ax04b_timing.h"
+#endif
 #ifdef AX05A_ONLINE
 #include "ax05a_online.h"
 #endif
@@ -193,7 +196,20 @@ void ax04b_model_run(const Ax04bFeedback *feedback, const Ax04bCommand *command,
     u->request_encon = command->encon;
     u->request_freset = driver_reset;
     u->request_oe_disable = command->oe_disable;
+#ifdef AX04B_TIMING
+    const DW_AXU5EV_Motor_Control_Syste_T *dw = &AXU5EV_Motor_Control_System_DW;
+    const double software_tick = dw->Software_Tick_DSTATE;
+    const bool speed_due = dw->spd_cnt_z_DSTATE + 1.0 >= 10.0;
+    const bool position_due = dw->pos_cnt_z_DSTATE + 1.0 >= 10.0;
+    const bool speed = speed_due && AXU5EV_Motor_Control_Sy_PrevZCX.Speed_Loop_Trig_ZCE != POS_ZCSIG;
+    const bool position = position_due && speed_due &&
+        AXU5EV_Motor_Control_Sy_PrevZCX.Position_Loop_Trig_ZCE != POS_ZCSIG;
+#endif
     PL_Frame_IRQ();
+#ifdef AX04B_TIMING
+    result->timing_advanced = dw->Software_Tick_DSTATE != software_tick;
+    result->timing_rate = ax04b_timing_rate(result->timing_advanced, speed, position);
+#endif
     memcpy(result->value, y->reference_commit, sizeof(result->value));
     memcpy(result->drives, y->drive_outputs, sizeof(result->drives));
     result->model_sample = y->commit_sample_id;

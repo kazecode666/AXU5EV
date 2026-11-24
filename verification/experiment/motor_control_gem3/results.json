@@ -55,6 +55,7 @@
     "candidate": ".runtime/experiment/final/GEM3_Control_SELFTEST_P61_R01",
     "report": "coordination/reports/motor_control_gem3.md#pr61-无功率-current-实板验收"
   },
+  "issue44_r02_board": "verification/experiment/ax04b/irq_timing_board.json",
   "BOARD_SELFTEST": "NOT_RUN",
   "ARM_EXECUTION": "NOT_RUN",
   "GEM3_PHY_TCP": "NOT_RUN",

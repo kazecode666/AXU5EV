@@ -1,0 +1,400 @@
+{
+  "group": "D",
+  "stable_timing": "NOT_APPLICABLE",
+  "checks": {
+    "elapsed": true,
+    "planned_frames_present": true,
+    "all_frames_valid": false,
+    "all_valid_frames_applied": true,
+    "rate_counts_match": true,
+    "phase_counts_match": true,
+    "zero_anomalies": false
+  },
+  "capture": {
+    "id": 11,
+    "capture_id": 6,
+    "count": 250,
+    "active": false,
+    "timing_schema": 2,
+    "cpu_hz": 499994995,
+    "pmu_divisor": 64,
+    "pl_hz": 50000000,
+    "irq_phase": 76,
+    "deadline_phase": 4984,
+    "start_tick": 8806470000,
+    "end_reason": "elapsed",
+    "delay_ms": 0,
+    "duration_ms": 25,
+    "planned_frames": 250,
+    "frames": 250,
+    "valid": 0,
+    "missing": 0,
+    "discontinuities": 0,
+    "rejects": 0,
+    "late_or_target": 0,
+    "overruns": 0,
+    "invalid": 0,
+    "transitions": 250,
+    "unbracketed": 0,
+    "applied": 0,
+    "receipt_errors": 0,
+    "receipt_unresolved": 0,
+    "spurious": 0,
+    "bad_snapshots": 0,
+    "first_events": 0,
+    "max_foreground_mask": 26,
+    "detailed": true,
+    "first": {
+      "pl_tick": 8806470000,
+      "seq": 1761295,
+      "sample_id": 880647000,
+      "version": 1752902,
+      "target": 880647500,
+      "entry_phase": 147,
+      "mode": 0,
+      "result": 1,
+      "stop_reason": 1,
+      "rate": 0
+    },
+    "last": {
+      "pl_tick": 8807715000,
+      "seq": 1761544,
+      "sample_id": 880771500,
+      "version": 1753151,
+      "target": 880772000,
+      "entry_phase": 139,
+      "mode": 0,
+      "result": 1,
+      "stop_reason": 1,
+      "rate": 0
+    },
+    "first_event": {
+      "pl_tick": 0,
+      "seq": 0,
+      "sample_id": 0,
+      "version": 0,
+      "target": 0,
+      "entry_phase": 0,
+      "mode": 0,
+      "result": 0,
+      "stop_reason": 0,
+      "rate": 0
+    }
+  },
+  "max_foreground_mask_us": 3.328033313613469,
+  "full_window_bounds": null,
+  "rates": {
+    "base": {
+      "entry_upper": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "read": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "model": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "submit": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "ack": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "irq": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_lower": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_upper": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      }
+    },
+    "speed_1ms": {
+      "entry_upper": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "read": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "model": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "submit": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "ack": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "irq": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_lower": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_upper": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      }
+    },
+    "position_10ms": {
+      "entry_upper": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "read": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "model": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "submit": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "ack": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "irq": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_lower": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_upper": {
+        "count": 0,
+        "min_us": null,
+        "mean_us": null,
+        "max_us": null,
+        "peak": null,
+        "detail_p99_us": null,
+        "detail_samples": 0
+      }
+    }
+  },
+  "detail_scope": {
+    "records": 250,
+    "first": {
+      "pl_tick": 8806470000,
+      "seq": 1761295,
+      "sample_id": 880647000,
+      "version": 1752902,
+      "target": 880647500,
+      "entry_phase": 147,
+      "mode": 0,
+      "result": 1,
+      "stop_reason": 1,
+      "rate": 0
+    },
+    "last": {
+      "pl_tick": 8807715000,
+      "seq": 1761544,
+      "sample_id": 880771500,
+      "version": 1753151,
+      "target": 880772000,
+      "entry_phase": 139,
+      "mode": 0,
+      "result": 1,
+      "stop_reason": 1,
+      "rate": 0
+    }
+  },
+  "exceptional_irqs": {
+    "first_anomaly": null,
+    "anomaly_peak": null,
+    "transition_peak": {
+      "raw": {
+        "frame": {
+          "pl_tick": 8806540000,
+          "seq": 1761309,
+          "sample_id": 880654000,
+          "version": 1752916,
+          "target": 880654500,
+          "entry_phase": 141,
+          "mode": 0,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 0
+        },
+        "events": 576,
+        "valid": false,
+        "model_ran": true,
+        "safety_reentry": false,
+        "read_done_valid": true,
+        "ack_done_valid": true,
+        "attempted": true,
+        "accepted": true,
+        "entry": 1369526654,
+        "read_done": 1369526726,
+        "model_done": 1369526874,
+        "accept_done": 1369526954,
+        "ack_begin": 1369526966,
+        "ack_done": 1369526970,
+        "irq_end": 1369527006,
+        "safety_begin": 0,
+        "safety_done": 0,
+        "before_phase": 1934,
+        "after_phase": 2042,
+        "before_id": 880654000,
+        "after_id": 880654000,
+        "accepted_version": 1752916,
+        "accepted_target": 880654500,
+        "expected_version": 0,
+        "expected_target": 0,
+        "applied_version": 1752915,
+        "applied_target": 880654000,
+        "overrun_delta": 0,
+        "pl_status": 851,
+        "feedback_status": 0,
+        "quality": 495,
+        "fault": 0,
+        "applied_coherent": true
+      },
+      "durations_us": {
+        "irq": 45.05645101507466,
+        "read": 9.216092253083453,
+        "model": 18.944189631338208,
+        "submit": 10.240102503426058,
+        "ack": 0.5120051251713029,
+        "entry_upper": 1.32,
+        "accept_lower": 37.18,
+        "accept_upper": 39.34
+      }
+    }
+  }
+}

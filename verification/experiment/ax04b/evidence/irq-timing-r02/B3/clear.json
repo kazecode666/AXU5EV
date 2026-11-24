@@ -1,0 +1,14 @@
+{
+  "id": 6,
+  "firmware_request_id": 29,
+  "decision": 0,
+  "accepted_revision": 0,
+  "selected_revision": 9,
+  "confirmed_revision": 9,
+  "dispatched_revision": 0,
+  "selected_mode": 3,
+  "selection_confirmed": true,
+  "armed": false,
+  "clear_confirmed": false,
+  "stop_pending": false
+}

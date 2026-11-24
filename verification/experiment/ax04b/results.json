@@ -20,6 +20,7 @@
     "top_level_tests": "Original offline RTL and hardware implementation evidence; unchanged hardware is reused, not rerun by this documentation update.",
     "r1_review": "Current R1 firmware/model evidence and matched *_r1_02 candidates. Board execution, physical IO and power motion remain NOT_RUN."
   },
+  "issue44_r02_board": "verification/experiment/ax04b/irq_timing_board.json",
   "base": "21847326e4e0d8e100f3aaa5f31b612f24f75e01",
   "pr46_model_and_c_version": "1.95",
   "implementation_branch": "codex/ax04b-hardware-binding",

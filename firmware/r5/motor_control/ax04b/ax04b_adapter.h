@@ -62,6 +62,10 @@ typedef struct {
     bool position_valid;
     bool speed_valid;
     bool drives[5];
+#ifdef AX04B_TIMING
+    bool timing_advanced;
+    unsigned timing_rate;
+#endif
 #ifdef AX05A_ONLINE
     double position_mm, speed_mm_s, position_ref_mm, speed_ref_mm_s, position_loop_speed_ref_mm_s;
     uint32_t host_status, host_accept_count, host_reject_count;

@@ -1,0 +1,276 @@
+{
+  "network": {
+    "stream": 0,
+    "timing_start": {
+      "stream": 0,
+      "id": 1481,
+      "verb": "timing-start",
+      "args": [
+        "3000",
+        "60000",
+        "0"
+      ],
+      "tx": 1795518428.316904,
+      "request_bytes": 31,
+      "rx": 1795518428.3181937,
+      "error": null,
+      "response_bytes": 51,
+      "sample_tick": null
+    },
+    "pc_start_bounds": [
+      1795518431.316904,
+      1795518431.3188262
+    ],
+    "pc_end_bounds": [
+      1795518491.316904,
+      1795518491.3188262
+    ],
+    "first_covering_sample": {
+      "stream": 0,
+      "id": 1841,
+      "verb": "sample",
+      "args": [],
+      "tx": 1795518431.309467,
+      "request_bytes": 12,
+      "rx": 1795518431.3112092,
+      "error": null,
+      "response_bytes": 1182,
+      "sample_tick": 3167615000
+    },
+    "last_covering_sample": {
+      "stream": 0,
+      "id": 9042,
+      "verb": "sample",
+      "args": [],
+      "tx": 1795518491.3196468,
+      "request_bytes": 12,
+      "rx": 1795518491.3213265,
+      "error": null,
+      "response_bytes": 1186,
+      "sample_tick": 6168135000
+    },
+    "boundary_uncertain": [],
+    "by_verb": {
+      "sample": {
+        "count": 6000,
+        "hz": 100.0,
+        "request_bytes": 72000,
+        "response_bytes": 7097455,
+        "request_bytes_s": 1200.0,
+        "response_bytes_s": 118290.91666666667,
+        "max_request_gap_ms": 11.961221694946289,
+        "max_reply_ms": 6.266117095947266
+      },
+      "status": {
+        "count": 600,
+        "hz": 10.0,
+        "request_bytes": 7200,
+        "response_bytes": 110400,
+        "request_bytes_s": 120.0,
+        "response_bytes_s": 1840.0,
+        "max_request_gap_ms": 100.63290596008301,
+        "max_reply_ms": 1.939535140991211
+      },
+      "diagnostics": {
+        "count": 600,
+        "hz": 10.0,
+        "request_bytes": 10200,
+        "response_bytes": 521651,
+        "request_bytes_s": 170.0,
+        "response_bytes_s": 8694.183333333332,
+        "max_request_gap_ms": 101.13239288330078,
+        "max_reply_ms": 4.590511322021484
+      }
+    },
+    "total_count": 7200,
+    "total_hz": 120.0,
+    "request_bytes": 89400,
+    "response_bytes": 7729506,
+    "request_bytes_s": 1490.0,
+    "response_bytes_s": 128825.1,
+    "error_replies": [],
+    "missing_replies": [],
+    "timeout_replies": [],
+    "max_gap_ms": 11.169910430908203,
+    "capture": {
+      "packets": 18280,
+      "interface_statistics": [
+        {
+          "interface": 0,
+          "ifrecv": 18280,
+          "ifdrop": 0
+        }
+      ],
+      "tcp_analysis_rows": [],
+      "tcp_analysis_field_order": [
+        "number",
+        "stream",
+        "lost_segment",
+        "retransmission",
+        "out_of_order",
+        "ack_lost_segment"
+      ]
+    }
+  },
+  "trials": {
+    "trial_nominal": {
+      "host": {
+        "start_epoch": 1795518416.2898066,
+        "end_epoch": 1795518428.2903967,
+        "planned_hz": {
+          "sample": 100,
+          "status": 10,
+          "diagnostics": 10
+        },
+        "interval_s": 12,
+        "counts": {
+          "sample": 1200,
+          "status": 120,
+          "diagnostics": 120
+        },
+        "missed_send_slots": {
+          "sample": 0,
+          "status": 0,
+          "diagnostics": 0
+        },
+        "actual_hz": {
+          "sample": 100.0,
+          "status": 10.0,
+          "diagnostics": 10.0
+        },
+        "latest_sample_tick": 3016165000
+      },
+      "pcap": {
+        "by_verb": {
+          "sample": {
+            "count": 1200,
+            "hz": 100.0,
+            "request_bytes": 13532,
+            "response_bytes": 1416602,
+            "request_bytes_s": 1127.6666666666667,
+            "response_bytes_s": 118050.16666666667,
+            "max_request_gap_ms": 11.534929275512695,
+            "max_reply_ms": 3.014087677001953
+          },
+          "status": {
+            "count": 120,
+            "hz": 10.0,
+            "request_bytes": 1353,
+            "response_bytes": 21993,
+            "request_bytes_s": 112.75,
+            "response_bytes_s": 1832.75,
+            "max_request_gap_ms": 100.74853897094727,
+            "max_reply_ms": 1.5554428100585938
+          },
+          "diagnostics": {
+            "count": 120,
+            "hz": 10.0,
+            "request_bytes": 1953,
+            "response_bytes": 103984,
+            "request_bytes_s": 162.75,
+            "response_bytes_s": 8665.333333333334,
+            "max_request_gap_ms": 100.62074661254883,
+            "max_reply_ms": 1.9872188568115234
+          }
+        },
+        "total_count": 1440,
+        "total_hz": 120.0,
+        "request_bytes": 16838,
+        "response_bytes": 1542579,
+        "request_bytes_s": 1403.1666666666667,
+        "response_bytes_s": 128548.25,
+        "error_replies": [],
+        "missing_replies": [],
+        "timeout_replies": [],
+        "max_gap_ms": 11.534929275512695
+      }
+    }
+  },
+  "diagnostics": {
+    "frozen_tick": [
+      3017845000,
+      6198955000
+    ],
+    "frozen_frames": 636222,
+    "rt_frames": 636223,
+    "counters": {
+      "irq_frames": 636223,
+      "exact_ack_count": 636223,
+      "commits": 636223,
+      "rejects": 0,
+      "overruns": 0
+    },
+    "foc_offer": 636222,
+    "foc_late": 0,
+    "foc_invalid": 0,
+    "pwm_adopted_delta": 318111000,
+    "independent_pwm_offsets": [
+      0,
+      0
+    ],
+    "pwm_same_frame": true,
+    "historical_overruns": 8388
+  },
+  "position_comparison": {
+    "A3": {
+      "frames": 100000,
+      "entry_upper_us": 1.58,
+      "max_fg_mask_us": 1.920019219392386,
+      "model_mean_us": [
+        12.024714856284598,
+        12.498187329077385,
+        12.862208750709593
+      ],
+      "irq_mean_us": [
+        33.778872526513986,
+        34.26407987232841,
+        34.570074046441206
+      ],
+      "irq_max_us": 40.704407451118584,
+      "max_upper_cycles": 1746,
+      "max_upper_us": 34.92,
+      "minimum_margin_cycles": 3162,
+      "minimum_margin_us": 63.24
+    },
+    "B3": {
+      "frames": 100000,
+      "entry_upper_us": 3.3200000000000003,
+      "max_fg_mask_us": 2.304023063270863,
+      "model_mean_us": [
+        12.227801689183796,
+        12.700031127311584,
+        13.1778599103777
+      ],
+      "irq_mean_us": [
+        34.095004402105175,
+        34.59237471411533,
+        35.125343604689476
+      ],
+      "irq_max_us": 53.12053173652268,
+      "max_upper_cycles": 2257,
+      "max_upper_us": 45.14,
+      "minimum_margin_cycles": 2651,
+      "minimum_margin_us": 53.02
+    },
+    "C1": {
+      "frames": 600000,
+      "entry_upper_us": 4.86,
+      "max_fg_mask_us": 2.5600256258565146,
+      "model_mean_us": [
+        12.636995474102473,
+        13.591524495604645,
+        13.313541268548096
+      ],
+      "irq_mean_us": [
+        34.82600857871624,
+        35.961895978578745,
+        35.30079069424818
+      ],
+      "irq_max_us": 55.552556081086365,
+      "max_upper_cycles": 2341,
+      "max_upper_us": 46.82,
+      "minimum_margin_cycles": 2567,
+      "minimum_margin_us": 51.34
+    }
+  }
+}

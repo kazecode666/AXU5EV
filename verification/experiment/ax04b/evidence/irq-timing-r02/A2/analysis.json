@@ -1,0 +1,616 @@
+{
+  "group": "A",
+  "stable_timing": "PASS",
+  "checks": {
+    "elapsed": true,
+    "planned_frames_present": true,
+    "all_frames_valid": true,
+    "all_valid_frames_applied": true,
+    "rate_counts_match": true,
+    "phase_counts_match": true,
+    "zero_anomalies": true
+  },
+  "capture": {
+    "id": 1,
+    "capture_id": 1,
+    "count": 0,
+    "active": false,
+    "timing_schema": 2,
+    "cpu_hz": 499994995,
+    "pmu_divisor": 64,
+    "pl_hz": 50000000,
+    "irq_phase": 76,
+    "deadline_phase": 4984,
+    "start_tick": 36425665000,
+    "end_reason": "elapsed",
+    "delay_ms": 2000,
+    "duration_ms": 10000,
+    "planned_frames": 100000,
+    "frames": 100000,
+    "valid": 100000,
+    "missing": 0,
+    "discontinuities": 0,
+    "rejects": 0,
+    "late_or_target": 0,
+    "overruns": 0,
+    "invalid": 0,
+    "transitions": 0,
+    "unbracketed": 0,
+    "applied": 100000,
+    "receipt_errors": 0,
+    "receipt_unresolved": 0,
+    "spurious": 0,
+    "bad_snapshots": 0,
+    "first_events": 0,
+    "max_foreground_mask": 15,
+    "detailed": false,
+    "first": {
+      "pl_tick": 36425665000,
+      "seq": 7285134,
+      "sample_id": 3642566500,
+      "version": 6483034,
+      "target": 3642567000,
+      "entry_phase": 135,
+      "mode": 2,
+      "result": 1,
+      "stop_reason": 1,
+      "rate": 0
+    },
+    "last": {
+      "pl_tick": 36925660000,
+      "seq": 7385133,
+      "sample_id": 3692566000,
+      "version": 6583033,
+      "target": 3692566500,
+      "entry_phase": 137,
+      "mode": 2,
+      "result": 1,
+      "stop_reason": 1,
+      "rate": 0
+    },
+    "first_event": {
+      "pl_tick": 0,
+      "seq": 0,
+      "sample_id": 0,
+      "version": 0,
+      "target": 0,
+      "entry_phase": 0,
+      "mode": 0,
+      "result": 0,
+      "stop_reason": 0,
+      "rate": 0
+    },
+    "last_checked": {
+      "pl_tick": 36925660000,
+      "seq": 7385133,
+      "sample_id": 3692566000,
+      "version": 6583033,
+      "target": 3692566500,
+      "entry_phase": 137,
+      "mode": 2,
+      "result": 1,
+      "stop_reason": 1,
+      "rate": 0
+    },
+    "receipt_frame": {
+      "pl_tick": 36925665000,
+      "seq": 7385134,
+      "sample_id": 3692566500,
+      "version": 6583034,
+      "target": 3692567000,
+      "entry_phase": 135,
+      "mode": 2,
+      "result": 1,
+      "stop_reason": 1,
+      "rate": 0
+    },
+    "receipt_version": 6583033,
+    "receipt_target": 3692566500,
+    "receipt_coherent": true
+  },
+  "max_foreground_mask_us": 1.920019219392386,
+  "full_window_bounds": {
+    "max_upper_cycles": 1752,
+    "max_upper_us": 35.04,
+    "minimum_margin_cycles": 3156,
+    "minimum_margin_us": 63.120000000000005
+  },
+  "rates": {
+    "base": {
+      "entry_upper": {
+        "count": 90000,
+        "min_us": 1.16,
+        "mean_us": 1.1995795555555555,
+        "max_us": 1.34,
+        "peak": {
+          "pl_tick": 36807470000,
+          "seq": 7361495,
+          "sample_id": 3680747000,
+          "version": 6559395,
+          "target": 3680747500,
+          "entry_phase": 142,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 0
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "read": {
+        "count": 90000,
+        "min_us": 8.192082002740847,
+        "mean_us": 8.405774452913384,
+        "max_us": 9.088090971790628,
+        "peak": {
+          "pl_tick": 36446405000,
+          "seq": 7289282,
+          "sample_id": 3644640500,
+          "version": 6487182,
+          "target": 3644641000,
+          "entry_phase": 136,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 0
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "model": {
+        "count": 90000,
+        "min_us": 11.13611147247584,
+        "mean_us": 11.816916153997367,
+        "max_us": 16.000160161603215,
+        "peak": {
+          "pl_tick": 36446405000,
+          "seq": 7289282,
+          "sample_id": 3644640500,
+          "version": 6487182,
+          "target": 3644641000,
+          "entry_phase": 136,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 0
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "submit": {
+        "count": 90000,
+        "min_us": 8.064080721448022,
+        "mean_us": 8.254585028396132,
+        "max_us": 9.088090971790628,
+        "peak": {
+          "pl_tick": 36446405000,
+          "seq": 7289282,
+          "sample_id": 3644640500,
+          "version": 6487182,
+          "target": 3644641000,
+          "entry_phase": 136,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 0
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "ack": {
+        "count": 90000,
+        "min_us": 0.3840038438784772,
+        "mean_us": 0.4722834831132215,
+        "max_us": 0.5120051251713029,
+        "peak": {
+          "pl_tick": 36425665000,
+          "seq": 7285134,
+          "sample_id": 3642566500,
+          "version": 6483034,
+          "target": 3642567000,
+          "entry_phase": 135,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 0
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "irq": {
+        "count": 90000,
+        "min_us": 32.76832801096339,
+        "mean_us": 33.57451421422061,
+        "max_us": 41.600416420168365,
+        "peak": {
+          "pl_tick": 36446405000,
+          "seq": 7289282,
+          "sample_id": 3644640500,
+          "version": 6487182,
+          "target": 3644641000,
+          "entry_phase": 136,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 0
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_lower": {
+        "count": 90000,
+        "min_us": 26.36,
+        "mean_us": 27.150802222222225,
+        "max_us": 32.88,
+        "peak": {
+          "pl_tick": 36446405000,
+          "seq": 7289282,
+          "sample_id": 3644640500,
+          "version": 6487182,
+          "target": 3644641000,
+          "entry_phase": 136,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 0
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_upper": {
+        "count": 90000,
+        "min_us": 28.52,
+        "mean_us": 29.310128222222225,
+        "max_us": 35.04,
+        "peak": {
+          "pl_tick": 36446405000,
+          "seq": 7289282,
+          "sample_id": 3644640500,
+          "version": 6487182,
+          "target": 3644641000,
+          "entry_phase": 136,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 0
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      }
+    },
+    "speed_1ms": {
+      "entry_upper": {
+        "count": 9000,
+        "min_us": 1.16,
+        "mean_us": 1.1995066666666667,
+        "max_us": 1.28,
+        "peak": {
+          "pl_tick": 36632245000,
+          "seq": 7326450,
+          "sample_id": 3663224500,
+          "version": 6524350,
+          "target": 3663225000,
+          "entry_phase": 139,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 1
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "read": {
+        "count": 9000,
+        "min_us": 8.192082002740847,
+        "mean_us": 8.40507613481211,
+        "max_us": 8.832088409204975,
+        "peak": {
+          "pl_tick": 36455695000,
+          "seq": 7291140,
+          "sample_id": 3645569500,
+          "version": 6489040,
+          "target": 3645570000,
+          "entry_phase": 133,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 1
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "model": {
+        "count": 9000,
+        "min_us": 11.776117878939967,
+        "mean_us": 12.29438084453003,
+        "max_us": 13.184131973161051,
+        "peak": {
+          "pl_tick": 36601145000,
+          "seq": 7320230,
+          "sample_id": 3660114500,
+          "version": 6518130,
+          "target": 3660115000,
+          "entry_phase": 135,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 1
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "submit": {
+        "count": 9000,
+        "min_us": 8.064080721448022,
+        "mean_us": 8.265739628942574,
+        "max_us": 8.448084565326498,
+        "peak": {
+          "pl_tick": 36441845000,
+          "seq": 7288370,
+          "sample_id": 3644184500,
+          "version": 6486270,
+          "target": 3644185000,
+          "entry_phase": 135,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 1
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "ack": {
+        "count": 9000,
+        "min_us": 0.3840038438784772,
+        "mean_us": 0.4832617263387695,
+        "max_us": 0.5120051251713029,
+        "peak": {
+          "pl_tick": 36425745000,
+          "seq": 7285150,
+          "sample_id": 3642574500,
+          "version": 6483050,
+          "target": 3642575000,
+          "entry_phase": 133,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 1
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "irq": {
+        "count": 9000,
+        "min_us": 33.53633569872034,
+        "mean_us": 34.05171152429902,
+        "max_us": 35.20035235552707,
+        "peak": {
+          "pl_tick": 36601145000,
+          "seq": 7320230,
+          "sample_id": 3660114500,
+          "version": 6518130,
+          "target": 3660115000,
+          "entry_phase": 135,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 1
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_lower": {
+        "count": 9000,
+        "min_us": 27.18,
+        "mean_us": 27.636604444444444,
+        "max_us": 28.52,
+        "peak": {
+          "pl_tick": 36798245000,
+          "seq": 7359650,
+          "sample_id": 3679824500,
+          "version": 6557550,
+          "target": 3679825000,
+          "entry_phase": 137,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 1
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_upper": {
+        "count": 9000,
+        "min_us": 29.34,
+        "mean_us": 29.795928888888888,
+        "max_us": 30.68,
+        "peak": {
+          "pl_tick": 36798245000,
+          "seq": 7359650,
+          "sample_id": 3679824500,
+          "version": 6557550,
+          "target": 3679825000,
+          "entry_phase": 137,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 1
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      }
+    },
+    "position_10ms": {
+      "entry_upper": {
+        "count": 1000,
+        "min_us": 1.16,
+        "mean_us": 1.19802,
+        "max_us": 1.26,
+        "peak": {
+          "pl_tick": 36453995000,
+          "seq": 7290800,
+          "sample_id": 3645399500,
+          "version": 6488700,
+          "target": 3645400000,
+          "entry_phase": 138,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 2
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "read": {
+        "count": 1000,
+        "min_us": 8.320083284033672,
+        "mean_us": 8.382419908023278,
+        "max_us": 8.70408712791215,
+        "peak": {
+          "pl_tick": 36645495000,
+          "seq": 7329100,
+          "sample_id": 3664549500,
+          "version": 6527000,
+          "target": 3664550000,
+          "entry_phase": 134,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 2
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "model": {
+        "count": 1000,
+        "min_us": 12.032120441525619,
+        "mean_us": 12.448764612133767,
+        "max_us": 13.184131973161051,
+        "peak": {
+          "pl_tick": 36887495000,
+          "seq": 7377500,
+          "sample_id": 3688749500,
+          "version": 6575400,
+          "target": 3688750000,
+          "entry_phase": 133,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 2
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "submit": {
+        "count": 1000,
+        "min_us": 8.064080721448022,
+        "mean_us": 8.252370606229768,
+        "max_us": 8.320083284033672,
+        "peak": {
+          "pl_tick": 36425995000,
+          "seq": 7285200,
+          "sample_id": 3642599500,
+          "version": 6483100,
+          "target": 3642600000,
+          "entry_phase": 136,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 2
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "ack": {
+        "count": 1000,
+        "min_us": 0.3840038438784772,
+        "mean_us": 0.4834608394430028,
+        "max_us": 0.5120051251713029,
+        "peak": {
+          "pl_tick": 36425995000,
+          "seq": 7285200,
+          "sample_id": 3642599500,
+          "version": 6483100,
+          "target": 3642600000,
+          "entry_phase": 136,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 2
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "irq": {
+        "count": 1000,
+        "min_us": 33.66433698001317,
+        "mean_us": 34.16776601933785,
+        "max_us": 35.20035235552707,
+        "peak": {
+          "pl_tick": 36887495000,
+          "seq": 7377500,
+          "sample_id": 3688749500,
+          "version": 6575400,
+          "target": 3688750000,
+          "entry_phase": 133,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 2
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_lower": {
+        "count": 1000,
+        "min_us": 27.36,
+        "mean_us": 27.7828,
+        "max_us": 28.52,
+        "peak": {
+          "pl_tick": 36487995000,
+          "seq": 7297600,
+          "sample_id": 3648799500,
+          "version": 6495500,
+          "target": 3648800000,
+          "entry_phase": 135,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 2
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      },
+      "accept_upper": {
+        "count": 1000,
+        "min_us": 29.52,
+        "mean_us": 29.942220000000002,
+        "max_us": 30.68,
+        "peak": {
+          "pl_tick": 36487995000,
+          "seq": 7297600,
+          "sample_id": 3648799500,
+          "version": 6495500,
+          "target": 3648800000,
+          "entry_phase": 135,
+          "mode": 2,
+          "result": 1,
+          "stop_reason": 1,
+          "rate": 2
+        },
+        "detail_p99_us": null,
+        "detail_samples": 0
+      }
+    }
+  },
+  "detail_scope": {
+    "records": 0,
+    "first": null,
+    "last": null
+  },
+  "exceptional_irqs": {
+    "first_anomaly": null,
+    "anomaly_peak": null,
+    "transition_peak": null
+  }
+}

@@ -4,6 +4,7 @@
 | --- | --- | --- |
 | SELFTEST R01（旧版对照） | `.runtime/experiment/final/GEM3_Control_SELFTEST_R01` | `Motor_Control_GEM3_SELFTEST_NoPower_R01` |
 | PR61 SELFTEST + dq（内部合成 ADC/ABZ） | `.runtime/experiment/final/GEM3_Control_SELFTEST_P61_R01` | `Motor_Control_GEM3_SELFTEST_P61_NoPower_R01` |
+| Issue #44 SELFTEST timing（PR62 复审候选、PR61 硬件） | `.runtime/experiment/final/P61_TIMING_R02` | `Motor_Control_GEM3_SELFTEST_P61_Timing_R02` |
 | REAL IO（真实输入、功率输出硬禁止） | `.runtime/experiment/final/GEM3_Control_REAL_IO_R02` | `Motor_Control_GEM3_REAL_IO_NoPower_R02` |
 
 使用一套候选目录内的 `hardware/ax04b_{selftest,real}.{xsa,bit,ltx}`、`vitis/ax04b_realtime/build/ax04b_realtime.elf`、`vitis/ax04b_platform/export/ax04b_platform/sw/boot/fsbl.elf` 和对应启动项。内部工程组件沿用原名。需要现场授权后才可按 [AX-04B 首运行步骤](FIRST_RUN_AX04B_ZH.md)连接板卡。使用本表中的候选替换指南中的 R1 路径与启动项，保持驱动级、电机和功率电源断开。
@@ -24,7 +25,7 @@ python scripts/motor_control_build.py --check-startup
 
 PR61 的 `hardware/ax04b_selftest.bit`、`hardware/ax04b_selftest.ltx` 和 `hardware/ax04b_selftest.xsa` 来自同一通过布线后时序检查的实现。独立 Vitis Platform 导入 PR61 XSA，使用候选内 `vitis/ax04b_platform/export/ax04b_platform/sw/boot/fsbl.elf` 和 `vitis/ax04b_realtime/build/ax04b_realtime.elf`，两份 ELF 均复用兼容的原 R01 二进制。Vitis 实体 Debug 已验证 R5_0 停在 ELF 入口。
 
-现场授权后，在 PR61 Workspace 运行专用启动项。保持 J15/J16、驱动器、电机和外部功率电源断开。`programDevice=false`，R5_0 按 `stopAtEntry` 暂停。保持暂停，在同一次调试会话的 XSDB Console 手动加载 PR61 bit 并完成 PS–PL 后配置，再手动 Resume R5_0。Studio 的 `-Prepare SELFTEST` 仍指向原 R01。
+现场授权后，在所选 Workspace 运行表中对应启动项。保持 J15/J16、驱动器、电机和外部功率电源断开。`programDevice=false`，R5_0 按 `stopAtEntry` 暂停。保持暂停，在同一次调试会话的 XSDB Console 手动加载该候选的 bit 并完成 PS–PL 后配置，再手动 Resume R5_0。Studio 的 `-Prepare SELFTEST` 使用 [Issue #44 timing 候选](IRQ_TIMING_ZH.md)，手动替换候选目录和启动项时应保持同套文件。
 
 ```tcl
 set candidate D:/Project/AXU5EV/.runtime/experiment/final/GEM3_Control_SELFTEST_P61_R01

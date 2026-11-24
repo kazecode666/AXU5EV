@@ -59,12 +59,17 @@ def check_startup(workspace,runtime_mapping=0,platform_name='ax02a_platform',
                   platform_workspace=None):
     """Read files only: no debugger imports, target discovery or hardware access."""
     platform=(platform_workspace if platform_workspace is not None else workspace)/platform_name
-    domains=json.loads((platform/'vitis-comp.json').read_text(encoding='utf-8'))['configuration']['domains']
+    configuration=json.loads((platform/'vitis-comp.json').read_text(encoding='utf-8'))['configuration']
+    domains=configuration['domains']
+    fsbl=platform/'export'/platform_name/'sw/boot/fsbl.elf'
     for name,cpu in [('zynqmp_fsbl','psu_cortexa53_0'),('r5_standalone','psu_cortexr5_0')]:
+        if name=='zynqmp_fsbl' and configuration.get('isCustomFSBL'):
+            if fsbl.read_bytes()!=(platform/configuration['fsblPath']).read_bytes():
+                raise ValueError('exported A53 FSBL differs from the platform prebuilt FSBL')
+            continue
         matches=[d for d in domains if d['name']==name]
         if len(matches)!=1 or matches[0]['processor']!=cpu:
             raise ValueError(f'{name} must target {cpu}')
-    fsbl=platform/'export'/platform_name/'sw/boot/fsbl.elf'
     result=dict(fsbl=inspect_fsbl(fsbl))
     launch=json.loads((workspace/application/'_ide/launch.json').read_text(encoding='utf-8'))
     profiles=[c for c in launch['configurations'] if c['name']==launch_name]

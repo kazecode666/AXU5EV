@@ -1,0 +1,9 @@
+19:34:42 INFO  : System reset is completed.
+19:34:51 INFO  : loadhw -hw D:/Project/AXU5EV/.runtime/experiment/final/P61_TIMING_R02/vitis/ax04b_platform/export/ax04b_platform/hw/ax04b_selftest.xsa -mem-ranges [list {0x80000000 0xbfffffff} {0x400000000 0x5ffffffff} {0x1000000000 0x7fffffffff}]
+19:34:51 INFO  : rst -processor
+19:34:52 INFO  : dow D:/Project/AXU5EV/.runtime/experiment/final/P61_TIMING_R02/vitis/ax04b_platform/export/ax04b_platform/sw/boot/fsbl.elf
+19:34:52 INFO  : set bp_34_52_fsbl_bp [bpadd -addr &XFsbl_Exit]
+19:34:53 INFO  : con -block -timeout 60
+19:34:53 INFO  : rst -processor
+19:34:54 INFO  : dow D:/Project/AXU5EV/.runtime/experiment/final/P61_TIMING_R02/vitis/ax04b_realtime/build/ax04b_realtime.elf
+19:34:54 INFO  : bpadd main
