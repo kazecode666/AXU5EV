@@ -1,0 +1,47 @@
+  1  PS TAP
+     2  PMU
+        3  MicroBlaze PMU (Sleeping after reset. No clock)
+     4  PL
+  5  PSU
+     6  RPU
+        7  Cortex-R5 #0 (Suspended)
+        8  Cortex-R5 #1 (Reset)
+     9  APU
+       10  Cortex-A53 #0 (Breakpoint, EL3(S)/A64)
+       11  Cortex-A53 #1 (Power On Reset)
+       12  Cortex-A53 #2 (Power On Reset)
+       13  Cortex-A53 #3 (Power On Reset)
+R5 entry before PL load: pc: 0000003c
+
+PL/PS-PL operations finished. Verify the target before continuing R5_0.
+Resuming R5 after R02 PL/PS-PL operations
+  1  PS TAP
+     2  PMU
+        3  MicroBlaze PMU (Sleeping. No clock)
+     4  PL
+       14  Legacy Debug Hub
+  5  PSU
+     6  RPU
+        7* Cortex-R5 #0 (Breakpoint)
+        8  Cortex-R5 #1 (Reset)
+     9  APU
+       10  Cortex-A53 #0 (Breakpoint, EL3(S)/A64)
+       11  Cortex-A53 #1 (Power On Reset)
+       12  Cortex-A53 #2 (Power On Reset)
+       13  Cortex-A53 #3 (Power On Reset)
+R5 breakpoint: pc: 00126488
+
+  1  PS TAP
+     2  PMU
+        3  MicroBlaze PMU (Sleeping. No clock)
+     4  PL
+       14  Legacy Debug Hub
+  5  PSU
+     6  RPU
+        7* Cortex-R5 #0 (Running)
+        8  Cortex-R5 #1 (Reset)
+     9  APU
+       10  Cortex-A53 #0 (Breakpoint, EL3(S)/A64)
+       11  Cortex-A53 #1 (Power On Reset)
+       12  Cortex-A53 #2 (Power On Reset)
+       13  Cortex-A53 #3 (Power On Reset)

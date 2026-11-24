@@ -142,6 +142,7 @@
   "T3_C_evidence": {
     "task": "https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-7128027083",
     "reviewed_b_commit": "c7b4f3030e2f1e7a25cc7ef6bfc408797c5cac4f",
+    "review": "https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6038365579",
     "report": "coordination/reports/irq_timing_r02_group_c_2026-11-24.md",
     "session": "sessions/20261124_184744_C1",
     "raw_source": ".runtime/board_tests/irq_timing_r02/C1_POSITION_20261124_190653",
@@ -171,6 +172,13 @@
       "analysis": "C1/analysis.json",
       "pcapng": "C1/gem3.pcapng",
       "network_verification": "C1/pcap_diagnostic_verification.json",
+      "tcp_reassembly": {
+        "request_list": "C1/tcp_request_list.csv",
+        "summary": "C1/tcp_reassembly_summary.json",
+        "method": "C1/TCP_REASSEMBLY_ZH.md",
+        "script": "C1/reassemble_requests.py",
+        "requests_in_capture": 9128
+      },
       "planned_and_measured_hz": {"sample": 100, "status": 10, "diagnostics": 10},
       "preflight_seconds": 12,
       "request_counts": {"sample": 6000, "status": 600, "diagnostics": 600},
@@ -182,7 +190,37 @@
       "boundary_uncertain_requests": 0
     }
   },
-  "T3_D": "NOT_RUN",
+  "T3_D": "MEASURED_TRANSITIONS_PASS",
+  "T3_D_evidence": {
+    "task": "https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-7118374924",
+    "reviewed_c_commit": "ce31740d831a42bbaeafdc9fb75f6c4c17267d50",
+    "report": "coordination/reports/irq_timing_r02_group_d_2026-11-24.md",
+    "session": "sessions/20261124_193442_D",
+    "raw_source": ".runtime/board_tests/irq_timing_r02/20261124_193442_D",
+    "preflight_attempt": "attempts/D_initial_armed_idle_check",
+    "window_ms_each": 25,
+    "detail_frames_each": 250,
+    "formal_windows": 7,
+    "total_frames": 1750,
+    "max_accept_upper_pl_cycles": 2357,
+    "minimum_margin_pl_cycles": 2551,
+    "peak_accept_irq_seq": 1751693,
+    "raw_receipt_errors": 1,
+    "expected_stop_cancellations": 1,
+    "unexpected_receipt_errors": 0,
+    "final_stop_each": "PASS",
+    "post_submit_irq_safety_reentry": "NOT_RUN",
+    "global_reset_measurement": "NOT_RUN",
+    "runs": {
+      "D1": {"evidence": "D/D1_START", "capture_id": 1, "edge_irq_seq": 1745278},
+      "D2": {"evidence": "D/D2_STOP_1", "capture_id": 2, "edge_irq_seq": 1748377},
+      "D3": {"evidence": "D/D3_REARM_START", "capture_id": 3, "edge_irq_seq": 1751693},
+      "D4": {"evidence": "D/D4_ALIGN_START", "capture_id": 4, "edge_irq_seq": 1754903},
+      "D5": {"evidence": "D/D5_PI_RESET", "capture_id": 5, "edge_irq_seq": 1758355},
+      "D6": {"evidence": "D/D6_ALIGN_RESET", "capture_id": 6, "edge_irq_seq": 1761309},
+      "D7": {"evidence": "D/D7_DRIVER_RESET", "capture_id": 7, "edge_irq_seq": 1764165}
+    }
+  },
   "T4": "NOT_RUN",
   "REAL_IO": "NOT_RUN",
   "POWER_MOTION": "NOT_RUN"

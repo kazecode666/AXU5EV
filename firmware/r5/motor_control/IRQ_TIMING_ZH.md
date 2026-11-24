@@ -1,6 +1,6 @@
 # Issue #44 实时性测量候选
 
-候选基线为 `kazecode666/AXU5EV` 的 PR61 合并提交 `f8c40db8b06596b5e19b006c6dbf7bf42b7f2823`。T3 A1/A2/A3、B1/B2/B3 和 C1 稳定实板时序为 PASS。独立 PWM 同帧端点证据在 A、B 为 `PARTIAL`，C1 为 PASS。T3 D 和 T4 为 `NOT_RUN`。[任务书](https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-7118374924) · [A 组报告](../../../coordination/reports/irq_timing_r02_group_a_2026-11-24.md) · [B 组报告](../../../coordination/reports/irq_timing_r02_group_b_2026-11-24.md) · [C1 报告](../../../coordination/reports/irq_timing_r02_group_c_2026-11-24.md)
+候选基线为 `kazecode666/AXU5EV` 的 PR61 合并提交 `f8c40db8b06596b5e19b006c6dbf7bf42b7f2823`。T3 A1/A2/A3、B1/B2/B3 和 C1 稳定实板时序为 PASS。独立 PWM 同帧端点证据在 A、B 为 `PARTIAL`，C1 为 PASS。T3 D 已完成七个独立控制转换窗口，包含一次有证据的 STOP 待采用参考取消。IRQ 内提交后安全重入和 T4 为 `NOT_RUN`。[任务书](https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-7118374924) · [A 组报告](../../../coordination/reports/irq_timing_r02_group_a_2026-11-24.md) · [B 组报告](../../../coordination/reports/irq_timing_r02_group_b_2026-11-24.md) · [C1 报告](../../../coordination/reports/irq_timing_r02_group_c_2026-11-24.md) · [D 组报告](../../../coordination/reports/irq_timing_r02_group_d_2026-11-24.md)
 
 R02 对应 [PR62 的 R1–R3 复审](https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6032346923)。R01 与 R02 的构建日志、启动 JSON 和 host 导出见[离线结果](../../../verification/experiment/ax04b/irq_timing_offline.json)。
 
