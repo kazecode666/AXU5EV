@@ -26,7 +26,7 @@ python -m venv .runtime/studio/venv
 | 用途 | 候选（位于 `.runtime/experiment/final/`） | Vitis 启动项 |
 | --- | --- | --- |
 | 无功率内部自测（旧版对照） | `GEM3_Control_SELFTEST_R01` | `Motor_Control_GEM3_SELFTEST_NoPower_R01` |
-| Issue #44 timing（SELFTEST、复用 PR61 硬件） | `P61_TIMING_R01` | `Motor_Control_GEM3_SELFTEST_P61_Timing_R01` |
+| Issue #44 timing（SELFTEST、复用 PR61 硬件） | `P61_TIMING_R02` | `Motor_Control_GEM3_SELFTEST_P61_Timing_R02` |
 | PR61 无功率内部自测 + dq | `GEM3_Control_SELFTEST_P61_R01` | `Motor_Control_GEM3_SELFTEST_P61_NoPower_R01` |
 | 真实输入、功率硬禁 | `GEM3_Control_REAL_IO_R02` | `Motor_Control_GEM3_REAL_IO_NoPower_R02` |
 

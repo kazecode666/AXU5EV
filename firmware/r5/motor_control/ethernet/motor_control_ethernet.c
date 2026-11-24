@@ -229,6 +229,8 @@ static void write_timing_frame(Response *response, const TimingFrame *f)
     BOOL_FIELD(f, valid);
     BOOL_FIELD(f, model_ran);
     BOOL_FIELD(f, safety_reentry);
+    BOOL_FIELD(f, read_done_valid);
+    BOOL_FIELD(f, ack_done_valid);
     BOOL_FIELD(f, attempted);
     BOOL_FIELD(f, accepted);
     UINT_FIELD(f, entry);
@@ -238,26 +240,40 @@ static void write_timing_frame(Response *response, const TimingFrame *f)
     UINT_FIELD(f, ack_begin);
     UINT_FIELD(f, ack_done);
     UINT_FIELD(f, irq_end);
+    UINT_FIELD(f, safety_begin);
+    UINT_FIELD(f, safety_done);
     UINT_FIELD(f, before_phase);
     UINT_FIELD(f, after_phase);
     UINT_FIELD(f, before_id);
     UINT_FIELD(f, after_id);
+    UINT_FIELD(f, accepted_version);
+    UINT_FIELD(f, accepted_target);
+    UINT_FIELD(f, expected_version);
+    UINT_FIELD(f, expected_target);
     UINT_FIELD(f, applied_version);
     UINT_FIELD(f, applied_target);
     UINT_FIELD(f, overrun_delta);
+    UINT_FIELD(f, pl_status);
+    UINT_FIELD(f, feedback_status);
+    UINT_FIELD(f, quality);
+    UINT_FIELD(f, fault);
     BOOL_FIELD(f, applied_coherent);
     append(response, "}");
 }
 
 static void write_timing_summary(Response *response, const TimingWindow *w)
 {
+    static const char *const ends[] = {"open", "not_started", "early_stop", "elapsed"};
     uint32_t divisor;
     const uint32_t cpu_hz = motor_control_timing_clock(&divisor);
-    append(response, ",\"timing_schema\":1,\"cpu_hz\":%" PRIu32 ",\"pmu_divisor\":%" PRIu32
-        ",\"pl_hz\":%u,\"irq_phase\":%u,\"deadline_phase\":%u,\"start_tick\":%" PRIu64,
-        cpu_hz, divisor, AX04B_PL_HZ, AX04B_IRQ_PHASE, AX04B_DEADLINE_PHASE, w->start_tick);
+    append(response, ",\"timing_schema\":%u,\"cpu_hz\":%" PRIu32 ",\"pmu_divisor\":%" PRIu32
+        ",\"pl_hz\":%u,\"irq_phase\":%u,\"deadline_phase\":%u,\"start_tick\":%" PRIu64
+        ",\"end_reason\":\"%s\"",
+        AX04B_TIMING_SCHEMA, cpu_hz, divisor, AX04B_PL_HZ, AX04B_IRQ_PHASE,
+        AX04B_DEADLINE_PHASE, w->start_tick, ends[w->end_reason]);
     UINT_FIELD(w, delay_ms);
     UINT_FIELD(w, duration_ms);
+    UINT_FIELD(w, planned_frames);
     UINT_FIELD(w, frames);
     UINT_FIELD(w, valid);
     UINT_FIELD(w, missing);
@@ -273,7 +289,7 @@ static void write_timing_summary(Response *response, const TimingWindow *w)
     UINT_FIELD(w, receipt_unresolved);
     UINT_FIELD(w, spurious);
     UINT_FIELD(w, bad_snapshots);
-    UINT_FIELD(w, first_events);
+    append(response, ",\"first_events\":%" PRIu32, w->first_anomaly.events);
     UINT_FIELD(w, max_foreground_mask);
     BOOL_FIELD(w, detailed);
     append(response, ",\"first\":");
@@ -281,7 +297,7 @@ static void write_timing_summary(Response *response, const TimingWindow *w)
     append(response, ",\"last\":");
     write_timing_identity(response, &w->last);
     append(response, ",\"first_event\":");
-    write_timing_identity(response, &w->first_event);
+    write_timing_identity(response, &w->first_anomaly.id);
     if (w->applied != 0u || w->receipt_errors != 0u) {
         append(response, ",\"last_checked\":");
         write_timing_identity(response, &w->last_checked);
@@ -293,12 +309,23 @@ static void write_timing_summary(Response *response, const TimingWindow *w)
     }
 }
 
+static void write_timing_evidence(Response *response, const char *key, const TimingFrame *f)
+{
+    append(response, ",\"%s\":", key);
+    if (f->events == 0u) {
+        append(response, "null");
+    } else {
+        write_timing_frame(response, f);
+    }
+}
+
 static const char *timing_dispatch(Response *response, const char *verb, const char *args)
 {
     if (strcmp(verb, "timing-start") == 0) {
         uint32_t delay, duration, detail;
         if (!uint_arg(&args, &delay) || !uint_arg(&args, &duration) ||
-            !uint_arg(&args, &detail) || *args || duration == 0u || detail > 1u) {
+            !uint_arg(&args, &detail) || *args || duration == 0u ||
+            duration > UINT32_MAX / AX04B_FRAMES_PER_MS || detail > 1u) {
             return "BAD_REQUEST";
         }
         if (!motor_control_timing_start(delay, duration, detail != 0u)) {
@@ -354,6 +381,17 @@ static const char *timing_dispatch(Response *response, const char *verb, const c
             return NULL;
         }
         append(response, "]");
+    } else if (strcmp(verb, "timing-evidence") == 0) {
+        uint32_t requested;
+        if (!uint_arg(&args, &requested) || *args) {
+            return "BAD_REQUEST";
+        }
+        if (w == NULL || requested != id) {
+            return "TRACE_UNAVAILABLE";
+        }
+        write_timing_evidence(response, "first_anomaly", &w->first_anomaly);
+        write_timing_evidence(response, "anomaly_peak", &w->anomaly_peak);
+        write_timing_evidence(response, "transition_peak", &w->transition_peak);
     } else if (strcmp(verb, "timing-status") == 0) {
         if (*args) {
             return "BAD_REQUEST";
@@ -443,7 +481,7 @@ static const char *dispatch(Response *response, const char *verb, const char *ar
             PROTOCOL_VERSION, AX05A_SCHEMA, app_id, hardware_profile, AX04B_INTERFACE_ID,
             AX05A_DQ_IDENT, link_speed);
 #ifdef AX04B_TIMING
-        append(response, ",\"timing_schema\":1");
+        append(response, ",\"timing_schema\":%u", AX04B_TIMING_SCHEMA);
 #endif
     } else if (strcmp(verb, "status") == 0) {
         const Ax05aControlStatus status = ax05a_control_status();

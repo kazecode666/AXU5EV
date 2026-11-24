@@ -120,7 +120,8 @@ class MotorControlClient:
 
     def timing_download(self, path):
         info = self.request("timing-status")
-        if info["active"] or info.get("timing_schema") != 1:
+        schema = info.get("timing_schema")
+        if info["active"] or schema not in (1, 2):
             raise RequestError("TRACE_UNAVAILABLE")
         capture_id = info["capture_id"]
         version = self.request("version")
@@ -128,12 +129,19 @@ class MotorControlClient:
         if any(row["capture_id"] != capture_id or row["rate"] != rate
                for rate, row in enumerate(rates)):
             raise RequestError("TRACE_UNAVAILABLE")
+        header = {"capture": info, "version": version, "rates": rates}
+        if schema == 2:
+            evidence = self.request("timing-evidence", capture_id)
+            if evidence["capture_id"] != capture_id or evidence["active"]:
+                raise RequestError("TRACE_UNAVAILABLE")
+            header["evidence"] = {key: evidence[key] for key in
+                                  ("first_anomaly", "anomaly_peak", "transition_peak")}
         path = Path(path)
         partial = path.with_name(path.name + ".partial")
         if path.exists():
             raise FileExistsError(path)
         with partial.open("x", encoding="utf-8") as out:
-            out.write(json.dumps({"capture": info, "version": version, "rates": rates}) + "\n")
+            out.write(json.dumps(header) + "\n")
             index = 0
             while index < info["count"]:
                 data = self.request("timing-read", capture_id, index)

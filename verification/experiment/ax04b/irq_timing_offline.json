@@ -27,6 +27,23 @@
     "scope": "Business GEM3 SELFTEST and REAL regression, timing reducer, generated rate hits, retained capture, trace ownership, NDJSON export and late/target reject",
     "example_export": ".runtime/experiment/issue44/timing-host-02/timing.ndjson"
   },
+  "review_r02": {
+    "review": "https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6032346923",
+    "candidate": ".runtime/experiment/final/P61_TIMING_R02",
+    "launch": "Motor_Control_GEM3_SELFTEST_P61_Timing_R02",
+    "timing_schema": 2,
+    "build": "MOTOR_CONTROL_R5_BUILD_PASS",
+    "startup": "OFFLINE_STARTUP_CHECK_PASS",
+    "startup_details": ".runtime/experiment/final/P61_TIMING_R02/vitis/startup_validation.json",
+    "build_log": ".runtime/experiment/issue44/vitis-r02.log",
+    "matching_pr61_hardware_and_fsbl": true,
+    "host_tests_passed": 4,
+    "studio_offline_prepare_tests_passed": 1,
+    "host_export_dir": ".runtime/experiment/issue44/timing-review-host-02",
+    "host_scope": "GEM3 SELFTEST and REAL business regressions, stage validity, STOP and late reject with safety reentry after record 256, early freeze, verified and missing final P0 receipt, and offline A/B/C versus D analysis",
+    "vivado": "NOT_RUN",
+    "board_tests": "NOT_RUN"
+  },
   "vivado_reimplementation": "NOT_RUN",
   "board_selftest": "NOT_RUN",
   "board_irq_commit_timing": "NOT_RUN",

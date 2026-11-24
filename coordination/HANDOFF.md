@@ -2,7 +2,7 @@
 
 ## Issue #44 实时性测量准备
 
-基于 PR61 合并提交 `f8c40db8b06596b5e19b006c6dbf7bf42b7f2823`。SELFTEST 候选 `.runtime/experiment/final/P61_TIMING_R01` 复用 PR61 的 bit、LTX、XSA 和 A53 FSBL，并独立构建 R5 timing ELF。TCP timing 命令提供长窗汇总、互斥的 256 条短记录以及同帧 PL 接受相位上下界。Studio 的 SELFTEST 准备入口选择该候选。T3 板测和 T4 实测判定为 `NOT_RUN`。[启动、字段和现场步骤](../firmware/r5/motor_control/IRQ_TIMING_ZH.md) · [Issue #44](https://github.com/kazecode666/AXU5EV/issues/44)
+基于 PR61 合并提交 `f8c40db8b06596b5e19b006c6dbf7bf42b7f2823`。PR62 复审候选 `.runtime/experiment/final/P61_TIMING_R02` 复用 PR61 的 bit、LTX、XSA 和 A53 FSBL，并独立构建 R5 timing ELF。Schema 2 增加长窗异常及转换证据、窗口结束原因和离线分析。Studio 的 SELFTEST 准备入口选择 R02，R01 保留。T3 板测和 T4 实测判定为 `NOT_RUN`。[启动、字段和现场步骤](../firmware/r5/motor_control/IRQ_TIMING_ZH.md) · [Draft PR62](https://github.com/kazecode666/AXU5EV/pull/62) · [Issue #44](https://github.com/kazecode666/AXU5EV/issues/44)
 
 ## Motor Control Studio
 

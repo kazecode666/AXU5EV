@@ -13,16 +13,25 @@ void ax04b_timing_start(TimingWindow *w, uint32_t delay_ms, uint32_t duration_ms
 {
     const uint32_t id = w->capture_id + 1u;
     *w = (TimingWindow){.capture_id = id, .delay_ms = delay_ms, .duration_ms = duration_ms,
+        .planned_frames = duration_ms * AX04B_FRAMES_PER_MS,
         .detailed = detailed, .active = true};
 }
 
-void ax04b_timing_freeze(TimingWindow *w)
+static void finish(TimingWindow *w, enum TimingEnd reason)
 {
     if (w->have_expected) {
         ++w->receipt_unresolved;
         w->have_expected = false;
     }
+    w->end_reason = reason;
     w->active = false;
+}
+
+void ax04b_timing_freeze(TimingWindow *w)
+{
+    if (w->active) {
+        finish(w, w->frames == 0u ? TIMING_NOT_STARTED : TIMING_EARLY_STOP);
+    }
 }
 
 bool ax04b_timing_collect(TimingWindow *w, uint64_t tick)
@@ -33,16 +42,6 @@ bool ax04b_timing_collect(TimingWindow *w, uint64_t tick)
     }
     /* Unsigned offsets work across a 64-bit PL tick wrap. */
     return tick - w->start_tick < (uint64_t)w->duration_ms * (AX04B_PL_HZ / 1000);
-}
-
-void ax04b_timing_event(TimingWindow *w, const TimingIdentity *id, uint32_t events)
-{
-    if ((events & ~TIMING_TRANSITION) != 0u && w->first_events == 0u) {
-        w->first_events = events;
-        w->first_event = *id;
-    }
-    w->spurious += (events & TIMING_SPURIOUS) != 0u;
-    w->bad_snapshots += (events & TIMING_SNAPSHOT) != 0u;
 }
 
 static void range(TimingWindow *w, const TimingIdentity *id, enum TimingMetric metric, uint32_t value)
@@ -75,22 +74,20 @@ void ax04b_timing_observe(TimingWindow *w, TimingFrame *f, bool collect)
         } else {
             ++w->receipt_errors;
             f->events |= TIMING_RECEIPT;
-            ax04b_timing_event(w, &w->expected, TIMING_RECEIPT);
+            f->expected_version = w->expected.version;
+            f->expected_target = w->expected.target;
         }
         w->have_expected = false;
     }
     if (!collect) {
         /* The first frame beyond the planned interval supplies the last P0 receipt. */
-        if (id->pl_tick - w->start_tick < (UINT64_C(1) << 63)) {
-            const uint64_t slots = (uint64_t)w->duration_ms * (AX04B_PL_HZ / 1000 / AX04B_FRAME_CYCLES);
-            const uint64_t covered = w->frames != 0u ?
-                (w->last.pl_tick - w->start_tick) / AX04B_TICK_STEP + 1u : 0u;
-            if (slots > covered) {
-                w->missing += (uint32_t)(slots - covered);
-                ax04b_timing_event(w, id, TIMING_GAP);
-            }
-            ax04b_timing_freeze(w);
+        const uint64_t covered = w->frames != 0u ?
+            (w->last.pl_tick - w->start_tick) / AX04B_TICK_STEP + 1u : 0u;
+        if (w->planned_frames > covered) {
+            w->missing += (uint32_t)(w->planned_frames - covered);
+            f->events |= TIMING_GAP;
         }
+        finish(w, TIMING_ELAPSED);
         return;
     }
     if (w->frames == 0u) {
@@ -145,12 +142,30 @@ void ax04b_timing_observe(TimingWindow *w, TimingFrame *f, bool collect)
             ++w->unbracketed;
         }
     }
-    ax04b_timing_event(w, id, f->events);
+}
+
+static void peak(TimingFrame *saved, const TimingFrame *f, uint32_t elapsed)
+{
+    if (saved->events == 0u || elapsed > saved->irq_end - saved->entry) {
+        *saved = *f;
+    }
 }
 
 void ax04b_timing_irq_end(TimingWindow *w, const TimingFrame *f)
 {
+    const uint32_t elapsed = f->irq_end - f->entry;
     if (f->valid) {
-        range(w, &f->id, TIMING_IRQ, f->irq_end - f->entry);
+        range(w, &f->id, TIMING_IRQ, elapsed);
     }
+    if ((f->events & TIMING_CONTROL_EDGE) != 0u) {
+        peak(&w->transition_peak, f, elapsed);
+    }
+    if ((f->events & ~(TIMING_TRANSITION | TIMING_CONTROL_EDGE)) != 0u) {
+        if (w->first_anomaly.events == 0u) {
+            w->first_anomaly = *f;
+        }
+        peak(&w->anomaly_peak, f, elapsed);
+    }
+    w->spurious += (f->events & TIMING_SPURIOUS) != 0u;
+    w->bad_snapshots += (f->events & TIMING_SNAPSHOT) != 0u;
 }

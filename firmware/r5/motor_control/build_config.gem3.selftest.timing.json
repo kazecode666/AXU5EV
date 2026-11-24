@@ -6,11 +6,11 @@
   "application_id": "0x41585205",
   "dq_extension_id": "0x41583501",
   "hardware_source": ".runtime/experiment/final/GEM3_Control_SELFTEST_P61_R01/hardware",
-  "xsa": ".runtime/experiment/final/P61_TIMING_R01/hardware/ax04b_selftest.xsa",
-  "bitstream": ".runtime/experiment/final/P61_TIMING_R01/hardware/ax04b_selftest.bit",
-  "ltx": ".runtime/experiment/final/P61_TIMING_R01/hardware/ax04b_selftest.ltx",
-  "workspace": ".runtime/experiment/final/P61_TIMING_R01/vitis",
+  "xsa": ".runtime/experiment/final/P61_TIMING_R02/hardware/ax04b_selftest.xsa",
+  "bitstream": ".runtime/experiment/final/P61_TIMING_R02/hardware/ax04b_selftest.bit",
+  "ltx": ".runtime/experiment/final/P61_TIMING_R02/hardware/ax04b_selftest.ltx",
+  "workspace": ".runtime/experiment/final/P61_TIMING_R02/vitis",
   "gem3_ethernet": true,
   "irq_timing": true,
-  "launch": "Motor_Control_GEM3_SELFTEST_P61_Timing_R01"
+  "launch": "Motor_Control_GEM3_SELFTEST_P61_Timing_R02"
 }

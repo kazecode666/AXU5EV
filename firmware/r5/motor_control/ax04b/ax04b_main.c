@@ -546,7 +546,9 @@ static void frame_interrupt(void *unused)
         ++counters.spurious;
 #ifdef AX04B_TIMING
         if (timing.active) {
-            ax04b_timing_event(&timing, &(TimingIdentity){0}, TIMING_SPURIOUS);
+            const TimingFrame spurious = {.entry = record.entry_tick, .irq_end = pmu_tick(),
+                .pl_status = status, .events = TIMING_SPURIOUS};
+            ax04b_timing_irq_end(&timing, &spurious);
         }
 #endif
         return;
@@ -563,15 +565,21 @@ static void frame_interrupt(void *unused)
          * Mask the level interrupt so a bad pending record cannot livelock. */
         ++counters.bad_snapshot;
 #ifdef AX04B_TIMING
-        if (timing.active) {
-            ax04b_timing_event(&timing, &(TimingIdentity){
-                .seq = feedback.sequence, .sample_id = feedback.id, .pl_tick = feedback.tick,
-                .entry_phase = record.entry_phase, .stop_reason = AX04B_STOP_SNAPSHOT
-            }, TIMING_SNAPSHOT);
-        }
+        const uint32_t snapshot_end = timing.active ? pmu_tick() : 0u;
 #endif
         revoke_permission(AX04B_STOP_SNAPSHOT, check_status, command);
         XScuGic_Disable(&interrupt_controller, ax04b_fabric_irq);
+#ifdef AX04B_TIMING
+        if (timing.active) {
+            const TimingFrame snapshot = {.id = {.seq = feedback.sequence, .sample_id = feedback.id,
+                    .pl_tick = feedback.tick, .entry_phase = record.entry_phase,
+                    .stop_reason = AX04B_STOP_SNAPSHOT, .mode = command->online_mode},
+                .entry = record.entry_tick, .read_done = snapshot_end, .irq_end = pmu_tick(),
+                .pl_status = check_status, .quality = feedback.quality, .fault = feedback.fault,
+                .read_done_valid = true, .events = TIMING_SNAPSHOT};
+            ax04b_timing_irq_end(&timing, &snapshot);
+        }
+#endif
         return;
     }
     status = check_status;
@@ -579,16 +587,15 @@ static void frame_interrupt(void *unused)
 #ifdef AX04B_TIMING
     const uint32_t overrun_delta = overruns - previous_overrun;
     const bool collect = timing.active && ax04b_timing_collect(&timing, feedback.tick);
-    const bool read_timing_receipt = collect || (timing.active && timing.have_expected);
+    const bool observe_timing = collect || (timing.active &&
+        feedback.tick - timing.start_tick < (UINT64_C(1) << 63));
     TimingFrame measured;
     const uint32_t timing_mode = safety.armed ? command->online_mode : AX05A_IDLE;
     const bool timing_stop_pending = safety.stop_pending;
-    if (collect) {
-        measured.before_phase = measured.after_phase = 0u;
-        measured.before_id = measured.after_id = 0u;
-        measured.attempted = measured.accepted = false;
+    if (observe_timing) {
+        measured = (TimingFrame){0};
     }
-    if (read_timing_receipt && (status & AX04B_APPLIED_SEEN) != 0u) {
+    if (observe_timing && (status & AX04B_APPLIED_SEEN) != 0u) {
         read_applied(&record);
         record.applied_coherent = record.applied_coherent &&
             read_rt(AX04B_P0_ID) == feedback.id;
@@ -735,11 +742,11 @@ static void frame_interrupt(void *unused)
                 record.flags = reference.word[6];
                 const bool accepted = submit(&reference, &record
 #ifdef AX04B_TIMING
-                    , collect ? &measured : NULL
+                    , observe_timing ? &measured : NULL
 #endif
                 );
 #ifdef AX04B_TIMING
-                if (collect) {
+                if (observe_timing) {
                     measured.attempted = true;
                     measured.accepted = accepted;
                 }
@@ -775,13 +782,13 @@ static void frame_interrupt(void *unused)
      * The hardware applies the queued packet at the next P0, not during ACK. */
     if ((status & AX04B_APPLIED_SEEN) != 0u
 #ifdef AX04B_TIMING
-        && !read_timing_receipt
+        && !observe_timing
 #endif
     ) {
         read_applied(&record);
     }
 #ifdef AX04B_TIMING
-    if (collect) {
+    if (observe_timing) {
         measured.ack_begin = pmu_tick();
     }
 #endif
@@ -796,8 +803,18 @@ static void frame_interrupt(void *unused)
         /* No extra normal step, Start delivery, clear, reference or ACK.
          * Init_Reset here rolls back only a newly reached DONE whose own
          * transaction failed. A previously established DONE is retained. */
+#ifdef AX04B_TIMING
+        if (observe_timing) {
+            measured.safety_begin = pmu_tick();
+        }
+#endif
         ax04b_model_run(&feedback, &stopped, false, false, false,
             discard_provisional_done, false, &result);
+#ifdef AX04B_TIMING
+        if (observe_timing) {
+            measured.safety_done = pmu_tick();
+        }
+#endif
         record_alignment(&record, &result);
         record.safety_pass = true;
         safety.stop_pending = false;
@@ -871,11 +888,12 @@ static void frame_interrupt(void *unused)
     }
 #endif
 #ifdef AX04B_TIMING
-    if (collect || (timing.active && timing.anchored)) {
+    if (observe_timing) {
         const bool normal_step = dispatch == AX04B_NEW_FRAME && !record.safety_pass &&
             !transport_invalid && ps_valid && result.timing_advanced;
-        const bool transition = timing_mode == AX05A_IDLE || timing_stop_pending || init_reset ||
+        const bool control_edge = timing_stop_pending || init_reset ||
             driver_reset || pi_reset || record.start_delivered;
+        const bool transition = timing_mode == AX05A_IDLE || control_edge;
         const bool valid = collect && normal_step && !transition && safety.armed &&
             record.reference_valid && measured.accepted;
         measured.id = (TimingIdentity){.pl_tick = record.feedback_tick,
@@ -886,28 +904,35 @@ static void frame_interrupt(void *unused)
         measured.applied_coherent = record.applied_coherent;
         measured.applied_version = record.applied_version;
         measured.applied_target = record.applied_target;
-        measured.events = (transition ? TIMING_TRANSITION : 0u) |
-            (!valid && !transition ? TIMING_INVALID : 0u) |
-            (new_overrun ? TIMING_OVERRUN : 0u);
+        measured.accepted_version = record.accepted_version;
+        measured.accepted_target = record.accepted_target;
+        measured.pl_status = record.pl_status;
+        measured.feedback_status = record.feedback_status;
+        measured.quality = record.quality;
+        measured.fault = record.fault;
+        if (collect) {
+            measured.events = (transition ? TIMING_TRANSITION : 0u) |
+                (control_edge ? TIMING_CONTROL_EDGE : 0u) |
+                (!valid && !transition ? TIMING_INVALID : 0u) |
+                (new_overrun ? TIMING_OVERRUN : 0u);
+        }
         measured.valid = valid;
         measured.model_ran = dispatch != AX04B_DUPLICATE;
         measured.safety_reentry = cancel_after_submit;
         measured.overrun_delta = overrun_delta;
-        if (collect) {
-            measured.entry = record.entry_tick;
-            measured.read_done = record.read_done_tick;
-            measured.model_done = record.model_done_tick;
-            measured.accept_done = record.accept_done_tick;
-            measured.ack_done = record.ack_done_tick;
-            measured.irq_end = 0u;
-        }
+        measured.entry = record.entry_tick;
+        measured.read_done = record.read_done_tick;
+        measured.model_done = record.model_done_tick;
+        measured.accept_done = record.accept_done_tick;
+        measured.ack_done = record.ack_done_tick;
+        measured.read_done_valid = measured.ack_done_valid = true;
         ax04b_timing_observe(&timing, &measured, collect);
         TimingFrame *detail = NULL;
         if (collect && timing.detailed && trace_count < TRACE_CAPACITY) {
             detail = &trace_storage.timing[trace_count++];
             *detail = measured;
         }
-        if (collect) {
+        if (collect || measured.events != 0u) {
             measured.irq_end = pmu_tick();
             if (detail != NULL) {
                 detail->irq_end = measured.irq_end;
