@@ -1,8 +1,10 @@
 # AXU5EV 当前交接
 
-## Issue #44 实时性测量准备
+## Issue #44 实时性测量
 
-基于 PR61 合并提交 `f8c40db8b06596b5e19b006c6dbf7bf42b7f2823`。PR62 复审候选 `.runtime/experiment/final/P61_TIMING_R02` 复用 PR61 的 bit、LTX、XSA 和 A53 FSBL，并独立构建 R5 timing ELF。Schema 2 增加长窗异常及转换证据、窗口结束原因和离线分析。Studio 的 SELFTEST 准备入口选择 R02，R01 保留。T3 板测和 T4 实测判定为 `NOT_RUN`。[启动、字段和现场步骤](../firmware/r5/motor_control/IRQ_TIMING_ZH.md) · [Draft PR62](https://github.com/kazecode666/AXU5EV/pull/62) · [Issue #44](https://github.com/kazecode666/AXU5EV/issues/44)
+Draft PR62 的 R02 候选 `.runtime/experiment/final/P61_TIMING_R02`（实测固件 `cb5ffee8c9453435ee75aada9008c4cb1a31b7d1`）复用 PR61 的 bit、LTX、XSA 和 A53 FSBL。Studio 的 SELFTEST 准备入口选择 R02，R01 保留。[启动、字段和现场步骤](../firmware/r5/motor_control/IRQ_TIMING_ZH.md) · [Draft PR62](https://github.com/kazecode666/AXU5EV/pull/62)
+
+2026-11-24，T3 A1 CURRENT、A2 SPEED、A3 POSITION 的 10 s 无主动 TCP 业务请求窗口均为稳定时序 **PASS**。共 300,000 个有效帧及下一 P0 采用，最大接受上界分别为 35.06、35.04、34.92 µs。冻结 FOC/PWM 连续计数一致，独立 PWM MMIO 严格同帧证据仍有保留。保留了两次独立上电会话、历史累计 overrun 及完整 STOP 回读。B/C/D 及 T4 为 `NOT_RUN`。Studio 初次启动布局错位和 Vitis Debug 断联已记录，待独立处理。[阶段报告](reports/irq_timing_r02_group_a_2026-11-24.md) · [实板索引](../verification/experiment/ax04b/irq_timing_board.json) · [Issue #44 阶段总结](https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-7124023504)
 
 ## Motor Control Studio
 

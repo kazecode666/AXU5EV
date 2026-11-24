@@ -1,6 +1,6 @@
 # Issue #44 实时性测量候选
 
-基线为 `kazecode666/AXU5EV` 的 PR61 合并提交 `f8c40db8b06596b5e19b006c6dbf7bf42b7f2823`。本轮范围是 T1/T2 测量准备和离线构建。T3 板测与 T4 实测判定均为 `NOT_RUN`。[任务书](https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-7118374924)
+候选基线为 `kazecode666/AXU5EV` 的 PR61 合并提交 `f8c40db8b06596b5e19b006c6dbf7bf42b7f2823`。T3 A1/A2/A3 稳定实板时序为 PASS，独立 PWM 同帧端点证据有保留，T3 B/C/D 和 T4 为 `NOT_RUN`。[任务书](https://github.com/kazecode666/AXU5EV/issues/44#issuecomment-7118374924) · [A 组实板阶段报告](../../../coordination/reports/irq_timing_r02_group_a_2026-11-24.md)
 
 R02 对应 [PR62 的 R1–R3 复审](https://github.com/kazecode666/AXU5EV/pull/62#pullrequestreview-6032346923)。R01 与 R02 的构建日志、启动 JSON 和 host 导出见[离线结果](../../../verification/experiment/ax04b/irq_timing_offline.json)。
 
