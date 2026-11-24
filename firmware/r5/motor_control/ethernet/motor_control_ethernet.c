@@ -1,5 +1,8 @@
 #include "motor_control_ethernet.h"
 #include "ax04b_registers.h"
+#ifdef AX04B_TIMING
+#include "ax04b_timing.h"
+#endif
 #include <ctype.h>
 #include <errno.h>
 #include <inttypes.h>
@@ -202,8 +205,176 @@ static bool uint_arg(const char **text, uint32_t *value)
     return true;
 }
 
+#ifdef AX04B_TIMING
+static void write_timing_identity(Response *response, const TimingIdentity *id)
+{
+    append(response, "{\"pl_tick\":%" PRIu64, id->pl_tick);
+    UINT_FIELD(id, seq);
+    UINT_FIELD(id, sample_id);
+    UINT_FIELD(id, version);
+    UINT_FIELD(id, target);
+    UINT_FIELD(id, entry_phase);
+    UINT_FIELD(id, mode);
+    UINT_FIELD(id, result);
+    UINT_FIELD(id, stop_reason);
+    UINT_FIELD(id, rate);
+    append(response, "}");
+}
+
+static void write_timing_frame(Response *response, const TimingFrame *f)
+{
+    append(response, "{\"frame\":");
+    write_timing_identity(response, &f->id);
+    UINT_FIELD(f, events);
+    BOOL_FIELD(f, valid);
+    BOOL_FIELD(f, model_ran);
+    BOOL_FIELD(f, safety_reentry);
+    BOOL_FIELD(f, attempted);
+    BOOL_FIELD(f, accepted);
+    UINT_FIELD(f, entry);
+    UINT_FIELD(f, read_done);
+    UINT_FIELD(f, model_done);
+    UINT_FIELD(f, accept_done);
+    UINT_FIELD(f, ack_begin);
+    UINT_FIELD(f, ack_done);
+    UINT_FIELD(f, irq_end);
+    UINT_FIELD(f, before_phase);
+    UINT_FIELD(f, after_phase);
+    UINT_FIELD(f, before_id);
+    UINT_FIELD(f, after_id);
+    UINT_FIELD(f, applied_version);
+    UINT_FIELD(f, applied_target);
+    UINT_FIELD(f, overrun_delta);
+    BOOL_FIELD(f, applied_coherent);
+    append(response, "}");
+}
+
+static void write_timing_summary(Response *response, const TimingWindow *w)
+{
+    uint32_t divisor;
+    const uint32_t cpu_hz = motor_control_timing_clock(&divisor);
+    append(response, ",\"timing_schema\":1,\"cpu_hz\":%" PRIu32 ",\"pmu_divisor\":%" PRIu32
+        ",\"pl_hz\":%u,\"irq_phase\":%u,\"deadline_phase\":%u,\"start_tick\":%" PRIu64,
+        cpu_hz, divisor, AX04B_PL_HZ, AX04B_IRQ_PHASE, AX04B_DEADLINE_PHASE, w->start_tick);
+    UINT_FIELD(w, delay_ms);
+    UINT_FIELD(w, duration_ms);
+    UINT_FIELD(w, frames);
+    UINT_FIELD(w, valid);
+    UINT_FIELD(w, missing);
+    UINT_FIELD(w, discontinuities);
+    UINT_FIELD(w, rejects);
+    UINT_FIELD(w, late_or_target);
+    UINT_FIELD(w, overruns);
+    UINT_FIELD(w, invalid);
+    UINT_FIELD(w, transitions);
+    UINT_FIELD(w, unbracketed);
+    UINT_FIELD(w, applied);
+    UINT_FIELD(w, receipt_errors);
+    UINT_FIELD(w, receipt_unresolved);
+    UINT_FIELD(w, spurious);
+    UINT_FIELD(w, bad_snapshots);
+    UINT_FIELD(w, first_events);
+    UINT_FIELD(w, max_foreground_mask);
+    BOOL_FIELD(w, detailed);
+    append(response, ",\"first\":");
+    write_timing_identity(response, &w->first);
+    append(response, ",\"last\":");
+    write_timing_identity(response, &w->last);
+    append(response, ",\"first_event\":");
+    write_timing_identity(response, &w->first_event);
+    if (w->applied != 0u || w->receipt_errors != 0u) {
+        append(response, ",\"last_checked\":");
+        write_timing_identity(response, &w->last_checked);
+        append(response, ",\"receipt_frame\":");
+        write_timing_identity(response, &w->receipt_frame);
+        UINT_FIELD(w, receipt_version);
+        UINT_FIELD(w, receipt_target);
+        BOOL_FIELD(w, receipt_coherent);
+    }
+}
+
+static const char *timing_dispatch(Response *response, const char *verb, const char *args)
+{
+    if (strcmp(verb, "timing-start") == 0) {
+        uint32_t delay, duration, detail;
+        if (!uint_arg(&args, &delay) || !uint_arg(&args, &duration) ||
+            !uint_arg(&args, &detail) || *args || duration == 0u || detail > 1u) {
+            return "BAD_REQUEST";
+        }
+        if (!motor_control_timing_start(delay, duration, detail != 0u)) {
+            return "TRACE_BUSY";
+        }
+    } else if (strcmp(verb, "timing-stop") == 0) {
+        if (*args) {
+            return "BAD_REQUEST";
+        }
+        motor_control_timing_freeze();
+    }
+    uint32_t id, count;
+    const bool active = motor_control_timing_info(&id, &count);
+    append(response, ",\"capture_id\":%" PRIu32 ",\"count\":%" PRIu32 ",\"active\":%s",
+        id, count, active ? "true" : "false");
+    const TimingWindow *w = active ? NULL : motor_control_timing_summary();
+    if (strcmp(verb, "timing-rate") == 0 || strcmp(verb, "timing-read") == 0) {
+        uint32_t requested, index;
+        if (!uint_arg(&args, &requested) || !uint_arg(&args, &index) || *args) {
+            return "BAD_REQUEST";
+        }
+        if (w == NULL || requested != id) {
+            return "TRACE_UNAVAILABLE";
+        }
+        if (strcmp(verb, "timing-rate") == 0) {
+            if (index >= TIMING_RATES) {
+                return "BAD_REQUEST";
+            }
+            append(response, ",\"rate\":%" PRIu32 ",\"metrics\":[", index);
+            for (unsigned i = 0; i < TIMING_METRICS; ++i) {
+                const TimingRange *r = &w->ranges[index][i];
+                append(response, "%s{\"sum\":%" PRIu64, i ? "," : "", r->sum);
+                UINT_FIELD(r, count);
+                UINT_FIELD(r, min);
+                UINT_FIELD(r, max);
+                append(response, ",\"peak\":");
+                write_timing_identity(response, &r->peak);
+                append(response, "}");
+            }
+        } else {
+            if (index > count) {
+                return "TRACE_UNAVAILABLE";
+            }
+            append(response, ",\"index\":%" PRIu32 ",\"records\":[", index);
+            const uint32_t end = count - index < TRACE_BATCH ? count : index + TRACE_BATCH;
+            for (uint32_t i = index; i < end; ++i) {
+                if (i != index) {
+                    append(response, ",");
+                }
+                write_timing_frame(response, motor_control_timing_read(id, i));
+            }
+            append(response, "],\"next_index\":%" PRIu32, end);
+            return NULL;
+        }
+        append(response, "]");
+    } else if (strcmp(verb, "timing-status") == 0) {
+        if (*args) {
+            return "BAD_REQUEST";
+        }
+        if (w != NULL) {
+            write_timing_summary(response, w);
+        }
+    } else if (strcmp(verb, "timing-start") != 0 && strcmp(verb, "timing-stop") != 0) {
+        return "BAD_REQUEST";
+    }
+    return NULL;
+}
+#endif
+
 static const char *dispatch(Response *response, const char *verb, const char *args)
 {
+#ifdef AX04B_TIMING
+    if (strncmp(verb, "timing-", 7) == 0) {
+        return timing_dispatch(response, verb, args);
+    }
+#endif
     if (strcmp(verb, "calibration-gains") == 0) {
         if (!motor_control_stage_real_gains(args)) {
             return "BAD_GAINS";
@@ -271,6 +442,9 @@ static const char *dispatch(Response *response, const char *verb, const char *ar
             ",\"dq_extension_id\":%" PRIu32 ",\"link_mbps\":%" PRIu32,
             PROTOCOL_VERSION, AX05A_SCHEMA, app_id, hardware_profile, AX04B_INTERFACE_ID,
             AX05A_DQ_IDENT, link_speed);
+#ifdef AX04B_TIMING
+        append(response, ",\"timing_schema\":1");
+#endif
     } else if (strcmp(verb, "status") == 0) {
         const Ax05aControlStatus status = ax05a_control_status();
         write_status(response, &status);

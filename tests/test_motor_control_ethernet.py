@@ -21,7 +21,7 @@ from motor_control_client import Action, Mode, MotorControlClient, RequestError
 from run_r5_runtime_test import BSP, local_main
 
 
-def build_fixture(compiler, output, mode):
+def build_fixture(compiler, output, mode, timing=False):
     firmware = ROOT / "firmware/r5/motor_control/ax04b"
     service = firmware.parent / "ethernet"
     transport = ROOT / "firmware/r5/ethernet"
@@ -31,16 +31,19 @@ def build_fixture(compiler, output, mode):
         (output / header).write_text(BSP, encoding="utf-8")
     main = local_main((firmware / "ax04b_main.c").read_text(encoding="utf-8"))
     (output / "ax04b_main_host.inc").write_text(main, encoding="utf-8")
-    binary = output / f"motor_control_{mode}.dll"
+    binary = output / f"motor_control_{mode}{'_timing' if timing else ''}.dll"
     files = [Path(__file__).with_name("motor_control_ethernet_fixture.c"),
              firmware / "ax04b_adapter.c", service / "motor_control_ethernet.c",
              transport / "eth_service.c",
              *sorted(generated.glob("*.c"))]
+    if timing:
+        files.append(firmware / "ax04b_timing.c")
     env = dict(os.environ)
     if Path(compiler).is_absolute():
         env["PATH"] = str(Path(compiler).parent) + os.pathsep + env["PATH"]
     exports = ["-Wl,--export-all-symbols"] if os.name == "nt" else []
     subprocess.run([compiler, "-std=c11", "-DAX05A_ONLINE=1", "-DMOTOR_CONTROL_ETHERNET=1",
+                    *(["-DAX04B_TIMING=1", "-DXPAR_CPU_CORE_CLOCK_FREQ_HZ=499994995u"] if timing else []),
                     f"-DAX04B_BUILD_MODE={mode}", "-DAX04B_APPLICATION_ID=0x41585205u",
                     "-O2", "-Wall", "-Wextra", "-Werror", "-Wno-unused-function",
                     "-fno-fast-math", "-ffp-contract=off", "-shared", *exports,
@@ -221,6 +224,61 @@ class MotorControlNetworkTests(unittest.TestCase):
             for action in (Action.ARM, Action.START, Action.SETPOINT, Action.ALIGN_START, Action.DRIVER_RESET):
                 self.assertEqual(client.command(action, Mode.CURRENT)["decision"], 5)
             self.assertFalse(client.request("status")["armed"])
+
+    def test_timing_window_and_trace_ownership(self):
+        fixture = build_fixture(self.compiler, self.output, 1, timing=True)
+        fixture.fixture_check_timing_math()
+        with Loopback(fixture) as board:
+            with board.client() as client:
+                self.assertEqual(client.request("version")["timing_schema"], 1)
+                revision = client.command(Action.SELECT, Mode.CURRENT)["accepted_revision"]
+                self.assertEqual(client.command(Action.CONFIRM, Mode.CURRENT, revision)["decision"], 0)
+                self.assertEqual(client.command(Action.CLEAR)["decision"], 0)
+                board.advance(1, 1)
+                self.assertEqual(client.command(Action.ARM, Mode.CURRENT, revision)["decision"], 0)
+                self.assertEqual(client.command(Action.START, Mode.CURRENT, revision)["decision"], 0)
+                board.advance(5, 2)
+                self.assertTrue(client.sample()["commit_accepted"])
+                client.request("trace-start", 15)
+                with self.assertRaisesRegex(RequestError, "TRACE_BUSY"):
+                    client.request("timing-start", 0, 30, 1)
+                summary = client.request("timing-start", 0, 1, 0)
+                board.advance(11, 4)
+                self.assertTrue(client.request("trace-status")["active"])
+                self.assertEqual(client.request("timing-status")["capture_id"], summary["capture_id"])
+                client.request("trace-stop")
+                capture = client.request("timing-start", 2, 30, 1)
+                board.advance(20, 6)
+                self.assertTrue(client.request("timing-status")["active"])
+                with self.assertRaisesRegex(RequestError, "TRACE_UNAVAILABLE"):
+                    client.request("timing-read", capture["capture_id"], 0)
+            board.advance(301, 36)
+            with board.client() as client:
+                info = client.request("timing-status")
+                self.assertEqual((info["frames"], info["valid"], info["applied"]), (300, 300, 300))
+                self.assertEqual((info["receipt_errors"], info["receipt_unresolved"], info["missing"]), (0, 0, 0))
+                self.assertEqual(info["count"], 256)
+                self.assertFalse(info["active"])
+                self.assertFalse(client.command(Action.STOP)["armed"])
+                with self.assertRaisesRegex(RequestError, "TRACE_BUSY"):
+                    client.request("trace-start", 15)
+                path = self.output / "timing.ndjson"
+                client.timing_download(path)
+                meta, *frames = map(json.loads, path.read_text().splitlines())
+                self.assertEqual([row["metrics"][1]["count"] for row in meta["rates"]], [270, 27, 3])
+                self.assertEqual(len(frames), 256)
+                for previous, current in zip(frames, frames[1:]):
+                    self.assertTrue(current["applied_coherent"])
+                    self.assertEqual((current["applied_version"], current["applied_target"]),
+                                     (previous["frame"]["version"], previous["frame"]["target"]))
+                client.request("timing-start", 0, 50, 0)
+                fixture.fixture_reject_late()
+                board.advance(1, 37)
+                client.request("timing-stop")
+                frozen = client.request("timing-status")
+                self.assertEqual((frozen["rejects"], frozen["late_or_target"]), (1, 1))
+                self.assertEqual(frozen["valid"], 0)
+                self.assertTrue(client.request("trace-start", 15)["active"])
 
 
 if __name__ == "__main__":

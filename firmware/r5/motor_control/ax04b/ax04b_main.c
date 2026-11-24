@@ -1,6 +1,9 @@
 #include "ax04b_adapter.h"
 #include "ax04b_bsp.h"
 #include "ax04b_registers.h"
+#ifdef AX04B_TIMING
+#include "ax04b_timing.h"
+#endif
 #ifdef AX05A_ONLINE
 #include "ax05a_online.h"
 #include <math.h>
@@ -215,12 +218,19 @@ static FrameRecord trace[TRACE_CAPACITY];
 static union {
     FrameRecord irq[TRACE_CAPACITY];
     Ax05aSample online[AX05A_TRACE_CAPACITY];
+#ifdef AX04B_TIMING
+    TimingFrame timing[TRACE_CAPACITY];
+#endif
 } trace_storage;
 #define trace trace_storage.irq
 #define online_records trace_storage.online
 #endif
 static FrameRecord latest;
 static Counters counters;
+#ifdef AX04B_TIMING
+static TimingWindow timing;
+static uint32_t timing_mask_start;
+#endif
 
 #ifdef AX05A_ONLINE
 enum { PS_HISTORY = 4 };
@@ -252,7 +262,7 @@ static inline uint32_t pmu_tick(void)
     return value;
 }
 
-#ifndef MOTOR_CONTROL_ETHERNET
+#if !defined(MOTOR_CONTROL_ETHERNET) || defined(AX04B_TIMING)
 static uint32_t pmu_divisor(void)
 {
     uint32_t control;
@@ -266,6 +276,11 @@ static inline uint32_t irq_lock(void)
 {
     uint32_t cpsr;
     __asm__ volatile("mrs %0, cpsr\n\tcpsid i" : "=r"(cpsr) :: "memory");
+#ifdef AX04B_TIMING
+    if (timing.active && timing.frames != 0u && (cpsr & 0x80u) == 0u) {
+        timing_mask_start = pmu_tick();
+    }
+#endif
     return cpsr;
 }
 
@@ -273,9 +288,44 @@ static inline void irq_unlock(uint32_t cpsr)
 {
     barrier();
     if ((cpsr & 0x80u) == 0u) {
+#ifdef AX04B_TIMING
+        if (timing.active && timing.frames != 0u) {
+            const uint32_t elapsed = pmu_tick() - timing_mask_start;
+            if (elapsed > timing.max_foreground_mask) {
+                timing.max_foreground_mask = elapsed;
+            }
+        }
+#endif
         __asm__ volatile("cpsie i" ::: "memory");
     }
 }
+
+#if defined(AX04B_TIMING) && defined(MOTOR_CONTROL_ETHERNET)
+void __real_Xil_DCacheFlushRange(INTPTR address, u32 length);
+void __real_Xil_DCacheInvalidateRange(INTPTR address, u32 length);
+
+static void timing_cache_range(void (*maintain)(INTPTR, u32), INTPTR address, u32 length)
+{
+    if (timing.active && timing.frames != 0u) {
+        /* Include the BSP's IRQ/FIQ-masked GEM DMA cache maintenance. */
+        const uint32_t cpsr = irq_lock();
+        maintain(address, length);
+        irq_unlock(cpsr);
+    } else {
+        maintain(address, length);
+    }
+}
+
+void __wrap_Xil_DCacheFlushRange(INTPTR address, u32 length)
+{
+    timing_cache_range(__real_Xil_DCacheFlushRange, address, length);
+}
+
+void __wrap_Xil_DCacheInvalidateRange(INTPTR address, u32 length)
+{
+    timing_cache_range(__real_Xil_DCacheInvalidateRange, address, length);
+}
+#endif
 
 static inline uint32_t read_rt(uint32_t offset)
 {
@@ -434,13 +484,23 @@ static Ax04bFeedback read_feedback(void)
     return feedback;
 }
 
-static bool submit(const Ax04bReference *reference, FrameRecord *record)
+static bool submit(const Ax04bReference *reference, FrameRecord *record
+#ifdef AX04B_TIMING
+    , TimingFrame *measurement
+#endif
+)
 {
     write_rt(AX04B_TARGET, reference->target);
     for (unsigned i = 0u; i < AX04B_REF_WORDS; ++i) {
         write_rt(AX04B_SHADOW + 4u * i, reference->word[i]);
     }
     barrier();
+#ifdef AX04B_TIMING
+    if (measurement != NULL) {
+        measurement->before_id = read_rt(AX04B_P0_ID);
+        measurement->before_phase = read_rt(AX04B_PHASE);
+    }
+#endif
     write_rt(AX04B_COMMIT, AX04B_COMMIT_KEY);
     /* A bus response is not a receipt. Read the PL result and exact identities
      * while this IRQ is the only software writer of the commit registers. */
@@ -449,6 +509,12 @@ static bool submit(const Ax04bReference *reference, FrameRecord *record)
     record->accepted_version = read_rt(AX04B_ACCEPTED_VERSION);
     record->accepted_target = read_rt(AX04B_ACCEPTED_TARGET);
     record->accept_done_tick = pmu_tick();
+#ifdef AX04B_TIMING
+    if (measurement != NULL) {
+        measurement->after_phase = read_rt(AX04B_PHASE);
+        measurement->after_id = read_rt(AX04B_P0_ID);
+    }
+#endif
     return record->result == AX04B_COMMIT_ACCEPTED &&
         record->accepted_version == reference->word[7] &&
         record->accepted_target == reference->target;
@@ -478,6 +544,11 @@ static void frame_interrupt(void *unused)
     uint32_t status = read_rt(AX04B_STATUS);
     if ((status & AX04B_PENDING) == 0u) {
         ++counters.spurious;
+#ifdef AX04B_TIMING
+        if (timing.active) {
+            ax04b_timing_event(&timing, &(TimingIdentity){0}, TIMING_SPURIOUS);
+        }
+#endif
         return;
     }
 
@@ -491,12 +562,38 @@ static void frame_interrupt(void *unused)
         /* External/reset race. Do not ACK an identity we did not process.
          * Mask the level interrupt so a bad pending record cannot livelock. */
         ++counters.bad_snapshot;
+#ifdef AX04B_TIMING
+        if (timing.active) {
+            ax04b_timing_event(&timing, &(TimingIdentity){
+                .seq = feedback.sequence, .sample_id = feedback.id, .pl_tick = feedback.tick,
+                .entry_phase = record.entry_phase, .stop_reason = AX04B_STOP_SNAPSHOT
+            }, TIMING_SNAPSHOT);
+        }
+#endif
         revoke_permission(AX04B_STOP_SNAPSHOT, check_status, command);
         XScuGic_Disable(&interrupt_controller, ax04b_fabric_irq);
         return;
     }
     status = check_status;
     const uint32_t overruns = read_rt(AX04B_OVERRUN_COUNT);
+#ifdef AX04B_TIMING
+    const uint32_t overrun_delta = overruns - previous_overrun;
+    const bool collect = timing.active && ax04b_timing_collect(&timing, feedback.tick);
+    const bool read_timing_receipt = collect || (timing.active && timing.have_expected);
+    TimingFrame measured;
+    const uint32_t timing_mode = safety.armed ? command->online_mode : AX05A_IDLE;
+    const bool timing_stop_pending = safety.stop_pending;
+    if (collect) {
+        measured.before_phase = measured.after_phase = 0u;
+        measured.before_id = measured.after_id = 0u;
+        measured.attempted = measured.accepted = false;
+    }
+    if (read_timing_receipt && (status & AX04B_APPLIED_SEEN) != 0u) {
+        read_applied(&record);
+        record.applied_coherent = record.applied_coherent &&
+            read_rt(AX04B_P0_ID) == feedback.id;
+    }
+#endif
     const bool new_overrun = overruns != previous_overrun;
     previous_overrun = overruns;
     const bool contract_ok = ax04b_feedback_contract(&feedback, ax04b_build_mode);
@@ -636,7 +733,18 @@ static void frame_interrupt(void *unused)
                 record.target = reference.target;
                 record.offered_version = reference.word[7];
                 record.flags = reference.word[6];
-                if (submit(&reference, &record)) {
+                const bool accepted = submit(&reference, &record
+#ifdef AX04B_TIMING
+                    , collect ? &measured : NULL
+#endif
+                );
+#ifdef AX04B_TIMING
+                if (collect) {
+                    measured.attempted = true;
+                    measured.accepted = accepted;
+                }
+#endif
+                if (accepted) {
                     ++counters.accepted;
                     if (allow_drive) {
                         /* AXI acceptance alone does not prove PL remained
@@ -665,9 +773,18 @@ static void frame_interrupt(void *unused)
     have_feedback = true;
     /* These can legitimately describe an earlier P0. Record both identities.
      * The hardware applies the queued packet at the next P0, not during ACK. */
-    if ((status & AX04B_APPLIED_SEEN) != 0u) {
+    if ((status & AX04B_APPLIED_SEEN) != 0u
+#ifdef AX04B_TIMING
+        && !read_timing_receipt
+#endif
+    ) {
         read_applied(&record);
     }
+#ifdef AX04B_TIMING
+    if (collect) {
+        measured.ack_begin = pmu_tick();
+    }
+#endif
     barrier();
     write_rt(AX04B_ACK, feedback.sequence);
     completion_barrier();
@@ -750,6 +867,52 @@ static void frame_interrupt(void *unused)
         ps_next = (ps_next + 1u) % PS_HISTORY;
         if (ps_count < PS_HISTORY) {
             ++ps_count;
+        }
+    }
+#endif
+#ifdef AX04B_TIMING
+    if (collect || (timing.active && timing.anchored)) {
+        const bool normal_step = dispatch == AX04B_NEW_FRAME && !record.safety_pass &&
+            !transport_invalid && ps_valid && result.timing_advanced;
+        const bool transition = timing_mode == AX05A_IDLE || timing_stop_pending || init_reset ||
+            driver_reset || pi_reset || record.start_delivered;
+        const bool valid = collect && normal_step && !transition && safety.armed &&
+            record.reference_valid && measured.accepted;
+        measured.id = (TimingIdentity){.pl_tick = record.feedback_tick,
+            .seq = record.pending_sequence, .sample_id = record.sample_id,
+            .version = record.offered_version, .target = record.target,
+            .entry_phase = record.entry_phase, .mode = timing_mode, .result = record.result,
+            .stop_reason = record.stop_reason, .rate = normal_step ? result.timing_rate : TIMING_BASE};
+        measured.applied_coherent = record.applied_coherent;
+        measured.applied_version = record.applied_version;
+        measured.applied_target = record.applied_target;
+        measured.events = (transition ? TIMING_TRANSITION : 0u) |
+            (!valid && !transition ? TIMING_INVALID : 0u) |
+            (new_overrun ? TIMING_OVERRUN : 0u);
+        measured.valid = valid;
+        measured.model_ran = dispatch != AX04B_DUPLICATE;
+        measured.safety_reentry = cancel_after_submit;
+        measured.overrun_delta = overrun_delta;
+        if (collect) {
+            measured.entry = record.entry_tick;
+            measured.read_done = record.read_done_tick;
+            measured.model_done = record.model_done_tick;
+            measured.accept_done = record.accept_done_tick;
+            measured.ack_done = record.ack_done_tick;
+            measured.irq_end = 0u;
+        }
+        ax04b_timing_observe(&timing, &measured, collect);
+        TimingFrame *detail = NULL;
+        if (collect && timing.detailed && trace_count < TRACE_CAPACITY) {
+            detail = &trace_storage.timing[trace_count++];
+            *detail = measured;
+        }
+        if (collect) {
+            measured.irq_end = pmu_tick();
+            if (detail != NULL) {
+                detail->irq_end = measured.irq_end;
+            }
+            ax04b_timing_irq_end(&timing, &measured);
         }
     }
 #endif
@@ -1531,7 +1694,11 @@ bool ax05a_trace_start(uint32_t groups)
     }
     const uint32_t capture_id = online_trace.capture_id + 1u;
     const uint32_t cpsr = irq_lock();
-    if (trace_on) {
+    if (trace_on
+#ifdef AX04B_TIMING
+        || timing.detailed
+#endif
+    ) {
         irq_unlock(cpsr);
         return false;
     }
@@ -1544,6 +1711,59 @@ bool ax05a_trace_start(uint32_t groups)
     };
     return true;
 }
+
+#ifdef AX04B_TIMING
+bool motor_control_timing_start(uint32_t delay_ms, uint32_t duration_ms, bool detailed)
+{
+    const uint32_t cpsr = irq_lock();
+    if (timing.active || (detailed && online_trace.active)) {
+        irq_unlock(cpsr);
+        return false;
+    }
+    if (detailed) {
+        online_trace.count = 0u;
+        online_trace.schema = 0u;
+    }
+    trace_count = 0u;
+    ax04b_timing_start(&timing, delay_ms, duration_ms, detailed);
+    irq_unlock(cpsr);
+    return true;
+}
+
+void motor_control_timing_freeze(void)
+{
+    const uint32_t cpsr = irq_lock();
+    ax04b_timing_freeze(&timing);
+    irq_unlock(cpsr);
+}
+
+bool motor_control_timing_info(uint32_t *capture_id, uint32_t *count)
+{
+    const uint32_t cpsr = irq_lock();
+    *capture_id = timing.capture_id;
+    *count = trace_count;
+    const bool active = timing.active;
+    irq_unlock(cpsr);
+    return active;
+}
+
+const TimingWindow *motor_control_timing_summary(void)
+{
+    return timing.active || timing.duration_ms == 0u ? NULL : &timing;
+}
+
+const TimingFrame *motor_control_timing_read(uint32_t capture_id, uint32_t index)
+{
+    return !timing.active && timing.detailed && capture_id == timing.capture_id &&
+        index < trace_count ? &trace_storage.timing[index] : NULL;
+}
+
+uint32_t motor_control_timing_clock(uint32_t *divisor)
+{
+    *divisor = pmu_divisor();
+    return XPAR_CPU_CORE_CLOCK_FREQ_HZ;
+}
+#endif
 
 bool ax05a_trace_poll(void)
 {

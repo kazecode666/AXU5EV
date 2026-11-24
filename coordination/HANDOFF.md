@@ -1,8 +1,12 @@
 # AXU5EV 当前交接
 
+## Issue #44 实时性测量准备
+
+基于 PR61 合并提交 `f8c40db8b06596b5e19b006c6dbf7bf42b7f2823`。SELFTEST 候选 `.runtime/experiment/final/P61_TIMING_R01` 复用 PR61 的 bit、LTX、XSA 和 A53 FSBL，并独立构建 R5 timing ELF。TCP timing 命令提供长窗汇总、互斥的 256 条短记录以及同帧 PL 接受相位上下界。Studio 的 SELFTEST 准备入口选择该候选。T3 板测和 T4 实测判定为 `NOT_RUN`。[启动、字段和现场步骤](../firmware/r5/motor_control/IRQ_TIMING_ZH.md) · [Issue #44](https://github.com/kazecode666/AXU5EV/issues/44)
+
 ## Motor Control Studio
 
-[Issue #54](https://github.com/kazecode666/AXU5EV/issues/54) 在合并 PR #56 后接入 Windows 桌面。日常操作走 GEM3 TCP，连接后从固件读取实际 profile。实时曲线采用 10/20/60 秒视窗，PC 可独立保存约 10 Hz 趋势 CSV。可观察控制版本及帧回执、下载固件 Trace、回看 NDJSON 并导出 CSV。启动入口为 [start_motor_control_studio.ps1](../scripts/start_motor_control_studio.ps1)，操作和演示见 [Windows 使用说明](../docs/MOTOR_CONTROL_STUDIO_ZH.md)，离线结果见 [Studio 结果索引](../verification/experiment/motor_control_studio/results.json)。PR61 SELFTEST 已实测 Studio 停机、校准、选择和 ARM，随后断开 Studio 由 CLI 完成 CURRENT 观测与 STOP。准备页面的 SELFTEST 辅助脚本仍对应旧 R01。功率运动为 `NOT_RUN`。
+[Issue #54](https://github.com/kazecode666/AXU5EV/issues/54) 在合并 PR #56 后接入 Windows 桌面。日常操作走 GEM3 TCP，连接后从固件读取实际 profile。实时曲线采用 10/20/60 秒视窗，PC 可独立保存约 10 Hz 趋势 CSV。可观察控制版本及帧回执、下载固件 Trace、回看 NDJSON 并导出 CSV。启动入口为 [start_motor_control_studio.ps1](../scripts/start_motor_control_studio.ps1)，操作和演示见 [Windows 使用说明](../docs/MOTOR_CONTROL_STUDIO_ZH.md)，离线结果见 [Studio 结果索引](../verification/experiment/motor_control_studio/results.json)。PR61 SELFTEST 已实测 Studio 停机、校准、选择和 ARM，随后断开 Studio 由 CLI 完成 CURRENT 观测与 STOP。功率运动为 `NOT_RUN`。
 
 ## GEM3 电机控制候选
 

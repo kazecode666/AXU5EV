@@ -26,6 +26,7 @@ python -m venv .runtime/studio/venv
 | 用途 | 候选（位于 `.runtime/experiment/final/`） | Vitis 启动项 |
 | --- | --- | --- |
 | 无功率内部自测（旧版对照） | `GEM3_Control_SELFTEST_R01` | `Motor_Control_GEM3_SELFTEST_NoPower_R01` |
+| Issue #44 timing（SELFTEST、复用 PR61 硬件） | `P61_TIMING_R01` | `Motor_Control_GEM3_SELFTEST_P61_Timing_R01` |
 | PR61 无功率内部自测 + dq | `GEM3_Control_SELFTEST_P61_R01` | `Motor_Control_GEM3_SELFTEST_P61_NoPower_R01` |
 | 真实输入、功率硬禁 | `GEM3_Control_REAL_IO_R02` | `Motor_Control_GEM3_REAL_IO_NoPower_R02` |
 
@@ -36,7 +37,7 @@ python -m venv .runtime/studio/venv
 .\scripts\start_motor_control_studio.ps1 -Prepare REAL -Output .\real_io_no_power.tcl
 ```
 
-生成脚本时只读取本地文件。`-Prepare SELFTEST` 和实验准备页的 SELFTEST 仍使用旧 R01 默认配置。PR61 已通过实体 JTAG Debug、手动下载和无功率 CURRENT 验收。经现场授权后使用 PR61 专用启动项，在 R5_0 入口暂停时从 PR61 的硬件目录手动下载 bit，执行配套 PS–PL 初始化，再手动继续 R5_0。旧 R01 和 REAL R02 的脚本离线核对记录保留。[GEM3 首运行](../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md)
+生成脚本时只读取本地文件。`-Prepare SELFTEST` 和实验准备页的 SELFTEST 选择 Issue #44 timing 候选。PR61 原候选已通过实体 JTAG Debug、手动下载和无功率 CURRENT 验收。timing ELF 的板上验证为 `NOT_RUN`。经现场授权后使用所选 Workspace 的专用启动项，在 R5_0 入口暂停时手动下载配套 bit 和执行 PS–PL 初始化，再手动继续 R5_0。[GEM3 首运行](../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md) · [Issue #44 timing 候选](../firmware/r5/motor_control/IRQ_TIMING_ZH.md)
 
 ## 运行与回读
 

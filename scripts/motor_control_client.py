@@ -118,14 +118,50 @@ class MotorControlClient:
         partial.rename(path)
         return info
 
+    def timing_download(self, path):
+        info = self.request("timing-status")
+        if info["active"] or info.get("timing_schema") != 1:
+            raise RequestError("TRACE_UNAVAILABLE")
+        capture_id = info["capture_id"]
+        version = self.request("version")
+        rates = [self.request("timing-rate", capture_id, rate) for rate in range(3)]
+        if any(row["capture_id"] != capture_id or row["rate"] != rate
+               for rate, row in enumerate(rates)):
+            raise RequestError("TRACE_UNAVAILABLE")
+        path = Path(path)
+        partial = path.with_name(path.name + ".partial")
+        if path.exists():
+            raise FileExistsError(path)
+        with partial.open("x", encoding="utf-8") as out:
+            out.write(json.dumps({"capture": info, "version": version, "rates": rates}) + "\n")
+            index = 0
+            while index < info["count"]:
+                data = self.request("timing-read", capture_id, index)
+                records = data["records"]
+                end = data["next_index"]
+                if (data["capture_id"] != capture_id or data["index"] != index
+                        or not records or end != index + len(records) or end > info["count"]):
+                    raise RequestError("TRACE_UNAVAILABLE")
+                for record in records:
+                    out.write(json.dumps(record) + "\n")
+                index = end
+        partial.rename(path)
+        return info
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", default="192.168.50.10")
     parser.add_argument("--port", type=int, default=5002)
     commands = parser.add_subparsers(dest="verb", required=True)
-    for name in ("version", "status", "sample", "diagnostics", "trace-status", "trace-stop"):
+    for name in ("version", "status", "sample", "diagnostics", "trace-status", "trace-stop",
+                 "timing-status", "timing-stop"):
         commands.add_parser(name)
+    timing = commands.add_parser("timing-start")
+    timing.add_argument("--delay-ms", type=int, default=0)
+    timing.add_argument("--duration-ms", type=int, required=True)
+    timing.add_argument("--detail", action="store_true")
+    commands.add_parser("timing-download").add_argument("path", type=Path)
     start = commands.add_parser("trace-start")
     start.add_argument("--groups", type=int, default=15)
     gains = commands.add_parser("calibration-gains", help="stage measured signed Q24 ADC gains for REAL")
@@ -154,6 +190,10 @@ def main():
                 result = client.request("calibration-gains", args.gain_a_q24, args.gain_b_q24)
             elif args.verb == "download":
                 result = client.download(args.path)
+            elif args.verb == "timing-start":
+                result = client.request("timing-start", args.delay_ms, args.duration_ms, int(args.detail))
+            elif args.verb == "timing-download":
+                result = client.timing_download(args.path)
             elif args.verb == "watch":
                 for i in range(args.count):
                     if i:

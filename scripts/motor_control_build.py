@@ -25,6 +25,9 @@ if PROFILE not in ('Legacy','SELFTEST','REAL'):
     raise ValueError('Motor-control profile must be Legacy, SELFTEST or REAL')
 AX04B=PROFILE!='Legacy'
 ETHERNET=C.get('gem3_ethernet',False)
+TIMING=C.get('irq_timing',False)
+if TIMING and (PROFILE!='SELFTEST' or not ETHERNET):
+    raise ValueError('IRQ timing requires the GEM3 SELFTEST candidate')
 APP='ax04b_realtime' if AX04B else 'motor_control_observer'
 PLATFORM='ax04b_platform' if AX04B else 'motor_control_platform'
 LAUNCH=C.get('launch','ax04b_realtime_manual' if AX04B else 'motor_control_manual')
@@ -46,7 +49,8 @@ if ETHERNET and not AX05A_DQ:
 def ax04b_reused_hardware(files,prepare):
     """Copy only the explicitly selected PL bundle into the new candidate."""
     source=(ROOT/C['hardware_source']).resolve()
-    if not source.is_relative_to(ROOT/'.runtime/experiment/ax04b') or source==XSA.parent:
+    base=ROOT/('.runtime/experiment/final' if TIMING else '.runtime/experiment/ax04b')
+    if not source.is_relative_to(base) or source==XSA.parent:
         raise ValueError('The reused hardware must be in its original AX04B candidate')
     for dest in files:
         original=source/dest.name
@@ -199,7 +203,8 @@ def ax04b_sources():
             or 'ARM Compatible->ARM Cortex-R' not in header or 'ert.tlc' not in header):
         raise ValueError(f'Expected Cortex-R ERT export of {model} v{MODEL_VERSION}')
     app_sources=ROOT/'firmware/r5/motor_control/ax04b'
-    sources+=sorted(p for p in app_sources.glob('*') if p.suffix in ('.c','.h'))
+    sources+=sorted(p for p in app_sources.glob('*') if p.suffix in ('.c','.h')
+                    and (TIMING or p.stem!='ax04b_timing'))
     if ETHERNET:
         ethernet=app_sources.parent/'ethernet'
         sources+=sorted(ethernet.glob('motor_control_*.[ch]'))
@@ -278,6 +283,13 @@ def ax04b_check_startup():
         r.update(online_schema=1,dq_extension_id=AX05A_DQ)
     if ETHERNET:
         r.update(check_gem(platform, linked, bsp['irq']))
+    if TIMING:
+        if not {'ax04b_timing_observe','__wrap_Xil_DCacheFlushRange',
+                '__wrap_Xil_DCacheInvalidateRange'}.issubset(linked):
+            raise ValueError('Timing recorder or GEM cache instrumentation is absent from the linked ELF')
+        if (platform/'export'/PLATFORM/'sw/boot/fsbl.elf').read_bytes()!=timing_fsbl().read_bytes():
+            raise ValueError('Timing candidate must use the accepted PR61 A53 FSBL')
+        r.update(irq_timing=1, fsbl_source=timing_fsbl().as_posix())
     return r
 
 
@@ -340,6 +352,14 @@ def check_startup():
              sample_service_timing='NOT_RUN',physical_link_verified=0)
     return r
 
+def timing_fsbl():
+    accepted=(ROOT/C['hardware_source']).resolve().parent/'vitis'/PLATFORM
+    exported=accepted/'export'/PLATFORM
+    if (exported/'hw'/XSA.name).read_bytes()!=XSA.read_bytes():
+        raise ValueError('PR61 platform and timing XSA differ')
+    return exported/'sw/boot/fsbl.elf'
+
+
 def build(resume):
     if (WS/'startup_validation.json').exists():raise ValueError('Completed workspace preserved')
     if WS.exists() and not resume:raise ValueError('Use a new workspace; --resume only for this unfinished build')
@@ -358,10 +378,18 @@ def build(resume):
         if ETHERNET:
             from eth01_lwip_overlay import prepare
             client.add_embedded_sw_repo(level='LOCAL',path=str(prepare(ROOT,WS.parent,deferred_gem=True)))
-        if resume:platform=client.get_component(name=PLATFORM)
-        else:platform=client.create_platform_component(name=PLATFORM,hw_design=str(XSA),
-            cpu='psu_cortexr5_0',os='standalone',domain_name='r5_standalone',
-            no_boot_bsp=False,fsbl_target='psu_cortexa53_0',generate_dtb=False,compiler='gcc')
+        if resume:
+            platform=client.get_component(name=PLATFORM)
+        else:
+            boot={'no_boot_bsp':False,'fsbl_target':'psu_cortexa53_0'}
+            if TIMING:
+                fsbl=WS/'inputs/fsbl.elf'
+                fsbl.parent.mkdir(exist_ok=True)
+                shutil.copyfile(timing_fsbl(),fsbl)
+                boot={'no_boot_bsp':True,'fsbl_path':str(fsbl)}
+            platform=client.create_platform_component(name=PLATFORM,hw_design=str(XSA),
+                cpu='psu_cortexr5_0',os='standalone',domain_name='r5_standalone',
+                generate_dtb=False,compiler='gcc',**boot)
         if ETHERNET:
             domain=platform.get_domain('r5_standalone')
             if not (WS/PLATFORM/'psu_cortexr5_0/r5_standalone/bsp/libsrc/lwip220').exists():
@@ -402,10 +430,14 @@ def build(resume):
             app.set_app_config(key='USER_LINK_LIBRARIES',values=['m'])
         if ETHERNET:
             flags+=' -DMOTOR_CONTROL_ETHERNET=1'
+        if TIMING:
+            flags+=' -DAX04B_TIMING=1'
         app.set_app_config(key='USER_COMPILE_OTHER_FLAGS',values=flags)
         link_flags=f'-Wl,-Map={APP}.map'
         if ETHERNET:
             link_flags+=' -Wl,--wrap=outbyte'
+        if TIMING:
+            link_flags+=' -Wl,--wrap=Xil_DCacheFlushRange -Wl,--wrap=Xil_DCacheInvalidateRange'
         app.set_app_config(key='USER_LINK_OTHER_FLAGS',values=link_flags)
         ld=app.get_ld_script();ld.set_stack_size('0x10000');ld.set_heap_size('0x40000' if ETHERNET else '0x4000')
         if AX04B:
