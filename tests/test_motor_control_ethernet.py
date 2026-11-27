@@ -214,17 +214,22 @@ class MotorControlNetworkTests(unittest.TestCase):
     def test_real_calibrates_and_rejects_running_commands(self):
         with Loopback(build_fixture(self.compiler, self.output, 2)) as board, board.client() as client:
             self.assertEqual(client.request("version")["hardware_profile"], 2)
+            self.assertEqual(client.request("diagnostics")["rt_ctrl_enable"], 0)
             self.assertEqual(client.command(Action.CALIBRATE)["decision"], 4)
             for gains in ((0, 65536), (65536, -2147483649)):
                 with self.assertRaisesRegex(RequestError, "BAD_GAINS"):
                     client.request("calibration-gains", *gains)
             self.assertEqual(client.command(Action.CALIBRATE)["decision"], 4)
             self.assertTrue(client.request("calibration-gains", -65536, 65536)["staged"])
+            self.assertEqual(client.request("diagnostics")["rt_ctrl_enable"], 0)
             self.assertEqual(client.command(Action.CALIBRATE)["decision"], 0)
+            self.assertEqual(client.request("diagnostics")["rt_ctrl_enable"], 1)
             board.advance(1, 2)
             for action in (Action.ARM, Action.START, Action.SETPOINT, Action.ALIGN_START, Action.DRIVER_RESET):
                 self.assertEqual(client.command(action, Mode.CURRENT)["decision"], 5)
             self.assertFalse(client.request("status")["armed"])
+            self.assertEqual(client.command(Action.STOP)["decision"], 0)
+            self.assertEqual(client.request("diagnostics")["rt_ctrl_enable"], 0)
 
     def test_timing_window_and_trace_ownership(self):
         fixture = build_fixture(self.compiler, self.output, 1, timing=True)

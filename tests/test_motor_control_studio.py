@@ -283,9 +283,15 @@ class StudioTests(unittest.TestCase):
     def test_preparation_script_offline(self):
         from tkinter import Tcl
 
-        for profile in ("SELFTEST", "REAL"):
+        candidates = {"SELFTEST": "P61_TIMING_R02", "REAL": "GEM3_Control_REAL_IO_R03"}
+        for profile, directory in candidates.items():
             with self.subTest(profile=profile):
                 candidate = Candidate.load(profile)
+                root = ROOT / ".runtime/experiment/final" / directory
+                self.assertEqual(candidate.workspace, root / "vitis")
+                for artifact in (candidate.bit, candidate.ltx, candidate.xsa):
+                    self.assertEqual(artifact.parent, root / "hardware")
+                    self.assertEqual(artifact.stem, f"ax04b_{profile.lower()}")
                 path = self.output / f"prepare_{profile}.tcl"
                 candidate.save_xsdb(path)
                 tcl = Tcl()

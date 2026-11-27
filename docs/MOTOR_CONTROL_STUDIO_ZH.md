@@ -28,7 +28,7 @@ python -m venv .runtime/studio/venv
 | 无功率内部自测（旧版对照） | `GEM3_Control_SELFTEST_R01` | `Motor_Control_GEM3_SELFTEST_NoPower_R01` |
 | Issue #44 timing（SELFTEST、复用 PR61 硬件） | `P61_TIMING_R02` | `Motor_Control_GEM3_SELFTEST_P61_Timing_R02` |
 | PR61 无功率内部自测 + dq | `GEM3_Control_SELFTEST_P61_R01` | `Motor_Control_GEM3_SELFTEST_P61_NoPower_R01` |
-| 真实输入、功率硬禁 | `GEM3_Control_REAL_IO_R02` | `Motor_Control_GEM3_REAL_IO_NoPower_R02` |
+| 真实输入、功率硬禁（B6-1） | `GEM3_Control_REAL_IO_R03` | `Motor_Control_GEM3_REAL_IO_NoPower_R03` |
 
 “实验准备”页核对本地候选并生成 XSDB 辅助文件。也可通过命令行生成到新路径。
 
@@ -37,7 +37,7 @@ python -m venv .runtime/studio/venv
 .\scripts\start_motor_control_studio.ps1 -Prepare REAL -Output .\real_io_no_power.tcl
 ```
 
-生成脚本时只读取本地文件。`-Prepare SELFTEST` 和实验准备页的 SELFTEST 选择 Issue #44 timing 候选。PR61 原候选已通过实体 JTAG Debug、手动下载和无功率 CURRENT 验收。timing ELF 的板上验证为 `NOT_RUN`。经现场授权后使用所选 Workspace 的专用启动项，在 R5_0 入口暂停时手动下载配套 bit 和执行 PS–PL 初始化，再手动继续 R5_0。[GEM3 首运行](../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md) · [Issue #44 timing 候选](../firmware/r5/motor_control/IRQ_TIMING_ZH.md)
+生成脚本时只读取本地文件。SELFTEST 选 Issue #44 timing R02，REAL 选 B6-1 R03。经现场授权后使用对应 Workspace 的专用启动项，在 R5_0 入口暂停时手动下载配套 bit 和执行 PS–PL 初始化，再手动继续 R5_0。[REAL IO 分段首板步骤](../firmware/r5/motor_control/FIRST_BOARD_REAL_R03_ZH.md) · [Issue #44 timing 候选](../firmware/r5/motor_control/IRQ_TIMING_ZH.md)
 
 ## 运行与回读
 
@@ -45,7 +45,7 @@ PR61 的 A/B/C 验收先用 Studio 完成 STOP、校准、CURRENT 选择与确�
 
 - 在 SELFTEST，先点 **STOP 停止**，选择电流、速度、位置或对齐模式并提交相应给定，再点“确认选择”。清除故障并核对 CLEAR 后，显式申请 ARM，再执行 START 或“开始对齐”。运行给定单独提交。IDLE 通过 STOP 进入。模式下拉框编辑拟提交的模式，状态区显示固件已选择和实际运行的模式。
 - 回执区显示命令的接受或拒绝和接受版本。帧回读分列模型消费、Host 回执、COMMIT 接受及当前 P0 采用，按数据有效性显示。连接和重连只读取身份、状态及观测。
-- REAL IO 禁用功率相关操作。需要零偏校准时，先暂存两路本机实测的非零有符号 Q24 ADC 增益，再在零电流条件下显式发“零偏校准”。数值单位及命令门槛见协议。
+- REAL IO 禁用运行和驱动复位。零偏校准会请求打开 J16 共享控制／反馈缓冲。满足 R03 首板指南的现场前提后，暂存两路本机实测的非零有符号 Q24 ADC 增益，再在真实零电流条件下显式发“零偏校准”。
 - 图表按 PL 50 MHz 的 tick 绘制约 10 Hz 业务量。时间窗可切换为 10、20 或 60 秒，默认 20 秒。切换仅调整图表视野，保留最近 60 秒的显示缓存。通道可选，无效值、断连和新会话保留数据边界。“暂停绘图”冻结已绘制数据，仍可切换时间窗。STOP 始终位于顶部，在当前请求返回后优先发送。在途请求超时时连接中断，需重新核对设备状态和 STOP 回执。
 
 ## 记录与底层诊断
