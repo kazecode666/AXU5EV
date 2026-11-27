@@ -6,7 +6,9 @@ REAL IO 当前准备入口为 `.runtime/experiment/final/GEM3_Control_REAL_IO_R0
 
 R03 的 Vivado 布线后 STA 为 WNS +1.742 ns、WHS +0.010 ns、WPWS +4.000 ns，时序失败端点及布线错误均为 0。J15 28 路和 J16 16 路管脚核对通过。Vitis 从该套 XSA 构建 R5 ELF 和 A53 FSBL，成套离线检查返回 `OFFLINE_STARTUP_CHECK_PASS`。REAL 联接 210,603 项断言、AXI 866 项断言、R5/Studio REAL 本机回环和 Studio 双 profile 准备检查均通过。[B6-1 离线验证索引](../verification/experiment/ax04b/real_r03_offline.json)
 
-首次现场先启动开发板，确认 GEM3 与禁止状态，再分开核对 J15 原码、J16 电平和反馈。REAL 外部 PWM 六路、PWM_EN、RELCON、ENCON 硬禁止，ARM、START、SETPOINT、ALIGN_START 和 DRIVER_RESET 继续拒绝。现有 REAL CALIBRATE 会请求打开 J16 的 U2/U3 共用缓冲 `CTRL_EN`，STOP 与复位清零。带校准和共享反馈缓冲的步骤留待复审明确放行。实体启动、REAL IO、J15/J16 物理验收及功率运动均为 `NOT_RUN`。[分段首板步骤](../firmware/r5/motor_control/FIRST_BOARD_REAL_R03_ZH.md) · [B6-1 任务书](https://github.com/kazecode666/AXU5EV/issues/42#issuecomment-7211202786)
+PR63 已获限定范围离线复审 **OFFLINE_SCOPED_PASS**，文档收尾待最终复审。实体启动、REAL IO、J15/J16 物理验收、完整 ALIGNMENT 及功率运动均为 `NOT_RUN`。现场操作待用户另行授权。[PR63 复审](https://github.com/kazecode666/AXU5EV/pull/63#pullrequestreview-6086302671) · [B6-1 任务书](https://github.com/kazecode666/AXU5EV/issues/42#issuecomment-7211202786)
+
+获准后依次执行 A 开发板启动与 GEM3 回读、B J15 原码、C J16 电气检查与反馈。A 和 B 原码均保持 `CTRL_EN=0`。REAL CALIBRATE 可请求打开 U2 控制输出与 U3 反馈输入的共享缓冲，STOP 和复位清零。B 校准须 J16 完全空置，并具备真实零流、独立参考和两路实测 Q24 增益。C 经 U3 联调还须逐路电平核对、保持功率级和电机动力隔离、确认 J16 控制输出与 MBDL4 物理断开，仅接已验证反馈和公共地。缺实际增益时可做独立 VIO 电气检查，经 U3 联调暂缓。STOP 后核对请求和实际缓冲状态。六路外部 PWM、PWM_EN、RELCON、ENCON 继续硬禁止，ARM、START、SETPOINT、ALIGN_START 和 DRIVER_RESET 继续拒绝。[分段首板步骤](../firmware/r5/motor_control/FIRST_BOARD_REAL_R03_ZH.md)
 
 ## Issue #44 实时性测量
 

@@ -11,6 +11,12 @@
   "online_schema": 1,
   "generated_r5": "generated/experiment/ax04b_r1_01/r5",
   "model_version": "1.173",
+  "review": {
+    "status": "OFFLINE_SCOPED_PASS",
+    "reviewed_commit": "e816b9ad15e664e26ca75ed542bf269295b7023e",
+    "url": "https://github.com/kazecode666/AXU5EV/pull/63#pullrequestreview-6086302671",
+    "scope": "Existing offline evidence accepted. Final documentation review and separate user authorization for board work are pending."
+  },
   "vivado": {
     "version": "2026.1 build 6511674",
     "part": "xczu5ev-sfvc784-2-i",
@@ -127,8 +133,18 @@
     }
   },
   "ctrl_en": {
-    "qualification": "REVIEW_BEFORE_BOARD_CALIBRATION_OR_SHARED_J16_FEEDBACK",
-    "existing_real_behavior": "CALIBRATE requests the shared J16 U2/U3 buffer after both gains have been staged. STOP and reset clear the request.",
+    "existing_real_behavior": "After disarm and submission of the current calibration settings with both measured gains, CALIBRATE sets IO_CONTROL. STOP and reset clear the request. The PL output is gated by reset and lock status. U2 control outputs and U3 feedback inputs share the enable.",
+    "f_reset_n": "Independent output, expected high in the inhibited state.",
+    "host_evidence_scope": "Register request readback. Physical pin and buffer state are NOT_RUN.",
+    "field_prerequisites": {
+      "authorization": "Separate user authorization required for all physical work.",
+      "a_board_startup": "J15 and J16 disconnected, CTRL_EN=0.",
+      "b_adc_raw": "J16 disconnected, CTRL_EN=0.",
+      "b_current_calibration": "J16 completely disconnected, complete sensor chain, independent current reference, verified zero current and two measured nonzero signed Q24 gains. Existing CTRL_EN request allowed under these conditions.",
+      "c_shared_j16_feedback": "Power stage and motor power disconnected. Keep J16 control and PWM outputs physically disconnected from MBDL4 at J2. Connect only verified feedback lines and common ground. Complete per-line electrical checks and use the existing calibration only with a valid independent current reference, zero current and both measured gains.",
+      "c_without_measured_gains": "Independent VIO electrical checks may proceed under field authorization. Defer R03 feedback through U3 and leave gains unset.",
+      "stop_readback": "Check IO_CONTROL=0 and diagnostic word 78 bit 11=0. After using the shared buffer verify the physical CTRL_EN low and, with the interface fitted, shared /OE high."
+    },
     "hard_low_outputs": ["PWM1", "PWM2", "PWM3", "PWM4", "PWM5", "PWM6", "PWM_EN", "RELCON", "ENCON"]
   },
   "board": {
@@ -138,6 +154,7 @@
     "J15_PHYSICAL_ADC": "NOT_RUN",
     "J16_PHYSICAL_FEEDBACK": "NOT_RUN",
     "PHYSICAL_CURRENT_CALIBRATION": "NOT_RUN",
+    "FULL_ALIGNMENT": "NOT_RUN",
     "REAL_IO": "NOT_RUN",
     "POWER_MOTION": "NOT_RUN"
   }
