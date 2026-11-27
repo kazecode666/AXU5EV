@@ -5,7 +5,10 @@
 | SELFTEST R01（旧版对照） | `.runtime/experiment/final/GEM3_Control_SELFTEST_R01` | `Motor_Control_GEM3_SELFTEST_NoPower_R01` |
 | PR61 SELFTEST + dq（内部合成 ADC/ABZ） | `.runtime/experiment/final/GEM3_Control_SELFTEST_P61_R01` | `Motor_Control_GEM3_SELFTEST_P61_NoPower_R01` |
 | Issue #44 SELFTEST timing（PR62 复审候选、PR61 硬件） | `.runtime/experiment/final/P61_TIMING_R02` | `Motor_Control_GEM3_SELFTEST_P61_Timing_R02` |
-| REAL IO（真实输入、功率输出硬禁止） | `.runtime/experiment/final/GEM3_Control_REAL_IO_R02` | `Motor_Control_GEM3_REAL_IO_NoPower_R02` |
+| REAL IO R02（历史候选） | `.runtime/experiment/final/GEM3_Control_REAL_IO_R02` | `Motor_Control_GEM3_REAL_IO_NoPower_R02` |
+| REAL IO R03（B6-1） | `.runtime/experiment/final/GEM3_Control_REAL_IO_R03` | `Motor_Control_GEM3_REAL_IO_NoPower_R03` |
+
+R03 的启动和 J15/J16 分段验收见 [REAL IO 无功率首板步骤](FIRST_BOARD_REAL_R03_ZH.md)。
 
 使用一套候选目录内的 `hardware/ax04b_{selftest,real}.{xsa,bit,ltx}`、`vitis/ax04b_realtime/build/ax04b_realtime.elf`、`vitis/ax04b_platform/export/ax04b_platform/sw/boot/fsbl.elf` 和对应启动项。内部工程组件沿用原名。需要现场授权后才可按 [AX-04B 首运行步骤](FIRST_RUN_AX04B_ZH.md)连接板卡。使用本表中的候选替换指南中的 R1 路径与启动项，保持驱动级、电机和功率电源断开。
 
@@ -20,6 +23,15 @@ python scripts/motor_control_build.py --check-startup
 ```
 
 检查命令在本地文件上运行。核对 `OFFLINE_STARTUP_CHECK_PASS`、应用身份 `0x41585205`、PL INTID 121、GEM3 INTID 95 和对应 profile。
+
+R03 在新目录用当前 REAL + dq 源综合、实现和导出，再从本次 XSA 构建 R5 和 A53 FSBL。以下命令首次构建时从仓库根目录运行，部署工作区和 Vivado 输出目录需为新目录。
+
+```powershell
+.\scripts\motor_control_build_hw.ps1 -Stage all -Profile REAL -Ax05aObservation -Output .runtime/experiment/ax04b/b6_r03/hardware
+$env:MOTOR_CONTROL_CONFIG = 'firmware/r5/motor_control/build_config.gem3.real.r03.json'
+& E:/AMDDesignTools/2026.1/Vitis/bin/vitis.bat -s scripts/motor_control_build.py
+python scripts/motor_control_build.py --check-startup
+```
 
 ## PR61 SELFTEST + dq 启动
 

@@ -1,5 +1,13 @@
 # AXU5EV 当前交接
 
+## Issue #42 · B6-1 REAL IO
+
+REAL IO 当前准备入口为 `.runtime/experiment/final/GEM3_Control_REAL_IO_R03`，Vitis 启动项 `Motor_Control_GEM3_REAL_IO_NoPower_R03`。Studio 的 REAL 准备选择 R03。Vivado 的 REAL + dq 构建源采用含 PR61 P75.5 修复及 PR62 的 main `f077881ea203401cf01c29cd226c85160541559c`，复用模型 1.173 的生成 C 及既有生成 HDL。PR62 的专用时序记录编译选项仍用于 SELFTEST。旧 REAL R02 保留历史入口。
+
+R03 的 Vivado 布线后 STA 为 WNS +1.742 ns、WHS +0.010 ns、WPWS +4.000 ns，时序失败端点及布线错误均为 0。J15 28 路和 J16 16 路管脚核对通过。Vitis 从该套 XSA 构建 R5 ELF 和 A53 FSBL，成套离线检查返回 `OFFLINE_STARTUP_CHECK_PASS`。REAL 联接 210,603 项断言、AXI 866 项断言、R5/Studio REAL 本机回环和 Studio 双 profile 准备检查均通过。[B6-1 离线验证索引](../verification/experiment/ax04b/real_r03_offline.json)
+
+首次现场先启动开发板，确认 GEM3 与禁止状态，再分开核对 J15 原码、J16 电平和反馈。REAL 外部 PWM 六路、PWM_EN、RELCON、ENCON 硬禁止，ARM、START、SETPOINT、ALIGN_START 和 DRIVER_RESET 继续拒绝。现有 REAL CALIBRATE 会请求打开 J16 的 U2/U3 共用缓冲 `CTRL_EN`，STOP 与复位清零。带校准和共享反馈缓冲的步骤留待复审明确放行。实体启动、REAL IO、J15/J16 物理验收及功率运动均为 `NOT_RUN`。[分段首板步骤](../firmware/r5/motor_control/FIRST_BOARD_REAL_R03_ZH.md) · [B6-1 任务书](https://github.com/kazecode666/AXU5EV/issues/42#issuecomment-7211202786)
+
 ## Issue #44 实时性测量
 
 PR62 的 R02 候选 `.runtime/experiment/final/P61_TIMING_R02`（实测固件 `cb5ffee8c9453435ee75aada9008c4cb1a31b7d1`）复用 PR61 的 bit、LTX、XSA 和 A53 FSBL。Studio 的 SELFTEST 准备入口选择 R02，R01 保留。[启动、字段和现场步骤](../firmware/r5/motor_control/IRQ_TIMING_ZH.md) · [PR62](https://github.com/kazecode666/AXU5EV/pull/62)
@@ -20,7 +28,7 @@ PR62 的 R02 候选 `.runtime/experiment/final/P61_TIMING_R02`（实测固件 `c
 
 ## GEM3 电机控制候选
 
-[Issue #53](https://github.com/kazecode666/AXU5EV/issues/53) 整合 GEM3 与现有 R5 实机控制。应用身份 `0x41585205`，PL INTID 121 和 GEM3 INTID 95 共用一套 GIC。GEM IRQ 只屏蔽自身并置标志。GEM3 驱动和 TCP 在可抢占的前台运行，UART 仅输出少量启动信息。控制命令、有效性、回读和记录复用 #52 的在线 API。当前候选为 `.runtime/experiment/final/GEM3_Control_SELFTEST_R01` 和 `.runtime/experiment/final/GEM3_Control_REAL_IO_R02`，两套均通过离线启动检查。REAL 硬禁止保留。
+[Issue #53](https://github.com/kazecode666/AXU5EV/issues/53) 整合 GEM3 与现有 R5 实机控制。应用身份 `0x41585205`，PL INTID 121 和 GEM3 INTID 95 共用一套 GIC。GEM IRQ 只屏蔽自身并置标志。GEM3 驱动和 TCP 在可抢占的前台运行，UART 仅输出少量启动信息。控制命令、有效性、回读和记录复用 #52 的在线 API。初版 `.runtime/experiment/final/GEM3_Control_SELFTEST_R01` 和 `.runtime/experiment/final/GEM3_Control_REAL_IO_R02` 均通过离线启动检查，按历史候选保留。
 
 Studio 复用 [Python 客户端](../scripts/motor_control_client.py)与 [TCP 消息接口](../integration/r5_ethernet/MOTOR_CONTROL_GEM3_ZH.md)。[构建与无功率首运行](../firmware/r5/motor_control/FIRST_RUN_GEM3_ZH.md) · [结果索引](../verification/experiment/motor_control_gem3/results.json) · [验证报告](reports/motor_control_gem3.md)。
 
@@ -60,4 +68,4 @@ Studio 复用 [Python 客户端](../scripts/motor_control_client.py)与 [TCP 消
 
 - [#42 AQM 实机集成](https://github.com/kazecode666/AXU5EV/issues/42)跟踪物理标定、未确认的机械参数和现场验收。实机模型采用 AQM30-B2 Parallel 候选参数，实际 ADC 零偏/增益/极性、编码器尺度与方向、运动总质量及外环候选值的适用性仍需现场证据。
 - [#44 IRQ→COMMIT 实板时延](https://github.com/kazecode666/AXU5EV/issues/44)归档 R02 无功率 SELFTEST 的 ARM 实测、目标帧验收与限定范围签核。
-- 分别取得现场授权后，按[无功率首运行指南](../firmware/r5/motor_control/FIRST_RUN_AX04B_ZH.md)先进入 B5 SELFTEST，再进入 B6 REAL 真实输入和禁止态核对。功率运动另行授权。
+- B5 SELFTEST 的限定验收已归档。B6 REAL 按 [R03 分段首板步骤](../firmware/r5/motor_control/FIRST_BOARD_REAL_R03_ZH.md)推进。现场操作和功率运动分别授权。

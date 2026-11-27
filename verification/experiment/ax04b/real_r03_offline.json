@@ -1,0 +1,144 @@
+{
+  "issue": "https://github.com/kazecode666/AXU5EV/issues/42#issuecomment-7211202786",
+  "base": "f077881ea203401cf01c29cd226c85160541559c",
+  "profile": "REAL",
+  "candidate": ".runtime/experiment/final/GEM3_Control_REAL_IO_R03",
+  "launch": "Motor_Control_GEM3_REAL_IO_NoPower_R03",
+  "config": "firmware/r5/motor_control/build_config.gem3.real.r03.json",
+  "application_id": "0x41585205",
+  "pl_interface_id": "0x41584201",
+  "dq_extension_id": "0x41583501",
+  "online_schema": 1,
+  "generated_r5": "generated/experiment/ax04b_r1_01/r5",
+  "model_version": "1.173",
+  "vivado": {
+    "version": "2026.1 build 6511674",
+    "part": "xczu5ev-sfvc784-2-i",
+    "hardware_source": ".runtime/experiment/ax04b/b6_r03/hardware",
+    "export": "AX04B_BUILD_PASS REAL",
+    "log": ".runtime/experiment/ax04b/b6_r03/hardware.console.log",
+    "rtl_sources_from_base": 63,
+    "synthesis": "PASS",
+    "routing": "PASS",
+    "routed_nets": 153651,
+    "routing_errors": 0,
+    "sta": "PASS",
+    "wns_ns": 1.742,
+    "whs_ns": 0.010,
+    "wpws_ns": 4.000,
+    "timing_failure_endpoints": 0,
+    "unconstrained_internal_endpoints": 0,
+    "adc_inputs": 26,
+    "adc_setup_ns": 1.766,
+    "adc_hold_ns": 5.448,
+    "debug_hub_bus_skew_checks": 4,
+    "debug_hub_bus_skew_min_slack_ns": 9.075,
+    "drc_errors": 0,
+    "drc_critical_warnings": 0,
+    "drc_warnings": {"DPIP-2": 287, "DPOP-3": 210, "DPOP-4": 302, "PDCN-1569": 3, "REQP-1617": 2, "RTSTAT-10": 1},
+    "pin_audit": {
+      "status": "PASS",
+      "j15_lvcmos33": 28,
+      "j16_lvcmos33": 16,
+      "report": ".runtime/experiment/ax04b/b6_r03/hardware/reports/j15_j16_verified.csv",
+      "first_stage_synchronizers": {"abz": 3, "faults": 2}
+    },
+    "check_timing_notes": {
+      "j16_async_inputs": "Five existing input exceptions end at the named first-stage synchronizers",
+      "j16_without_output_delay": ["j16_ctrl_enable_o", "j16_f_reset_n_o"],
+      "adc_forwarded_clocks": "Both clocks are modeled. Vivado retained the prior IOB placement warning for both forwarded-clock registers. Pin waveforms are NOT_RUN."
+    },
+    "qualification_paths": {
+      "p75_to_p75_5_setup_ns": 6.532,
+      "p75_to_p75_5_hold_ns": 10.104,
+      "p75_5_to_p76_axi_setup_ns": 6.128,
+      "p75_5_to_p76_axi_hold_ns": 10.236,
+      "pwm_async_clear_endpoints": 270,
+      "pwm_recovery_ns": 2.051,
+      "pwm_removal_ns": 0.784,
+      "paths": ".runtime/experiment/ax04b/b6_r03/hardware/reports/qualification/paths.tsv"
+    }
+  },
+  "vitis": {
+    "version": "2026.1 build 6511674",
+    "build": "MOTOR_CONTROL_R5_BUILD_PASS",
+    "log": ".runtime/experiment/ax04b/b6_r03/vitis.console.log",
+    "startup": "OFFLINE_STARTUP_CHECK_PASS",
+    "startup_check": ".runtime/experiment/final/GEM3_Control_REAL_IO_R03/vitis/startup_validation.json",
+    "independent_startup_check": ".runtime/experiment/ax04b/b6_r03/independent_startup_check.json",
+    "build_mode": 2,
+    "frame_intid": 121,
+    "gem3_intid": 95,
+    "tcp_port": 5002,
+    "irq_timing_recorder": "SELFTEST_ONLY",
+    "xsa_embedded_bit_matches": true,
+    "exported_platform_xsa_matches": true,
+    "ila_uuid_matches_bitstream_run": "7AE3A892EF9156C397CEF9A000C42F3C"
+  },
+  "prior_candidates": {
+    "real_r02": {
+      "candidate": ".runtime/experiment/final/GEM3_Control_REAL_IO_R02",
+      "profile": "REAL",
+      "config": "firmware/r5/motor_control/build_config.gem3.real.json",
+      "hardware_source": ".runtime/experiment/ax04b/real_ax05a_03/hardware",
+      "imported_ax04b_main_matches": "21da41cfd1c0bc1c10e8cb591f953739cbe790fd"
+    },
+    "selftest_timing_r02": {
+      "candidate": ".runtime/experiment/final/P61_TIMING_R02",
+      "profile": "SELFTEST",
+      "config": "firmware/r5/motor_control/build_config.gem3.selftest.timing.json",
+      "hardware_and_fsbl_source": ".runtime/experiment/final/GEM3_Control_SELFTEST_P61_R01",
+      "board_firmware_commit": "cb5ffee8c9453435ee75aada9008c4cb1a31b7d1",
+      "local_imported_ax04b_main_diff": "One whitespace-only line in main"
+    }
+  },
+  "rtl": {
+    "xsim": "2026.1",
+    "real_chain": {
+      "status": "PASS",
+      "checks": 210603,
+      "dq_observation": true,
+      "phases_observed": {"irq": 76, "join": 110, "result": 443, "apply": 2500, "confirm": 2504},
+      "summary": ".runtime/experiment/ax04b/b6_r03/rtl-real/summary.json"
+    },
+    "atomic_feedback_and_reference_axi": {
+      "status": "PASS",
+      "checks": 866,
+      "summary": ".runtime/experiment/ax04b/b6_r03/rtl-axi/summary.json"
+    }
+  },
+  "host": {
+    "r5_gem3_real_local_tcp": {
+      "status": "PASS",
+      "test": "MotorControlNetworkTests.test_real_calibrates_and_rejects_running_commands",
+      "scope": "REAL profile, measured-gain command gates and signed transport, CALIBRATE and STOP buffer request readback, ARM/START/SETPOINT/ALIGN_START/DRIVER_RESET refusal"
+    },
+    "studio_real_local_tcp": {
+      "status": "PASS",
+      "test": "StudioTests.test_real_widgets_calibrate_without_motion",
+      "scope": "REAL controls and calibration, trend capture and disconnect behavior"
+    },
+    "studio_preparation": {
+      "status": "PASS",
+      "test": "StudioTests.test_preparation_script_offline",
+      "real": "GEM3_Control_REAL_IO_R03",
+      "selftest": "P61_TIMING_R02",
+      "xsdb_execution": "TCL_STUBS_ONLY"
+    }
+  },
+  "ctrl_en": {
+    "qualification": "REVIEW_BEFORE_BOARD_CALIBRATION_OR_SHARED_J16_FEEDBACK",
+    "existing_real_behavior": "CALIBRATE requests the shared J16 U2/U3 buffer after both gains have been staged. STOP and reset clear the request.",
+    "hard_low_outputs": ["PWM1", "PWM2", "PWM3", "PWM4", "PWM5", "PWM6", "PWM_EN", "RELCON", "ENCON"]
+  },
+  "board": {
+    "JTAG_STARTUP": "NOT_RUN",
+    "GEM3_PHY_TCP": "NOT_RUN",
+    "ARM_EXECUTION": "NOT_RUN",
+    "J15_PHYSICAL_ADC": "NOT_RUN",
+    "J16_PHYSICAL_FEEDBACK": "NOT_RUN",
+    "PHYSICAL_CURRENT_CALIBRATION": "NOT_RUN",
+    "REAL_IO": "NOT_RUN",
+    "POWER_MOTION": "NOT_RUN"
+  }
+}
